@@ -75,6 +75,12 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-09 — Stage 4 Prompt 4
+- **Completed:** Implemented the Resource Handle Layer in `kogniq-content/resource`. Created `ResourceHandle`, `ContentSource`, `LifecycleState`, `Checksum`, and `AbstractStreamReference`.
+- **Files Changed:** `packages/content/src/content/resource/*`, `packages/content/tests/test_resource.py`, `docs/architecture/resource-handle.md`.
+- **Architecture Changes:** Parsers now interact with an abstract, strictly validated `ResourceHandle` instead of raw file paths, preparing the system for arbitrary storage backends (S3, MinIO, etc.).
+- **Validation:** 100% pass on pytest, mypy, and ruff.
+
 ### 2026-07-09 — Stage 4 Prompt 3
 - **Completed:** Implemented the Normalized Document Model in `kogniq-content`. Created immutable models for Document, Page, Block, Span, and Metadata.
 - **Files Changed:** `packages/content/src/content/normalized/*`, `packages/content/tests/test_normalized.py`, `docs/architecture/normalized-document.md`.
