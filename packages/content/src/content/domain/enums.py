@@ -1,0 +1,20 @@
+from enum import StrEnum
+
+
+class ResourceType(StrEnum):
+    PDF = "PDF"
+    YOUTUBE_PLAYLIST = "YOUTUBE_PLAYLIST"
+    YOUTUBE_VIDEO = "YOUTUBE_VIDEO"
+    MARKDOWN = "MARKDOWN"
+    TEXT = "TEXT"
+    BOOK = "BOOK"
+    DOCUMENT = "DOCUMENT"
+
+
+class ProcessingStatus(StrEnum):
+    UPLOADED = "UPLOADED"
+    VALIDATING = "VALIDATING"
+    VALIDATED = "VALIDATED"
+    PROCESSING = "PROCESSING"
+    PROCESSED = "PROCESSED"
+    FAILED = "FAILED"

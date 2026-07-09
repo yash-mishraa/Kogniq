@@ -77,9 +77,16 @@ The future system will expose learning experiences through a frontend, coordinat
 
 `apps/web` will own accessible learner and contributor experiences, client state, and presentation—not domain truth or model logic.
 
-### Domain
+### packages/content (`kogniq-content`)
 
-`packages/domain` owns examination-neutral business language and bounded contexts for learning, assessment, student, documents, analytics, and recommendation.
+- Pure-Python orchestration layer for the Content Intelligence Pipeline.
+- **Bounded Context**: Transforms raw resources into sections, chunks, and metadata.
+- **Key Concepts**: `LearningResource`, `ResourceSection`, `ResourceChunk`, `ContentProcessingPipeline`.
+- **Invariants**: Strictly immutable events and results, pure abstract interface definitions.
+
+### packages/learning (`kogniq-learning`)
+
+Own examination-neutral business language and bounded contexts for learning, assessment, student, documents, analytics, and recommendation.
 
 ### ML
 

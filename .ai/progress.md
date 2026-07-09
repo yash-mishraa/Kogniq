@@ -2,7 +2,7 @@
 
 ## Current Stage
 
-Stage 1 — Monorepo Foundation (In Progress)
+Stage 4.1 — Content Intelligence Foundation (In Progress)
 
 ## Current Prompt
 
@@ -38,6 +38,8 @@ Stage 1 Prompt 3 — FastAPI Core & Backend Foundation.
 ## In Progress
 
 - Human review and acceptance of the FastAPI backend foundation.
+- **[DONE]** Stage 3: Learning Domain Foundation (Decoupled Domain Layer)
+- **[DONE]** Stage 4.1: Content Intelligence Foundation (Pipeline and Domain Logic)
 
 ## Blocked
 
@@ -92,7 +94,16 @@ Append new entries; never remove earlier sessions.
 - **Validation:** Reviewed all Markdown references to the legacy name and GATE-specific identity.
 - **Future Work:** Obtain human review and await explicit direction; do not implement domain plugins or advance roadmap stages automatically.
 
-### 2026-07-09 — Stage 0.5 Prompt 1
+### 2026-07-09 — Stage 4 Prompt 1
+- **Completed:** Implemented Content Intelligence Foundation in `kogniq-content`. Created entities, value objects, events, interfaces, and orchestrator.
+- **Files Changed:** `packages/content/*`, `pyproject.toml`, `apps/api/pyproject.toml`, `.ai/*`, `docs/architecture/content-domain.md`.
+- **Architecture Changes:** Added `kogniq-content` workspace member.
+- **New Decisions:** No active framework leakage in pipeline processing.
+- **Known Issues:** None.
+- **Validation:** 100% test pass on pytest, mypy, and ruff.
+- **Future Work:** Concrete OCR and AI implementations for the pipeline.
+
+### 2026-07-09 — Stage 3.1 Prompt 1
 
 - **Completed:** Created the Repository Intelligence Layer and integrated it into the AI context workflow.
 - **Files Changed:** Added `.ai/glossary.md`, `.ai/product_requirements.md`, `.ai/system_constraints.md`, `.ai/data_dictionary.md`, `.ai/architecture_decision_flow.md`, and `.ai/prompts/README.md`; updated `.ai/design.md`, `.ai/handoff.md`, `.ai/coding_rules.md`, and `.ai/progress.md`.

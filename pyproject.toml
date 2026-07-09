@@ -43,6 +43,7 @@ members = [
     "apps/api",
     "packages/shared",
     "packages/learning",
+    "packages/content",
 ]
 
 [tool.ruff]
@@ -87,9 +88,13 @@ ignore = [
 "packages/learning/tests/**/*.py" = [
     "ANN201", # Test functions commonly communicate through assertions, not return types.
 ]
+"packages/content/tests/**/*.py" = [
+    "ANN201",
+    "ARG002",
+]
 
 [tool.ruff.lint.isort]
-known-first-party = ["apps", "shared", "learning"]
+known-first-party = ["apps", "shared", "learning", "content"]
 combine-as-imports = true
 
 [tool.ruff.format]
@@ -104,8 +109,8 @@ python_version = "3.12"
 strict = true
 namespace_packages = true
 explicit_package_bases = true
-mypy_path = ["apps/api/src", "packages/shared/src", "packages/learning/src"]
-files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared", "packages/learning/src/learning", "packages/learning/tests"]
+mypy_path = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src"]
+files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared", "packages/learning/src/learning", "packages/learning/tests", "packages/content/src/content", "packages/content/tests"]
 exclude = [
     "(^|/)\\.venv/",
     "(^|/)build/",
@@ -119,12 +124,13 @@ pretty = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-testpaths = ["apps/api/tests", "tests", "packages/learning/tests"]
-pythonpath = ["apps/api/src", "packages/shared/src", "packages/learning/src"]
+testpaths = ["apps/api/tests", "tests", "packages/learning/tests", "packages/content/tests"]
+pythonpath = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
+    "--import-mode=importlib",
     "--strict-config",
     "--strict-markers",
 ]

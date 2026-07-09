@@ -11,7 +11,12 @@ Kogniq aims to transition standard educational experiences into intelligent, dat
 
 ## 🏗 Architecture Overview
 The platform enforces a strict separation of concerns utilizing Clean Architecture principles:
-- **Domain-Driven Design:** Business rules are entirely decoupled from frameworks.
+- **Domain-Driven Design:** Business rules are entirely decoupled
+### Platform Capabilities
+* **`apps/api`**: FastAPI backend infrastructure, database sessions, and endpoints.
+* **`packages/content`**: Content Intelligence Domain. Semantic chunking, PDF parsing interfaces, pipeline orchestration.
+* **`packages/learning`**: Learning Intelligence Domain. Strict entity logic, PR validator, DDD architecture.
+* **`packages/shared`**: Cross-cutting utilities, generic types, and configuration.
 - **RAG & Agentic AI:** Integrates language models for contextual learning, validated generation, and deep semantic search.
 - **Modular Monorepo:** Python `uv`-based workspace scaling across APIs, Shared Core, and Domain Plugins.
 

@@ -14,7 +14,7 @@ class PrerequisiteValidator:
     ) -> None:
         """
         Validates that adding `new_prerequisite_id` to `target_concept_id` does not create a cycle.
-        `all_concepts` should be the subset of concepts connected to this graph, 
+        `all_concepts` should be the subset of concepts connected to this graph,
         provided by a repository.
         """
         if target_concept_id == new_prerequisite_id:

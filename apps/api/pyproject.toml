@@ -11,6 +11,7 @@ dependencies = [
     "fastapi>=0.116,<1",
     "kogniq-shared",
     "kogniq-learning",
+    "kogniq-content",
     "pydantic-settings>=2.10,<3",
     "sqlalchemy>=2.0",
     "uvicorn[standard]>=0.35,<1",
@@ -26,3 +27,4 @@ packages = ["src/apps"]
 [tool.uv.sources]
 kogniq-shared = { workspace = true }
 kogniq-learning = { workspace = true }
+kogniq-content = { workspace = true }

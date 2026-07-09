@@ -13,7 +13,7 @@ class DifficultyLevel(StrEnum):
 class Difficulty:
     """
     Represents the difficulty of a learning resource, concept, or question.
-    Encapsulates both a qualitative level and an optional quantitative score 
+    Encapsulates both a qualitative level and an optional quantitative score
     (e.g., item response theory parameter).
     """
 
