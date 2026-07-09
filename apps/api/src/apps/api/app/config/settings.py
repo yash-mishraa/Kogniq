@@ -2,7 +2,7 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from shared.config import Environment
@@ -42,6 +42,29 @@ class APISettings(BaseSettings):
     build: str = "local"
     commit: str = "unknown"
     log_level: str = DEFAULT_LOG_LEVEL
+
+    # Database Configuration
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
+    postgres_db: str = "kogniq"
+    postgres_user: str = "kogniq_user"
+    postgres_password: str = "kogniq_dev_password"
+
+    sqlalchemy_echo: bool = False
+    database_pool_size: int = Field(default=5, ge=1)
+    database_max_overflow: int = Field(default=10, ge=0)
+
+    @property
+    def database_url(self) -> PostgresDsn:
+        """Dynamically construct the async database URL from components."""
+        return PostgresDsn.build(
+            scheme="postgresql+asyncpg",
+            username=self.postgres_user,
+            password=self.postgres_password,
+            host=self.postgres_host,
+            port=self.postgres_port,
+            path=f"{self.postgres_db}",
+        )
 
     cors_origins: list[str] = Field(default_factory=list)
     cors_allow_credentials: bool = False

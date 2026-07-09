@@ -1,3 +1,0 @@
-@echo off
-echo Status of Kogniq Local Development Environment...
-docker compose ps

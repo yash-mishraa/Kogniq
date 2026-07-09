@@ -2,8 +2,9 @@
 
 from time import monotonic
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 
+from apps.api.app.db.health import check_database_health
 from apps.api.app.dependencies import SettingsDependency
 from apps.api.app.schemas.system import HealthResponse
 
@@ -14,6 +15,13 @@ router = APIRouter(prefix="/system", tags=["system"])
 async def health(request: Request, settings: SettingsDependency) -> HealthResponse:
     """Report process health without probing external dependencies."""
     started_at = float(request.app.state.started_at)
+    engine = getattr(request.app.state, "engine", None)
+
+    if engine:
+        is_db_healthy = await check_database_health(engine)
+        if not is_db_healthy:
+            raise HTTPException(status_code=503, detail="Database is unavailable")
+
     return HealthResponse(
         status="ok",
         version=settings.app_version,

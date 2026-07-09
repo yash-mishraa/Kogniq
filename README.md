@@ -1,61 +1,103 @@
 # Kogniq
 
-Kogniq is an open-source **AI Learning Intelligence Platform** being built to personalize how learners study, practice, and revise. Its planned intelligence layer combines retrieval-augmented generation (RAG), knowledge graphs, student modeling, recommendation systems, fine-tuned language models, and agentic AI.
+An open-source AI Learning Intelligence Platform designed to elevate domain-specific knowledge acquisition through Retrieval-Augmented Generation (RAG), Knowledge Graphs, and intelligent recommendation systems.
 
-**GATE is the first supported learning domain and reference implementation; Kogniq is the reusable platform.**
+*Note: This is a robust AI orchestration backend for learning domains. It is NOT just a chatbot.*
 
-## What is Kogniq?
+---
 
-Kogniq is designed to connect curriculum knowledge, learning evidence, grounded AI assistance, and personalized study decisions in one modular system. Domain-specific curricula and assessment rules remain isolated behind learning-domain plugins so the platform can support additional educational domains without hardcoding them into the core.
+## 🎯 Vision
+Kogniq aims to transition standard educational experiences into intelligent, data-driven platforms. By understanding both the structure of the domain (Knowledge Graphs) and the student's mastery profile (Student Modeling), it creates highly effective adaptive learning pathways.
 
-## Project Status
+## 🏗 Architecture Overview
+The platform enforces a strict separation of concerns utilizing Clean Architecture principles:
+- **Domain-Driven Design:** Business rules are entirely decoupled from frameworks.
+- **RAG & Agentic AI:** Integrates language models for contextual learning, validated generation, and deep semantic search.
+- **Modular Monorepo:** Python `uv`-based workspace scaling across APIs, Shared Core, and Domain Plugins.
 
-**Under active development — Stage 1: Engineering Foundation.** The modular workspace, Python toolchain, and minimal shared scaffolding exist. Product features and the planned AI capabilities are not yet implemented.
+## 🛠 Tech Stack
+- **Language:** Python 3.12+ (Strictly Typed)
+- **API Framework:** FastAPI with Uvicorn
+- **Persistence:** PostgreSQL with SQLAlchemy 2.x and asyncpg
+- **Migrations:** Alembic
+- **Caching/Queues:** Redis (Planned)
+- **Dependency Management:** `uv`
+- **Linting & Quality:** Ruff, MyPy, Pytest
 
-## Architecture Overview
+## 📂 Repository Structure
+```text
+Kogniq/
+├── apps/               # Executable applications (e.g., API)
+├── packages/           # Internal shared libraries (e.g., core domain logic)
+├── docs/               # Technical and developer documentation
+├── scripts/            # Advanced non-interactive operational utilities
+├── tests/              # E2E integration tests (module tests live inside apps/packages)
+└── docker-compose.yml  # Local infrastructure orchestration
+```
 
-The planned platform separates domain-neutral learning intelligence from pluggable examination content and rules, user experience, application services, knowledge systems, and operational concerns. Boundaries and dependencies are documented in [`.ai/design.md`](.ai/design.md); technology choices remain intentionally undecided.
+## 🚀 Quick Start
 
-## Repository Structure
+### 1. Installation
+1. Install [uv](https://github.com/astral-sh/uv).
+2. Install [Docker](https://docs.docker.com/get-docker/).
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/yash-mishraa/Kogniq.git
+   cd Kogniq
+   ```
+4. Copy environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+5. Install dependencies and setup the virtual environment:
+   ```bash
+   make setup
+   ```
 
-| Path | Planned responsibility |
-| --- | --- |
-| `.ai/` | Durable context, architecture, decisions, and handoffs |
-| `apps/api/` | Future application workflows and external contracts |
-| `apps/web/` | Future accessible browser experience |
-| `packages/shared/` | Minimal reusable contracts and primitives |
-| `packages/domain/` | Examination-neutral bounded contexts |
-| `packages/ml/` | Future predictive models and knowledge tracing |
-| `packages/rag/` | Future retrieval and grounded generation |
-| `packages/agents/` | Future bounded agent orchestration |
-| `packages/knowledge_graph/` | Future concept graph models and pipelines |
-| `packages/evaluation/` | Future quality and release evaluation |
-| `infrastructure/` | Reserved operational boundary; no implementation |
-| `datasets/` | Dataset documentation and governed manifests |
-| `experiments/` | Reproducible research experiments |
-| `scripts/` | Repository-wide operational utilities |
-| `docs/` | User, developer, and operational documentation |
-| `tests/` | Cross-module and end-to-end tests |
-| `.github/` | Future GitHub collaboration and CI configuration |
+### 2. Local Infrastructure (Docker)
+Start the PostgreSQL and Redis containers:
+```bash
+make docker-up
+```
 
-Workspace dependency rules and tooling status are summarized in [`WORKSPACE.md`](WORKSPACE.md).
+*Ensure the database is healthy:*
+```bash
+make docker-status
+```
 
-## Roadmap Summary
+### 3. Database Migrations
+Initialize your database schema:
+```bash
+make db-upgrade
+```
 
-The roadmap progresses from repository planning through infrastructure foundations, product surfaces, intelligence systems, integration, hardening, and production deployment. Milestones and completion criteria are maintained in [`.ai/roadmap.md`](.ai/roadmap.md).
+### 4. Running Locally
+Start the local FastAPI development server:
+```bash
+make dev
+```
+The API will be accessible at `http://127.0.0.1:8000`.
 
-## How AI Agents Should Work
+## 🧪 Quality Commands
+Ensure your code meets the quality standards before committing:
+- **Format & Lint:** `make format` & `make lint`
+- **Type Checking:** `make typecheck`
+- **Testing:** `make test`
+- **Run Everything:** `make quality`
 
-Before making changes, every AI agent must follow [`.ai/handoff.md`](.ai/handoff.md), read the required context files, respect recorded decisions, and update progress before ending a session.
+## 📘 Development Workflow
+For deeper insights on repository ergonomics, backend architecture, and troubleshooting, please read our [Development Guide](docs/development.md).
 
-## Future Modules
+## 🗺 Roadmap
+- [x] Foundation & Monorepo Setup
+- [x] Database Persistence & Clean Architecture
+- [ ] Authentication & User Identity Management
+- [ ] Knowledge Graph Integration & RAG Engine
+- [ ] Adaptive Student Modeling & Agentic Plugins
+- [ ] Production-Ready Deployment configuration
 
-Planned modules include domain plugins, learning workflows, content and assessment services, retrieval-augmented tutoring, knowledge graphs, learner modeling, recommendations, agent orchestration, and continuous evaluation. GATE will be the first reference domain; other competitive examinations may be supported through the same future domain contract. These are plans, not current capabilities.
+## 🤝 Contributing
+Contributions are welcome! Please review our quality guidelines in `docs/development.md` and ensure all PRs pass `make quality` before submitting.
 
-## Contributing
-
-Contribution guidance is maintained in [`.ai/contributing.md`](.ai/contributing.md). The project is maintained by [Yash Mishra](https://github.com/yash-mishraa).
-
-## License
-
-A project license has not yet been selected.
+## 📄 License
+This project is proprietary while in early development. An open-source license will be established prior to public release.
