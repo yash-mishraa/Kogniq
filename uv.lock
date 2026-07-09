@@ -7,6 +7,7 @@ members = [
     "kogniq",
     "kogniq-api",
     "kogniq-content",
+    "kogniq-education",
     "kogniq-learning",
     "kogniq-shared",
 ]
@@ -319,6 +320,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "kogniq-api" },
+    { name = "kogniq-education" },
 ]
 
 [package.dev-dependencies]
@@ -333,7 +335,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "kogniq-api", editable = "apps/api" }]
+requires-dist = [
+    { name = "kogniq-api", editable = "apps/api" },
+    { name = "kogniq-education", editable = "packages/education" },
+]
 
 [package.metadata.requires-dev]
 dev = [
@@ -381,6 +386,17 @@ requires-dist = [
 name = "kogniq-content"
 version = "0.1.0"
 source = { editable = "packages/content" }
+dependencies = [
+    { name = "kogniq-shared" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "kogniq-shared", editable = "packages/shared" }]
+
+[[package]]
+name = "kogniq-education"
+version = "0.1.0"
+source = { editable = "packages/education" }
 dependencies = [
     { name = "kogniq-shared" },
 ]

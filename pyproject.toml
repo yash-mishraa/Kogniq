@@ -13,7 +13,7 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Typing :: Typed",
 ]
-dependencies = ["kogniq-api"]
+dependencies = ["kogniq-api", "kogniq-education"]
 
 # Feature dependencies will be added only by the package that owns them.
 [project.optional-dependencies]
@@ -35,6 +35,7 @@ default-groups = ["dev"]
 
 [tool.uv.sources]
 kogniq-api = { workspace = true }
+kogniq-education = { workspace = true }
 
 # Workspace members are added when a directory becomes an installable Python
 # project. Documentation-only package directories are intentionally excluded.
@@ -44,6 +45,7 @@ members = [
     "packages/shared",
     "packages/learning",
     "packages/content",
+    "packages/education",
 ]
 
 [tool.ruff]
@@ -92,9 +94,12 @@ ignore = [
     "ANN201",
     "ARG002",
 ]
+"packages/education/tests/**/*.py" = [
+    "ANN201",
+]
 
 [tool.ruff.lint.isort]
-known-first-party = ["apps", "shared", "learning", "content"]
+known-first-party = ["apps", "shared", "learning", "content", "education"]
 combine-as-imports = true
 
 [tool.ruff.format]
@@ -109,8 +114,8 @@ python_version = "3.12"
 strict = true
 namespace_packages = true
 explicit_package_bases = true
-mypy_path = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src"]
-files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared", "packages/learning/src/learning", "packages/learning/tests", "packages/content/src/content", "packages/content/tests"]
+mypy_path = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src"]
+files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared", "packages/learning/src/learning", "packages/learning/tests", "packages/content/src/content", "packages/content/tests", "packages/education/src/education", "packages/education/tests"]
 exclude = [
     "(^|/)\\.venv/",
     "(^|/)build/",
@@ -124,8 +129,8 @@ pretty = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-testpaths = ["apps/api/tests", "tests", "packages/learning/tests", "packages/content/tests"]
-pythonpath = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src"]
+testpaths = ["apps/api/tests", "tests", "packages/learning/tests", "packages/content/tests", "packages/education/tests"]
+pythonpath = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

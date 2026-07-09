@@ -88,6 +88,13 @@ The future system will expose learning experiences through a frontend, coordinat
 
 Own examination-neutral business language and bounded contexts for learning, assessment, student, documents, analytics, and recommendation.
 
+### packages/education (`kogniq-education`)
+
+- Pure-Python educational object model and semantics layer.
+- **Bounded Context**: Bridges parsed content and the learning domain.
+- **Key Concepts**: `EducationalConcept`, `EducationalDefinition`, `EducationalExample`, `EducationalExercise`, `EducationalRelationship`.
+- **Invariants**: Strictly immutable entities. Framework and AI agnostic. No graph persistence logic.
+
 ### ML
 
 Own learner modeling, knowledge tracing, ranking, recommendation, training, inference contracts, and model lifecycle artifacts.
