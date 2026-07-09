@@ -75,6 +75,19 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-09 — Stage 4 Prompt 3
+- **Completed:** Implemented the Normalized Document Model in `kogniq-content`. Created immutable models for Document, Page, Block, Span, and Metadata.
+- **Files Changed:** `packages/content/src/content/normalized/*`, `packages/content/tests/test_normalized.py`, `docs/architecture/normalized-document.md`.
+- **Architecture Changes:** Established the canonical internal document structure.
+- **New Decisions:** Decoupled document representation from specific parsers; leveraged O(1) properties and deep immutability (`frozen=True`).
+- **Validation:** 100% pass on pytest, mypy, and ruff.
+
+### 2026-07-09 — Stage 4 Prompt 2
+- **Completed:** Implemented Content Plugin Registry (`ProcessorRegistry`) in `kogniq-content`.
+- **Files Changed:** `packages/content/src/content/plugins/*`, `packages/content/tests/test_plugins.py`, `docs/architecture/plugin-system.md`.
+- **Architecture Changes:** Implemented Open/Closed Principle via Registry pattern for downstream content parsers.
+- **Validation:** 100% test pass on pytest, mypy, ruff.
+
 ### 2026-07-09 — Stage 0 Prompt 1
 
 - **Completed:** Initialized the documentation-only repository skeleton and AI context system.
