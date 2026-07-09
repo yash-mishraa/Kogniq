@@ -42,6 +42,7 @@ kogniq-api = { workspace = true }
 members = [
     "apps/api",
     "packages/shared",
+    "packages/learning",
 ]
 
 [tool.ruff]
@@ -83,9 +84,12 @@ ignore = [
 "tests/**/*.py" = [
     "ANN201", # Test functions commonly communicate through assertions, not return types.
 ]
+"packages/learning/tests/**/*.py" = [
+    "ANN201", # Test functions commonly communicate through assertions, not return types.
+]
 
 [tool.ruff.lint.isort]
-known-first-party = ["apps", "shared"]
+known-first-party = ["apps", "shared", "learning"]
 combine-as-imports = true
 
 [tool.ruff.format]
@@ -100,8 +104,8 @@ python_version = "3.12"
 strict = true
 namespace_packages = true
 explicit_package_bases = true
-mypy_path = ["apps/api/src", "packages/shared/src"]
-files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared"]
+mypy_path = ["apps/api/src", "packages/shared/src", "packages/learning/src"]
+files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared", "packages/learning/src/learning", "packages/learning/tests"]
 exclude = [
     "(^|/)\\.venv/",
     "(^|/)build/",
@@ -115,8 +119,8 @@ pretty = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-testpaths = ["apps/api/tests", "tests"]
-pythonpath = ["apps/api/src", "packages/shared/src"]
+testpaths = ["apps/api/tests", "tests", "packages/learning/tests"]
+pythonpath = ["apps/api/src", "packages/shared/src", "packages/learning/src"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
