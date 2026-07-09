@@ -75,6 +75,12 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-09 — Stage 5 Prompt 3
+- **Completed:** Implemented the Markdown Processor Foundation in `kogniq-content`. Added `markdown-it-py` dependency for linear, AST-based token extraction.
+- **Files Changed:** `packages/content/src/content/processors/markdown/*`, `packages/content/tests/test_markdown_processor.py`, `docs/architecture/markdown-processor.md`, `dev/demo_markdown_processor.py`, `dev/sample_documents/sample.md`.
+- **Architecture Changes:** Added the second concrete implementation of the Content Processor boundary using a pure linear traversal approach that satisfies `ResourceHandle -> NormalizedDocument` without rendering HTML.
+- **Validation:** 100% test pass on pytest, mypy, and ruff. Zero framework leakage.
+
 ### 2026-07-09 — Stage 5 Prompt 2
 - **Completed:** Implemented the PDF Processor Foundation in `kogniq-content`. Refactored `AbstractContentProcessor` and pipeline interfaces to natively consume `ResourceHandle` and output `NormalizedDocument`. Added `pymupdf` dependency.
 - **Files Changed:** `packages/content/src/content/processors/pdf/*`, `packages/content/tests/test_pdf_processor.py`, `docs/architecture/pdf-processor.md`, `packages/content/src/content/pipeline/orchestrator.py`, `packages/content/src/content/plugins/interfaces.py`, `test_orchestrator.py`, `test_plugins.py`.
