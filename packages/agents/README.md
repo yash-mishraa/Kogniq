@@ -22,9 +22,8 @@ Teacher, planner, and reviewer agents may be introduced only where evaluation de
 
 ## Ownership
 
-Agentic AI team with security review — `<OWNER_NAME>`.
+Agentic AI with security review — Yash Mishra.
 
 ## What Does NOT Belong Here
 
 Unbounded autonomy, direct storage access, duplicated business rules, implicit network access, embedded credentials, examination-specific core logic, or authority bypasses.
-

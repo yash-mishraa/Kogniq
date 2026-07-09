@@ -22,9 +22,8 @@ Hybrid retrieval, graph-assisted search, model routing, multimodal grounding, an
 
 ## Ownership
 
-Retrieval and AI engineering team — `<OWNER_NAME>`.
+Retrieval and AI engineering — Yash Mishra.
 
 ## What Does NOT Belong Here
 
 Application authorization, learner workflow ownership, UI, agent planning, domain hardcoding, ungoverned content, credentials, or direct access to other packages' storage.
-

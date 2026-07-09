@@ -10,7 +10,7 @@ Hypotheses, controlled comparisons, reproducible configurations, results, limita
 
 ## Ownership
 
-Conducting researcher or engineer — `<OWNER_NAME>`.
+Conducting researcher or engineer — Yash Mishra until delegated.
 
 ## What Belongs Here
 
@@ -19,4 +19,3 @@ Self-contained experimental code, lightweight configurations, result summaries, 
 ## What Should Not Belong Here
 
 Production runtime imports, irreplaceable logic, secrets, unlicensed data, unexplained notebooks, or large generated artifacts.
-

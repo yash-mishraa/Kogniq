@@ -10,5 +10,4 @@ Documents governs authoritative source metadata. Parsing, chunking, embeddings, 
 
 ## Status
 
-Documentation placeholder only. No upload, storage, parser, or document model exists. Ownership: `<OWNER_NAME>`.
-
+Documentation placeholder only. No upload, storage, parser, or document model exists. Ownership: Yash Mishra.

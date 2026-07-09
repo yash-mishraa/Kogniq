@@ -4,8 +4,7 @@ version = "0.1.0"
 description = "AI Learning Intelligence Platform"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
-authors = [{ name = "<OWNER_NAME>" }]
-license = "<LICENSE>"
+authors = [{ name = "Yash Mishra" }]
 keywords = ["ai", "education", "learning-intelligence"]
 classifiers = [
     "Development Status :: 1 - Planning",
@@ -134,4 +133,3 @@ exclude_also = [
     "if __name__ == .__main__.:",
     "raise NotImplementedError",
 ]
-

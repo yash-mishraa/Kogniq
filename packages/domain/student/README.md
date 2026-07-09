@@ -10,5 +10,4 @@ This context distinguishes user-provided facts, observed evidence, and inferred 
 
 ## Status
 
-Documentation placeholder only. Privacy and correction behavior must be defined before data is stored. Ownership: `<OWNER_NAME>`.
-
+Documentation placeholder only. Privacy and correction behavior must be defined before data is stored. Ownership: Yash Mishra.

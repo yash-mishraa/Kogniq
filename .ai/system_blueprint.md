@@ -3,7 +3,7 @@
 **Status:** Planned engineering specification  
 **Architecture Version:** 0.4.0  
 **Last Updated:** 2026-07-09  
-**Owner:** `<OWNER_NAME>`
+**Owner:** Yash Mishra
 
 This is the master engineering specification for Kogniq. It defines intended boundaries and flows without selecting technologies, creating deployable services, or authorizing implementation. Product behavior is governed by [`product_requirements.md`](product_requirements.md); terminology and conceptual data are governed by [`glossary.md`](glossary.md) and [`data_dictionary.md`](data_dictionary.md).
 

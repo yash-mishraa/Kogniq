@@ -10,5 +10,4 @@ Learning coordinates study behavior without owning assessment scoring, student-s
 
 ## Status
 
-Documentation placeholder only. No entities, use cases, events, or persistence are implemented. Ownership: `<OWNER_NAME>`.
-
+Documentation placeholder only. No entities, use cases, events, or persistence are implemented. Ownership: Yash Mishra.

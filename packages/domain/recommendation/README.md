@@ -10,5 +10,4 @@ Recommendation governs product meaning, not model training, ranking-provider imp
 
 ## Status
 
-Documentation placeholder only. No ranking, recommendation, or revision logic exists. Ownership: `<OWNER_NAME>`.
-
+Documentation placeholder only. No ranking, recommendation, or revision logic exists. Ownership: Yash Mishra.

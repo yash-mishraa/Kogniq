@@ -22,9 +22,8 @@ Environment, networking, compute, persistence, secret delivery, observability, b
 
 ## Ownership
 
-Platform/infrastructure team — `<OWNER_NAME>`.
+Platform/infrastructure — Yash Mishra.
 
 ## What Does NOT Belong Here
 
 Product or domain logic, application source, embedded secrets, environment-specific source forks, Docker assets before authorization, or undocumented manual state.
-

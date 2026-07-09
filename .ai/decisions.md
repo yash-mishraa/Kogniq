@@ -8,7 +8,7 @@ This file is the Architecture Decision Record (ADR) log. ADRs are immutable hist
 
 - **Status:** Proposed | Accepted | Rejected | Superseded
 - **Date:** YYYY-MM-DD
-- **Deciders:** `<OWNER_NAME>`
+- **Deciders:** Yash Mishra
 - **Context:** What forces and constraints require a decision?
 - **Decision:** What is being decided?
 - **Alternatives Considered:** What credible options were evaluated?
@@ -20,7 +20,7 @@ This file is the Architecture Decision Record (ADR) log. ADRs are immutable hist
 
 - **Status:** Accepted
 - **Date:** 2026-07-09
-- **Deciders:** `<OWNER_NAME>`
+- **Deciders:** Yash Mishra
 - **Context:** The project, then using the legacy name **GATE Copilot**, is expected to evolve over many months with contributions from humans and multiple AI agents. Chat history is incomplete, transient, and difficult to review. Contributors need a concise, durable source for intent, boundaries, decisions, progress, and handoffs.
 - **Decision:** Maintain an `.ai/` context system in version control. Every coding session must read the required context files before changing the repository and update progress and handoff information before finishing.
 - **Alternatives Considered:** Rely on chat history; use only the root README; keep context in an external project-management tool.
@@ -32,7 +32,7 @@ This file is the Architecture Decision Record (ADR) log. ADRs are immutable hist
 
 - **Status:** Accepted
 - **Date:** 2026-07-09
-- **Deciders:** `<OWNER_NAME>`
+- **Deciders:** Yash Mishra
 - **Context:** The legacy name **GATE Copilot** framed the repository as a GATE-specific assistant. The intended system is broader: reusable learning intelligence, knowledge modeling, personalization, retrieval, evaluation, and agentic workflows should support multiple competitive-examination domains. Keeping the old identity would encourage GATE-specific assumptions in platform contracts and obscure the distinction between reusable capabilities and domain content.
 - **Decision:** Rename the product and repository identity to **Kogniq**, described as an **AI Learning Intelligence Platform**. Treat GATE as the first planned learning-domain plugin and reference implementation, not as the product. Keep the platform core examination-neutral and require future domains to integrate through explicit, versioned extension contracts. GRE, CAT, UPSC, JEE, and NEET are illustrative future domains only; this decision does not authorize or implement their support.
 - **Alternatives Considered:** Retain GATE Copilot and later generalize it; create separate products for each examination; use Kogniq as an umbrella brand while retaining a GATE-specific core.
@@ -44,7 +44,7 @@ This file is the Architecture Decision Record (ADR) log. ADRs are immutable hist
 
 - **Status:** Accepted
 - **Date:** 2026-07-09
-- **Deciders:** `<OWNER_NAME>`
+- **Deciders:** Yash Mishra
 - **Context:** Kogniq's living architecture defined principles and capability boundaries, but future implementation still lacked one engineering specification connecting package ownership, logical services, pipelines, data and knowledge flows, AI lifecycle, deployment concerns, and extension rules. Implementing directly from scattered plans would invite inconsistent boundaries, accidental microservices, domain leakage, and technology choices made before requirements.
 - **Decision:** Adopt `.ai/system_blueprint.md` as Kogniq's master engineering specification and require agents to read it before implementing code. Maintain supporting package, service, pipeline, and API catalogs as planning inventories. Catalog entries do not create packages, services, endpoints, infrastructure, or implementation status. Physical repository restructuring and technology selection remain separate future decisions.
 - **Alternatives Considered:** Rely only on `design.md`; document architecture inside future code; let each package define boundaries independently; create implementation scaffolding first and infer contracts afterward.
@@ -56,7 +56,7 @@ This file is the Architecture Decision Record (ADR) log. ADRs are immutable hist
 
 - **Status:** Accepted
 - **Date:** 2026-07-09
-- **Deciders:** `<OWNER_NAME>`
+- **Deciders:** Yash Mishra
 - **Context:** ADR-0003 defined future `apps/*`, `packages/*`, and `infrastructure` contracts while the repository still used Stage 0 top-level capability placeholders. Beginning engineering work with two competing layouts would create ambiguous ownership, broken dependency guidance, and later migration cost.
 - **Decision:** Adopt `apps/api`, `apps/web`, `packages/shared`, `packages/domain`, `packages/rag`, `packages/ml`, `packages/agents`, `packages/knowledge_graph`, `packages/evaluation`, and `infrastructure` as the physical modular-monorepo workspace. Retain cross-cutting documentation, datasets, experiments, scripts, and tests at the repository root. Remove superseded documentation-only capability directories after preserving their guidance. Do not select a language workspace, package manager, dependency, framework, service topology, or deployment technology in this decision.
 - **Alternatives Considered:** Keep both legacy and planned directories; defer physical layout until framework selection; organize entirely by technical layer; create independently deployable repositories.
@@ -68,7 +68,7 @@ This file is the Architecture Decision Record (ADR) log. ADRs are immutable hist
 
 - **Status:** Accepted
 - **Date:** 2026-07-09
-- **Deciders:** `<OWNER_NAME>`
+- **Deciders:** Yash Mishra
 - **Context:** Stage 1 requires a reproducible Python engineering foundation before application or intelligence packages are implemented. The repository needs one source for supported Python versions, dependency groups, formatting, linting, typing, test discovery, and coverage policy without selecting product frameworks or creating independently configured package islands.
 - **Decision:** Target Python 3.12–3.13 and use uv for the root project, workspace membership, dependency lifecycle, and developer command execution. Centralize Ruff, strict MyPy, pytest, and coverage.py configuration in `pyproject.toml`. Keep the root project non-packaged and add package directories as uv workspace members only when their Python distribution boundaries are approved. Permit minimal standard-library scaffolding in `packages/shared` for configuration, logging, generic exceptions, and broadly reusable provider protocols.
 - **Alternatives Considered:** pip and virtualenv; Poetry; Pipenv; PDM or Hatch; per-package tool configuration; separate Black, Flake8, and isort tools; Pyright; delaying Python standards until API implementation.

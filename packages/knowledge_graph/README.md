@@ -22,9 +22,8 @@ Temporal validity, assisted curation, multilingual labels, cross-domain mappings
 
 ## Ownership
 
-Knowledge engineering team with domain reviewers — `<OWNER_NAME>`.
+Knowledge engineering with domain reviewers — Yash Mishra.
 
 ## What Does NOT Belong Here
 
 Generic persistence utilities, UI, product workflow orchestration, undocumented scraped content, learner-private data, retrieval pipelines, or assumptions tied to one examination.
-

@@ -1,12 +1,16 @@
 # Kogniq
 
-Kogniq is a planned open-source AI Learning Intelligence Platform. Its long-term purpose is to combine rigorous learning workflows with production-grade AI engineering, including retrieval, knowledge tracing, recommendations, agentic systems, evaluation, and MLOps.
+Kogniq is an open-source **AI Learning Intelligence Platform** being built to personalize how learners study, practice, and revise. Its planned intelligence layer combines retrieval-augmented generation (RAG), knowledge graphs, student modeling, recommendation systems, fine-tuned language models, and agentic AI.
 
-Kogniq is designed as a domain-neutral platform. GATE is the first planned learning-domain plugin and reference implementation—not the product itself. Future domains may include GRE, CAT, UPSC, JEE, and NEET, but none of these integrations has been implemented.
+**GATE is the first supported learning domain and reference implementation; Kogniq is the reusable platform.**
+
+## What is Kogniq?
+
+Kogniq is designed to connect curriculum knowledge, learning evidence, grounded AI assistance, and personalized study decisions in one modular system. Domain-specific curricula and assessment rules remain isolated behind learning-domain plugins so the platform can support additional educational domains without hardcoding them into the core.
 
 ## Project Status
 
-**Stage 1 — Engineering Foundation.** The modular workspace, Python toolchain configuration, and minimal standard-library shared scaffolding exist. No application, infrastructure, database, API, UI, model, RAG, or agent functionality has been implemented.
+**Under active development — Stage 1: Engineering Foundation.** The modular workspace, Python toolchain, and minimal shared scaffolding exist. Product features and the planned AI capabilities are not yet implemented.
 
 ## Architecture Overview
 
@@ -50,8 +54,8 @@ Planned modules include domain plugins, learning workflows, content and assessme
 
 ## Contributing
 
-Contribution guidance is currently a planning placeholder. See [`.ai/contributing.md`](.ai/contributing.md). Repository URL: `<GITHUB_URL>`. Contact: `<CONTACT_EMAIL>`.
+Contribution guidance is maintained in [`.ai/contributing.md`](.ai/contributing.md). The project is maintained by [Yash Mishra](https://github.com/yash-mishraa).
 
 ## License
 
-License: `<LICENSE>`.
+A project license has not yet been selected.

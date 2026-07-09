@@ -10,7 +10,7 @@ Dataset manifests, provenance, licenses, schemas, versions, quality reports, acc
 
 ## Ownership
 
-Data engineering and governance team — `<OWNER_NAME>`.
+Data engineering and governance — Yash Mishra.
 
 ## What Belongs Here
 
@@ -19,4 +19,3 @@ Small approved metadata, manifests, schemas, data cards, and acquisition or vali
 ## What Should Not Belong Here
 
 Secrets, personal data without governance, copyrighted material without rights, untracked dumps, large binaries, or model code.
-

@@ -10,7 +10,7 @@ Validate system boundaries and user journeys that cannot be adequately tested in
 
 ## Ownership
 
-Quality engineering with affected module owners — `<OWNER_NAME>`.
+Quality engineering with affected module owners — Yash Mishra.
 
 ## What Belongs Here
 
@@ -19,4 +19,3 @@ Cross-cutting test harnesses, governed fixtures, test-environment documentation,
 ## What Should Not Belong Here
 
 Production logic, secrets, personal data, large undocumented fixtures, flaky live-service dependencies, or module-local tests better colocated with source.
-

@@ -10,5 +10,4 @@ Analytics defines interpretable metrics and approved aggregates; it does not own
 
 ## Status
 
-Documentation placeholder only. Metric semantics, consent, retention, and access require approval before implementation. Ownership: `<OWNER_NAME>`.
-
+Documentation placeholder only. Metric semantics, consent, retention, and access require approval before implementation. Ownership: Yash Mishra.

@@ -22,9 +22,8 @@ Composition modules may later cover learning sessions, documents, assessments, r
 
 ## Ownership
 
-Backend/platform team — `<OWNER_NAME>`.
+Backend/platform — Yash Mishra.
 
 ## What Does NOT Belong Here
 
 Frontend code, reusable domain rules, package internals, direct cross-package storage access, provider-specific business logic, experiments, secrets, or framework scaffolding before selection.
-

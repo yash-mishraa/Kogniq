@@ -22,9 +22,8 @@ Retrieval, model, agent, safety, accessibility, performance, and learning-effect
 
 ## Ownership
 
-Evaluation team with product, subject, safety, and ML reviewers — `<OWNER_NAME>`.
+Evaluation with product, subject, safety, and ML reviewers — Yash Mishra.
 
 ## What Does NOT Belong Here
 
 Production serving logic, hidden release exceptions, training-data leakage, cherry-picked demonstrations, private learner data, or exploratory scratch work.
-

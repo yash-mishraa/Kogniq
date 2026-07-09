@@ -10,5 +10,4 @@ Assessment consumes concept references but does not own curriculum graphs, learn
 
 ## Status
 
-Documentation placeholder only. Domain-specific assessment conventions must enter through plugins. Ownership: `<OWNER_NAME>`.
-
+Documentation placeholder only. Domain-specific assessment conventions must enter through plugins. Ownership: Yash Mishra.

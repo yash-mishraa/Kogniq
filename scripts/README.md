@@ -19,7 +19,7 @@ These directories currently contain documentation only.
 
 ## Ownership
 
-Platform engineering — `<OWNER_NAME>`.
+Platform engineering — Yash Mishra.
 
 ## What Belongs Here
 

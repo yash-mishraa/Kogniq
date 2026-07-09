@@ -22,9 +22,8 @@ Potential experience areas include learning workspaces, curriculum exploration, 
 
 ## Ownership
 
-Frontend/product experience team — `<OWNER_NAME>`.
+Frontend/product experience — Yash Mishra.
 
 ## What Does NOT Belong Here
 
 Domain authority, secrets, database access, model or retrieval pipelines, agent tools, server-only configuration, or examination-specific core logic.
-

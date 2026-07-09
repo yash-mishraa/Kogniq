@@ -2,12 +2,14 @@
 
 Kogniq welcomes future contributions from humans and AI agents. It is a planned AI Learning Intelligence Platform whose first reference domain will be GATE. The project is currently in repository-planning stage; contributions must respect the active roadmap stage and preserve the boundary between platform capabilities and examination-specific plugins.
 
+Maintainer: [Yash Mishra](https://github.com/yash-mishraa).
+
 ## Before Contributing
 
 - Read `README.md` and follow `.ai/handoff.md`.
 - Review architecture, decisions, technology status, coding rules, and progress.
 - Confirm the proposed change has a clear owner and does not implement a future stage prematurely.
-- Use `<GITHUB_URL>` for repository workflows when it becomes available.
+- Use the repository's GitHub issue and pull-request workflows when they become available.
 
 ## Contribution Standards
 
@@ -30,4 +32,4 @@ Follow the mandatory context-read order, inspect existing work, state assumption
 4. Complete the code-review and architecture checklists.
 5. Request review from affected owners.
 
-Branch protection, issue templates, review policy, and release policy remain placeholders for a later stage. Contact: `<CONTACT_EMAIL>`.
+Branch protection, issue templates, review policy, public contact channels, and release policy remain to be defined in a later stage.

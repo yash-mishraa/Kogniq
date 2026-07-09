@@ -12,7 +12,7 @@ The `architecture/` directory contains concise placeholders for future implement
 
 ## Ownership
 
-Documentation owners with relevant module reviewers — `<OWNER_NAME>`.
+Documentation owner with relevant module reviewers — Yash Mishra.
 
 ## What Belongs Here
 

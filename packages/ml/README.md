@@ -22,9 +22,8 @@ Knowledge-state estimation, recommendation ranking, difficulty estimation, drift
 
 ## Ownership
 
-ML engineering and applied science team — `<OWNER_NAME>`.
+ML engineering and applied science — Yash Mishra.
 
 ## What Does NOT Belong Here
 
 Product APIs, UI, raw ungoverned data, one-off experiments, domain-specific shortcuts, committed large model artifacts, secrets, or direct learner workflow ownership.
-

@@ -10,7 +10,7 @@ Issue and pull-request templates, ownership rules, security policy links, depend
 
 ## Ownership
 
-Repository maintainers and platform engineering — `<OWNER_NAME>`.
+Repository maintainer and platform engineering — Yash Mishra.
 
 ## What Belongs Here
 
@@ -19,4 +19,3 @@ Reviewed GitHub-specific metadata and workflows that enforce documented reposito
 ## What Should Not Belong Here
 
 Application code, runtime infrastructure, secrets, undocumented privileged automation, or workflows added before CI/CD decisions are approved.
-

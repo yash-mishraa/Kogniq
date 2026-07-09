@@ -13,7 +13,7 @@ These rules govern future implementation. Exceptions require a documented reason
 
 ## Folder Ownership
 
-Every top-level module must have a named owner before implementation. Owners approve public contracts and dependency changes. Cross-module changes require review from each affected owner. Until assigned, ownership is `<OWNER_NAME>`.
+Every top-level module must have a named owner before implementation. Owners approve public contracts and dependency changes. Cross-module changes require review from each affected owner. Until delegated, ownership remains with Yash Mishra.
 
 ## Maximum File Size
 

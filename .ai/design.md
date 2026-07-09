@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-07-09  
 **Architecture Version:** 0.4.0  
-**Maintainers:** `<OWNER_NAME>`  
+**Maintainers:** Yash Mishra ([yash-mishraa](https://github.com/yash-mishraa))
 **Current Stage:** Stage 1 — Monorepo Foundation
 
 ## Vision

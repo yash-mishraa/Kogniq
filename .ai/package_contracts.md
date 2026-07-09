@@ -18,7 +18,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** `packages/shared` and public interfaces of domain, ML, RAG, agents, knowledge graph, and approved domain plugins.
 - **Forbidden Dependencies:** `apps/web`; package internals; experiment code; evaluation implementation; direct access to another owner's storage; provider SDKs outside adapters.
 - **Future Modules:** Learning sessions, documents, questions, attempts, recommendations, revision, domains, users, policy, and application adapters.
-- **Ownership:** Backend/platform team — `<OWNER_NAME>`.
+- **Ownership:** Backend/platform team — Yash Mishra.
 - **Expected Tests:** Unit, authorization, contract, integration, idempotency, failure, migration compatibility, and end-to-end workflow tests.
 - **Expected Documentation:** Public behavior, error semantics, authorization matrix, events, operational runbooks, and migration notes.
 - **Expected APIs:** Cataloged learner, content, assessment, recommendation, evaluation administration, and system-status APIs.
@@ -32,7 +32,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** `packages/shared` browser-safe contracts and generated or maintained clients for `apps/api`.
 - **Forbidden Dependencies:** Server internals, databases, ML/RAG/agent internals, secrets, privileged provider SDKs, or direct domain-plugin execution.
 - **Future Modules:** Learning workspace, curriculum explorer, assessment player, progress, revision planner, reviewer console, settings, and accessibility preferences.
-- **Ownership:** Frontend/product experience team — `<OWNER_NAME>`.
+- **Ownership:** Frontend/product experience team — Yash Mishra.
 - **Expected Tests:** Component, accessibility, interaction, API-contract, browser, visual regression, security, and critical-journey tests.
 - **Expected Documentation:** Supported browsers, accessibility behavior, state ownership, design-system usage, error states, and user journeys.
 - **Expected APIs:** Calls only documented `apps/api` interfaces; may expose no independent product API.
@@ -46,7 +46,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** `packages/shared`; approved data and model adapters; public knowledge-graph query contracts when required.
 - **Forbidden Dependencies:** UI, API workflow internals, RAG internals, agent orchestration, domain-specific hardcoding, or direct ownership of user workflows.
 - **Future Modules:** Knowledge tracing, ranking, calibration, feature processing, training, inference, registry adapters, and drift monitoring.
-- **Ownership:** ML engineering and applied science — `<OWNER_NAME>`.
+- **Ownership:** ML engineering and applied science — Yash Mishra.
 - **Expected Tests:** Unit, property, data-contract, reproducibility, baseline comparison, calibration, fairness, performance, and model-regression tests.
 - **Expected Documentation:** Model cards, task definitions, data declarations, feature lineage, metrics, limitations, inference contract, and rollback guidance.
 - **Expected APIs:** Internal inference and training capabilities; external exposure only through `apps/api`.
@@ -60,7 +60,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** `packages/shared`; public knowledge-graph queries; approved model, parser, index, and artifact adapters.
 - **Forbidden Dependencies:** Application authorization decisions, frontend code, learner workflow ownership, agent planning, domain hardcoding, or private storage from other packages.
 - **Future Modules:** Document ingestion, chunking, embeddings, indexes, hybrid retrieval, reranking, context building, generation, citation validation, and RAG evaluation hooks.
-- **Ownership:** Retrieval and AI engineering — `<OWNER_NAME>`.
+- **Ownership:** Retrieval and AI engineering — Yash Mishra.
 - **Expected Tests:** Parser fixtures, chunk invariants, retrieval relevance, filtering, citation integrity, prompt-injection defense, provider contracts, performance, and regression evaluations.
 - **Expected Documentation:** Supported inputs, provenance, indexing lifecycle, retrieval semantics, grounding guarantees, failure modes, and evaluation methodology.
 - **Expected APIs:** Internal ingestion, retrieval, generation, and citation capabilities; application access through `apps/api`.
@@ -74,7 +74,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** `packages/shared` and approved application tool contracts; public intelligence contracts only when explicitly mediated.
 - **Forbidden Dependencies:** Direct database access, private package internals, unapproved network/tool access, embedded domain behavior, or authority to bypass application policy.
 - **Future Modules:** Teacher Agent, Planner Agent, reviewer assistant, tool registry, policy engine, execution state, budget enforcement, and audit adapters.
-- **Ownership:** Agentic AI team with security review — `<OWNER_NAME>`.
+- **Ownership:** Agentic AI team with security review — Yash Mishra.
 - **Expected Tests:** Deterministic policy, tool-contract, authorization, budget, cancellation, timeout, injection, recovery, adversarial, and behavior-evaluation tests.
 - **Expected Documentation:** Role and tool permissions, termination conditions, state retention, human approval points, risks, and evaluation evidence.
 - **Expected APIs:** Internal task submission, status, cancellation, and approval interfaces exposed through authorized `apps/api` workflows.
@@ -88,7 +88,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** `packages/shared`; governed domain-plugin contracts; approved graph persistence adapters.
 - **Forbidden Dependencies:** Product workflow internals, UI, model training implementation, RAG internals, or assumptions tied to one examination.
 - **Future Modules:** Ontology, schema validation, curriculum mapping, graph builder, traversal, provenance, version migration, and storage adapters.
-- **Ownership:** Knowledge engineering with domain reviewers — `<OWNER_NAME>`.
+- **Ownership:** Knowledge engineering with domain reviewers — Yash Mishra.
 - **Expected Tests:** Schema, invariant, provenance, traversal, version compatibility, domain isolation, import/export, and performance tests.
 - **Expected Documentation:** Ontology guide, relationship semantics, provenance rules, query contracts, versioning, and domain extension guidance.
 - **Expected APIs:** Internal graph query and curation capabilities; authorized external access through `apps/api`.
@@ -102,7 +102,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** `packages/shared`; public interfaces or black-box endpoints of evaluated subjects; governed dataset and artifact adapters.
 - **Forbidden Dependencies:** Production runtime as a required library dependency, mutation of evaluated subject internals, training-data leakage, or hidden release exceptions.
 - **Future Modules:** Dataset registry, runners, metrics, human review, statistical analysis, report generation, regression comparison, and gate policy.
-- **Ownership:** Evaluation team with product, subject, safety, and ML reviewers — `<OWNER_NAME>`.
+- **Ownership:** Evaluation team with product, subject, safety, and ML reviewers — Yash Mishra.
 - **Expected Tests:** Metric correctness, fixture integrity, runner reproducibility, leakage checks, threshold logic, report stability, and harness contract tests.
 - **Expected Documentation:** Methodology, dataset cards, metric interpretation, slices, limitations, thresholds, reviewer guidance, and reproducibility instructions.
 - **Expected APIs:** Evaluation submission, status, result, and report interfaces for authorized operators; no learner-facing authority.
@@ -116,7 +116,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** Language/runtime standard facilities and narrowly justified contract-validation libraries.
 - **Forbidden Dependencies:** Product business rules, provider SDKs, storage clients, framework-specific application code, domain-specific types, or imports from any other Kogniq package.
 - **Future Modules:** Identifiers, result types, metadata, pagination, provenance, compatibility, and contract test utilities. Configuration, logging, generic exceptions, and foundational provider protocols now have minimal scaffolding.
-- **Ownership:** Architecture/platform maintainers — `<OWNER_NAME>`.
+- **Ownership:** Architecture/platform maintainers — Yash Mishra.
 - **Expected Tests:** Serialization, validation, compatibility, property, platform portability, and consumer contract tests.
 - **Expected Documentation:** Export rationale, semantic guarantees, version policy, examples, compatibility rules, and deprecation process.
 - **Expected APIs:** In-process/shared contract definitions only; no independent network API.
@@ -130,7 +130,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** `packages/shared` only; cross-context collaboration through approved public contracts.
 - **Forbidden Dependencies:** Applications, delivery frameworks, databases/ORMs, provider SDKs, intelligence implementations, infrastructure, and examination-specific hardcoding.
 - **Future Modules:** `learning`, `assessment`, `student`, `documents`, `analytics`, and `recommendation`.
-- **Ownership:** Domain architecture with affected capability owners — `<OWNER_NAME>`.
+- **Ownership:** Domain architecture with affected capability owners — Yash Mishra.
 - **Expected Tests:** Invariant, value, state-transition, contract, context-boundary, and domain-event tests.
 - **Expected Documentation:** Ubiquitous language, invariants, context maps, public contracts, examples, and decision rationale.
 - **Expected APIs:** Framework-neutral domain ports only; external APIs remain owned by `apps/api`.
@@ -144,7 +144,7 @@ These contracts govern the documentation-only workspace directories created in S
 - **Allowed Dependencies:** Approved deployment tooling, platform providers, application artifacts, and explicit configuration schemas.
 - **Forbidden Dependencies:** Product business logic, domain rules, embedded secrets, source-code forks per environment, or undocumented manual state.
 - **Future Modules:** Environments, networking, compute, persistence, secret delivery, observability, backup, policy, and deployment automation.
-- **Ownership:** Platform/infrastructure team — `<OWNER_NAME>`.
+- **Ownership:** Platform/infrastructure team — Yash Mishra.
 - **Expected Tests:** Static validation, policy, security, plan/diff review, ephemeral integration, backup/restore, rollback, and disaster-recovery exercises.
 - **Expected Documentation:** Environment model, threat boundaries, deployment and rollback, runbooks, ownership, cost, recovery, and access procedures.
 - **Expected APIs:** Operational provider interfaces and environment outputs only; no product API.

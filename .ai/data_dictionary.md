@@ -9,7 +9,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Owns Study Sessions and Question Attempts; may review Documents or Evaluation Results.
 - **Possible Fields:** Identifier, roles, locale, accessibility preferences, consent status, created time.
 - **Lifecycle:** Created with consent; updated by authorized actions; exported, deactivated, or deleted under policy.
-- **Owner:** Identity and privacy capability owner — `<OWNER_NAME>`.
+- **Owner:** Identity and privacy capability owner — Yash Mishra.
 - **Future Extensions:** Institutional membership, guardian relationship, pseudonymous research participation.
 
 ## Study Session
@@ -19,7 +19,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Belongs to a User and Domain; contains Question Attempts and artifact interactions.
 - **Possible Fields:** Identifier, user reference, domain reference, goals, start/end times, status, summary.
 - **Lifecycle:** Started, active, completed or abandoned, retained or deleted under learner-data policy.
-- **Owner:** Learning workflow owner — `<OWNER_NAME>`.
+- **Owner:** Learning workflow owner — Yash Mishra.
 - **Future Extensions:** Offline reconciliation, collaborative session, educator review.
 
 ## Assessment
@@ -29,7 +29,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Contains Questions; targets Concepts and a Curriculum; produces Question Attempts and results.
 - **Possible Fields:** Identifier, domain, curriculum version, purpose, item references, timing policy, scoring policy, provenance.
 - **Lifecycle:** Drafted, reviewed, published, versioned, retired.
-- **Owner:** Domain assessment owner — `<OWNER_NAME>`.
+- **Owner:** Domain assessment owner — Yash Mishra.
 - **Future Extensions:** Adaptive assembly, accommodations, alternate forms.
 
 ## Question
@@ -39,7 +39,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Belongs to Assessments; maps to Concepts; has Question Attempts and source Documents.
 - **Possible Fields:** Identifier, prompt, response format, options, answer specification, explanation, difficulty evidence, concept mappings, provenance.
 - **Lifecycle:** Drafted, reviewed, published, versioned, corrected, retired.
-- **Owner:** Domain content owner — `<OWNER_NAME>`.
+- **Owner:** Domain content owner — Yash Mishra.
 - **Future Extensions:** Parameterized variants, multimedia, rubric-based responses.
 
 ## Question Attempt
@@ -49,7 +49,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Belongs to a User, Question, and optionally Study Session or Assessment; informs Knowledge State.
 - **Possible Fields:** Identifier, response, timestamps, score, feedback, hint use, confidence, context and version references.
 - **Lifecycle:** Started, submitted, evaluated, optionally reviewed or invalidated, retained under privacy policy.
-- **Owner:** Assessment workflow owner — `<OWNER_NAME>`.
+- **Owner:** Assessment workflow owner — Yash Mishra.
 - **Future Extensions:** Partial-credit trace, manual review, offline synchronization.
 
 ## Concept
@@ -59,7 +59,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Belongs to a Domain and Curriculum version; grouped by Topics; represented by graph nodes and edges.
 - **Possible Fields:** Identifier, namespace, name, definition, scope, aliases, domain, version, provenance.
 - **Lifecycle:** Proposed, reviewed, published, versioned, merged or retired with migration guidance.
-- **Owner:** Knowledge engineering and domain reviewer — `<OWNER_NAME>`.
+- **Owner:** Knowledge engineering and domain reviewer — Yash Mishra.
 - **Future Extensions:** Multilingual labels, competency levels, cross-domain equivalence.
 
 ## Topic
@@ -69,7 +69,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Contains or references Concepts; belongs to a Curriculum; may nest under other Topics.
 - **Possible Fields:** Identifier, name, description, parent reference, ordering, domain, curriculum version.
 - **Lifecycle:** Curated, versioned, reorganized, retired.
-- **Owner:** Domain curriculum owner — `<OWNER_NAME>`.
+- **Owner:** Domain curriculum owner — Yash Mishra.
 - **Future Extensions:** Multiple taxonomies, user-defined views.
 
 ## Domain
@@ -79,7 +79,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Owns Curricula, Concepts, Questions, Documents, and domain-specific evaluations.
 - **Possible Fields:** Stable key, display name, version, contract version, status, owner, supported locales, policy references.
 - **Lifecycle:** Proposed, reviewed, installed, enabled, upgraded, disabled, retired.
-- **Owner:** Domain governance owner — `<OWNER_NAME>`.
+- **Owner:** Domain governance owner — Yash Mishra.
 - **Future Extensions:** External certification, tenant-specific domains, compatibility ranges.
 
 ## Embedding
@@ -89,7 +89,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Represents a Chunk, Document, Question, Concept, or other eligible object; produced by a Model.
 - **Possible Fields:** Source reference and version, vector, model reference, dimensions, creation time, normalization and access metadata.
 - **Lifecycle:** Generated, indexed, invalidated when source or model changes, deleted with governed source where required.
-- **Owner:** Retrieval or ML owner — `<OWNER_NAME>`.
+- **Owner:** Retrieval or ML owner — Yash Mishra.
 - **Future Extensions:** Multimodal vectors, quantization, multiple representation spaces.
 
 ## Chunk
@@ -99,7 +99,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Belongs to a Document; may have Embeddings and be referenced by Citations.
 - **Possible Fields:** Identifier, document version, content, sequence, structural path, offsets, token estimate, metadata, derivation version.
 - **Lifecycle:** Derived, validated, indexed, regenerated on source or policy change, deleted with source.
-- **Owner:** Retrieval ingestion owner — `<OWNER_NAME>`.
+- **Owner:** Retrieval ingestion owner — Yash Mishra.
 - **Future Extensions:** Hierarchical chunks, table-aware segments, multimodal regions.
 
 ## Citation
@@ -109,7 +109,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** References a Document or Chunk; attaches to generated output, feedback, or Learning Artifact.
 - **Possible Fields:** Identifier, source reference and version, locator, quoted span or claim span, access time, attribution.
 - **Lifecycle:** Created with output, validated, invalidated if source access or version changes, retained with the dependent record.
-- **Owner:** Grounding and provenance owner — `<OWNER_NAME>`.
+- **Owner:** Grounding and provenance owner — Yash Mishra.
 - **Future Extensions:** Entailment score, reviewer status, citation graph.
 
 ## Recommendation
@@ -119,7 +119,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Belongs to a User and Domain; may reference Knowledge States, Concepts, Revision Tasks, or Learning Artifacts.
 - **Possible Fields:** Identifier, recommendation type, target, rationale, evidence references, rank, confidence, model or rule version, status.
 - **Lifecycle:** Generated, presented, accepted, dismissed, completed, expired, or invalidated.
-- **Owner:** Personalization owner — `<OWNER_NAME>`.
+- **Owner:** Personalization owner — Yash Mishra.
 - **Future Extensions:** Counterfactual rationale, educator approval, group recommendations.
 
 ## Revision Task
@@ -129,7 +129,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Belongs to a User and Revision Plan; targets Concepts and may reference Questions, Flashcards, or Documents.
 - **Possible Fields:** Identifier, task type, target references, planned time, estimated duration, rationale, priority, status, completion evidence.
 - **Lifecycle:** Proposed, accepted, scheduled, rescheduled, completed, skipped, expired.
-- **Owner:** Planning capability owner — `<OWNER_NAME>`.
+- **Owner:** Planning capability owner — Yash Mishra.
 - **Future Extensions:** Recurrence, reminders, calendar integration, collaborative assignment.
 
 ## Knowledge Graph Node
@@ -139,7 +139,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** May represent a Concept, Topic, Curriculum unit, or Learning Artifact; connected by Knowledge Graph Edges.
 - **Possible Fields:** Stable identifier, namespace, node type, entity reference, labels, domain, version, provenance.
 - **Lifecycle:** Proposed, validated, published, versioned, deprecated, removed with migration.
-- **Owner:** Knowledge graph owner — `<OWNER_NAME>`.
+- **Owner:** Knowledge graph owner — Yash Mishra.
 - **Future Extensions:** External identifiers, multilingual properties, temporal validity.
 
 ## Knowledge Graph Edge
@@ -149,7 +149,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Connects source and target nodes; may cite evidence Documents.
 - **Possible Fields:** Identifier, source, target, relationship type, direction, weight or confidence, domain, evidence, validity, version.
 - **Lifecycle:** Proposed, reviewed, published, revised, deprecated, removed.
-- **Owner:** Knowledge graph owner with domain reviewer — `<OWNER_NAME>`.
+- **Owner:** Knowledge graph owner with domain reviewer — Yash Mishra.
 - **Future Extensions:** Competing claims, reviewer consensus, inferred-edge provenance.
 
 ## Experiment
@@ -159,7 +159,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Uses Datasets and Models; produces Evaluation Results and artifacts.
 - **Possible Fields:** Identifier, hypothesis, owner, configuration, input versions, code revision, start/end times, status, conclusion.
 - **Lifecycle:** Planned, running, completed, failed, reviewed, archived.
-- **Owner:** Conducting research or engineering owner — `<OWNER_NAME>`.
+- **Owner:** Conducting research or engineering owner — Yash Mishra.
 - **Future Extensions:** Approval gates, cost and carbon accounting, lineage graphs.
 
 ## Model
@@ -169,7 +169,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Produces Embeddings or outputs; used by Experiments; measured by Evaluation Results.
 - **Possible Fields:** Identifier, task, version, provider or artifact reference, training-data declaration, configuration, limitations, status.
 - **Lifecycle:** Proposed, evaluated, approved, deployed, monitored, deprecated, retired.
-- **Owner:** ML/model governance owner — `<OWNER_NAME>`.
+- **Owner:** ML/model governance owner — Yash Mishra.
 - **Future Extensions:** Fine-tuned lineage, safety card, regional deployment variants.
 
 ## Evaluation Result
@@ -179,7 +179,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Evaluates a Model, pipeline, Feature, or Experiment against an Evaluation Dataset.
 - **Possible Fields:** Identifier, subject and version, dataset version, configuration, metrics, slices, threshold outcomes, errors, reviewer, time.
 - **Lifecycle:** Produced, validated, reviewed, accepted or rejected for a decision, retained for comparison.
-- **Owner:** Evaluation owner — `<OWNER_NAME>`.
+- **Owner:** Evaluation owner — Yash Mishra.
 - **Future Extensions:** Statistical confidence, human-review adjudication, continuous monitoring link.
 
 ## Document
@@ -189,7 +189,7 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Belongs to a Domain or repository scope; produces Chunks; supports Citations, Questions, and Concepts.
 - **Possible Fields:** Identifier, title, source, owner, license, content type, language, checksum, version, access classification, ingestion status.
 - **Lifecycle:** Acquired, rights-checked, validated, processed, published, revised, restricted, retired, deleted.
-- **Owner:** Data and content governance owner — `<OWNER_NAME>`.
+- **Owner:** Data and content governance owner — Yash Mishra.
 - **Future Extensions:** Multimedia transcripts, redaction history, external synchronization.
 
 ## Flashcard
@@ -199,6 +199,5 @@ This document defines important product data objects without prescribing schemas
 - **Relationships:** Maps to Concepts and source Documents; may appear in Revision Tasks and Study Sessions.
 - **Possible Fields:** Identifier, front, back, concept mappings, citations, author or generator version, difficulty, review status.
 - **Lifecycle:** Drafted or generated, reviewed, published, practiced, revised, retired.
-- **Owner:** Learning content owner — `<OWNER_NAME>`.
+- **Owner:** Learning content owner — Yash Mishra.
 - **Future Extensions:** Cloze deletion, multimedia, learner-authored variants, scheduling metadata.
-

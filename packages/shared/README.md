@@ -22,7 +22,7 @@ Add primitives only after at least two owning boundaries need the same stable se
 
 ## Ownership
 
-Architecture/platform maintainers — `<OWNER_NAME>`.
+Architecture/platform maintainer — Yash Mishra.
 
 ## What Does NOT Belong Here
 

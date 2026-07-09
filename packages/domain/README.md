@@ -22,9 +22,8 @@ Context boundaries may gain application ports and domain services after requirem
 
 ## Ownership
 
-Domain architecture and affected capability owners — `<OWNER_NAME>`.
+Domain architecture and affected capability ownership — Yash Mishra.
 
 ## What Does NOT Belong Here
 
 HTTP, UI, database or ORM concerns, provider SDKs, deployment configuration, model inference, examination-specific branching, or cross-context shortcuts.
-
