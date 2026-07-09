@@ -1,6 +1,15 @@
+from datetime import UTC, datetime
+
 import pytest
 
 from content.domain import LearningResource, ResourceType
+from content.normalized import (
+    BlockType,
+    DocumentMetadata,
+    NormalizedBlock,
+    NormalizedDocument,
+    NormalizedPage,
+)
 from content.plugins import (
     AbstractContentProcessor,
     DuplicateProcessorError,
@@ -9,6 +18,7 @@ from content.plugins import (
     ProcessorNotFoundError,
     ProcessorRegistry,
 )
+from content.resource import ResourceHandle
 
 
 class MockPDFProcessor(AbstractContentProcessor):
@@ -22,8 +32,26 @@ class MockPDFProcessor(AbstractContentProcessor):
             description="Mock PDF Processor",
         )
 
-    def process(self, resource: LearningResource) -> str:
-        return "pdf text"
+    def process(self, handle: ResourceHandle) -> NormalizedDocument:
+        return NormalizedDocument(
+            id="doc1",
+            title="t",
+            pages=(
+                NormalizedPage(
+                    page_number=1,
+                    blocks=(
+                        NormalizedBlock(
+                            block_id="b1", block_type=BlockType.PARAGRAPH, text="t", order=1
+                        ),
+                    ),
+                ),
+            ),
+            source="s",
+            checksum="c",
+            version="1.0",
+            created_at=datetime.now(UTC),
+            metadata=DocumentMetadata(),
+        )
 
 
 class MockMarkdownProcessor(AbstractContentProcessor):
@@ -37,8 +65,26 @@ class MockMarkdownProcessor(AbstractContentProcessor):
             description="Mock Markdown Processor",
         )
 
-    def process(self, resource: LearningResource) -> str:
-        return "md text"
+    def process(self, handle: ResourceHandle) -> NormalizedDocument:
+        return NormalizedDocument(
+            id="doc2",
+            title="t",
+            pages=(
+                NormalizedPage(
+                    page_number=1,
+                    blocks=(
+                        NormalizedBlock(
+                            block_id="b1", block_type=BlockType.PARAGRAPH, text="t", order=1
+                        ),
+                    ),
+                ),
+            ),
+            source="s",
+            checksum="c",
+            version="1.0",
+            created_at=datetime.now(UTC),
+            metadata=DocumentMetadata(),
+        )
 
 
 class InvalidMockProcessor:
@@ -81,8 +127,26 @@ def test_duplicate_extension(registry: ProcessorRegistry) -> None:
                 description="conflict",
             )
 
-        def process(self, resource: LearningResource) -> str:
-            return ""
+        def process(self, handle: ResourceHandle) -> NormalizedDocument:
+            return NormalizedDocument(
+                id="doc3",
+                title="t",
+                pages=(
+                    NormalizedPage(
+                        page_number=1,
+                        blocks=(
+                            NormalizedBlock(
+                                block_id="b1", block_type=BlockType.PARAGRAPH, text="t", order=1
+                            ),
+                        ),
+                    ),
+                ),
+                source="s",
+                checksum="c",
+                version="1.0",
+                created_at=datetime.now(UTC),
+                metadata=DocumentMetadata(),
+            )
 
     registry.register(MockPDFProcessor())
     with pytest.raises(DuplicateProcessorError, match="Extension 'pdf' is already registered"):
@@ -101,8 +165,26 @@ def test_duplicate_mime_type(registry: ProcessorRegistry) -> None:
                 description="conflict",
             )
 
-        def process(self, resource: LearningResource) -> str:
-            return ""
+        def process(self, handle: ResourceHandle) -> NormalizedDocument:
+            return NormalizedDocument(
+                id="doc4",
+                title="t",
+                pages=(
+                    NormalizedPage(
+                        page_number=1,
+                        blocks=(
+                            NormalizedBlock(
+                                block_id="b1", block_type=BlockType.PARAGRAPH, text="t", order=1
+                            ),
+                        ),
+                    ),
+                ),
+                source="s",
+                checksum="c",
+                version="1.0",
+                created_at=datetime.now(UTC),
+                metadata=DocumentMetadata(),
+            )
 
     registry.register(MockPDFProcessor())
     with pytest.raises(

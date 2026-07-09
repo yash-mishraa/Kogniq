@@ -1,6 +1,5 @@
 from .interfaces import (
     ChunkGenerator,
-    ContentParser,
     ContentValidator,
     MetadataExtractor,
     SectionExtractor,
@@ -10,7 +9,6 @@ from .orchestrator import ContentProcessingPipeline
 
 __all__ = [
     "ChunkGenerator",
-    "ContentParser",
     "ContentProcessingPipeline",
     "ContentValidator",
     "MetadataExtractor",

@@ -75,6 +75,12 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-09 — Stage 5 Prompt 2
+- **Completed:** Implemented the PDF Processor Foundation in `kogniq-content`. Refactored `AbstractContentProcessor` and pipeline interfaces to natively consume `ResourceHandle` and output `NormalizedDocument`. Added `pymupdf` dependency.
+- **Files Changed:** `packages/content/src/content/processors/pdf/*`, `packages/content/tests/test_pdf_processor.py`, `docs/architecture/pdf-processor.md`, `packages/content/src/content/pipeline/orchestrator.py`, `packages/content/src/content/plugins/interfaces.py`, `test_orchestrator.py`, `test_plugins.py`.
+- **Architecture Changes:** Finalized the processor contract to `ResourceHandle -> NormalizedDocument`. Created the first concrete implementation leveraging PyMuPDF `fitz` for fast, memory-efficient PDF semantics extraction.
+- **Validation:** 100% pass on pytest, mypy, and ruff. No framework leakage (FastAPI, SQLAlchemy, Langchain).
+
 ### 2026-07-09 — Stage 5 Prompt 1
 - **Completed:** Implemented the Educational Knowledge Layer foundation in `kogniq-education`.
 - **Files Changed:** `packages/education/src/education/domain/*`, `packages/education/tests/*`, `docs/architecture/education-layer.md`, root `pyproject.toml`.

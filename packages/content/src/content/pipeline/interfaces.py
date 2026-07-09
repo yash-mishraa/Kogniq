@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from ..domain.entities import LearningResource, ResourceChunk, ResourceSection
 from ..domain.value_objects import ContentStatistics, ResourceMetadata
+from ..normalized.document import NormalizedDocument
 
 
 class ContentValidator(ABC):
@@ -12,19 +13,13 @@ class ContentValidator(ABC):
         pass
 
 
-class ContentParser(ABC):
-    """Parses raw content into a structured intermediate representation."""
-
-    @abstractmethod
-    def parse(self, resource: LearningResource) -> str:
-        pass
-
-
 class MetadataExtractor(ABC):
     """Extracts semantic metadata from the resource."""
 
     @abstractmethod
-    def extract_metadata(self, resource: LearningResource, parsed_content: str) -> ResourceMetadata:
+    def extract_metadata(
+        self, resource: LearningResource, parsed_content: NormalizedDocument
+    ) -> ResourceMetadata:
         pass
 
 
@@ -33,7 +28,7 @@ class SectionExtractor(ABC):
 
     @abstractmethod
     def extract_sections(
-        self, resource: LearningResource, parsed_content: str
+        self, resource: LearningResource, parsed_content: NormalizedDocument
     ) -> list[ResourceSection]:
         pass
 
@@ -43,7 +38,10 @@ class ChunkGenerator(ABC):
 
     @abstractmethod
     def generate_chunks(
-        self, resource: LearningResource, sections: list[ResourceSection], parsed_content: str
+        self,
+        resource: LearningResource,
+        sections: list[ResourceSection],
+        parsed_content: NormalizedDocument,
     ) -> list[ResourceChunk]:
         pass
 

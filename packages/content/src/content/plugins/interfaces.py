@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-from ..domain.entities import LearningResource
+from ..normalized.document import NormalizedDocument
+from ..resource.handle import ResourceHandle
 from .processor_info import ProcessorInfo
 
 
@@ -13,5 +14,5 @@ class AbstractContentProcessor(ABC):
         """Returns the metadata and capabilities of the processor."""
 
     @abstractmethod
-    def process(self, resource: LearningResource) -> str:
-        """Processes a raw learning resource and returns the parsed text content."""
+    def process(self, handle: ResourceHandle) -> NormalizedDocument:
+        """Processes a raw resource handle and returns a normalized document."""

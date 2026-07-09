@@ -6,6 +6,7 @@ requires-python = ">=3.12,<3.14"
 authors = [{ name = "Yash Mishra" }]
 dependencies = [
     "kogniq-shared",
+    "pymupdf>=1.28.0",
 ]
 
 [build-system]

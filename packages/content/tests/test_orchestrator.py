@@ -1,3 +1,6 @@
+from datetime import UTC, datetime
+from typing import Any
+
 import pytest
 
 from content.domain import (
@@ -13,15 +16,36 @@ from content.domain import (
     ResourceType,
     ResourceValidated,
 )
+from content.normalized import (
+    BlockType,
+    DocumentMetadata,
+    NormalizedBlock,
+    NormalizedDocument,
+    NormalizedPage,
+)
 from content.pipeline import (
     ChunkGenerator,
-    ContentParser,
     ContentProcessingPipeline,
     ContentValidator,
     MetadataExtractor,
     SectionExtractor,
     StatisticsExtractor,
 )
+from content.plugins.interfaces import AbstractContentProcessor
+from content.resource import (
+    AbstractStreamReference,
+    Checksum,
+    ChecksumAlgorithm,
+    ContentSource,
+    LifecycleState,
+    ResourceHandle,
+    ResourceMetadata as HandleMetadata,
+)
+
+
+class MockStreamReference(AbstractStreamReference):
+    def open_stream(self) -> Any:
+        return "mock"
 
 
 class MockValidator(ContentValidator):
@@ -34,31 +58,58 @@ class MockValidator(ContentValidator):
         return True, ""
 
 
-class MockParser(ContentParser):
+class MockParser(AbstractContentProcessor):
     def __init__(self, should_fail: bool = False) -> None:
         self.should_fail = should_fail
 
-    def parse(self, resource: LearningResource) -> str:
+    @property
+    def processor_info(self) -> Any:
+        return None
+
+    def process(self, handle: ResourceHandle) -> NormalizedDocument:
         if self.should_fail:
             raise RuntimeError("Parser failed mock")
-        return "parsed text"
+        return NormalizedDocument(
+            id="doc1",
+            title="t",
+            pages=(
+                NormalizedPage(
+                    page_number=1,
+                    blocks=(
+                        NormalizedBlock(
+                            block_id="b1", block_type=BlockType.PARAGRAPH, text="t", order=1
+                        ),
+                    ),
+                ),
+            ),
+            source="s",
+            checksum="c",
+            version="1.0",
+            created_at=datetime.now(UTC),
+            metadata=DocumentMetadata(),
+        )
 
 
 class MockMetadataExtractor(MetadataExtractor):
-    def extract_metadata(self, resource: LearningResource, parsed_content: str) -> ResourceMetadata:
+    def extract_metadata(
+        self, resource: LearningResource, parsed_content: NormalizedDocument
+    ) -> ResourceMetadata:
         return ResourceMetadata(language="en")
 
 
 class MockSectionExtractor(SectionExtractor):
     def extract_sections(
-        self, resource: LearningResource, parsed_content: str
+        self, resource: LearningResource, parsed_content: NormalizedDocument
     ) -> list[ResourceSection]:
         return [ResourceSection(resource_id=resource.id, title="S1", order=1)]
 
 
 class MockChunkGenerator(ChunkGenerator):
     def generate_chunks(
-        self, resource: LearningResource, sections: list[ResourceSection], parsed_content: str
+        self,
+        resource: LearningResource,
+        sections: list[ResourceSection],
+        parsed_content: NormalizedDocument,
     ) -> list[ResourceChunk]:
         return [
             ResourceChunk(
@@ -91,7 +142,24 @@ def resource() -> LearningResource:
     )
 
 
-def test_pipeline_success(resource: LearningResource) -> None:
+@pytest.fixture
+def handle() -> ResourceHandle:
+    return ResourceHandle(
+        id="res_1",
+        filename="test.pdf",
+        extension=".pdf",
+        mime_type="application/pdf",
+        source=ContentSource.UPLOAD,
+        checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value="hash"),
+        size_bytes=100,
+        created_at=datetime.now(UTC),
+        metadata=HandleMetadata(),
+        stream_reference=MockStreamReference(),
+        lifecycle_state=LifecycleState.CREATED,
+    )
+
+
+def test_pipeline_success(resource: LearningResource, handle: ResourceHandle) -> None:
     pipeline = ContentProcessingPipeline(
         MockValidator(),
         MockParser(),
@@ -100,7 +168,7 @@ def test_pipeline_success(resource: LearningResource) -> None:
         MockChunkGenerator(),
         MockStatisticsExtractor(),
     )
-    result = pipeline.process(resource)
+    result = pipeline.process(resource, handle)
 
     assert result.resource.status == ProcessingStatus.PROCESSED
     assert len(result.sections) == 1
@@ -111,7 +179,7 @@ def test_pipeline_success(resource: LearningResource) -> None:
     assert isinstance(result.events[2], ResourceProcessingCompleted)
 
 
-def test_pipeline_validator_failure(resource: LearningResource) -> None:
+def test_pipeline_validator_failure(resource: LearningResource, handle: ResourceHandle) -> None:
     pipeline = ContentProcessingPipeline(
         MockValidator(should_fail=True),
         MockParser(),
@@ -120,7 +188,7 @@ def test_pipeline_validator_failure(resource: LearningResource) -> None:
         MockChunkGenerator(),
         MockStatisticsExtractor(),
     )
-    result = pipeline.process(resource)
+    result = pipeline.process(resource, handle)
 
     assert result.resource.status == ProcessingStatus.FAILED
     assert len(result.sections) == 0
@@ -130,7 +198,7 @@ def test_pipeline_validator_failure(resource: LearningResource) -> None:
     assert result.events[1].error_message == "Validation failed mock"
 
 
-def test_pipeline_parser_failure(resource: LearningResource) -> None:
+def test_pipeline_parser_failure(resource: LearningResource, handle: ResourceHandle) -> None:
     pipeline = ContentProcessingPipeline(
         MockValidator(),
         MockParser(should_fail=True),
@@ -139,7 +207,7 @@ def test_pipeline_parser_failure(resource: LearningResource) -> None:
         MockChunkGenerator(),
         MockStatisticsExtractor(),
     )
-    result = pipeline.process(resource)
+    result = pipeline.process(resource, handle)
 
     assert result.resource.status == ProcessingStatus.FAILED
     assert len(result.events) == 3

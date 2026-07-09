@@ -11,9 +11,10 @@ from ..domain.events import (
 )
 from ..domain.results import ProcessingResult
 from ..domain.value_objects import ContentStatistics, ResourceMetadata
+from ..plugins.interfaces import AbstractContentProcessor
+from ..resource.handle import ResourceHandle
 from .interfaces import (
     ChunkGenerator,
-    ContentParser,
     ContentValidator,
     MetadataExtractor,
     SectionExtractor,
@@ -30,7 +31,7 @@ class ContentProcessingPipeline:
     def __init__(
         self,
         validator: ContentValidator,
-        parser: ContentParser,
+        parser: AbstractContentProcessor,
         metadata_extractor: MetadataExtractor,
         section_extractor: SectionExtractor,
         chunk_generator: ChunkGenerator,
@@ -43,7 +44,7 @@ class ContentProcessingPipeline:
         self.chunk_generator = chunk_generator
         self.statistics_extractor = statistics_extractor
 
-    def process(self, resource: LearningResource) -> ProcessingResult:
+    def process(self, resource: LearningResource, handle: ResourceHandle) -> ProcessingResult:
         start_time = datetime.datetime.now(datetime.UTC)
         events: list[DomainEvent] = []
 
@@ -69,7 +70,7 @@ class ContentProcessingPipeline:
             # 2. Parsing
             resource.status = ProcessingStatus.PROCESSING
             events.append(ResourceProcessingStarted(resource_id=resource.id))
-            parsed_content = self.parser.parse(resource)
+            parsed_content = self.parser.process(handle)
 
             # 3. Extract Metadata
             metadata = self.metadata_extractor.extract_metadata(resource, parsed_content)
