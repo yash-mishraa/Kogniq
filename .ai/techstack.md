@@ -11,10 +11,10 @@ No library or vendor is finalized during Stage 0. A choice becomes **Chosen** on
 
 ## Backend
 
-- **Chosen:** Not selected.
-- **Alternatives:** Python frameworks; TypeScript frameworks; other evidence-backed server platforms.
-- **Reason:** Domain boundaries, latency, deployment, and team constraints are not yet defined.
-- **Current Status:** Deferred.
+- **Chosen:** FastAPI for the application boundary, Pydantic Settings for environment configuration, and Uvicorn as the ASGI server.
+- **Alternatives:** Other Python ASGI frameworks; TypeScript frameworks; other evidence-backed server platforms.
+- **Reason:** The selected stack supports typed contracts, dependency injection, OpenAPI, ASGI middleware, lifespan management, and composition through an application factory while remaining independent of persistence and business logic.
+- **Current Status:** Foundational application factory, system endpoints, configurable middleware, standardized errors, lifecycle logging, and initial tests implemented. Authentication, persistence, and business APIs remain deferred.
 
 ## Frontend
 

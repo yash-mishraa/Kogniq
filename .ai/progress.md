@@ -6,7 +6,7 @@ Stage 1 — Monorepo Foundation (In Progress)
 
 ## Current Prompt
 
-Stage 1 Prompt 2.1 — Repository Identity and README Clarity Update.
+Stage 1 Prompt 3 — FastAPI Core & Backend Foundation.
 
 ## Completed
 
@@ -31,10 +31,13 @@ Stage 1 Prompt 2.1 — Repository Identity and README Clarity Update.
 - Recorded ADR-0005 and updated Python technology status.
 - Clarified Kogniq's public repository identity, active-development status, planned learning-intelligence capabilities, and GATE reference-domain role.
 - Replaced public author and ownership placeholders with Yash Mishra and added the `yash-mishraa` GitHub profile reference.
+- Established `apps/api` and `packages/shared` as installable uv workspace packages.
+- Implemented the factory-only FastAPI foundation with environment settings, lifespan, logging, middleware, standardized errors, and system metadata endpoints.
+- Added and passed the requested startup, health, and version tests.
 
 ## In Progress
 
-- Human review and acceptance of the repository identity cleanup.
+- Human review and acceptance of the FastAPI backend foundation.
 
 ## Blocked
 
@@ -138,3 +141,13 @@ Append new entries; never remove earlier sessions.
 - **Known Issues:** Repository URL, license, public contact channels, and project website remain unpublished or undecided.
 - **Validation:** Audited visible files for owner/author placeholders, legacy active product names, README clarity, non-empty content, and documentation-only scope.
 - **Future Work:** Await the next explicit prompt; do not begin Prompt 3 features automatically.
+
+### 2026-07-09 — Stage 1 Prompt 3
+
+- **Completed:** Implemented the FastAPI application factory, Pydantic Settings configuration, centralized standard-library logging integration, generic dependencies, configurable request ID/timing/error/CORS/trusted-host/compression middleware, standardized error responses, lifespan hooks, OpenAPI metadata, and `/health` and `/version`.
+- **Files Changed:** Added the `kogniq-api` and `kogniq-shared` workspace package manifests; moved shared Python code to `packages/shared/src/shared`; added foundational API source and three tests; updated root tooling/configuration and the permitted architecture, technology, and progress documents.
+- **Architecture Changes:** No service or domain boundary changed. The planned `apps/api` boundary is now executable through a factory-only FastAPI composition root.
+- **New Decisions:** None. Implementation follows ADR-0004 and ADR-0005.
+- **Known Issues:** FastAPI 0.139 emits a third-party `TestClient` deprecation warning while its official testing guide still prescribes `httpx`; no runtime behavior is affected.
+- **Validation:** Ruff format and lint passed; strict MyPy passed for 43 source files; pytest passed all 3 requested tests.
+- **Future Work:** Review the backend foundation and await an explicit next prompt; do not add authentication, persistence, business APIs, or intelligence features.

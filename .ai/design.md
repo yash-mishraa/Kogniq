@@ -71,7 +71,7 @@ The future system will expose learning experiences through a frontend, coordinat
 
 ### API Application
 
-`apps/api` will own application workflows, stable external contracts, authorization enforcement, and orchestration of public package capabilities.
+`apps/api` owns the FastAPI application factory and foundational HTTP concerns. Its current public surface is limited to process health and version metadata; future application workflows, authorization enforcement, and package orchestration remain unimplemented.
 
 ### Web Application
 

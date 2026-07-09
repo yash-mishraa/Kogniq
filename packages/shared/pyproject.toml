@@ -1,0 +1,15 @@
+[project]
+name = "kogniq-shared"
+version = "0.1.0"
+description = "Framework-neutral foundations shared by Kogniq packages"
+requires-python = ">=3.12,<3.14"
+authors = [{ name = "Yash Mishra" }]
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/shared"]
+

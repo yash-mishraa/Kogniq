@@ -13,13 +13,14 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Typing :: Typed",
 ]
-dependencies = []
+dependencies = ["kogniq-api"]
 
 # Feature dependencies will be added only by the package that owns them.
 [project.optional-dependencies]
 
 [dependency-groups]
 dev = [
+    "httpx",
     "mypy",
     "pytest",
     "pytest-cov",
@@ -30,11 +31,16 @@ dev = [
 package = false
 default-groups = ["dev"]
 
+[tool.uv.sources]
+kogniq-api = { workspace = true }
+
 # Workspace members are added when a directory becomes an installable Python
 # project. Documentation-only package directories are intentionally excluded.
 [tool.uv.workspace]
-members = []
-exclude = ["apps/*", "packages/*"]
+members = [
+    "apps/api",
+    "packages/shared",
+]
 
 [tool.ruff]
 target-version = "py312"
@@ -77,7 +83,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["shared"]
+known-first-party = ["apps", "shared"]
 combine-as-imports = true
 
 [tool.ruff.format]
@@ -92,8 +98,8 @@ python_version = "3.12"
 strict = true
 namespace_packages = true
 explicit_package_bases = true
-mypy_path = ["packages"]
-files = ["packages", "tests"]
+mypy_path = ["apps/api/src", "packages/shared/src"]
+files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared"]
 exclude = [
     "(^|/)\\.venv/",
     "(^|/)build/",
@@ -107,7 +113,8 @@ pretty = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-testpaths = ["tests"]
+testpaths = ["apps/api/tests", "tests"]
+pythonpath = ["apps/api/src", "packages/shared/src"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
@@ -118,7 +125,7 @@ addopts = [
 
 [tool.coverage.run]
 branch = true
-source = ["packages"]
+source = ["apps/api/src/apps/api/app", "packages/shared/src/shared"]
 omit = [
     "*/generated/*",
     "*/tests/*",

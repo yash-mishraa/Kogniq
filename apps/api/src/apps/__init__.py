@@ -1,0 +1,1 @@
+"""Kogniq application namespaces."""

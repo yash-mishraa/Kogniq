@@ -1,9 +1,12 @@
 .DEFAULT_GOAL := help
 
-.PHONY: setup format lint typecheck test clean help
+.PHONY: setup serve format lint typecheck test clean help
 
 setup: ## Create/update the uv environment and install development tools.
 	uv sync --group dev
+
+serve: ## Run the API factory for local development.
+	uv run uvicorn apps.api.app.main:app --reload
 
 format: ## Format Python source with Ruff.
 	uv run --group dev ruff format .
