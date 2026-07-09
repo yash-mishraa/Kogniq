@@ -1,0 +1,137 @@
+[project]
+name = "kogniq"
+version = "0.1.0"
+description = "AI Learning Intelligence Platform"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+authors = [{ name = "<OWNER_NAME>" }]
+license = "<LICENSE>"
+keywords = ["ai", "education", "learning-intelligence"]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Typing :: Typed",
+]
+dependencies = []
+
+# Feature dependencies will be added only by the package that owns them.
+[project.optional-dependencies]
+
+[dependency-groups]
+dev = [
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+
+[tool.uv]
+package = false
+default-groups = ["dev"]
+
+# Workspace members are added when a directory becomes an installable Python
+# project. Documentation-only package directories are intentionally excluded.
+[tool.uv.workspace]
+members = []
+exclude = ["apps/*", "packages/*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = [
+    "A",
+    "ANN",
+    "ARG",
+    "B",
+    "C4",
+    "E",
+    "F",
+    "I",
+    "N",
+    "PERF",
+    "PIE",
+    "PTH",
+    "RUF",
+    "SIM",
+    "UP",
+]
+ignore = [
+    "ANN401", # `Any` is valid at explicit serialization and integration boundaries.
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "ANN201", # Test functions commonly communicate through assertions, not return types.
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["shared"]
+combine-as-imports = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = ["packages"]
+files = ["packages", "tests"]
+exclude = [
+    "(^|/)\\.venv/",
+    "(^|/)build/",
+    "(^|/)dist/",
+    "(^|/)generated/",
+]
+warn_unreachable = true
+show_error_codes = true
+show_column_numbers = true
+pretty = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["packages"]
+omit = [
+    "*/generated/*",
+    "*/tests/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+precision = 2
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
+

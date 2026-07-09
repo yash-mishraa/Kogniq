@@ -6,7 +6,7 @@ Kogniq is designed as a domain-neutral platform. GATE is the first planned learn
 
 ## Project Status
 
-**Stage 1 — Monorepo Foundation.** The engineering workspace and documentation contracts exist. No application, infrastructure, data, API, UI, or model functionality has been implemented, and no dependency tooling has been selected.
+**Stage 1 — Engineering Foundation.** The modular workspace, Python toolchain configuration, and minimal standard-library shared scaffolding exist. No application, infrastructure, database, API, UI, model, RAG, or agent functionality has been implemented.
 
 ## Architecture Overview
 

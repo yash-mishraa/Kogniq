@@ -1,6 +1,5 @@
 # Shared Logging Contracts
 
-Reserved for future structured telemetry contracts such as event metadata, severity semantics, correlation context, and redaction requirements.
+Provides standard-library process logging configuration and a context-aware `LoggerAdapter` that can carry non-sensitive structured fields.
 
-Logging backends, transports, global logger instances, raw learner content, and infrastructure dashboards do not belong here.
-
+The design remains backend-neutral. External logging frameworks, global logger instances, raw learner content, infrastructure transports, and dashboards do not belong here.

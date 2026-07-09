@@ -380,6 +380,7 @@ sequenceDiagram
 - Treat privacy, security, accessibility, provenance, and observability as acceptance criteria.
 - Select technology only after representative measurement.
 - Keep documentation and implementation consistent in the same change.
+- Use the root uv workspace and centralized Python quality configuration for future Python packages.
 
 ## Extension Strategy
 

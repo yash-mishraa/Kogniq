@@ -112,15 +112,15 @@ These contracts govern the documentation-only workspace directories created in S
 
 - **Purpose:** Hold minimal stable contracts and primitives genuinely shared across boundaries.
 - **Responsibilities:** Cross-package identifiers, result/error envelopes, correlation context, pagination, time/version primitives, contract metadata, and validation-neutral schemas.
-- **Public Interfaces:** Entire package surface is public and deliberately small; every export requires ownership and compatibility review.
+- **Public Interfaces:** Deliberate exports from `shared.config`, `shared.logging`, `shared.exceptions`, and `shared.interfaces`; every new export requires ownership and compatibility review.
 - **Allowed Dependencies:** Language/runtime standard facilities and narrowly justified contract-validation libraries.
 - **Forbidden Dependencies:** Product business rules, provider SDKs, storage clients, framework-specific application code, domain-specific types, or imports from any other Kogniq package.
-- **Future Modules:** Identifiers, errors, result types, metadata, pagination, provenance, compatibility, telemetry context, and contract test utilities.
+- **Future Modules:** Identifiers, result types, metadata, pagination, provenance, compatibility, and contract test utilities. Configuration, logging, generic exceptions, and foundational provider protocols now have minimal scaffolding.
 - **Ownership:** Architecture/platform maintainers — `<OWNER_NAME>`.
 - **Expected Tests:** Serialization, validation, compatibility, property, platform portability, and consumer contract tests.
 - **Expected Documentation:** Export rationale, semantic guarantees, version policy, examples, compatibility rules, and deprecation process.
 - **Expected APIs:** In-process/shared contract definitions only; no independent network API.
-- **Expected Configuration:** None where possible; shared contracts must not read environment state.
+- **Expected Configuration:** The environment provider reads only prefixed, generic process settings through an injectable mapping. Shared contracts must not own service credentials or deployment policy.
 
 ## `packages/domain`
 

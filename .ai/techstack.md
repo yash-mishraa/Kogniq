@@ -2,6 +2,13 @@
 
 No library or vendor is finalized during Stage 0. A choice becomes **Chosen** only after requirements, alternatives, evaluation evidence, and an ADR exist.
 
+## Python Workspace
+
+- **Chosen:** Python 3.12–3.13; uv for project/workspace and dependency lifecycle; Ruff for linting and formatting; MyPy for strict static typing; pytest and coverage.py for testing and coverage measurement.
+- **Alternatives:** pip with virtualenv; Poetry; PDM; Hatch; separate formatter/linter/import-sorter tools; Pyright; unittest.
+- **Reason:** The selected toolchain provides one fast workspace workflow, centralized standards, strict typing, and low configuration duplication while keeping runtime dependencies empty.
+- **Current Status:** Foundation configured in `pyproject.toml` and resolved in `uv.lock`; development dependencies were not installed in this session.
+
 ## Backend
 
 - **Chosen:** Not selected.
@@ -53,10 +60,10 @@ No library or vendor is finalized during Stage 0. A choice becomes **Chosen** on
 
 ## Testing
 
-- **Chosen:** No framework selected.
-- **Alternatives:** Language-native unit, integration, contract, browser, model, and evaluation frameworks.
-- **Reason:** Framework choices follow selected runtimes; testing expectations are defined in `coding_rules.md`.
-- **Current Status:** Policy defined; tooling deferred.
+- **Chosen:** pytest for Python test execution and pytest-cov/coverage.py for future Python coverage.
+- **Alternatives:** unittest and other language-specific test frameworks for non-Python workspaces.
+- **Reason:** pytest supports modular discovery and future unit, integration, and contract suites without coupling product architecture to the runner.
+- **Current Status:** Discovery and coverage policy configured; no tests exist yet.
 
 ## CI/CD
 
@@ -71,4 +78,3 @@ No library or vendor is finalized during Stage 0. A choice becomes **Chosen** on
 - **Alternatives:** Open standards with self-hosted or managed telemetry backends.
 - **Reason:** SLOs, data sensitivity, retention, and cost requirements are not defined.
 - **Current Status:** Deferred.
-

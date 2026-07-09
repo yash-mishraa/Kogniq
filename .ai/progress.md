@@ -6,7 +6,7 @@ Stage 1 — Monorepo Foundation (In Progress)
 
 ## Current Prompt
 
-Stage 1 Prompt 1 — Monorepo Foundation & Workspace Architecture.
+Stage 1 Prompt 2 — Python Workspace Foundation & Engineering Tooling.
 
 ## Completed
 
@@ -25,10 +25,14 @@ Stage 1 Prompt 1 — Monorepo Foundation & Workspace Architecture.
 - Created the physical modular-monorepo workspace and bounded-context documentation.
 - Added workspace, architecture-view, shared-structure, and script-structure guidance without source code or dependencies.
 - Recorded ADR-0004 and retired superseded top-level capability placeholders.
+- Initialized the uv-based Python workspace and centralized Ruff, MyPy, pytest, and coverage policy.
+- Added repository editor, ignore, environment-example, and Makefile conventions.
+- Added minimal standard-library shared configuration, logging, generic exceptions, and foundational provider protocols.
+- Recorded ADR-0005 and updated Python technology status.
 
 ## In Progress
 
-- Human review and acceptance of the Stage 1 workspace foundation.
+- Human review and acceptance of the Python engineering foundation.
 
 ## Blocked
 
@@ -46,7 +50,7 @@ Stage 1 Prompt 1 — Monorepo Foundation & Workspace Architecture.
 - Architecture targets, SLOs, data classifications, and deployment topology are intentionally undecided.
 - The future domain plugin contract, location, compatibility model, and isolation rules are intentionally undecided.
 - Provisional performance, scale, upload, and platform assumptions require discovery before becoming approved targets.
-- No language workspace, package manager, build system, dependency versions, or task runner has been selected.
+- Development tool versions are resolved in `uv.lock` but the development environment has not been installed or exercised.
 - Cataloged services and APIs remain logical inventory and must not be interpreted as deployed components.
 
 ## Open Questions
@@ -112,3 +116,13 @@ Append new entries; never remove earlier sessions.
 - **Known Issues:** Workspace tooling, languages, frameworks, dependency manifests, runtime configuration, and infrastructure remain intentionally unselected.
 - **Validation:** Confirmed required directory structure, README sections, bounded contexts, architecture placeholders, script categories, naming consistency, non-empty files, and absence of source/dependency/configuration implementations.
 - **Future Work:** Review the workspace foundation; continue Stage 1 only through an explicit prompt and evidence-backed technology decisions.
+
+### 2026-07-09 — Stage 1 Prompt 2
+
+- **Completed:** Initialized the uv root workspace; configured Python 3.12–3.13, Ruff, strict MyPy, pytest, coverage, editor rules, ignore rules, environment placeholders, and developer commands; added minimal reusable shared scaffolding.
+- **Files Changed:** Added `pyproject.toml`, `uv.lock`, `.editorconfig`, `.gitattributes`, `.gitignore`, `.env.example`, `Makefile`, and Python modules under `packages/shared/{config,logging,exceptions,interfaces}`; updated related READMEs and AI context documents.
+- **Architecture Changes:** No product or service boundary changed. Established the Python engineering toolchain and made the approved `packages/shared` contract minimally executable.
+- **New Decisions:** ADR-0005 — Adopt uv-Based Python Engineering Toolchain.
+- **Known Issues:** Development tools were resolved but not installed; no tests exist.
+- **Validation:** Generated and checked `uv.lock`, compiled and imported all shared modules, exercised environment loading and logging construction, and reviewed repository naming and placeholders. Full Ruff, MyPy, and pytest runs require the intentionally unsynced dev environment.
+- **Future Work:** Review and lock the development toolchain, then continue only through the next explicit Stage 1 prompt.

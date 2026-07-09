@@ -43,6 +43,8 @@ Kogniq is the platform. GATE is the first planned domain plugin and reference im
 
 The repository is a modular monorepo. Top-level directories represent durable capability boundaries, not deployment units. Shared contracts should be explicit and minimal. Domain-specific packages must extend platform contracts rather than fork or contaminate the core. Experimental work must graduate through evaluation before entering product modules. AI context files are versioned operational memory, not incidental notes.
 
+The Python workspace is rooted in `pyproject.toml` and managed with `uv`. Shared Python foundations target Python 3.12–3.13 and use centralized Ruff, MyPy, pytest, and coverage policy. Individual directories become installable workspace members only when their package boundary is approved.
+
 ## Repository Intelligence References
 
 These documents refine this architecture without replacing it:

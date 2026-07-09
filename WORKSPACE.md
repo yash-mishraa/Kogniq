@@ -15,7 +15,7 @@ Applications may compose public package interfaces. Packages may depend on `pack
 
 ## Tooling Status
 
-No language workspace, package manager, build system, dependency version, or task runner has been selected. Their future configuration files must be introduced only after an evidence-backed technology decision in [`.ai/techstack.md`](.ai/techstack.md) and any required ADR.
+The Python workspace uses `uv`, targets Python 3.12–3.13, and centralizes Ruff, MyPy, pytest, and coverage configuration in `pyproject.toml`. The root project is non-packaged; documentation-only directories become uv workspace members only when they gain an approved Python distribution boundary. No frontend workspace, application framework, or runtime service dependency is selected.
 
 ## Adding a Workspace Member
 
@@ -25,4 +25,3 @@ Before adding an application or package:
 2. Follow [`.ai/architecture_decision_flow.md`](.ai/architecture_decision_flow.md).
 3. Add a README and update the package contract and architecture references.
 4. Avoid placeholder source code and speculative dependency declarations.
-

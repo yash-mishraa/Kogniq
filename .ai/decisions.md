@@ -63,3 +63,15 @@ This file is the Architecture Decision Record (ADR) log. ADRs are immutable hist
 - **Consequences:** Physical paths now match package contracts and clarify dependency direction before source exists. The `packages/domain` boundary makes business contexts explicit. Future tooling can be selected without another structural migration, but workspace manifests must wait for technology decisions. Existing references and contributor habits must use the new paths.
 - **Supersedes:** None
 - **Superseded By:** None
+
+## ADR-0005 — Adopt uv-Based Python Engineering Toolchain
+
+- **Status:** Accepted
+- **Date:** 2026-07-09
+- **Deciders:** `<OWNER_NAME>`
+- **Context:** Stage 1 requires a reproducible Python engineering foundation before application or intelligence packages are implemented. The repository needs one source for supported Python versions, dependency groups, formatting, linting, typing, test discovery, and coverage policy without selecting product frameworks or creating independently configured package islands.
+- **Decision:** Target Python 3.12–3.13 and use uv for the root project, workspace membership, dependency lifecycle, and developer command execution. Centralize Ruff, strict MyPy, pytest, and coverage.py configuration in `pyproject.toml`. Keep the root project non-packaged and add package directories as uv workspace members only when their Python distribution boundaries are approved. Permit minimal standard-library scaffolding in `packages/shared` for configuration, logging, generic exceptions, and broadly reusable provider protocols.
+- **Alternatives Considered:** pip and virtualenv; Poetry; Pipenv; PDM or Hatch; per-package tool configuration; separate Black, Flake8, and isort tools; Pyright; delaying Python standards until API implementation.
+- **Consequences:** Future Python work receives consistent local commands and quality policy with no runtime dependency. Development tools remain an explicit dev group and require `uv sync` before first use. The repository must maintain Python 3.12 compatibility, avoid package-specific configuration drift, and keep generic shared abstractions small. Non-Python workspaces will require separate evidence-backed decisions.
+- **Supersedes:** None
+- **Superseded By:** None
