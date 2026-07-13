@@ -100,13 +100,20 @@ Own examination-neutral business language and bounded contexts for learning, ass
 
 - Pure-Python domain models for vector representations.
 - **Bounded Context**: Represents the mathematical state of parsed content chunks and abstracts both vector generation and vector storage. Strictly provider-agnostic.
-- **Key Concepts**: `EmbeddingVector`, `Embedding`, `EmbeddingCollection`, `EmbeddingMetadata`, `EmbeddingStatistics`, `AbstractEmbeddingProvider`, `EmbeddingProviderRegistry`, `LocalEmbeddingProvider`, `AbstractVectorStore`, `VectorStoreRegistry`, `SearchResult`, `StoreInfo`.
+- **Key Concepts**: `EmbeddingVector`, `Embedding`, `EmbeddingCollection`, `EmbeddingMetadata`, `EmbeddingStatistics`, `AbstractEmbeddingProvider`, `EmbeddingProviderRegistry`, `LocalEmbeddingProvider`, `AbstractVectorStore`, `VectorStoreRegistry`, `SearchResult`, `StoreInfo`, `ChromaVectorStore`.
 - **Invariants**: Strictly immutable. `EmbeddingCollection` enforces homogeneous dimensions, provider, and model across all contained vectors. Providers and stores execute entirely behind abstract interfaces, decoupled from concrete AI and database SDKs.
 Own learner modeling, knowledge tracing, ranking, recommendation, training, inference contracts, and model lifecycle artifacts.
 
+### packages/retrieval (`kogniq-retrieval`)
+
+- Pure-Python orchestration layer mapping user queries to provider-agnostic vector similarity search.
+- **Bounded Context**: Composes Embedding Providers and Vector Stores. Orchestrates retrieval without LLMs, prompt construction, or RAG-specific context windowing.
+- **Key Concepts**: `RetrievalQuery`, `RetrievalResult`, `AbstractRetriever`, `SemanticRetriever`, `RetrieverConfig`.
+- **Invariants**: Exclusively maps and translates domain results; delegates actual embedding logic and nearest-neighbor search completely.
+
 ### RAG
 
-Own ingestion, indexing, retrieval, reranking, citation assembly, grounded-generation policies, and retrieval evaluation.
+Own ingestion, indexing, reranking, citation assembly, grounded-generation policies, and retrieval evaluation.
 
 ### Knowledge Graph
 
@@ -141,6 +148,7 @@ Future domain plugins will package examination-specific concepts, curriculum map
 | `packages/shared/` | Minimal stable cross-package contracts | Business and domain logic |
 | `packages/domain/` | Examination-neutral bounded contexts | Delivery and provider concerns |
 | `packages/ml/` | Predictive intelligence lifecycle | Product APIs |
+| `packages/retrieval/` | Provider-agnostic vector orchestration | Chunk hydration or RAG pipelines |
 | `packages/rag/` | Grounded retrieval lifecycle | General application workflows |
 | `packages/agents/` | Agent orchestration contracts | Unbounded autonomous access |
 | `packages/knowledge_graph/` | Ontology and graph lifecycle | Generic persistence |

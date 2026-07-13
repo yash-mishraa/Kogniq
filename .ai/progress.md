@@ -75,6 +75,16 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-13 — Stage 9 Prompt 1
+- **Completed:** Retrieval Domain Foundation.
+- **Files Changed:** `pyproject.toml` (root & retrieval), `retrieval/models.py`, `interfaces.py`, `config.py`, `semantic_retriever.py`, `exceptions.py`, `test_semantic_retriever.py`, `demo_retriever.py`, `retrieval-domain.md`.
+- **Architecture Changes:** Established the isolated `AbstractRetriever` contract. Built `SemanticRetriever` orchestration wrapping `AbstractEmbeddingProvider` and `AbstractVectorStore` without leaking framework dependencies or orchestrating RAG-level logic.
+
+### 2026-07-13 — Stage 8 Prompt 5
+- **Completed:** ChromaDB Vector Store Foundation.
+- **Files Changed:** `pyproject.toml`, `store.py`, `exceptions.py`, `__init__.py`, `test_chroma_store.py`, `demo_chroma_store.py`, `chroma-vector-store.md`.
+- **Architecture Changes:** Implemented `ChromaVectorStore`, the first concrete implementation of `AbstractVectorStore`. Configured strict boundary isolation, domain model wrapping, and normalized cosine similarity conversion without leaking ChromaDB components.
+
 ### 2026-07-13 — Stage 8 Prompt 4
 - **Completed:** Universal Vector Store Interface.
 - **Files Changed:** `interfaces.py`, `store_info.py`, `registry.py`, `exceptions.py`, `registry_exceptions.py`, `search_result.py`, `test_vector_store_interface.py`, `test_vector_store_registry.py`, `demo_vector_store_registry.py`, `vector-store.md`.
