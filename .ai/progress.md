@@ -75,6 +75,11 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-13 — Stage 7 Prompt 1
+- **Completed:** Implemented Universal Chunk Engine Foundation. It introduces the canonical `Chunk`, `ChunkMetadata`, `ChunkStatistics`, and `ChunkCollection` domain models.
+- **Files Changed:** `chunking/*`, `test_chunk_model.py`, `demo_chunk_model.py`, `docs/architecture/chunk-model.md`.
+- **Architecture Changes:** Established an immutable, processor-independent chunk representation ready for downstream AI consumption, with placeholders for future embeddings and knowledge graph nodes. No specific splitting strategies or AI SDKs were introduced.
+
 ### 2026-07-13 — Stage 6 Prompt 2
 - **Completed:** Implemented the HTML Processor Foundation. It introduces static DOM parsing via `beautifulsoup4`, mapping semantic HTML into Kogniq's `NormalizedDocument` format via recursive pre-order traversal.
 - **Files Changed:** `processors/html/*`, `test_html_processor.py`, `demo_html_processor.py`, `processors/__init__.py`.

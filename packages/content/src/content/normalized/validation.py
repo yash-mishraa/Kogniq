@@ -20,7 +20,7 @@ class InvalidBlockError(NormalizedDocumentError):
 def validate_not_empty(
     value: str,
     field_name: str,
-    exception_class: type[NormalizedDocumentError] = InvalidDocumentError,
+    exception_class: type[Exception] = InvalidDocumentError,
 ) -> None:
     """Validates that a string is not empty or entirely whitespace."""
     if not value or not value.strip():
@@ -30,7 +30,7 @@ def validate_not_empty(
 def validate_positive(
     value: int | float,
     field_name: str,
-    exception_class: type[NormalizedDocumentError] = InvalidDocumentError,
+    exception_class: type[Exception] = InvalidDocumentError,
 ) -> None:
     """Validates that a number is strictly positive."""
     if value <= 0:
@@ -40,7 +40,7 @@ def validate_positive(
 def validate_non_negative(
     value: int | float,
     field_name: str,
-    exception_class: type[NormalizedDocumentError] = InvalidDocumentError,
+    exception_class: type[Exception] = InvalidDocumentError,
 ) -> None:
     """Validates that a number is non-negative."""
     if value < 0:
