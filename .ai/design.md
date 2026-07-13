@@ -99,9 +99,9 @@ Own examination-neutral business language and bounded contexts for learning, ass
 ### packages/embedding (`kogniq-embedding`)
 
 - Pure-Python domain models for vector representations.
-- **Bounded Context**: Represents the mathematical state of parsed content chunks. Strictly provider-agnostic.
-- **Key Concepts**: `EmbeddingVector`, `Embedding`, `EmbeddingCollection`, `EmbeddingMetadata`, `EmbeddingStatistics`, `AbstractEmbeddingProvider`, `EmbeddingProviderRegistry`, `LocalEmbeddingProvider`.
-- **Invariants**: Strictly immutable. `EmbeddingCollection` enforces homogeneous dimensions, provider, and model across all contained vectors. Providers execute entirely behind an abstract interface, decoupled from concrete AI SDKs. The local implementation uses strict lazy loading to prevent memory bloat.
+- **Bounded Context**: Represents the mathematical state of parsed content chunks and abstracts both vector generation and vector storage. Strictly provider-agnostic.
+- **Key Concepts**: `EmbeddingVector`, `Embedding`, `EmbeddingCollection`, `EmbeddingMetadata`, `EmbeddingStatistics`, `AbstractEmbeddingProvider`, `EmbeddingProviderRegistry`, `LocalEmbeddingProvider`, `AbstractVectorStore`, `VectorStoreRegistry`, `SearchResult`, `StoreInfo`.
+- **Invariants**: Strictly immutable. `EmbeddingCollection` enforces homogeneous dimensions, provider, and model across all contained vectors. Providers and stores execute entirely behind abstract interfaces, decoupled from concrete AI and database SDKs.
 Own learner modeling, knowledge tracing, ranking, recommendation, training, inference contracts, and model lifecycle artifacts.
 
 ### RAG
