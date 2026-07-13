@@ -4,6 +4,13 @@ from .exceptions import (
     InvalidProcessorDefinitionError,
     ProcessorNotFoundError,
 )
+
+__all__ = [
+    "ContentPluginError",
+    "DuplicateProcessorError",
+    "InvalidProcessorDefinitionError",
+    "ProcessorNotFoundError",
+]
 from .interfaces import AbstractContentProcessor
 from .processor_info import ProcessorInfo
 from .registry import ProcessorRegistry

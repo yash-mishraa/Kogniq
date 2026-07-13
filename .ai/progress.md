@@ -75,6 +75,11 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-13 — Stage 6 Prompt 2
+- **Completed:** Implemented the HTML Processor Foundation. It introduces static DOM parsing via `beautifulsoup4`, mapping semantic HTML into Kogniq's `NormalizedDocument` format via recursive pre-order traversal.
+- **Files Changed:** `processors/html/*`, `test_html_processor.py`, `demo_html_processor.py`, `processors/__init__.py`.
+- **Architecture Changes:** Strict dependency boundaries were upheld (no JS/headless browsers). The registry has been updated to seamlessly discover `.html` resources.
+
 ### 2026-07-13 — Stage 6 Prompt 1
 - **Completed:** Implemented Processor Registry Completion & Discovery Framework. The registry now serves as the canonical source of truth for processor capabilities with O(1) discovery and strict validation.
 - **Files Changed:** `exceptions.py`, `registry.py`, `test_plugins.py`, `test_docx_processor.py`, `test_txt_processor.py`, `dev/demo_registry.py`, `docs/architecture/processor-registry.md`.

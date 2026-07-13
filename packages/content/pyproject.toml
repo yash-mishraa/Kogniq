@@ -5,6 +5,7 @@ description = "Kogniq content domain context"
 requires-python = ">=3.12,<3.14"
 authors = [{ name = "Yash Mishra" }]
 dependencies = [
+    "beautifulsoup4>=4.15.0",
     "kogniq-shared",
     "markdown-it-py>=4.2.0",
     "pymupdf>=1.28.0",
