@@ -2,10 +2,17 @@
 name = "kogniq-embedding"
 version = "0.1.0"
 description = "Universal, provider-independent embedding domain for Kogniq."
-authors = [{ name = "Yash Mishra", email = "yashm@example.com" }]
+authors = [{ name = "Yash Mishra", email = "yashmishra1408@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "kogniq-content",
+    "sentence-transformers>=3.0.0",
+    "torch>=2.0.0"
+]
+
+[tool.uv.sources]
+kogniq-content = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

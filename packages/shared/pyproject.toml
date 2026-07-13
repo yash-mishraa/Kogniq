@@ -3,7 +3,7 @@ name = "kogniq-shared"
 version = "0.1.0"
 description = "Framework-neutral foundations shared by Kogniq packages"
 requires-python = ">=3.12,<3.14"
-authors = [{ name = "Yash Mishra" }]
+authors = [{ name = "Yash Mishra", email = "yashmishra1408@gmail.com" }]
 dependencies = []
 
 [build-system]

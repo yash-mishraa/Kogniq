@@ -75,6 +75,16 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-13 — Stage 8 Prompt 3
+- **Completed:** Local Embedding Provider Foundation.
+- **Files Changed:** `pyproject.toml`, `provider.py`, `__init__.py`, `test_local_provider.py`, `demo_local_embeddings.py`, `local-embedding-provider.md`.
+- **Architecture Changes:** Implemented the `LocalEmbeddingProvider` using `sentence-transformers`. Enforced strict lazy loading of the neural network and dynamic determination of vector dimensions. Ensured zero leakage of ML frameworks (`torch`, `numpy`) into the core embedding domain.
+
+### 2026-07-13 — Stage 8 Prompt 2
+- **Completed:** Universal Embedding Provider Interface.
+- **Files Changed:** `interfaces.py`, `provider_info.py`, `registry.py`, `exceptions.py`, `registry_exceptions.py`, `test_provider_interface.py`, `test_provider_registry.py`, `demo_embedding_registry.py`, `embedding-provider.md`.
+- **Architecture Changes:** Established abstract `AbstractEmbeddingProvider` and O(1) `EmbeddingProviderRegistry` using stable `provider_id`s, mirroring the strict dependency inversion architecture used for content processors.
+
 ### 2026-07-13 — Stage 8 Prompt 1
 - **Completed:** Implemented Universal Embedding Domain.
 - **Files Changed:** `pyproject.toml`, `vector.py`, `embedding.py`, `metadata.py`, `statistics.py`, `collection.py`, `exceptions.py`, `test_vector.py`, `test_embedding.py`, `test_collection.py`, `demo_embedding_domain.py`, `embedding-domain.md`.

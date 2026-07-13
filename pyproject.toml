@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "AI Learning Intelligence Platform"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
-authors = [{ name = "Yash Mishra" }]
+authors = [{ name = "Yash Mishra", email = "yashmishra1408@gmail.com" }]
 keywords = ["ai", "education", "learning-intelligence"]
 classifiers = [
     "Development Status :: 1 - Planning",

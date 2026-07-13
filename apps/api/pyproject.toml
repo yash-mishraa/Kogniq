@@ -3,7 +3,7 @@ name = "kogniq-api"
 version = "0.1.0"
 description = "Kogniq application API foundation"
 requires-python = ">=3.12,<3.14"
-authors = [{ name = "Yash Mishra" }]
+authors = [{ name = "Yash Mishra", email = "yashmishra1408@gmail.com" }]
 dependencies = [
     "alembic>=1.18.5",
     "asyncpg>=0.31.0",

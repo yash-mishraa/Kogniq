@@ -3,7 +3,7 @@ name = "kogniq-content"
 version = "0.1.0"
 description = "Kogniq content domain context"
 requires-python = ">=3.12,<3.14"
-authors = [{ name = "Yash Mishra" }]
+authors = [{ name = "Yash Mishra", email = "yashmishra1408@gmail.com" }]
 dependencies = [
     "beautifulsoup4>=4.15.0",
     "kogniq-shared",
