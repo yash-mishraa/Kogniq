@@ -16,8 +16,8 @@ class MarkdownProcessor(AbstractContentProcessor):
         return ProcessorInfo(
             name="kogniq-markdown",
             version="1.0",
-            supported_extensions=("md", "markdown", "txt"),
-            supported_mime_types=("text/markdown", "text/plain"),
+            supported_extensions=("md", "markdown"),
+            supported_mime_types=("text/markdown",),
             description="Extracts semantic content from Markdown using markdown-it-py",
         )
 

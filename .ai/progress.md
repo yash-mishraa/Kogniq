@@ -75,6 +75,12 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-13 — Stage 6 Prompt 1
+- **Completed:** Implemented Processor Registry Completion & Discovery Framework. The registry now serves as the canonical source of truth for processor capabilities with O(1) discovery and strict validation.
+- **Files Changed:** `exceptions.py`, `registry.py`, `test_plugins.py`, `test_docx_processor.py`, `test_txt_processor.py`, `dev/demo_registry.py`, `docs/architecture/processor-registry.md`.
+- **Architecture Changes:** Fully dynamic discovery relying strictly on the immutable `ProcessorInfo` capability model. Added comprehensive normalizations, specific exception typing, and immutability guarantees on introspection.
+- **Validation:** Clean.
+
 ### 2026-07-13 — Stage 5 Prompt 5
 - **Completed:** Implemented the TXT Processor Foundation in `kogniq-content`. Implemented standard library heuristics for headers and paragraphs.
 - **Files Changed:** `packages/content/src/content/processors/txt/*`, `packages/content/tests/test_txt_processor.py`, `docs/architecture/txt-processor.md`, `dev/demo_txt_processor.py`.

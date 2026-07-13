@@ -1,7 +1,7 @@
 from .exceptions import (
     ContentPluginError,
     DuplicateProcessorError,
-    InvalidProcessorError,
+    InvalidProcessorDefinitionError,
     ProcessorNotFoundError,
 )
 from .interfaces import AbstractContentProcessor

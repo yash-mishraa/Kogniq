@@ -127,5 +127,5 @@ def test_plugin_registration() -> None:
     from content.plugins.registry import ProcessorRegistry
     registry = ProcessorRegistry()
     registry.register(TXTProcessor())
-    processor = registry.get_by_extension("txt")
+    processor = registry.processor_for_extension("txt")
     assert isinstance(processor, TXTProcessor)

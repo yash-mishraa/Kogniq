@@ -140,5 +140,5 @@ def test_plugin_registration() -> None:
     registry = ProcessorRegistry()
     registry.register(DOCXProcessor())
     
-    processor = registry.get_by_extension("docx")
+    processor = registry.processor_for_extension("docx")
     assert isinstance(processor, DOCXProcessor)
