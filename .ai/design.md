@@ -81,7 +81,7 @@ The future system will expose learning experiences through a frontend, coordinat
 
 - Pure-Python orchestration layer for the Content Intelligence Pipeline.
 - **Bounded Context**: Transforms raw resources into sections, chunks, and normalized documents. Isolates parsing logic from storage infrastructure.
-- **Key Concepts**: `ResourceHandle`, `LearningResource`, `ResourceSection`, `Chunk`, `ChunkCollection`, `AbstractChunkStrategy`, `StructuralChunkStrategy`, `FixedSizeChunkStrategy`, `ContentProcessingPipeline`, `ProcessorRegistry`, `NormalizedDocument`.
+- **Key Concepts**: `ResourceHandle`, `LearningResource`, `ResourceSection`, `Chunk`, `ChunkCollection`, `AbstractChunkStrategy`, `HybridChunkEngine`, `StructuralChunkStrategy`, `FixedSizeChunkStrategy`, `ContentProcessingPipeline`, `ProcessorRegistry`, `NormalizedDocument`.
 - **Invariants**: Strictly immutable events and results, pure abstract interface definitions. O(1) lookups for plugin registry.
 
 ### packages/learning (`kogniq-learning`)

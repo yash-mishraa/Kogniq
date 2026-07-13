@@ -75,6 +75,11 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-13 — Stage 7 Prompt 4
+- **Completed:** Implemented Hybrid Chunk Engine. `HybridChunkEngine` introduced as the single public entry point for chunk generation, orchestrating strategy delegation dynamically based on structural heuristics (e.g. `_has_headings()`) without heuristics for semantic logic or token boundaries.
+- **Files Changed:** `engine.py`, `__init__.py`, `test_hybrid_chunk_engine.py`, `demo_hybrid_chunk_engine.py`, `hybrid-chunk-engine.md`.
+- **Architecture Changes:** Adopted a Strategy Composition pattern to favor independent deterministic execution paths over brittle multiple inheritance configurations.
+
 ### 2026-07-13 — Stage 7 Prompt 3
 - **Completed:** Implemented Fixed-Size Chunking Strategy. Added `FixedSizeChunkStrategy` to partition `NormalizedDocument` purely by a configurable character limit while preserving atomic blocks and document boundaries.
 - **Files Changed:** `fixed_size.py`, `__init__.py`, `test_fixed_size_chunking.py`, `demo_fixed_chunking.py`, `fixed-size-chunking.md`.
