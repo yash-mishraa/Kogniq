@@ -75,6 +75,11 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-13 — Stage 7 Prompt 2
+- **Completed:** Implemented the Structural Chunking Strategy. Defined `AbstractChunkStrategy` and a concrete `StructuralChunkStrategy` that splits documents strictly by headings while preserving natural reading order.
+- **Files Changed:** `chunking/strategies/*`, `test_structural_chunking.py`, `demo_structural_chunking.py`, `docs/architecture/structural-chunking.md`.
+- **Architecture Changes:** Established the core contract for extracting chunks deterministically from `NormalizedDocument`. Bounded context remains isolated from semantics or size limits.
+
 ### 2026-07-13 — Stage 7 Prompt 1
 - **Completed:** Implemented Universal Chunk Engine Foundation. It introduces the canonical `Chunk`, `ChunkMetadata`, `ChunkStatistics`, and `ChunkCollection` domain models.
 - **Files Changed:** `chunking/*`, `test_chunk_model.py`, `demo_chunk_model.py`, `docs/architecture/chunk-model.md`.
