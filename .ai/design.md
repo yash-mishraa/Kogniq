@@ -96,7 +96,12 @@ Own examination-neutral business language and bounded contexts for learning, ass
 - **Invariants**: Strictly immutable entities. Framework and AI agnostic. No graph persistence logic.
 
 ### ML
+### packages/embedding (`kogniq-embedding`)
 
+- Pure-Python domain models for vector representations.
+- **Bounded Context**: Represents the mathematical state of parsed content chunks. Strictly provider-agnostic.
+- **Key Concepts**: `EmbeddingVector`, `Embedding`, `EmbeddingCollection`, `EmbeddingMetadata`, `EmbeddingStatistics`.
+- **Invariants**: Strictly immutable. `EmbeddingCollection` enforces homogeneous dimensions, provider, and model across all contained vectors.
 Own learner modeling, knowledge tracing, ranking, recommendation, training, inference contracts, and model lifecycle artifacts.
 
 ### RAG

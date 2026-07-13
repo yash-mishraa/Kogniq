@@ -1,0 +1,16 @@
+[project]
+name = "kogniq-embedding"
+version = "0.1.0"
+description = "Universal, provider-independent embedding domain for Kogniq."
+authors = [{ name = "Yash Mishra", email = "yashm@example.com" }]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_default_fixture_loop_scope = "function"
