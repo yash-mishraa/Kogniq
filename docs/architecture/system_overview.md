@@ -1,6 +1,16 @@
 # System Overview
 
-Future home of a concise, implementation-aligned overview of Kogniq's system boundaries and runtime relationships.
+**Status:** Planned (Not Yet Implemented)
 
-Until implementation exists, use [the system blueprint](../../.ai/system_blueprint.md), [living design](../../.ai/design.md), and [package contracts](../../.ai/package_contracts.md). Do not copy those specifications here.
+## Purpose
+To provide an interactive, implementation-aligned macroscopic view of Kogniq's runtime infrastructure once fully deployed.
 
+## Expected Responsibilities
+- Mapping out how VPCs, databases, load balancers, and application servers interact.
+- Documenting third-party API dependencies (e.g., LLM providers, Auth providers).
+
+## Relationship to Existing Packages
+This document will contextualize how the pure software architecture mapped out in `docs/ARCHITECTURE.md` physically runs on cloud hardware.
+
+---
+*Return to [Architecture Index](README.md).*

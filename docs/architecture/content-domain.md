@@ -21,7 +21,7 @@ graph TD
     D --> E[Section Extractor]
     E --> F[Chunk Generator]
     F --> G[Statistics Extractor]
-    G --> H[ProcessingResult]
+    G --> H[NormalizedDocument]
 ```
 
 ## Domain Event Flow

@@ -16,8 +16,9 @@ When concrete parsing functionality is implemented (e.g., in `packages/plugins/p
 ```mermaid
 graph TD
     Pipeline[ContentProcessingPipeline] --> Registry[ProcessorRegistry]
-    Registry --> Abstract[AbstractContentProcessor]
-    Abstract <.. PDF[PDFProcessor : Future]
-    Abstract <.. MD[MarkdownProcessor : Future]
+    Registry --> Abstract[AbstractProcessor]
+    Abstract <.. PDF[PDFProcessor]
+    Abstract <.. MD[MarkdownProcessor]
+    Abstract <.. DOCX[DOCXProcessor]
     Abstract <.. YT[YouTubeProcessor : Future]
 ```

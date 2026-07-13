@@ -1,108 +1,100 @@
 # Kogniq
 
-An open-source AI Learning Intelligence Platform designed to elevate domain-specific knowledge acquisition through Retrieval-Augmented Generation (RAG), Knowledge Graphs, and intelligent recommendation systems.
+![Python](https://img.shields.io/badge/python-3.13-blue.svg)
+![uv](https://img.shields.io/badge/uv-fast-magenta.svg)
+![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
+![MyPy](https://img.shields.io/badge/mypy-strict-success.svg)
+![Pytest](https://img.shields.io/badge/pytest-passing-success.svg)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-*Note: This is a robust AI orchestration backend for learning domains. It is NOT just a chatbot.*
+## Project Vision
 
----
+Kogniq is an open-source, agentic AI educational platform designed to transform raw learning materials—such as textbooks, documentation, and research papers—into interactive, personalized tutoring experiences. 
 
-## 🎯 Vision
-Kogniq aims to transition standard educational experiences into intelligent, data-driven platforms. By understanding both the structure of the domain (Knowledge Graphs) and the student's mastery profile (Student Modeling), it creates highly effective adaptive learning pathways.
+## Why Kogniq exists
 
-## 🏗 Architecture Overview
-The platform enforces a strict separation of concerns utilizing Clean Architecture principles:
-- **Domain-Driven Design:** Business rules are entirely decoupled
-### Platform Capabilities
-* **`apps/api`**: FastAPI backend infrastructure, database sessions, and endpoints.
-* **`packages/content`**: Content Intelligence Domain. Semantic chunking, PDF parsing interfaces, pipeline orchestration.
-* **`packages/learning`**: Learning Intelligence Domain. Strict entity logic, PR validator, DDD architecture.
-* **`packages/shared`**: Cross-cutting utilities, generic types, and configuration.
-- **RAG & Agentic AI:** Integrates language models for contextual learning, validated generation, and deep semantic search.
-- **Modular Monorepo:** Python `uv`-based workspace scaling across APIs, Shared Core, and Domain Plugins.
+Most AI tutors are merely wrappers around chat models. They lack a deep understanding of the *structure* of learning materials and the *pedagogy* required to teach them. Kogniq solves this by building a rigorous, Domain-Driven Design (DDD) foundation that processes content semantically, builds prerequisite knowledge graphs, and utilizes multi-agent systems to tutor students effectively.
 
-## 🛠 Tech Stack
-- **Language:** Python 3.12+ (Strictly Typed)
-- **API Framework:** FastAPI with Uvicorn
-- **Persistence:** PostgreSQL with SQLAlchemy 2.x and asyncpg
-- **Migrations:** Alembic
-- **Caching/Queues:** Redis (Planned)
-- **Dependency Management:** `uv`
-- **Linting & Quality:** Ruff, MyPy, Pytest
+## Current Features
 
-## 📂 Repository Structure
-```text
-Kogniq/
-├── apps/               # Executable applications (e.g., API)
-├── packages/           # Internal shared libraries (e.g., core domain logic)
-├── docs/               # Technical and developer documentation
-├── scripts/            # Advanced non-interactive operational utilities
-├── tests/              # E2E integration tests (module tests live inside apps/packages)
-└── docker-compose.yml  # Local infrastructure orchestration
+- **Robust Content Pipeline**: Ingests Markdown, PDF, DOCX, HTML, and TXT files.
+- **Deterministic Normalization**: Converts diverse formats into a unified `NormalizedDocument` structure.
+- **Hybrid Chunk Engine**: Dynamically orchestrates `StructuralChunkStrategy` and `FixedSizeChunkStrategy` to generate AI-ready `ChunkCollection`s without losing semantic boundaries.
+- **Strict Bounded Contexts**: Pure Python implementations of Content, Learning, and Education domains.
+- **100% Type Coverage**: Enforced by MyPy strict mode.
+
+## Architecture Overview
+
+Kogniq leverages a pure Python composition root with strict immutable data models.
+
+```mermaid
+flowchart TD
+    A[ResourceHandle] --> B[ProcessorRegistry]
+    B --> C[PDF / Markdown / DOCX / TXT / HTML Processors]
+    C --> D[NormalizedDocument]
+    D --> E[HybridChunkEngine]
+    E --> F[StructuralChunkStrategy / FixedSizeChunkStrategy]
+    F --> G[ChunkCollection]
+    G --> H[(Future) Embeddings]
+    H --> I[(Future) Retrieval]
+    I --> J[(Future) Tutor]
 ```
 
-## 🚀 Quick Start
+*For more details, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).*
 
-### 1. Installation
-1. Install [uv](https://github.com/astral-sh/uv).
-2. Install [Docker](https://docs.docker.com/get-docker/).
-3. Clone the repository:
+## Monorepo Structure
+
+We use `uv` workspaces to manage multiple independent Python packages in a single repository.
+
+### Workspace Packages
+- `packages/content/`: Responsible for file processing, normalization, and chunking.
+- `packages/learning/`: Responsible for curriculum, concepts, and prerequisite knowledge graphs.
+- `packages/education/`: Responsible for pedagogy, student modeling, and tutoring sessions.
+
+## Technology Stack
+
+- **Language**: Python 3.13
+- **Package Manager**: [uv](https://github.com/astral-sh/uv)
+- **Linting & Formatting**: Ruff
+- **Type Checking**: MyPy
+- **Testing**: Pytest
+
+## Development Setup
+
+1. Install `uv`:
    ```bash
-   git clone https://github.com/yash-mishraa/Kogniq.git
-   cd Kogniq
+   pip install uv
    ```
-4. Copy environment variables:
+2. Sync the workspace:
    ```bash
-   cp .env.example .env
+   uv sync
    ```
-5. Install dependencies and setup the virtual environment:
+3. Run the complete test suite:
    ```bash
-   make setup
+   uv run python -m pytest
    ```
 
-### 2. Local Infrastructure (Docker)
-Start the PostgreSQL and Redis containers:
-```bash
-make docker-up
-```
+*See [docs/development.md](docs/development.md) for full instructions and developer demos.*
 
-*Ensure the database is healthy:*
-```bash
-make docker-status
-```
+## Quality Gates
 
-### 3. Database Migrations
-Initialize your database schema:
-```bash
-make db-upgrade
-```
+We enforce strict quality gates before any code is merged:
+- All tests must pass (`uv run python -m pytest`).
+- Code must be perfectly typed (`uv run python -m mypy .`).
+- Code must be perfectly linted and formatted (`uv run ruff check .`).
 
-### 4. Running Locally
-Start the local FastAPI development server:
-```bash
-make dev
-```
-The API will be accessible at `http://127.0.0.1:8000`.
+## Current Status
 
-## 🧪 Quality Commands
-Ensure your code meets the quality standards before committing:
-- **Format & Lint:** `make format` & `make lint`
-- **Type Checking:** `make typecheck`
-- **Testing:** `make test`
-- **Run Everything:** `make quality`
+We have completed the **Content Domain**, **Processors**, and the **Universal Chunk Engine**. The core foundational data models for Learning and Education are also implemented.
 
-## 📘 Development Workflow
-For deeper insights on repository ergonomics, backend architecture, and troubleshooting, please read our [Development Guide](docs/development.md).
+## Future Milestones
 
-## 🗺 Roadmap
-- [x] Foundation & Monorepo Setup
-- [x] Database Persistence & Clean Architecture
-- [ ] Authentication & User Identity Management
-- [ ] Knowledge Graph Integration & RAG Engine
-- [ ] Adaptive Student Modeling & Agentic Plugins
-- [ ] Production-Ready Deployment configuration
+Please see [docs/ROADMAP.md](docs/ROADMAP.md) for a comprehensive view of upcoming features, including Semantic Chunking, Vector Embeddings, and the RAG infrastructure.
 
-## 🤝 Contributing
-Contributions are welcome! Please review our quality guidelines in `docs/development.md` and ensure all PRs pass `make quality` before submitting.
+## Contributing
 
-## 📄 License
-This project is proprietary while in early development. An open-source license will be established prior to public release.
+Contributions are welcome! Please read our [Development Guide](docs/development.md) to get started. Ensure all code passes the quality gates before submitting a pull request.
+
+## License
+
+MIT License. See `LICENSE` for details.
