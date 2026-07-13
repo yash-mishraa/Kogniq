@@ -75,6 +75,11 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-13 — Stage 7 Prompt 3
+- **Completed:** Implemented Fixed-Size Chunking Strategy. Added `FixedSizeChunkStrategy` to partition `NormalizedDocument` purely by a configurable character limit while preserving atomic blocks and document boundaries.
+- **Files Changed:** `fixed_size.py`, `__init__.py`, `test_fixed_size_chunking.py`, `demo_fixed_chunking.py`, `fixed-size-chunking.md`.
+- **Architecture Changes:** Implemented the second chunking strategy serving as a highly deterministic unstructured fallback, decoupled from structural headings but respecting block atomicity.
+
 ### 2026-07-13 — Stage 7 Prompt 2
 - **Completed:** Implemented the Structural Chunking Strategy. Defined `AbstractChunkStrategy` and a concrete `StructuralChunkStrategy` that splits documents strictly by headings while preserving natural reading order.
 - **Files Changed:** `chunking/strategies/*`, `test_structural_chunking.py`, `demo_structural_chunking.py`, `docs/architecture/structural-chunking.md`.
