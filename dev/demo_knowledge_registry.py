@@ -10,7 +10,9 @@ from knowledge.extractors import (
     KnowledgeExtractorInfo,
     KnowledgeExtractorRegistry,
 )
+from knowledge.extractors.extraction_result import KnowledgeExtractionResult
 from knowledge.graph import KnowledgeGraph
+from datetime import datetime, timezone
 
 from content.chunking import ChunkCollection
 

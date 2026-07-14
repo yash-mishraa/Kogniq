@@ -121,6 +121,7 @@ Own ingestion, indexing, reranking, citation assembly, grounded-generation polic
 - **Bounded Context**: Represents the domain ontology (concepts and relationships) independently of extraction logic, parsing, or underlying graph databases.
 - **Key Concepts**: `KnowledgeConcept`, `KnowledgeRelationship`, `KnowledgeGraph`, `ConceptType`, `RelationshipType`.
 - **Extraction Interfaces**: Provides `AbstractKnowledgeExtractor`, `KnowledgeExtractionResult`, and `KnowledgeExtractorRegistry` to decouple LLM parsing from domain truth.
+- **Extractors**: Implements `GeminiKnowledgeExtractor` as the canonical implementation leveraging Google's `google-genai` securely.
 - **Invariants**: Strictly immutable graph entities. Defers graph traversals and extraction mechanics to future subsystems.
 
 ### Agents

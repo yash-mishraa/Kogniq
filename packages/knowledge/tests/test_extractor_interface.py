@@ -1,5 +1,7 @@
 import pytest
+from datetime import datetime, timezone
 from knowledge.extractors.exceptions import ExtractorConfigurationError
+from knowledge.extractors.extraction_result import KnowledgeExtractionResult
 from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
 from knowledge.extractors.provider_info import KnowledgeExtractorInfo
 from knowledge.graph import KnowledgeGraph
@@ -26,11 +28,19 @@ class FakeExtractor(AbstractKnowledgeExtractor):
     def info(self) -> KnowledgeExtractorInfo:
         return self._info
 
-    def extract(self, chunks: ChunkCollection) -> KnowledgeGraph:  # noqa: ARG002
-        return KnowledgeGraph(concepts=(), relationships=())
+    def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:  # noqa: ARG002
+        return KnowledgeExtractionResult(
+            graph=KnowledgeGraph(concepts=(), relationships=()),
+            extractor_id=self._info.extractor_id,
+            extractor_name=self._info.extractor_name,
+            version=self._info.version,
+            processing_time_ms=0,
+            processed_chunks=0,
+            created_at=datetime.now(timezone.utc),
+        )
 
-    def extract_batch(self, collections: tuple[ChunkCollection, ...]) -> tuple[KnowledgeGraph, ...]:
-        return tuple(KnowledgeGraph(concepts=(), relationships=()) for _ in collections)
+    def extract_batch(self, collections: tuple[ChunkCollection, ...]) -> tuple[KnowledgeExtractionResult, ...]:  # noqa: ARG002
+        return tuple(self.extract(c) for c in collections)
 
 
 def test_extractor_info_validation() -> None:
@@ -66,4 +76,4 @@ def test_extractor_info_validation() -> None:
 def test_fake_extractor_interface() -> None:
     extractor = FakeExtractor()
     assert extractor.info.extractor_id == "fake"
-    assert extractor.extract(ChunkCollection(chunks=())).concept_count == 0
+    assert extractor.extract(ChunkCollection(chunks=())).graph.concept_count == 0

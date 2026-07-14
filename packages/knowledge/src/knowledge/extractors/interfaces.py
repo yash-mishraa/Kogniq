@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 from content.chunking import ChunkCollection
+from knowledge.extractors.extraction_result import KnowledgeExtractionResult
 from knowledge.extractors.provider_info import KnowledgeExtractorInfo
-from knowledge.graph import KnowledgeGraph
 
 
 class AbstractKnowledgeExtractor(ABC):
@@ -15,11 +15,11 @@ class AbstractKnowledgeExtractor(ABC):
         ...
 
     @abstractmethod
-    def extract(self, chunks: ChunkCollection) -> KnowledgeGraph:
+    def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
         """Extract a KnowledgeGraph from a collection of chunks."""
         ...
 
     @abstractmethod
-    def extract_batch(self, collections: tuple[ChunkCollection, ...]) -> tuple[KnowledgeGraph, ...]:
+    def extract_batch(self, collections: tuple[ChunkCollection, ...]) -> tuple[KnowledgeExtractionResult, ...]:
         """Extract multiple KnowledgeGraphs from a batch of chunk collections."""
         ...
