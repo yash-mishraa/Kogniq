@@ -75,6 +75,11 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-14 — Knowledge Graph Domain Foundation
+- **Completed:** Pure Knowledge Graph Domain models.
+- **Files Changed:** `pyproject.toml` (root & knowledge), `knowledge/exceptions.py`, `enums.py`, `metadata.py`, `concept.py`, `relationship.py`, `graph.py`, `__init__.py`, `test_concepts.py`, `test_relationships.py`, `test_graph.py`, `demo_knowledge_domain.py`, `knowledge-domain.md`.
+- **Architecture Changes:** Established the `packages/knowledge` bounded context. Introduced immutable `KnowledgeConcept`, `KnowledgeRelationship`, and `KnowledgeGraph` models safely deferred from any extraction logic or concrete NLP dependency.
+
 ### 2026-07-13 — Stage 9 Prompt 1
 - **Completed:** Retrieval Domain Foundation.
 - **Files Changed:** `pyproject.toml` (root & retrieval), `retrieval/models.py`, `interfaces.py`, `config.py`, `semantic_retriever.py`, `exceptions.py`, `test_semantic_retriever.py`, `demo_retriever.py`, `retrieval-domain.md`.

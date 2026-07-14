@@ -1,9 +1,17 @@
 """Health endpoint tests."""
 
+from unittest.mock import AsyncMock
+
 from fastapi.testclient import TestClient
+from pytest_mock import MockerFixture
 
 
-def test_health_endpoint(client: TestClient) -> None:
+def test_health_endpoint(client: TestClient, mocker: MockerFixture) -> None:
+    mocker.patch(
+        "apps.api.app.routers.health.check_database_health",
+        new_callable=AsyncMock,
+        return_value=True,
+    )
     response = client.get("/api/v1/system/health")
 
     assert response.status_code == 200

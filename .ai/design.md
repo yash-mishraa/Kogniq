@@ -115,9 +115,12 @@ Own learner modeling, knowledge tracing, ranking, recommendation, training, infe
 
 Own ingestion, indexing, reranking, citation assembly, grounded-generation policies, and retrieval evaluation.
 
-### Knowledge Graph
+### packages/knowledge (`kogniq-knowledge`)
 
-Own subject ontology, concepts, relationships, prerequisite structure, graph validation, and graph access contracts.
+- Pure-Python educational object model and semantic graph structure.
+- **Bounded Context**: Represents the domain ontology (concepts and relationships) independently of extraction logic, parsing, or underlying graph databases.
+- **Key Concepts**: `KnowledgeConcept`, `KnowledgeRelationship`, `KnowledgeGraph`, `ConceptType`, `RelationshipType`.
+- **Invariants**: Strictly immutable graph entities. Defers graph traversals and extraction mechanics to future subsystems.
 
 ### Agents
 
@@ -151,6 +154,7 @@ Future domain plugins will package examination-specific concepts, curriculum map
 | `packages/retrieval/` | Provider-agnostic vector orchestration | Chunk hydration or RAG pipelines |
 | `packages/rag/` | Grounded retrieval lifecycle | General application workflows |
 | `packages/agents/` | Agent orchestration contracts | Unbounded autonomous access |
+| `packages/knowledge/` | Immutable semantic concepts and ontology | Concrete extraction or database logic |
 | `packages/knowledge_graph/` | Ontology and graph lifecycle | Generic persistence |
 | `packages/evaluation/` | Quality measurement and gates | Production serving logic |
 | `infrastructure/` | Future operational definitions | Product and domain logic |

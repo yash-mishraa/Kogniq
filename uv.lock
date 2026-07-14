@@ -9,6 +9,7 @@ members = [
     "kogniq-content",
     "kogniq-education",
     "kogniq-embedding",
+    "kogniq-knowledge",
     "kogniq-learning",
     "kogniq-retrieval",
     "kogniq-shared",
@@ -888,6 +889,17 @@ requires-dist = [
     { name = "sentence-transformers", specifier = ">=3.0.0" },
     { name = "torch", specifier = ">=2.0.0" },
 ]
+
+[[package]]
+name = "kogniq-knowledge"
+version = "0.1.0"
+source = { editable = "packages/knowledge" }
+dependencies = [
+    { name = "kogniq-shared" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "kogniq-shared", editable = "packages/shared" }]
 
 [[package]]
 name = "kogniq-learning"

@@ -47,6 +47,7 @@ members = [
     "packages/content",
     "packages/education",
     "packages/embedding",
+    "packages/knowledge",
     "packages/retrieval",
 ]
 
@@ -116,8 +117,8 @@ python_version = "3.12"
 strict = true
 namespace_packages = true
 explicit_package_bases = true
-mypy_path = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src", "packages/embedding/src", "packages/retrieval/src"]
-files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared", "packages/learning/src/learning", "packages/learning/tests", "packages/content/src/content", "packages/content/tests", "packages/education/src/education", "packages/education/tests", "packages/embedding/src/embedding", "packages/embedding/tests", "packages/retrieval/src/retrieval", "packages/retrieval/tests"]
+mypy_path = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src", "packages/embedding/src", "packages/knowledge/src", "packages/retrieval/src"]
+files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared", "packages/learning/src/learning", "packages/learning/tests", "packages/content/src/content", "packages/content/tests", "packages/education/src/education", "packages/education/tests", "packages/embedding/src/embedding", "packages/embedding/tests", "packages/knowledge/src/knowledge", "packages/knowledge/tests", "packages/retrieval/src/retrieval", "packages/retrieval/tests"]
 exclude = [
     "(^|/)\\.venv/",
     "(^|/)build/",
@@ -131,8 +132,8 @@ pretty = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-testpaths = ["apps/api/tests", "tests", "packages/learning/tests", "packages/content/tests", "packages/education/tests", "packages/embedding/tests", "packages/retrieval/tests"]
-pythonpath = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src", "packages/embedding/src", "packages/retrieval/src"]
+testpaths = ["apps/api/tests", "tests", "packages/learning/tests", "packages/content/tests", "packages/education/tests", "packages/embedding/tests", "packages/knowledge/tests", "packages/retrieval/tests"]
+pythonpath = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src", "packages/embedding/src", "packages/knowledge/src", "packages/retrieval/src"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
