@@ -75,6 +75,11 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-14 — Knowledge Extraction Interface & Registry Foundation
+- **Completed:** Decoupled LLM interfaces for semantic knowledge extraction.
+- **Files Changed:** `knowledge/extractors/interfaces.py`, `provider_info.py`, `registry.py`, `exceptions.py`, `registry_exceptions.py`, `extraction_result.py`, `__init__.py`, `test_extractor_interface.py`, `test_extractor_registry.py`, `demo_knowledge_registry.py`, `knowledge-extractors.md`.
+- **Architecture Changes:** Established the canonical contract (`AbstractKnowledgeExtractor`) for transforming `ChunkCollection`s into `KnowledgeGraph`s, shielding the Knowledge domain from direct LLM dependencies.
+
 ### 2026-07-14 — Knowledge Graph Domain Foundation
 - **Completed:** Pure Knowledge Graph Domain models.
 - **Files Changed:** `pyproject.toml` (root & knowledge), `knowledge/exceptions.py`, `enums.py`, `metadata.py`, `concept.py`, `relationship.py`, `graph.py`, `__init__.py`, `test_concepts.py`, `test_relationships.py`, `test_graph.py`, `demo_knowledge_domain.py`, `knowledge-domain.md`.

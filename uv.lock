@@ -783,6 +783,12 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "httpx" },
+    { name = "kogniq-content" },
+    { name = "kogniq-embedding" },
+    { name = "kogniq-knowledge" },
+    { name = "kogniq-learning" },
+    { name = "kogniq-retrieval" },
+    { name = "kogniq-shared" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -800,6 +806,12 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "httpx" },
+    { name = "kogniq-content", editable = "packages/content" },
+    { name = "kogniq-embedding", editable = "packages/embedding" },
+    { name = "kogniq-knowledge", editable = "packages/knowledge" },
+    { name = "kogniq-learning", editable = "packages/learning" },
+    { name = "kogniq-retrieval", editable = "packages/retrieval" },
+    { name = "kogniq-shared", editable = "packages/shared" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-asyncio", specifier = ">=1.4.0" },

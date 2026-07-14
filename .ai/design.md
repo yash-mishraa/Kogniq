@@ -120,6 +120,7 @@ Own ingestion, indexing, reranking, citation assembly, grounded-generation polic
 - Pure-Python educational object model and semantic graph structure.
 - **Bounded Context**: Represents the domain ontology (concepts and relationships) independently of extraction logic, parsing, or underlying graph databases.
 - **Key Concepts**: `KnowledgeConcept`, `KnowledgeRelationship`, `KnowledgeGraph`, `ConceptType`, `RelationshipType`.
+- **Extraction Interfaces**: Provides `AbstractKnowledgeExtractor`, `KnowledgeExtractionResult`, and `KnowledgeExtractorRegistry` to decouple LLM parsing from domain truth.
 - **Invariants**: Strictly immutable graph entities. Defers graph traversals and extraction mechanics to future subsystems.
 
 ### Agents

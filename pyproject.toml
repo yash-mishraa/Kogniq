@@ -27,6 +27,12 @@ dev = [
     "pytest-cov",
     "pytest-mock>=3.15.1",
     "ruff",
+    "kogniq-shared",
+    "kogniq-learning",
+    "kogniq-content",
+    "kogniq-embedding",
+    "kogniq-knowledge",
+    "kogniq-retrieval",
 ]
 
 [tool.uv]
@@ -36,6 +42,12 @@ default-groups = ["dev"]
 [tool.uv.sources]
 kogniq-api = { workspace = true }
 kogniq-education = { workspace = true }
+kogniq-shared = { workspace = true }
+kogniq-learning = { workspace = true }
+kogniq-content = { workspace = true }
+kogniq-embedding = { workspace = true }
+kogniq-knowledge = { workspace = true }
+kogniq-retrieval = { workspace = true }
 
 # Workspace members are added when a directory becomes an installable Python
 # project. Documentation-only package directories are intentionally excluded.
