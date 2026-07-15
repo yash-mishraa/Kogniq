@@ -15,6 +15,7 @@ from embedding.statistics import EmbeddingStatistics
 from embedding.vector import EmbeddingVector
 from embedding.vectorstores.interfaces import AbstractVectorStore
 from embedding.vectorstores.search_result import SearchResult
+from embedding.vectorstores.storage_result import StorageResult
 from embedding.vectorstores.store_info import StoreInfo
 from retrieval.config import RetrieverConfig
 from retrieval.models import RetrievalQuery
@@ -79,11 +80,16 @@ class DemoVectorStore(AbstractVectorStore):
             maximum_batch_size=10,
         )
 
-    def store(self, embedding: Embedding) -> None:
-        pass
+    def store(self, embedding: Embedding) -> StorageResult:
+        _ = embedding
+        from embedding.vectorstores.storage_result import StorageResult
+        return StorageResult(stored_count=1, collection_name="fake", metadata=None)
 
-    def store_batch(self, embeddings: EmbeddingCollection) -> None:
-        pass
+    def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
+        from embedding.vectorstores.storage_result import StorageResult
+        return StorageResult(
+            stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
+        )
 
     def search(self, vector: EmbeddingVector, *, limit: int = 10) -> tuple[SearchResult, ...]:
         print(f"  [DemoVectorStore] Searching for vector {vector.values} (limit={limit})")

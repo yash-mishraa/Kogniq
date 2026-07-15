@@ -5,6 +5,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "knowledge" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "content" / "src"))
 
+from datetime import UTC, datetime
+
 from knowledge.extractors import (
     AbstractKnowledgeExtractor,
     KnowledgeExtractorInfo,
@@ -12,7 +14,6 @@ from knowledge.extractors import (
 )
 from knowledge.extractors.extraction_result import KnowledgeExtractionResult
 from knowledge.graph import KnowledgeGraph
-from datetime import datetime, timezone
 
 from content.chunking import ChunkCollection
 
@@ -33,11 +34,21 @@ class GeminiFakeExtractor(AbstractKnowledgeExtractor):
             supports_alias_extraction=True,
         )
 
-    def extract(self, chunks: ChunkCollection) -> KnowledgeGraph:  # noqa: ARG002
-        return KnowledgeGraph(concepts=(), relationships=())
+    def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:  # noqa: ARG002
+        return KnowledgeExtractionResult(
+            graph=KnowledgeGraph(concepts=(), relationships=()),
+            extractor_id="test",
+            extractor_name="test",
+            version="1",
+            processing_time_ms=0.0,
+            processed_chunks=0,
+            created_at=datetime.now(UTC)
+        )
 
-    def extract_batch(self, collections: tuple[ChunkCollection, ...]) -> tuple[KnowledgeGraph, ...]:
-        return tuple(KnowledgeGraph(concepts=(), relationships=()) for _ in collections)
+    def extract_batch(
+        self, collections: tuple[ChunkCollection, ...]
+    ) -> tuple[KnowledgeExtractionResult, ...]:
+        return tuple(self.extract(c) for c in collections)
 
 
 class LocalLLMFakeExtractor(AbstractKnowledgeExtractor):
@@ -56,11 +67,21 @@ class LocalLLMFakeExtractor(AbstractKnowledgeExtractor):
             supports_alias_extraction=True,
         )
 
-    def extract(self, chunks: ChunkCollection) -> KnowledgeGraph:  # noqa: ARG002
-        return KnowledgeGraph(concepts=(), relationships=())
+    def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:  # noqa: ARG002
+        return KnowledgeExtractionResult(
+            graph=KnowledgeGraph(concepts=(), relationships=()),
+            extractor_id="test2",
+            extractor_name="test2",
+            version="1",
+            processing_time_ms=0.0,
+            processed_chunks=0,
+            created_at=datetime.now(UTC)
+        )
 
-    def extract_batch(self, collections: tuple[ChunkCollection, ...]) -> tuple[KnowledgeGraph, ...]:
-        return tuple(KnowledgeGraph(concepts=(), relationships=()) for _ in collections)
+    def extract_batch(
+        self, collections: tuple[ChunkCollection, ...]
+    ) -> tuple[KnowledgeExtractionResult, ...]:
+        return tuple(self.extract(c) for c in collections)
 
 
 def main() -> None:

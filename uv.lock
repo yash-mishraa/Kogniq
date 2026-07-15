@@ -11,6 +11,7 @@ members = [
     "kogniq-embedding",
     "kogniq-knowledge",
     "kogniq-learning",
+    "kogniq-pipeline",
     "kogniq-retrieval",
     "kogniq-shared",
 ]
@@ -1040,6 +1041,23 @@ dependencies = [
 requires-dist = [
     { name = "kogniq-shared", editable = "packages/shared" },
     { name = "pydantic", specifier = ">=2.0,<3" },
+]
+
+[[package]]
+name = "kogniq-pipeline"
+version = "0.1.0"
+source = { editable = "packages/pipeline" }
+dependencies = [
+    { name = "kogniq-content" },
+    { name = "kogniq-embedding" },
+    { name = "kogniq-knowledge" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "kogniq-content", editable = "packages/content" },
+    { name = "kogniq-embedding", editable = "packages/embedding" },
+    { name = "kogniq-knowledge", editable = "packages/knowledge" },
 ]
 
 [[package]]

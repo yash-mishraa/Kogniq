@@ -5,6 +5,7 @@ from embedding.embedding import Embedding
 from embedding.vector import EmbeddingVector
 
 from .search_result import SearchResult
+from .storage_result import StorageResult
 from .store_info import StoreInfo
 
 
@@ -19,11 +20,11 @@ class AbstractVectorStore(ABC):
         """Returns the store's configuration and capabilities."""
 
     @abstractmethod
-    def store(self, embedding: Embedding) -> None:
+    def store(self, embedding: Embedding) -> StorageResult:
         """Stores a single embedding."""
 
     @abstractmethod
-    def store_batch(self, embeddings: EmbeddingCollection) -> None:
+    def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
         """Stores a collection of embeddings."""
 
     @abstractmethod

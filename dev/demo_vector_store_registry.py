@@ -9,6 +9,7 @@ from embedding.vector import EmbeddingVector
 from embedding.vectorstores import (
     AbstractVectorStore,
     SearchResult,
+    StorageResult,
     StoreInfo,
     VectorStoreRegistry,
 )
@@ -28,8 +29,15 @@ class MockPinecone(AbstractVectorStore):
             maximum_batch_size=1000,
         )
 
-    def store(self, embedding: Embedding) -> None: pass
-    def store_batch(self, embeddings: EmbeddingCollection) -> None: pass
+    def store(self, embedding: Embedding) -> StorageResult:
+        _ = embedding
+        from embedding.vectorstores.storage_result import StorageResult
+        return StorageResult(stored_count=1, collection_name="fake", metadata=None)
+    def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
+        from embedding.vectorstores.storage_result import StorageResult
+        return StorageResult(
+            stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
+        )
     def delete(self, embedding_id: str) -> None: pass
     def delete_batch(self, embedding_ids: tuple[str, ...]) -> None: pass
     def search(
@@ -55,8 +63,15 @@ class MockQdrant(AbstractVectorStore):
             maximum_batch_size=5000,
         )
 
-    def store(self, embedding: Embedding) -> None: pass
-    def store_batch(self, embeddings: EmbeddingCollection) -> None: pass
+    def store(self, embedding: Embedding) -> StorageResult:
+        _ = embedding
+        from embedding.vectorstores.storage_result import StorageResult
+        return StorageResult(stored_count=1, collection_name="fake", metadata=None)
+    def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
+        from embedding.vectorstores.storage_result import StorageResult
+        return StorageResult(
+            stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
+        )
     def delete(self, embedding_id: str) -> None: pass
     def delete_batch(self, embedding_ids: tuple[str, ...]) -> None: pass
     def search(

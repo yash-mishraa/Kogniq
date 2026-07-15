@@ -15,6 +15,7 @@ from .registry_exceptions import (
     StoreNotFoundError,
 )
 from .search_result import SearchResult
+from .storage_result import StorageResult
 from .store_info import StoreInfo
 
 __all__ = [
@@ -26,6 +27,7 @@ __all__ = [
     "SearchError",
     "SearchResult",
     "StorageError",
+    "StorageResult",
     "StoreCapabilityError",
     "StoreConfigurationError",
     "StoreInfo",

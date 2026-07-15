@@ -1,19 +1,21 @@
-from dotenv import load_dotenv
 import os
 import sys
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Add the source directories to sys.path so the demo can run without installing the package
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "knowledge" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "content" / "src"))
 
+from datetime import UTC, datetime
+
 from knowledge.extractors.gemini.extractor import GeminiKnowledgeExtractor
 
-from datetime import datetime, timezone
 from content.chunking.chunk import Chunk
-from content.chunking.statistics import ChunkStatistics
-from content.chunking.metadata import ChunkMetadata
 from content.chunking.collection import ChunkCollection
+from content.chunking.metadata import ChunkMetadata
+from content.chunking.statistics import ChunkStatistics
 
 
 def main() -> None:
@@ -50,10 +52,10 @@ def main() -> None:
             word_count=20, 
             estimated_tokens=15,
             line_count=4,
-            processing_timestamp=datetime.now(timezone.utc),
+            processing_timestamp=datetime.now(UTC),
             confidence=1.0,
         ),
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     collection = ChunkCollection(chunks=(chunk,))
 

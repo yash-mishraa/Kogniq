@@ -169,6 +169,10 @@ Append new entries; never remove earlier sessions.
 - **Architecture Changes:** Added the second concrete implementation of the Content Processor boundary using a pure linear traversal approach that satisfies `ResourceHandle -> NormalizedDocument` without rendering HTML.
 - **Validation:** 100% test pass on pytest, mypy, and ruff. Zero framework leakage.
 
+### Stage 11: Orchestration
+- [x] Create pure application-layer Pipeline to orchestrate Contexts
+- [x] Expose `PipelineResult` encompassing all stage outputs
+
 ### 2026-07-09 — Stage 5 Prompt 2
 - **Completed:** Implemented the PDF Processor Foundation in `kogniq-content`. Refactored `AbstractContentProcessor` and pipeline interfaces to natively consume `ResourceHandle` and output `NormalizedDocument`. Added `pymupdf` dependency.
 - **Files Changed:** `packages/content/src/content/processors/pdf/*`, `packages/content/tests/test_pdf_processor.py`, `docs/architecture/pdf-processor.md`, `packages/content/src/content/pipeline/orchestrator.py`, `packages/content/src/content/plugins/interfaces.py`, `test_orchestrator.py`, `test_plugins.py`.

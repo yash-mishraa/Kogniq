@@ -20,6 +20,8 @@ class AbstractKnowledgeExtractor(ABC):
         ...
 
     @abstractmethod
-    def extract_batch(self, collections: tuple[ChunkCollection, ...]) -> tuple[KnowledgeExtractionResult, ...]:
+    def extract_batch(
+        self, collections: tuple[ChunkCollection, ...]
+    ) -> tuple[KnowledgeExtractionResult, ...]:
         """Extract multiple KnowledgeGraphs from a batch of chunk collections."""
         ...

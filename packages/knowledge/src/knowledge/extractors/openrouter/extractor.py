@@ -1,14 +1,14 @@
-import time
 import os
+import time
 from datetime import UTC, datetime
 
-from openai import OpenAI
+from openai import OpenAI  # type: ignore
 
 from content.chunking import ChunkCollection
 from knowledge.extractors.extraction_result import KnowledgeExtractionResult
+from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
 from knowledge.extractors.openrouter.parser import GeminiResponseParser
 from knowledge.extractors.openrouter.prompt_builder import GeminiPromptBuilder
-from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
 from knowledge.extractors.provider_info import KnowledgeExtractorInfo
 
 

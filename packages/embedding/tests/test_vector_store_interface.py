@@ -9,6 +9,7 @@ from embedding.vector import EmbeddingVector
 from embedding.vectorstores import (
     AbstractVectorStore,
     SearchResult,
+    StorageResult,
     StoreConfigurationError,
     StoreInfo,
 )
@@ -32,12 +33,16 @@ class FakeVectorStore(AbstractVectorStore):
     def info(self) -> StoreInfo:
         return self._info
 
-    def store(self, embedding: Embedding) -> None:
+    def store(self, embedding: Embedding) -> StorageResult:
         self._store[embedding.id] = embedding
+        return StorageResult(stored_count=1, collection_name="fake", metadata=None)
 
-    def store_batch(self, embeddings: EmbeddingCollection) -> None:
+    def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
         for emb in embeddings.embeddings:
             self._store[emb.id] = emb
+        return StorageResult(
+            stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
+        )
 
     def delete(self, embedding_id: str) -> None:
         self._store.pop(embedding_id, None)

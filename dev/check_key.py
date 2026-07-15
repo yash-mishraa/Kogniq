@@ -1,6 +1,7 @@
 import os
 
-def check_key():
+
+def check_key() -> None:
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
         print("GEMINI_API_KEY is NOT set.")
@@ -13,10 +14,10 @@ def check_key():
     if " " in key:
         print("WARNING: Key contains spaces!")
         
-    if key.startswith('"') or key.startswith("'"):
+    if key.startswith(('"', "'")):
         print("WARNING: Key starts with a quote character!")
         
-    if key.endswith('"') or key.endswith("'"):
+    if key.endswith(('"', "'")):
         print("WARNING: Key ends with a quote character!")
         
     if key == "your-actual-key-here" or key == "your-actual-api-key":

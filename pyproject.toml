@@ -61,6 +61,7 @@ members = [
     "packages/embedding",
     "packages/knowledge",
     "packages/retrieval",
+    "packages/pipeline",
 ]
 
 [tool.ruff]

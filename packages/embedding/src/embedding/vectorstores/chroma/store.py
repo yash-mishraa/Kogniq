@@ -13,6 +13,7 @@ from embedding.vector import EmbeddingVector
 from embedding.vectorstores.exceptions import DeletionError, SearchError, StorageError
 from embedding.vectorstores.interfaces import AbstractVectorStore
 from embedding.vectorstores.search_result import SearchResult
+from embedding.vectorstores.storage_result import StorageResult
 from embedding.vectorstores.store_info import StoreInfo
 
 logger = logging.getLogger(__name__)
@@ -82,7 +83,7 @@ class ChromaVectorStore(AbstractVectorStore):
             
         return meta
 
-    def store(self, embedding: Embedding) -> None:
+    def store(self, embedding: Embedding) -> StorageResult:
         collection = self._get_collection()
         try:
             collection.add(
@@ -90,10 +91,15 @@ class ChromaVectorStore(AbstractVectorStore):
                 embeddings=[list(embedding.vector.values)],
                 metadatas=[self._extract_metadata(embedding)]
             )
+            return StorageResult(
+                stored_count=1,
+                collection_name=self._collection_name,
+                metadata={"provider": "chroma", "ids": [embedding.id]}
+            )
         except Exception as e:
             raise StorageError(f"Failed to store embedding {embedding.id}: {e}") from e
 
-    def store_batch(self, embeddings: EmbeddingCollection) -> None:
+    def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
         if len(embeddings.embeddings) > self.info.maximum_batch_size:
             msg = (
                 f"Batch size {len(embeddings.embeddings)} exceeds "
@@ -102,7 +108,11 @@ class ChromaVectorStore(AbstractVectorStore):
             raise StorageError(msg)
             
         if len(embeddings.embeddings) == 0:
-            return
+            return StorageResult(
+                stored_count=0,
+                collection_name=self._collection_name,
+                metadata={"provider": "chroma", "ids": []}
+            )
 
         collection = self._get_collection()
         try:
@@ -114,6 +124,11 @@ class ChromaVectorStore(AbstractVectorStore):
                 ids=ids,
                 embeddings=vectors,
                 metadatas=metadatas
+            )
+            return StorageResult(
+                stored_count=len(ids),
+                collection_name=self._collection_name,
+                metadata={"provider": "chroma", "ids": ids}
             )
         except Exception as e:
             raise StorageError(f"Failed to store batch of embeddings: {e}") from e

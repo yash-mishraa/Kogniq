@@ -1,5 +1,6 @@
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, timezone
 from knowledge.extractors.exceptions import ExtractorConfigurationError
 from knowledge.extractors.extraction_result import KnowledgeExtractionResult
 from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
@@ -36,10 +37,12 @@ class FakeExtractor(AbstractKnowledgeExtractor):
             version=self._info.version,
             processing_time_ms=0,
             processed_chunks=0,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
-    def extract_batch(self, collections: tuple[ChunkCollection, ...]) -> tuple[KnowledgeExtractionResult, ...]:  # noqa: ARG002
+    def extract_batch(
+        self, collections: tuple[ChunkCollection, ...]
+    ) -> tuple[KnowledgeExtractionResult, ...]:
         return tuple(self.extract(c) for c in collections)
 
 
