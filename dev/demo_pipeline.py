@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "pipeline" / 
 # Add test directories to reuse fake implementations
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "pipeline" / "tests"))
 
-from pipeline.pipeline import DocumentIntelligencePipeline  # type: ignore
+from pipeline.pipeline import DocumentIntelligencePipeline
 from test_pipeline import (  # type: ignore
     FakeChunkEngine,
     FakeEmbeddingProvider,
@@ -64,7 +64,7 @@ def main() -> None:
 
     print(f"Total Execution Time : {result.metadata.total_processing_time_ms:.2f} ms")
     print(f"Document ID          : {result.content.document.id}")
-    print(f"Content Length       : {len(result.content.document.content)} characters")
+    print(f"Pages Generated      : {len(result.content.document.pages)}")
     print(f"Chunks Generated     : {result.content.chunks.total_chunks}")
     print(f"Embeddings Generated : {len(result.embeddings.collection.embeddings)}")
     print(f"Embeddings Stored    : {result.embeddings.storage_result.stored_count}")

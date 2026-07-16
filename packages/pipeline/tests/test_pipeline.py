@@ -22,7 +22,7 @@ from knowledge.extractors.extraction_result import KnowledgeExtractionResult
 from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
 from knowledge.extractors.provider_info import KnowledgeExtractorInfo
 from knowledge.graph import KnowledgeGraph
-from pipeline.pipeline import DocumentIntelligencePipeline  # type: ignore
+from pipeline.pipeline import DocumentIntelligencePipeline
 
 from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection

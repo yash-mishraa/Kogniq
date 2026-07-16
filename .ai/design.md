@@ -144,6 +144,17 @@ Future infrastructure will own build, runtime, deployment, observability, secret
 
 Future domain plugins will package examination-specific concepts, curriculum mappings, assessment rules, terminology, data adapters, and evaluation suites. GATE is the first planned reference implementation. A dedicated directory and plugin contract will be selected in a later architecture decision; no domain implementation exists during Stage 0.
 
+## Bounded Contexts
+
+1.  **Learning Context (`packages/learning`)**: Manages educational structures, user profiles, and learning path orchestration.
+2.  **Content Context (`packages/content`)**: Handles ingestion, processing, and unified parsing of diverse file formats (TXT, MD, HTML, DOCX, PDF). Includes the hybrid chunking engine combining structural and fallback strategies.
+3.  **Education Context (`packages/education`)**: Houses educational taxonomies, difficulty levels, cognitive skills mapping, and related value objects.
+4.  **Embedding Context (`packages/embedding`)**: Abstracted interface for vector databases and embedding providers.
+5.  **Retrieval Context (`packages/retrieval`)**: Manages semantic search and document ranking algorithms over embedded content.
+6.  **Knowledge Context (`packages/knowledge`)**: Handles extraction and synthesis of concepts and relationships to form knowledge graphs from document chunks.
+7.  **Pipeline Context (`packages/pipeline`)**: Orchestrates the flow of documents through the intelligence pipeline (parsing -> chunking -> embedding -> extraction -> storing).
+8.  **Learning Content Generation Context (`packages/learning-content`)**: The canonical domain for generating educational content (e.g. summaries, flashcards) from chunk collections and knowledge graphs, provider-agnostic.
+
 ## Directory Responsibilities
 
 | Directory | Owns | Excludes |
