@@ -5,9 +5,11 @@ from learning_content.providers.registry_exceptions import (
     GeneratorNotFoundError,
     GeneratorRegistrationError,
 )
+from learning_content.providers.text_generation import AbstractTextGenerationProvider
 
 __all__ = [
     "AbstractLearningGenerator",
+    "AbstractTextGenerationProvider",
     "GeneratorInfo",
     "GeneratorNotFoundError",
     "GeneratorRegistrationError",
