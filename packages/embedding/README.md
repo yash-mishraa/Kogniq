@@ -1,21 +1,48 @@
-# Embedding Domain (`kogniq-embedding`)
-
-The `embedding` package is the canonical, provider-independent domain for representing vector embeddings in Kogniq.
+# Embedding Package (`packages/embedding`)
 
 ## Purpose
-
-To provide a pure, immutable data model for representing high-dimensional vectors extracted from textual chunks. It acts as the intermediary between the Chunk Engine and the downstream Retrieval layer.
+The `embedding` package is responsible for translating raw text (specifically `Chunk`s) into high-dimensional semantic vectors using abstract, provider-agnostic interfaces.
 
 ## Responsibilities
 
-- **Immutability**: Enforcing strict immutability for vectors and their metadata.
-- **Validation**: Guaranteeing dimension consistency, non-emptiness, and provider homogeneity within collections.
-- **Independence**: Operating entirely free of third-party APIs or heavy ML frameworks (no `torch`, `numpy`, `openai`, or vector DB SDKs).
+### What belongs here
+- Defining the `Embedding` and `EmbeddingCollection` domain models.
+- Abstracting `AbstractEmbeddingProvider`.
+- Concrete implementations of embedding providers (e.g., Local, OpenAI).
 
-## Future Providers
+### What does NOT belong here
+- Vector Database interactions (that belongs in `retrieval`).
+- Text parsing or chunking logic (that belongs in `content`).
 
-While the domain itself is provider-agnostic, future strategies will generate these vectors using:
-- OpenAI (`text-embedding-3-small`, `text-embedding-3-large`)
-- Google Gemini
-- Ollama
-- Sentence Transformers
+## Public API
+- `embedding.models.EmbeddingCollection`: Immutable collection of generated vectors.
+- `embedding.providers.base.AbstractEmbeddingProvider`: Interface for creating embeddings.
+- `embedding.providers.registry.EmbeddingProviderRegistry`: Dynamic provider resolution.
+- `embedding.providers.local.LocalEmbeddingProvider`: Concrete provider using `sentence-transformers`.
+
+## Architecture
+Provider-agnostic interface driven. The domain models are pure; external SDKs (like `sentence-transformers`) are encapsulated purely within concrete implementations and their adapters.
+
+## Dependencies
+- `shared`
+- `content`
+
+## Relationships
+- Depended upon by: `retrieval`, `pipeline`.
+
+## Current Features
+- Fully typed immutable models for vectors.
+- A functional `LocalEmbeddingProvider` using HuggingFace models.
+
+## Planned Features
+- `OpenAIEmbeddingProvider` implementation.
+- `CohereEmbeddingProvider` implementation.
+
+## Examples
+- `uv run python dev/demo_embedding_domain.py`
+- `uv run python dev/demo_local_embeddings.py`
+
+## Quality Gates
+- **Tests**: `uv run python -m pytest packages/embedding/tests/`
+- **MyPy**: `uv run python -m mypy packages/embedding/`
+- **Ruff**: `uv run ruff check packages/embedding/`

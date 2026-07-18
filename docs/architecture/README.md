@@ -1,44 +1,62 @@
-# Architecture Documentation Index
+# Architecture Index
 
-Welcome to the Kogniq architecture documentation. This directory contains detailed specifications, design decisions, and system overviews.
+This directory contains deep dives into the architectural design of the Kogniq platform. 
+Documents are organized by their respective bounded context and operational domain.
 
-## Implemented Subsystems
+## Core Domains
+- [System Overview](system_overview.md) ✅ Implemented
+- [Content Domain](content-domain.md) ✅ Implemented
+- [Embedding Domain](embedding-domain.md) ✅ Implemented
+- [Retrieval Domain](retrieval-domain.md) ✅ Implemented
+- [Knowledge Domain](knowledge-domain.md) ✅ Implemented
+- [Learning Content Domain](learning-content-domain.md) ✅ Implemented
+- [Education Layer](education-layer.md) ⏳ Planned
 
-These documents describe systems that are actively implemented and functioning in the repository.
+## Shared & Infrastructure
+- [Plugin System](plugin-system.md) ✅ Implemented
+- [Resource Handle](resource-handle.md) ✅ Implemented
 
-### Content Processing & Normalization
-- [Content Domain Overview](content-domain.md)
-- [Resource Handle](resource-handle.md)
-- [Processor Registry](processor-registry.md)
-- [Plugin System](plugin-system.md)
-- [Normalized Document Model](normalized-document.md)
+## Content Processing
+- [Processor Registry](processor-registry.md) ✅ Implemented
+- [Normalized Document](normalized-document.md) ✅ Implemented
+- [HTML Processor](html-processor.md) ✅ Implemented
+- [Markdown Processor](markdown-processor.md) ✅ Implemented
+- [PDF Processor](pdf-processor.md) ✅ Implemented
+- [DOCX Processor](docx-processor.md) ✅ Implemented
+- [TXT Processor](txt-processor.md) ✅ Implemented
 
-### File Processors
-- [Markdown Processor](markdown-processor.md)
-- [TXT Processor](txt-processor.md)
-- [PDF Processor](pdf-processor.md)
-- [HTML Processor](html-processor.md)
-- [DOCX Processor](docx-processor.md)
+## Chunking
+- [Chunk Model](chunk-model.md) ✅ Implemented
+- [Hybrid Chunk Engine](hybrid-chunk-engine.md) ✅ Implemented
+- [Structural Chunking](structural-chunking.md) ✅ Implemented
+- [Fixed Size Chunking](fixed-size-chunking.md) ✅ Implemented
 
-### Chunking Engine
-- [Chunk Model](chunk-model.md)
-- [Structural Chunking Strategy](structural-chunking.md)
-- [Fixed-Size Chunking Strategy](fixed-size-chunking.md)
-- [Hybrid Chunk Engine](hybrid-chunk-engine.md)
+## Embeddings
+- [Embedding Provider](embedding-provider.md) ✅ Implemented
+- [Local Embedding Provider (SentenceTransformers)](local-embedding-provider.md) ✅ Implemented
 
-### Domain Models
-- [Education Layer](education-layer.md)
+## Vector Stores & Retrieval
+- [Vector Store](vector-store.md) ✅ Implemented
+- [ChromaDB Vector Store](chroma-vector-store.md) ✅ Implemented
+- [RAG](rag.md) ⏳ Planned
 
-## Planned Subsystems (Roadmap)
+## Knowledge Extraction
+- [Knowledge Extractors](knowledge-extractors.md) ✅ Implemented
+- [Gemini Knowledge Extractor](gemini-knowledge-extractor.md) ✅ Implemented
 
-These documents serve as lightweight roadmaps for systems that have not yet been implemented.
+## Pipeline
+- [Document Intelligence Pipeline](document-intelligence-pipeline.md) ✅ Implemented
 
-- [Agent Architecture](agents.md)
-- [Backend Services](backend.md)
-- [Deployment & Infrastructure](deployment.md)
-- [Evaluation Framework](evaluation.md)
-- [Frontend Architecture](frontend.md)
-- [Machine Learning & Embeddings](ml.md)
-- [Retrieval-Augmented Generation (RAG)](rag.md)
-- [Security & Access](security.md)
-- [System Overview](system_overview.md)
+## Learning Generation
+- [Summary Generation Pipeline](summary-generation-pipeline.md) ✅ Implemented
+- [Summary Generator](summary-generator.md) ✅ Implemented
+- [OpenRouter Provider](openrouter-provider.md) ✅ Implemented
+
+## Future & Planned Infrastructure
+- [Agents](agents.md) ⏳ Planned
+- [Backend APIs](backend.md) ⏳ Planned
+- [Frontend UI](frontend.md) ⏳ Planned
+- [Machine Learning Pipelines](ml.md) ⏳ Planned
+- [Evaluation Metrics](evaluation.md) ⏳ Planned
+- [Deployment](deployment.md) ⏳ Planned
+- [Security](security.md) ⏳ Planned

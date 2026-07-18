@@ -2,47 +2,97 @@
 
 Kogniq is designed as an agentic AI education system. Its architecture emphasizes robust data modeling, strict boundaries, and determinism.
 
-## Design Principles
+## Architecture Principles
 
 Our architecture is built on the following core principles:
 
-- **Domain-Driven Design (DDD)**: The system is fractured into strict Bounded Contexts. Concepts in the `Content` domain (like a parsed PDF chunk) do not leak into the `Learning` domain (like a prerequisite graph). 
-- **Clean Architecture**: Core domain logic has no dependencies on external frameworks, databases, or AI APIs. The domain is pure.
-- **Immutability**: All domain models (e.g., `NormalizedDocument`, `ChunkCollection`, `LearningResource`) are deeply immutable. They are instantiated once and passed down the pipeline without side effects.
-- **Dependency Inversion**: High-level engines and orchestrators depend on abstract interfaces, not concrete implementations. For example, the `HybridChunkEngine` depends on `AbstractChunkStrategy`.
+- **Bounded Contexts**: The system is fractured into strict domain boundaries. Concepts in one domain do not leak into another.
+- **Dependency Injection**: We use abstractions and inject concrete dependencies, ensuring testability and modularity.
+- **Immutable Domain Models**: All domain models (e.g., `NormalizedDocument`, `ChunkCollection`, `KnowledgeGraph`) are deeply immutable. They are instantiated once and passed down the pipeline without side effects.
+- **Provider-Agnostic Interfaces**: We never tightly couple to a specific AI vendor or database. Providers like OpenRouter, Gemini, or ChromaDB are abstracted behind interfaces.
+- **Registry Pattern**: We dynamically route tasks using registries (e.g., `ProcessorRegistry`, `GeneratorRegistry`).
+- **Composition over Inheritance**: We favor small, composable functions and classes over deep inheritance hierarchies.
+- **Infrastructure Isolation**: Core domain logic has no dependencies on external frameworks, databases, or AI APIs. The domain is pure.
+
+## Workspace Dependency Diagram
+
+The Kogniq monorepo is structured into a hierarchy of dependent workspaces:
+
+```mermaid
+flowchart TD
+    shared --> content
+    content --> embedding
+    embedding --> retrieval
+    retrieval --> pipeline
+    content --> knowledge
+    knowledge --> learning-content
+    learning-content --> pipeline
+```
 
 ## Bounded Contexts
 
-The monorepo is divided into several Python packages, each representing a bounded context:
+Kogniq currently implements the following bounded contexts:
 
-### 1. Content Domain (`packages/content`)
+### 1. Shared (`packages/shared`)
 **Status: Implemented**
-Responsible for the physical structure of information. It ingests raw bytes (PDFs, Markdown, HTML), parses them using specialized `Processors`, normalizes them into a canonical `NormalizedDocument`, and splits them deterministically via the `HybridChunkEngine`.
+The foundational layer containing generic abstractions, interfaces, and utilities used universally across the codebase.
 
-### 2. Learning Domain (`packages/learning`)
-**Status: Foundations Implemented**
-Responsible for the curriculum and educational relationships. It models subjects, concepts, prerequisite graphs, and learning objectives. It does not know *what* the text of a PDF says, only *where* that PDF fits into a broader educational path.
+### 2. Content (`packages/content`)
+**Status: Implemented**
+Responsible for the physical structure of information. It ingests raw files, parses them using specialized `Processors`, and normalizes them into a canonical `NormalizedDocument`.
 
-### 3. Education Domain (`packages/education`)
-**Status: Foundations Implemented**
-Responsible for the pedagogy and interaction. This includes modeling the student (their progress, retention, and learning style) and the tutoring sessions (quizzes, explanations, feedback loops).
+### 3. Chunking (Inside `content`)
+**Status: Implemented**
+Splits normalized documents deterministically via the `HybridChunkEngine` (combining `StructuralChunkStrategy` and `FixedSizeChunkStrategy`) into a `ChunkCollection`.
 
-## Data Flow
+### 4. Embedding (`packages/embedding`)
+**Status: Implemented**
+Responsible for generating high-dimensional vectors from text using a provider-agnostic interface, producing an `EmbeddingCollection`.
 
-Data flows unidirectionally through the system:
+### 5. Retrieval (`packages/retrieval`)
+**Status: Implemented**
+Handles indexing and searching embeddings using vector databases like ChromaDB.
 
-1. **Ingestion**: A user provides a file (e.g., a PDF textbook).
-2. **Processing**: The `ProcessorRegistry` routes the file to the `PDFProcessor`, which extracts text, structure, and metadata, producing an immutable `NormalizedDocument`.
-3. **Chunking**: The `HybridChunkEngine` evaluates the document's structure and delegates to the appropriate strategy (`StructuralChunkStrategy` or `FixedSizeChunkStrategy`), resulting in a `ChunkCollection`.
-4. **Embedding (Future)**: Chunks are passed to an embedding model to generate semantic vectors.
-5. **Retrieval (Future)**: The `Learning` domain constructs a knowledge graph. When a student asks a question, the `Education` domain performs Retrieval-Augmented Generation (RAG) against the vector database.
-6. **Tutoring (Future)**: AI Agents leverage the retrieved context to tutor the student.
+### 6. Knowledge (`packages/knowledge`)
+**Status: Implemented**
+Synthesizes chunks into a structured `KnowledgeGraph` by extracting concepts and relationships using LLM providers.
 
-## Roadmap of Subsystems
+### 7. Learning Content (`packages/learning-content`)
+**Status: Implemented (Generators in progress)**
+Generates educational artifacts like `LearningContent` (e.g., Summaries) utilizing the chunk collections and knowledge graphs.
 
-- **Phase 1: Domain Foundations** (Completed) - Base entities, value objects, and pure logic for Content, Learning, and Education.
-- **Phase 2: Content Pipeline** (Completed) - Processors, Normalization, and Chunking Engines.
-- **Phase 3: AI & Embeddings** (Upcoming) - Integrating embedding models, vector databases, and semantic chunking.
-- **Phase 4: Retrieval & RAG** (Planned) - Advanced context retrieval and graph traversals.
-- **Phase 5: Agentic Tutors** (Planned) - Multi-agent orchestration for active tutoring and conversation.
-- **Phase 6: Frontend & API** (Planned) - REST/GraphQL APIs and React UI.
+### 8. Pipeline (`packages/pipeline`)
+**Status: Implemented**
+Orchestrates the end-to-end execution flow, moving data sequentially across all bounded contexts.
+
+## Current End-to-End Pipeline
+
+This is the canonical workflow currently implemented in Kogniq:
+
+```mermaid
+flowchart TD
+    RH[ResourceHandle]
+    
+    PR[ProcessorRegistry]
+    ND[NormalizedDocument]
+    HC[HybridChunkEngine]
+    CC[ChunkCollection]
+    EP[EmbeddingProvider]
+    VS[(VectorStore)]
+    KE[KnowledgeExtractor]
+    KG[KnowledgeGraph]
+    SG[SummaryGenerator]
+    LC[LearningContent]
+
+    RH --> PR
+    PR --> ND
+    ND --> HC
+    HC --> CC
+    CC --> EP
+    EP --> VS
+    CC -.-> KE
+    KE --> KG
+    CC -.-> SG
+    KG -.-> SG
+    SG --> LC
+```

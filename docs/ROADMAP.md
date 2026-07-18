@@ -4,47 +4,43 @@ This document outlines the current state and future milestones for the Kogniq pr
 
 ## 🟢 Completed
 
-### Stage 1 - 3: Domain Foundations
-- ✅ `packages/shared`: Base entities, Identity, Timestamps, Domain Events.
-- ✅ `packages/learning`: `Subject`, `Concept`, `LearningObjective`, and `PrerequisiteValidator` (DAG mapping).
-- ✅ `packages/education`: `Student`, `ProgressRecord`, `TutorSession`, `Interaction`, and `Assessment`.
+The following bounded contexts, infrastructure elements, and capabilities are fully implemented in the Kogniq codebase:
 
-### Stage 4 - 6: Content Processors & Normalization
-- ✅ `ProcessorRegistry`: Immutable plugin management.
-- ✅ `NormalizedDocument`: The canonical representation for all ingested text.
-- ✅ **Processors**: `PDFProcessor`, `MarkdownProcessor`, `TXTProcessor`, `HTMLProcessor`, `DOCXProcessor`.
+- **Shared Infrastructure**: Base entities, exceptions, metadata models.
+- **Content Processing**: Deterministic document normalization.
+- **Processor Registry**: Pluggable architecture for parsing formats.
+- **HTML Processor**: Advanced BeautifulSoup integration.
+- **Universal Chunk Engine**: Core models for chunking.
+- **Structural Chunking**: Semantic, layout-aware text splitting.
+- **Fixed Size Chunking**: Deterministic fallback chunking by character limits.
+- **Hybrid Chunk Engine**: Dynamic orchestration based on document structure.
+- **Embedding Domain**: Immutable models for semantic vectors.
+- **Embedding Providers**: Pluggable provider abstraction.
+- **Local Embedding Provider**: Implementation using `sentence-transformers`.
+- **Vector Store**: Provider-agnostic vector database abstraction.
+- **ChromaDB**: Implementation of the Vector Store using `chromadb`.
+- **Retrieval**: Search and ranking across vectorized chunks.
+- **Knowledge Graph**: Domain modeling for Concepts and Relationships.
+- **Knowledge Extraction**: AI-powered synthesis of text into knowledge graphs via OpenRouter and Gemini.
+- **Pipeline**: End-to-end orchestration of content, embedding, and knowledge workflows.
+- **Learning Content**: Core entities representing educational material.
+- **Summary Generator**: Synthesis of knowledge into comprehensive summaries.
+- **OpenRouter Provider**: Reference LLM provider integration.
 
-### Stage 7: Universal Chunk Engine
-- ✅ `ChunkModel`: Pure, immutable `Chunk` and `ChunkCollection` structures.
-- ✅ `StructuralChunkStrategy`: Chunking based on semantic `HEADING` blocks.
-- ✅ `FixedSizeChunkStrategy`: Deterministic fallback chunking by character limits.
-- ✅ `HybridChunkEngine`: Dynamic orchestration based on document structure.
+## 🟡 Current
 
-## 🟡 In Progress
-
-### Stage 8: Repository Stabilization
-- 🔄 Documentation rewrite and repository cleanup.
-- 🔄 Architecture Indexing and Roadmap generation.
+- **Learning Content Generation**: Completing the suite of specialized educational artifact generators using the established `AbstractLearningGenerator` pattern.
 
 ## 🔴 Upcoming
 
-### Phase 3: AI & Embeddings
-- Introduce Vector Database abstraction.
-- Implement OpenAI / HuggingFace text-embedding connectors.
-- Generate semantic vectors for `ChunkCollection` elements.
+The following milestones are planned for future development:
 
-### Phase 4: Retrieval (RAG)
-- Build hybrid search (dense + BM25).
-- Enable Knowledge Graph traversal to rank chunks by prerequisite distance.
-- Construct the `RAGService` in the Backend API.
-
-### Phase 5: Agentic Tutors
-- Build multi-agent orchestration for tutoring sessions.
-- Implement the "Tutor" and "Grader" persona patterns.
-- Connect Agents to the `TutorSession` entity in the `education` domain.
-
-## 🌌 Long-Term Vision
-
-- **React Frontend**: A web dashboard for uploading documents, viewing knowledge graphs, and interacting with the Agentic Tutors.
-- **Voice Capabilities**: Real-time voice interaction with the Tutor.
-- **Adaptive Curriculums**: Automatically generating missing concepts or lessons when a student repeatedly fails an assessment.
+- **Notes Generator**: Expanding generators to produce detailed study notes.
+- **Flashcards**: Automated generation of spaced-repetition flashcards from chunks.
+- **Quiz Generator**: Automated creation of multiple-choice and short-answer questions.
+- **Study Guide Generator**: Synthesis of large knowledge graphs into structured syllabi.
+- **API Layer**: Fastapi/REST endpoints exposing the core Kogniq pipelines.
+- **Authentication**: User management and access control.
+- **Frontend**: A React-based web dashboard for interacting with Kogniq.
+- **Evaluation**: Quantitative metrics for measuring the quality of AI-generated content.
+- **Deployment**: Dockerization and production infrastructure guides.

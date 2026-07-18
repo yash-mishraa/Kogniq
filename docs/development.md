@@ -2,12 +2,23 @@
 
 Welcome to the Kogniq development environment. This guide outlines the ergonomic workflow designed to ensure consistency across the repository.
 
-## Workspace Overview
+## Repository Structure
 
-Kogniq relies heavily on `uv` to maintain a robust Python workspace spanning multiple sub-packages.
-- `apps/`: Executable boundaries (e.g. `apps/api` for the backend).
-- `packages/`: Agnostic, shared business and domain rules (`content`, `learning`, `education`). These are pure Python and isolated from frameworks.
-- `dev/`: Developer demos and scripts that validate behaviors without needing a full UI.
+Kogniq uses a monorepo structure powered by `uv` workspaces.
+- `apps/`: Future executable boundaries (e.g. `apps/api` for the backend).
+- `packages/`: Agnostic, shared business and domain rules. These are pure Python and isolated from frameworks.
+- `dev/`: Developer demos and scripts that validate behaviors end-to-end without needing a full UI.
+- `docs/`: Architecture decisions, blueprints, and developer guides.
+
+## Workspace Packages
+
+- `shared`: Base abstractions and domain primitives.
+- `content`: File processing, normalization, and structural chunking.
+- `embedding`: Provider-agnostic vector generation.
+- `retrieval`: Search and indexing against vector databases.
+- `knowledge`: LLM-powered extraction of concepts and relationship graphs.
+- `pipeline`: Orchestrators that route data across bounded contexts.
+- `learning-content`: Generators that create educational artifacts.
 
 ## Environment Setup
 
@@ -17,46 +28,51 @@ Kogniq relies heavily on `uv` to maintain a robust Python workspace spanning mul
    uv sync
    ```
 
-## Common Commands & Quality Gates
+## Running Tests & Quality Gates
 
-Code quality is enforced strictly by **Ruff**, **MyPy**, and **Pytest**. We expect `0` errors or warnings on any commit.
+Code quality is enforced strictly by **Ruff**, **MyPy**, and **Pytest**. We expect `0` errors or warnings on any commit. Ensure you run these quality gates before submitting a Pull Request:
 
 - **Run all tests**: `uv run python -m pytest`
 - **Type Checking**: `uv run python -m mypy .`
 - **Linting & Formatting**: `uv run ruff check .`
-- **Auto-Fix Formatting**: `uv run ruff check . --fix`
+- **Auto-Fix Formatting**: `uv run ruff check --fix .` && `uv run ruff format .`
 
-## Developer Demos
+## Running Demos
 
-To see Kogniq in action without booting up a web application, run the scripts in the `dev/` directory:
+To see Kogniq in action without booting up a web application, run the scripts in the `dev/` directory. They are grouped below by the pipeline stage they demonstrate:
 
+### Content Processing
 - `uv run python dev/demo_registry.py`: Demonstrates Processor Registry logic.
-- `uv run python dev/demo_txt_processor.py`: Parses a mock `.txt` file into a `NormalizedDocument`.
-- `uv run python dev/demo_markdown_processor.py`: Parses a mock `.md` file into a `NormalizedDocument`.
-- `uv run python dev/demo_pdf_processor.py`: Parses a mock `.pdf` into a `NormalizedDocument`.
 - `uv run python dev/demo_html_processor.py`: Parses a mock `.html` into a `NormalizedDocument`.
-- `uv run python dev/demo_docx_processor.py`: Parses a mock `.docx` into a `NormalizedDocument`.
+
+### Chunking
 - `uv run python dev/demo_chunk_model.py`: Demonstrates the immutability of the base `Chunk` object.
 - `uv run python dev/demo_structural_chunking.py`: Chunks a document based on `HEADING` blocks.
 - `uv run python dev/demo_fixed_chunking.py`: Chunks a document strictly by character count.
 - `uv run python dev/demo_hybrid_chunk_engine.py`: Orchestrates the decision between structural and fixed chunking dynamically.
 
-## Adding Processors
+### Embeddings
+- `uv run python dev/demo_embedding_domain.py`: Demonstrates core embedding domain models.
+- `uv run python dev/demo_embedding_registry.py`: Tests the dynamic registry of embedding providers.
+- `uv run python dev/demo_local_embeddings.py`: Uses `sentence-transformers` to embed chunks locally.
 
-To add support for a new file type (e.g., ePub):
-1. Create a parser class extending `AbstractProcessor` in `packages/content/src/content/processors/epub_processor.py`.
-2. Yield `NormalizedPage` and `NormalizedBlock` objects.
-3. Register the processor in `packages/content/src/content/processors/registry.py`.
-4. Create tests in `packages/content/tests/test_epub_processor.py`.
-5. *Processors must not contain chunking logic!* Their only job is Normalization.
+### Vector Stores & Retrieval
+- `uv run python dev/demo_vector_store_registry.py`: Tests the dynamic registry of vector stores.
+- `uv run python dev/demo_chroma_store.py`: Interacts with ChromaDB to store and retrieve vectors.
+- `uv run python dev/demo_retriever.py`: High-level semantic search across chunked collections.
 
-## Adding Chunk Strategies
+### Knowledge Extraction
+- `uv run python dev/demo_knowledge_registry.py`: Tests the dynamic registry of knowledge extractors.
+- `uv run python dev/demo_openrouter_extractor.py`: Connects to OpenRouter (LLM) to extract a `KnowledgeGraph`.
 
-To add a new chunking behavior (e.g., Semantic Chunking):
-1. Create a strategy extending `AbstractChunkStrategy` in `packages/content/src/content/chunking/strategies/`.
-2. It must accept a `NormalizedDocument` and return a `ChunkCollection`.
-3. Do not mutate the original document.
-4. Update `HybridChunkEngine` to incorporate the new strategy conditionally, or inject it manually where needed.
+### Learning Generation
+- `uv run python dev/demo_learning_content.py`: Explores the raw `LearningContent` models.
+- `uv run python dev/demo_openrouter_provider.py`: Directly tests the provider-agnostic LLM interface.
+- `uv run python dev/demo_summary_generator.py`: Generates summaries using mock providers.
+- `uv run python dev/demo_summary_openrouter.py`: Full AI generation of a summary using OpenRouter.
+
+### Pipeline Orchestration
+- `uv run python dev/demo_pipeline.py`: Runs a mock end-to-end pipeline covering normalization, chunking, and knowledge extraction.
 
 ## Git Workflow & Release
 
@@ -64,4 +80,4 @@ To add a new chunking behavior (e.g., Semantic Chunking):
 2. Run quality gates locally (`pytest`, `mypy`, `ruff`).
 3. Create a Pull Request against `main`.
 4. Ensure the CI pipeline passes.
-5. Merge. Releases are automatically versioned using semantic versioning.
+5. Merge.

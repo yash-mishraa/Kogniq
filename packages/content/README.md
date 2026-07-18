@@ -1,49 +1,52 @@
-# Content Domain (`kogniq-content`)
+# Content Package (`packages/content`)
 
-The `content` package is the bedrock of Kogniq's data ingestion pipeline. It is responsible for taking raw, unstructured files (PDFs, Markdown, DOCX, HTML, TXT) and transforming them into structured, AI-ready chunks.
+## Purpose
+The `content` package is responsible for the physical structure and manipulation of raw information. It transforms unstructured files (PDF, HTML, TXT, etc.) into deterministic AI-ready chunks.
 
 ## Responsibilities
 
-- **Parsing**: Safely extracting text and structure from raw files.
-- **Normalization**: Converting proprietary formats into a canonical, immutable `NormalizedDocument`.
-- **Chunking**: Splitting documents into optimal sizes for embedding and retrieval without destroying semantic boundaries.
-- **Orchestration**: Routing tasks via the `ProcessorRegistry` and `HybridChunkEngine`.
+### What belongs here
+- Ingesting raw bytes and streams via `ResourceHandle`.
+- Extracting text, metadata, and document structure via `Processor`s.
+- Modeling the canonical `NormalizedDocument` (Pages, Blocks, Spans).
+- Chunking strategies (`StructuralChunkStrategy`, `FixedSizeChunkStrategy`).
+- The `HybridChunkEngine`.
 
-## What Belongs Inside
-
-- File format parsers.
-- Chunking algorithms (Fixed Size, Structural, Sliding Window).
-- Immutable representations of documents, pages, blocks, and chunks.
-
-## What Does NOT Belong Inside
-
-- AI APIs (LLM calls, token generation).
-- Vector databases or embedding generation.
-- Pedagogical logic or curriculum graphs.
+### What does NOT belong here
+- LLM interaction or prompting.
+- Embedding generation or semantic search.
+- Knowledge graph extraction or educational concepts.
 
 ## Public API
+- `content.processors.registry.ProcessorRegistry`: Routes files to correct parsers.
+- `content.document.NormalizedDocument`: The immutable canonical structure.
+- `content.chunking.HybridChunkEngine`: The entrypoint for splitting documents into chunks.
+- `content.chunking.ChunkCollection`: The final output of the content pipeline.
 
-The primary entry points for external consumers are:
-- `ProcessorRegistry`: Register and retrieve processors for specific file types.
-- `HybridChunkEngine`: The singular orchestrator for turning a `NormalizedDocument` into a `ChunkCollection`.
-- `NormalizedDocument` & `ChunkCollection`: The immutable data structures yielded by the pipeline.
+## Architecture
+Follows a strict ingest -> normalize -> chunk flow. Implements the Strategy Pattern for chunking and the Registry Pattern for processors.
 
-## Internal Architecture
+## Dependencies
+- `shared`
 
-The pipeline operates linearly:
-`ResourceHandle` -> `ProcessorRegistry` -> `Concrete Processor` -> `NormalizedDocument` -> `HybridChunkEngine` -> `ChunkCollection`.
+## Relationships
+- Depended upon by: `embedding`, `knowledge`, `pipeline`.
 
-## Design Principles
+## Current Features
+- Robust processing of PDF, DOCX, Markdown, HTML, and TXT.
+- Extensible `ProcessorRegistry`.
+- Implemented `HybridChunkEngine` balancing semantic boundaries and token limits.
 
-- **Immutability**: All domain entities are frozen dataclasses.
-- **Determinism**: Chunking the same document twice yields byte-for-byte identical results.
-- **Composition**: Strategies are injected into engines, rather than using complex inheritance hierarchies.
+## Planned Features
+- OCR support for scanned PDFs (via external multimodal provider integration).
+- Table-specific structural chunking improvements.
 
-## Current Status
+## Examples
+- `uv run python dev/demo_registry.py`
+- `uv run python dev/demo_html_processor.py`
+- `uv run python dev/demo_hybrid_chunk_engine.py`
 
-**Implemented & Stable**. Processors for PDF, HTML, TXT, Markdown, and DOCX are complete. The Universal Chunk Engine (Structural and Fixed Size strategies) is complete.
-
-## Future Work
-
-- **Semantic Chunking**: A strategy that detects topical shifts.
-- **Sliding Window Chunking**: A strategy that overlaps token boundaries.
+## Quality Gates
+- **Tests**: `uv run python -m pytest packages/content/tests/`
+- **MyPy**: `uv run python -m mypy packages/content/`
+- **Ruff**: `uv run ruff check packages/content/`

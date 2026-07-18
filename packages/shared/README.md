@@ -1,29 +1,48 @@
-# Shared Package
+# Shared Package (`packages/shared`)
 
 ## Purpose
-
-Reserve a small, stable home for primitives and contracts genuinely shared across Kogniq boundaries.
+The `shared` package is the foundational layer of Kogniq. It contains generic domain primitives, abstract interfaces, and core types that are used universally across the entire monorepo.
 
 ## Responsibilities
 
-Own framework-neutral configuration contracts, standard-library logging setup, generic exception semantics, foundational interfaces, constants, and narrowly reusable utilities.
+### What belongs here
+- Base domain models (`Entity`, `ValueObject`, `DomainEvent`).
+- Cross-cutting concerns (e.g., timestamps, global exception bases).
+- Universal enums and configuration objects.
 
-## Public Interface
+### What does NOT belong here
+- Business logic tied to a specific domain (e.g., Chunking, Learning).
+- Any concrete implementation of a database or LLM provider.
+- Orchestration logic.
 
-Exports from `shared.config`, `shared.logging`, `shared.exceptions`, and `shared.interfaces` are public and require compatibility review. Internal implementation files remain private.
+## Public API
+- `shared.domain.entity.Entity`: Base class for mutable domain entities.
+- `shared.domain.value_object.ValueObject`: Base class for immutable value objects.
+- `shared.domain.events.DomainEvent`: Base for domain events.
+- `shared.exceptions.KogniqError`: Global exception base.
+
+## Architecture
+This package sits at the very bottom of the dependency graph. It has no dependencies on any other package in Kogniq. All other packages depend on it.
 
 ## Dependencies
+- None (pure Python, standard library).
 
-Remains independent of all other Kogniq packages and applications and currently uses only the Python standard library. Future third-party dependencies require exceptional justification.
+## Relationships
+- Inherited by: `content`, `embedding`, `retrieval`, `knowledge`, `pipeline`, `learning-content`.
 
-## Future Expansion
+## Current Features
+- Fully implemented base abstractions.
+- Immutable data structures utilizing `dataclasses`.
+- Strict typing and custom validators.
 
-Add primitives only after at least two owning boundaries need the same stable semantic contract. Prefer an owning package when responsibility is specific.
+## Planned Features
+- Event bus abstractions for decoupled domain communication.
+- Enhanced telemetry and logging traits.
 
-## Ownership
+## Examples
+*No runnable developer demos exist for this foundational package.*
 
-Architecture/platform maintainer — Yash Mishra.
-
-## What Does NOT Belong Here
-
-Business rules, domain-specific types, provider SDKs, storage clients, framework integrations, convenience dumping grounds, or mutable global state.
+## Quality Gates
+- **Tests**: `uv run python -m pytest packages/shared/tests/`
+- **MyPy**: `uv run python -m mypy packages/shared/`
+- **Ruff**: `uv run ruff check packages/shared/`
