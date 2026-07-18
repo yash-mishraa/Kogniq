@@ -12,6 +12,7 @@ class LearningContentStatistics:
     estimated_tokens: int
     processing_time_ms: float
     confidence: float
+    heading_count: int | None = None
 
     def __post_init__(self) -> None:
         if not (0.0 <= self.confidence <= 1.0):
@@ -24,3 +25,5 @@ class LearningContentStatistics:
             raise InvalidLearningContentError("Estimated tokens cannot be negative")
         if self.processing_time_ms < 0.0:
             raise InvalidLearningContentError("Processing time cannot be negative")
+        if self.heading_count is not None and self.heading_count < 0:
+            raise InvalidLearningContentError("Heading count cannot be negative")

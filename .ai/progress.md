@@ -86,6 +86,7 @@ Append new entries; never remove earlier sessions.
 - [x] **Stage 14 (Prompt 1):** Notes Generator
 - [x] **Stage 14 (Prompt 2):** Flashcards Generator
 - [x] **Stage 14 (Prompt 3):** Quiz Generator
+- [x] **Stage 14 (Prompt 4):** Explanation Generator
 
 ### 2026-07-18 — Summary Generator + OpenRouter Integration (Stage 12 Prompt 4)
 - **Completed:** End-to-end AI-powered learning pipeline for generating educational summaries.
