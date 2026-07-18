@@ -4,6 +4,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
+from learning_content.content import LearningContent
+
 
 class FlashcardDifficulty(Enum):
     """The difficulty level of a flashcard."""
@@ -134,3 +136,29 @@ class QuizCollection:
                 return super().default(obj)
 
         return json.dumps([asdict(q) for q in self.questions], cls=EnumEncoder, indent=2)
+
+
+@dataclass(frozen=True, kw_only=True)
+class StudyGuideSection:
+    """An immutable section of a study guide."""
+
+    id: str
+    title: str
+    content: LearningContent
+    order: int
+
+    def __post_init__(self) -> None:
+        if not self.title or not self.title.strip():
+            raise ValueError("StudyGuideSection title cannot be empty.")
+        if self.order < 0:
+            raise ValueError("StudyGuideSection order cannot be negative.")
+
+
+@dataclass(frozen=True, kw_only=True)
+class StudyGuide:
+    """An immutable study guide composed of multiple sections."""
+
+    id: str
+    title: str
+    sections: tuple[StudyGuideSection, ...]
+    created_at: datetime

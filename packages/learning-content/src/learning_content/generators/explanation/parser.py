@@ -49,7 +49,7 @@ class ExplanationParser(AbstractContentParser):
             or "i cannot fulfill this request" in lower_text
             or "here is the explanation" in lower_text[:50]
         ) and len(cleaned_text) < 200:
-                raise InvalidExplanationError("Received placeholder or rejection response.")
+            raise InvalidExplanationError("Received placeholder or rejection response.")
 
         required_headings = [
             "# Concept",
