@@ -20,19 +20,23 @@ class SummaryPromptBuilder:
             The complete prompt string.
         """
         parts = [
+            self._build_system(),
             self._build_objective(),
             self._build_concepts(graph),
             self._build_relationships(graph),
             self._build_source_content(chunks),
+            self._build_output_requirements(),
         ]
 
         # Filter out empty parts and join
         return "\n\n".join(filter(None, parts)).strip()
 
+    def _build_system(self) -> str:
+        return "SYSTEM\nYou are an expert educational assistant."
+
     def _build_objective(self) -> str:
         return (
-            "You are an expert educational AI. Your task is to generate a comprehensive "
-            "and highly accurate summary of the provided text.\n"
+            "OBJECTIVE\nProduce a concise educational summary.\n"
             "Ensure that you cover the main ideas and integrate the key concepts provided."
         )
 
@@ -40,7 +44,7 @@ class SummaryPromptBuilder:
         if not graph.concepts:
             return ""
 
-        lines = ["Key Concepts:"]
+        lines = ["KEY CONCEPTS"]
         lines.extend(
             f"- {concept.title}: {concept.description}"
             for concept in sorted(graph.concepts, key=lambda c: c.id)
@@ -52,7 +56,7 @@ class SummaryPromptBuilder:
         if not graph.relationships:
             return ""
 
-        lines = ["Relationships:"]
+        lines = ["RELATIONSHIPS"]
         lines.extend(
             f"- {rel.source_concept} --[{rel.relationship_type.name}]--> {rel.target_concept}"
             for rel in sorted(
@@ -64,9 +68,18 @@ class SummaryPromptBuilder:
 
     def _build_source_content(self, chunks: ChunkCollection) -> str:
         if not chunks.chunks:
-            return "Source Text:\n(No content provided)"
+            return "SOURCE MATERIAL\n(No content provided)"
 
-        lines = ["Source Text:"]
+        lines = ["SOURCE MATERIAL"]
         lines.extend(chunk.text.strip() for chunk in chunks.chunks)
 
         return "\n".join(lines)
+
+    def _build_output_requirements(self) -> str:
+        return (
+            "OUTPUT REQUIREMENTS\n"
+            "- concise\n"
+            "- accurate\n"
+            "- no hallucinations\n"
+            "- markdown allowed"
+        )

@@ -29,6 +29,7 @@ class DemoTextGenerationProvider(AbstractTextGenerationProvider):
             provider_id="demo-provider",
             provider_name="Demo Provider",
             default_model="demo-model-v1",
+            model_version="1.0",
             context_window=4096,
         )
 

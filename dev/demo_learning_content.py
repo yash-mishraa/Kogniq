@@ -57,10 +57,11 @@ class DemoLearningGenerator(AbstractLearningGenerator):
                 model="demo-model",
                 model_version="1.0",
                 generation_version="1.0",
+                prompt_version="1.0",
                 language="en",
                 educational_level="all",
-                subject="demonstration",
-                syllabus="none",
+                subject="computer_science",
+                syllabus="default",
                 tags=("demo", "test"),
             ),
             statistics=LearningContentStatistics(

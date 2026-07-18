@@ -27,6 +27,7 @@ class FakeTextGenerationProvider(AbstractTextGenerationProvider):
             provider_id="fake-provider",
             provider_name="Fake Provider",
             default_model="fake-model-v1",
+            model_version="1.0",
             context_window=4096,
         )
 
@@ -126,11 +127,14 @@ def test_generate_summary_success() -> None:
     # Metadata population
     assert content.metadata.provider == "fake-provider"
     assert content.metadata.model == "fake-model-v1"
+    assert content.metadata.model_version == "1.0"
+    assert content.metadata.prompt_version == "summary-v1"
 
     # Statistics
     assert content.statistics.word_count == 4
     assert content.statistics.character_count == 18
     assert content.statistics.confidence == 0.5
+    assert content.statistics.estimated_tokens == int(4 * 1.3)
 
 
 def test_generate_empty_chunks() -> None:
@@ -152,8 +156,9 @@ def test_generate_empty_graph() -> None:
     graph = KnowledgeGraph(concepts=(), relationships=())
 
     generator.generate(chunks, graph)
-    assert "Key Concepts:" not in provider.last_prompt
-    assert "Relationships:" not in provider.last_prompt
+    generator.generate(chunks, graph)
+    assert "KEY CONCEPTS" not in provider.last_prompt
+    assert "RELATIONSHIPS" not in provider.last_prompt
 
 
 def test_generate_large_chunks() -> None:
@@ -200,3 +205,45 @@ def test_generate_whitespace_only_response() -> None:
 
     with pytest.raises(EmptyResponseError):
         generator.generate(chunks, graph)
+
+
+def test_generate_placeholder_response() -> None:
+    provider = FakeTextGenerationProvider("I cannot answer.")
+    generator = SummaryGenerator(provider=provider)
+    chunks = create_sample_chunks()
+    graph = KnowledgeGraph(concepts=(), relationships=())
+
+    with pytest.raises(EmptyResponseError, match="placeholder response"):
+        generator.generate(chunks, graph)
+
+
+def test_generate_markdown_response() -> None:
+    provider = FakeTextGenerationProvider("# Summary\n\n- Point 1\n- Point 2")
+    generator = SummaryGenerator(provider=provider)
+    chunks = create_sample_chunks()
+    graph = KnowledgeGraph(concepts=(), relationships=())
+
+    content = generator.generate(chunks, graph)
+    assert content.body == "# Summary\n\n- Point 1\n- Point 2"
+    assert content.statistics.word_count == 8
+
+
+def test_generate_provider_exception() -> None:
+    class FailingProvider(FakeTextGenerationProvider):
+        def generate(
+            self,
+            prompt: str,
+            *,
+            temperature: float | None = None,
+            max_tokens: int | None = None,
+        ) -> str:
+            raise ValueError("Provider failed")
+
+    provider = FailingProvider()
+    generator = SummaryGenerator(provider=provider)
+    chunks = create_sample_chunks()
+    graph = KnowledgeGraph(concepts=(), relationships=())
+
+    with pytest.raises(SummaryGenerationError, match="Failed to generate summary: Provider failed"):
+        generator.generate(chunks, graph)
+

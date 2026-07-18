@@ -75,6 +75,11 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-18 — Summary Generator + OpenRouter Integration (Stage 12 Prompt 4)
+- **Completed:** End-to-end AI-powered learning pipeline for generating educational summaries.
+- **Files Changed:** `packages/learning-content/src/learning_content/generators/summary/*`, `packages/learning-content/src/learning_content/utils/token_estimator.py`, `packages/learning-content/tests/test_summary_generator.py`, `dev/demo_summary_openrouter.py`, `docs/architecture/summary-generation-pipeline.md`.
+- **Architecture Changes:** Finalized the integration of `SummaryGenerator` and `OpenRouterTextGenerationProvider`. Introduced `token_estimator` for decoupled word-to-token heuristic calculation. Added explicit `prompt_version` to `LearningContentMetadata` and `model_version` to `TextGenerationProviderInfo`. Built the canonical generation architecture.
+
 ### 2026-07-17 — OpenRouter Text Generation Provider (Stage 12 Prompt 3)
 - **Completed:** First concrete implementation of `AbstractTextGenerationProvider` using OpenRouter API and OpenAI SDK.
 - **Files Changed:** `pyproject.toml`, `packages/learning-content/src/learning_content/providers/base.py`, `packages/learning-content/src/learning_content/providers/openrouter/*`, `packages/learning-content/tests/test_openrouter_provider.py`, `dev/demo_openrouter_provider.py`, `docs/architecture/openrouter-provider.md`.

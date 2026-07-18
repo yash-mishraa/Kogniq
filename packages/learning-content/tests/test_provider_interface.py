@@ -43,6 +43,7 @@ class FakeLearningGenerator(AbstractLearningGenerator):
                 educational_level="all",
                 subject="test",
                 syllabus="test",
+                prompt_version="1.0",
                 tags=(),
             ),
             statistics=LearningContentStatistics(

@@ -19,6 +19,7 @@ def create_valid_metadata() -> LearningContentMetadata:
         educational_level="beginner",
         subject="computer_science",
         syllabus="standard",
+        prompt_version="1.0",
         tags=("test",),
     )
 

@@ -2,7 +2,7 @@ import os
 import time
 from datetime import UTC, datetime
 
-from openai import OpenAI  # type: ignore
+from openai import OpenAI
 
 from content.chunking import ChunkCollection
 from knowledge.extractors.extraction_result import KnowledgeExtractionResult

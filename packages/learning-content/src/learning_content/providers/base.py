@@ -9,6 +9,7 @@ class TextGenerationProviderInfo:
     provider_id: str
     provider_name: str
     default_model: str
+    model_version: str
     context_window: int
     supports_streaming: bool = False
     supports_json: bool = False

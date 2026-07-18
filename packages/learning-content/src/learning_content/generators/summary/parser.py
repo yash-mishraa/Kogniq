@@ -8,6 +8,7 @@ from learning_content.generators.summary.exceptions import EmptyResponseError
 from learning_content.metadata import LearningContentMetadata
 from learning_content.providers.base import AbstractTextGenerationProvider
 from learning_content.statistics import LearningContentStatistics
+from learning_content.utils import estimate_tokens
 
 
 class SummaryParser:
@@ -41,6 +42,13 @@ class SummaryParser:
                 "Received empty or whitespace-only response from the provider."
             )
 
+        # Reject common placeholder responses
+        lower_text = cleaned_text.lower().strip('. ')
+        if lower_text in {"i cannot answer", "no information", "unknown", "n/a"}:
+            raise EmptyResponseError(
+                f"Provider returned a placeholder response: '{cleaned_text}'"
+            )
+
         statistics = self._calculate_statistics(cleaned_text)
         metadata = self._build_metadata(provider)
 
@@ -66,8 +74,7 @@ class SummaryParser:
         words = text.split()
         word_count = len(words)
 
-        # Simple heuristic: ~1.3 tokens per word
-        estimated_tokens = int(word_count * 1.3)
+        estimated_tokens = estimate_tokens(text)
 
         return LearningContentStatistics(
             character_count=char_count,
@@ -83,7 +90,7 @@ class SummaryParser:
         return LearningContentMetadata(
             provider=provider.info.provider_id,
             model=provider.info.default_model,
-            model_version="1.0",
+            model_version=provider.info.model_version,
             generation_version="1.0",
             language="en",
             educational_level="unknown",
@@ -91,6 +98,6 @@ class SummaryParser:
             syllabus="unknown",
             tags=(),
             generation_id=str(uuid.uuid4()),
-            prompt_version="1.0",
+            prompt_version="summary-v1",
             template_version="1.0",
         )

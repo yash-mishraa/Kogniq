@@ -11,10 +11,11 @@ def test_learning_content_metadata_valid() -> None:
         educational_level="beginner",
         subject="computer_science",
         syllabus="standard",
+        prompt_version="1.0",
         tags=("test",),
     )
     assert metadata.provider == "test_provider"
-    assert metadata.prompt_version is None
+    assert metadata.prompt_version == "1.0"
 
 
 def test_learning_content_metadata_optional_fields() -> None:

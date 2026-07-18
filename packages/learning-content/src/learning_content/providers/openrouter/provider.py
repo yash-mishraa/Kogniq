@@ -24,6 +24,7 @@ class OpenRouterTextGenerationProvider(AbstractTextGenerationProvider):
             provider_id="openrouter",
             provider_name="OpenRouter API",
             default_model=model_name,
+            model_version="latest",
             context_window=128000,  # Generic safe default, actual depends on model
             supports_streaming=True,
             supports_json=True,
