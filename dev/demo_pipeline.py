@@ -30,7 +30,7 @@ def main() -> None:
     # Construct the dependencies
     registry = ProcessorRegistry()
     registry.register(FakeProcessor())
-    
+
     chunk_engine = FakeChunkEngine()
     embedding_provider = FakeEmbeddingProvider()
     vector_store = FakeVectorStore()
@@ -52,9 +52,9 @@ def main() -> None:
     handle_mock.id = "fake_doc_123"
     handle_mock.mime_type = "text/plain"
     handle_mock.extension = ".txt"
-    
+
     print("\nExecuting pipeline.run()...\n")
-    
+
     # Run the pipeline
     result = pipeline.run(cast(ResourceHandle, handle_mock))
 

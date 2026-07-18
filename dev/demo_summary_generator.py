@@ -16,25 +16,35 @@ from knowledge.relationship import KnowledgeRelationship
 
 from content.chunking import Chunk, ChunkCollection, ChunkMetadata, ChunkStatistics
 from learning_content.generators.summary import SummaryGenerator
-from learning_content.providers.text_generation import AbstractTextGenerationProvider
+from learning_content.providers.base import (
+    AbstractTextGenerationProvider,
+    TextGenerationProviderInfo,
+)
 
 
 class DemoTextGenerationProvider(AbstractTextGenerationProvider):
     @property
-    def provider_id(self) -> str:
-        return "demo-provider"
+    def info(self) -> TextGenerationProviderInfo:
+        return TextGenerationProviderInfo(
+            provider_id="demo-provider",
+            provider_name="Demo Provider",
+            default_model="demo-model-v1",
+            context_window=4096,
+        )
 
-    @property
-    def model_name(self) -> str:
-        return "demo-model-v1"
-
-    def generate(self, prompt: str) -> str:
+    def generate(
+        self,
+        prompt: str,
+        *,
+        temperature: float | None = None,  # noqa: ARG002
+        max_tokens: int | None = None,  # noqa: ARG002
+    ) -> str:
         print("\n" + "=" * 40)
         print("PROMPT RECEIVED BY PROVIDER:")
         print("-" * 40)
         print(prompt)
         print("=" * 40 + "\n")
-        
+
         return (
             "Machine learning enables systems to learn from data. "
             "Linear regression is a foundational model predicting continuous values, "
@@ -44,7 +54,7 @@ class DemoTextGenerationProvider(AbstractTextGenerationProvider):
 
 def run_demo() -> None:
     print("Initializing Fake Chunks...")
-    
+
     meta = ChunkMetadata(processor="demo", document_version="1.0", source="demo", checksum="123")
     stats = ChunkStatistics(
         character_count=100,
@@ -55,7 +65,7 @@ def run_demo() -> None:
         confidence=1.0,
     )
     now = datetime.now(UTC)
-    
+
     chunks = ChunkCollection(
         chunks=(
             Chunk(
@@ -103,7 +113,7 @@ def run_demo() -> None:
         language="en",
         confidence=1.0,
         extraction_version="1.0",
-        created_by="demo"
+        created_by="demo",
     )
 
     print("Initializing Fake Knowledge Graph...")

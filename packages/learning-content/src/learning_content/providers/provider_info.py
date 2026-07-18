@@ -7,7 +7,7 @@ from learning_content.exceptions import GenerationConfigurationError
 @dataclass(frozen=True, kw_only=True)
 class GeneratorInfo:
     """Immutable information about a learning content generator."""
-    
+
     generator_id: str
     generator_name: str
     generator_version: str
@@ -16,7 +16,7 @@ class GeneratorInfo:
     maximum_chunks: int
     maximum_tokens: int
     supports_batch_generation: bool
-    
+
     def __post_init__(self) -> None:
         if self.maximum_chunks <= 0:
             raise GenerationConfigurationError("Maximum chunks must be positive")

@@ -6,7 +6,7 @@ from learning_content.content import LearningContent
 from learning_content.enums import ContentType
 from learning_content.generators.summary.exceptions import EmptyResponseError
 from learning_content.metadata import LearningContentMetadata
-from learning_content.providers.text_generation import AbstractTextGenerationProvider
+from learning_content.providers.base import AbstractTextGenerationProvider
 from learning_content.statistics import LearningContentStatistics
 
 
@@ -23,15 +23,15 @@ class SummaryParser:
     ) -> LearningContent:
         """
         Parse raw text into LearningContent.
-        
+
         Args:
             raw_text: The raw text from the generator.
             chunks: The source chunk collection used for generation.
             provider: The provider used for generation.
-            
+
         Returns:
             The constructed LearningContent object.
-            
+
         Raises:
             EmptyResponseError: If the raw text is empty or whitespace only.
         """
@@ -43,7 +43,7 @@ class SummaryParser:
 
         statistics = self._calculate_statistics(cleaned_text)
         metadata = self._build_metadata(provider)
-        
+
         # Determine source_chunk_ids
         source_chunk_ids = tuple(chunk.id for chunk in chunks.chunks)
         source_document_id = chunks.chunks[0].document_id if chunks.chunks else "unknown_document"
@@ -65,7 +65,7 @@ class SummaryParser:
         char_count = len(text)
         words = text.split()
         word_count = len(words)
-        
+
         # Simple heuristic: ~1.3 tokens per word
         estimated_tokens = int(word_count * 1.3)
 
@@ -78,13 +78,11 @@ class SummaryParser:
             confidence=0.5,
         )
 
-    def _build_metadata(
-        self, provider: AbstractTextGenerationProvider
-    ) -> LearningContentMetadata:
+    def _build_metadata(self, provider: AbstractTextGenerationProvider) -> LearningContentMetadata:
         """Build metadata incorporating provider details."""
         return LearningContentMetadata(
-            provider=provider.provider_id,
-            model=provider.model_name,
+            provider=provider.info.provider_id,
+            model=provider.info.default_model,
             model_version="1.0",
             generation_version="1.0",
             language="en",

@@ -10,7 +10,10 @@ from learning_content.generators.summary import (
     SummaryGenerationError,
     SummaryGenerator,
 )
-from learning_content.providers.text_generation import AbstractTextGenerationProvider
+from learning_content.providers.base import (
+    AbstractTextGenerationProvider,
+    TextGenerationProviderInfo,
+)
 
 
 class FakeTextGenerationProvider(AbstractTextGenerationProvider):
@@ -19,14 +22,21 @@ class FakeTextGenerationProvider(AbstractTextGenerationProvider):
         self.last_prompt = ""
 
     @property
-    def provider_id(self) -> str:
-        return "fake-provider"
+    def info(self) -> TextGenerationProviderInfo:
+        return TextGenerationProviderInfo(
+            provider_id="fake-provider",
+            provider_name="Fake Provider",
+            default_model="fake-model-v1",
+            context_window=4096,
+        )
 
-    @property
-    def model_name(self) -> str:
-        return "fake-model-v1"
-
-    def generate(self, prompt: str) -> str:
+    def generate(
+        self,
+        prompt: str,
+        *,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> str:
         self.last_prompt = prompt
         return self._response
 
@@ -36,6 +46,7 @@ def create_empty_chunks() -> ChunkCollection:
         chunks=(),
     )
 
+
 def create_sample_chunks(n: int = 2) -> ChunkCollection:
     chunks = tuple(
         Chunk(
@@ -44,10 +55,7 @@ def create_sample_chunks(n: int = 2) -> ChunkCollection:
             chunk_index=i,
             text=f"Sample chunk content {i}.",
             metadata=ChunkMetadata(
-                processor="test",
-                document_version="1.0",
-                source="test",
-                checksum="123"
+                processor="test", document_version="1.0", source="test", checksum="123"
             ),
             statistics=ChunkStatistics(
                 character_count=100,
@@ -65,6 +73,7 @@ def create_sample_chunks(n: int = 2) -> ChunkCollection:
         chunks=chunks,
     )
 
+
 def create_unicode_chunks() -> ChunkCollection:
     chunks = (
         Chunk(
@@ -73,10 +82,7 @@ def create_unicode_chunks() -> ChunkCollection:
             chunk_index=0,
             text="こんにちは世界! This is a test of ✅ unicode emojis.",
             metadata=ChunkMetadata(
-                processor="test",
-                document_version="1.0",
-                source="test",
-                checksum="123"
+                processor="test", document_version="1.0", source="test", checksum="123"
             ),
             statistics=ChunkStatistics(
                 character_count=100,
@@ -98,7 +104,7 @@ def test_generator_info() -> None:
     provider = FakeTextGenerationProvider()
     generator = SummaryGenerator(provider=provider)
     info = generator.info()
-    
+
     assert info.generator_id == "summary-generator-v1"
     assert info.provider_name == "fake-provider"
     assert info.supported_content_types == (ContentType.SUMMARY,)
@@ -107,20 +113,20 @@ def test_generator_info() -> None:
 def test_generate_summary_success() -> None:
     provider = FakeTextGenerationProvider("This is a summary.")
     generator = SummaryGenerator(provider=provider)
-    
+
     chunks = create_sample_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
-    
+
     content = generator.generate(chunks, graph)
-    
+
     assert content.content_type == ContentType.SUMMARY
     assert content.body == "This is a summary."
     assert content.title == "Generated Summary"
-    
+
     # Metadata population
     assert content.metadata.provider == "fake-provider"
     assert content.metadata.model == "fake-model-v1"
-    
+
     # Statistics
     assert content.statistics.word_count == 4
     assert content.statistics.character_count == 18
@@ -130,10 +136,10 @@ def test_generate_summary_success() -> None:
 def test_generate_empty_chunks() -> None:
     provider = FakeTextGenerationProvider("Summary of nothing.")
     generator = SummaryGenerator(provider=provider)
-    
+
     chunks = create_empty_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
-    
+
     with pytest.raises(SummaryGenerationError, match="Source chunk IDs must not be empty"):
         generator.generate(chunks, graph)
 
@@ -141,10 +147,10 @@ def test_generate_empty_chunks() -> None:
 def test_generate_empty_graph() -> None:
     provider = FakeTextGenerationProvider("Summary without graph.")
     generator = SummaryGenerator(provider=provider)
-    
+
     chunks = create_sample_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
-    
+
     generator.generate(chunks, graph)
     assert "Key Concepts:" not in provider.last_prompt
     assert "Relationships:" not in provider.last_prompt
@@ -153,10 +159,10 @@ def test_generate_empty_graph() -> None:
 def test_generate_large_chunks() -> None:
     provider = FakeTextGenerationProvider("Summary of large chunk.")
     generator = SummaryGenerator(provider=provider)
-    
+
     chunks = create_sample_chunks(100)
     graph = KnowledgeGraph(concepts=(), relationships=())
-    
+
     generator.generate(chunks, graph)
     assert "Sample chunk content 99" in provider.last_prompt
 
@@ -164,10 +170,10 @@ def test_generate_large_chunks() -> None:
 def test_generate_unicode_content() -> None:
     provider = FakeTextGenerationProvider("こんにちは世界 Summary ✅")
     generator = SummaryGenerator(provider=provider)
-    
+
     chunks = create_unicode_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
-    
+
     content = generator.generate(chunks, graph)
     assert content.body == "こんにちは世界 Summary ✅"
     assert "こんにちは世界!" in provider.last_prompt
@@ -176,10 +182,10 @@ def test_generate_unicode_content() -> None:
 def test_generate_multiline_response() -> None:
     provider = FakeTextGenerationProvider("Line 1\nLine 2\n\nLine 3")
     generator = SummaryGenerator(provider=provider)
-    
+
     chunks = create_sample_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
-    
+
     content = generator.generate(chunks, graph)
     assert content.body == "Line 1\nLine 2\n\nLine 3"
     assert content.statistics.word_count == 6
@@ -188,9 +194,9 @@ def test_generate_multiline_response() -> None:
 def test_generate_whitespace_only_response() -> None:
     provider = FakeTextGenerationProvider("   \n\t  ")
     generator = SummaryGenerator(provider=provider)
-    
+
     chunks = create_sample_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
-    
+
     with pytest.raises(EmptyResponseError):
         generator.generate(chunks, graph)

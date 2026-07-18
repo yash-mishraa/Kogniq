@@ -26,9 +26,7 @@ class FakeLearningGenerator(AbstractLearningGenerator):
             supports_batch_generation=True,
         )
 
-    def generate(
-        self, chunks: ChunkCollection, graph: KnowledgeGraph
-    ) -> LearningContent:
+    def generate(self, chunks: ChunkCollection, graph: KnowledgeGraph) -> LearningContent:
         return LearningContent(
             id="test-content-1",
             source_document_id=chunks.chunks[0].document_id if chunks.chunks else "unknown",
@@ -60,12 +58,9 @@ class FakeLearningGenerator(AbstractLearningGenerator):
     def generate_batch(
         self, collections: tuple[ChunkCollection, ...], graphs: tuple[KnowledgeGraph, ...]
     ) -> LearningContentCollection:
-            return LearningContentCollection(
-                contents=tuple(
-                    self.generate(c, g) 
-                    for c, g in zip(collections, graphs, strict=True)
-                )
-            )
+        return LearningContentCollection(
+            contents=tuple(self.generate(c, g) for c, g in zip(collections, graphs, strict=True))
+        )
 
 
 def test_fake_generator() -> None:
@@ -75,7 +70,7 @@ def test_fake_generator() -> None:
     chunk_mock = MagicMock(spec=Chunk)
     chunk_mock.id = "chunk-1"
     chunk_mock.document_id = "doc-1"
-    
+
     chunks = ChunkCollection(chunks=(chunk_mock,))
     graph = MagicMock(spec=KnowledgeGraph)
 

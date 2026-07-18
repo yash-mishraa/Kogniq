@@ -24,6 +24,7 @@ class LocalFileStreamReference(AbstractStreamReference):
     def open_stream(self) -> IO[bytes]:
         return self.file_path.open("rb")
 
+
 def create_sample_html(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     content = """<!DOCTYPE html>
@@ -82,6 +83,7 @@ def learn():
 """
     path.write_bytes(content.encode("utf-8"))
 
+
 def main() -> None:
     if len(sys.argv) > 1:
         if sys.argv[1] in ("-h", "--help"):
@@ -124,7 +126,7 @@ def main() -> None:
     print("-" * 40)
     print(f"Processor   : {doc.version}")
     print(f"Title       : {doc.title}")
-    
+
     total_blocks = sum(len(page.blocks) for page in doc.pages)
     print(f"Block count : {total_blocks}")
     print(f"Statistics  : {doc.statistics}")
@@ -137,12 +139,13 @@ def main() -> None:
 
     first_page = doc.pages[0]
     print("\nFirst 5 blocks text:")
-    
+
     for i, block in enumerate(first_page.blocks[:5], start=1):
-        text = block.text.replace('\n', ' ')
+        text = block.text.replace("\n", " ")
         if len(text) > 100:
             text = text[:97] + "..."
         print(f"  [{i}] ({block.block_type.name}) {text}")
+
 
 if __name__ == "__main__":
     main()

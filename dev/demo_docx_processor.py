@@ -25,23 +25,26 @@ class LocalFileStreamReference(AbstractStreamReference):
     def open_stream(self) -> IO[bytes]:
         return self.file_path.open("rb")
 
+
 def create_sample_docx(path: Path) -> None:
     from docx import Document
+
     doc = Document()
     doc.core_properties.title = "Sample DOCX"
     doc.add_heading("Welcome to DOCX Processor", 0)
     doc.add_paragraph("This is a sample document.")
     doc.add_paragraph("List item 1", style="List Bullet")
     doc.add_paragraph("List item 2", style="List Bullet")
-    
+
     table = doc.add_table(rows=2, cols=2)
     table.cell(0, 0).text = "Cell 1"
     table.cell(0, 1).text = "Cell 2"
     table.cell(1, 0).text = "Cell 3"
     table.cell(1, 1).text = "Cell 4"
-    
+
     path.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(path))
+
 
 def main() -> None:
     if len(sys.argv) > 1:
@@ -84,7 +87,7 @@ def main() -> None:
 
     print("-" * 40)
     print(f"Title       : {doc.title}")
-    
+
     total_blocks = sum(len(page.blocks) for page in doc.pages)
     print(f"Block count : {total_blocks}")
     print(f"Statistics  : {doc.statistics}")
@@ -97,12 +100,13 @@ def main() -> None:
 
     first_page = doc.pages[0]
     print("\nFirst 5 blocks text:")
-    
+
     for i, block in enumerate(first_page.blocks[:5], start=1):
-        text = block.text.replace('\n', ' ')
+        text = block.text.replace("\n", " ")
         if len(text) > 100:
             text = text[:97] + "..."
         print(f"  [{i}] ({block.block_type.name}) {text}")
+
 
 if __name__ == "__main__":
     main()

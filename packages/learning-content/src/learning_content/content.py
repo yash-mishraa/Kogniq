@@ -10,7 +10,7 @@ from learning_content.statistics import LearningContentStatistics
 @dataclass(frozen=True, kw_only=True)
 class LearningContent:
     """Immutable educational content generated from source documents."""
-    
+
     id: str
     source_document_id: str
     source_chunk_ids: tuple[str, ...]
@@ -20,7 +20,7 @@ class LearningContent:
     metadata: LearningContentMetadata
     statistics: LearningContentStatistics
     created_at: datetime
-    
+
     def __post_init__(self) -> None:
         if not self.body.strip():
             raise InvalidLearningContentError("Content body cannot be empty")

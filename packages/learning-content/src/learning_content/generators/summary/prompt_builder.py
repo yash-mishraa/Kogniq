@@ -11,11 +11,11 @@ class SummaryPromptBuilder:
     def build(self, chunks: ChunkCollection, graph: KnowledgeGraph) -> str:
         """
         Build a deterministic summary prompt from chunks and knowledge graph.
-        
+
         Args:
             chunks: The source chunks.
             graph: The extracted knowledge graph.
-            
+
         Returns:
             The complete prompt string.
         """
@@ -25,7 +25,7 @@ class SummaryPromptBuilder:
             self._build_relationships(graph),
             self._build_source_content(chunks),
         ]
-        
+
         # Filter out empty parts and join
         return "\n\n".join(filter(None, parts)).strip()
 
@@ -39,19 +39,19 @@ class SummaryPromptBuilder:
     def _build_concepts(self, graph: KnowledgeGraph) -> str:
         if not graph.concepts:
             return ""
-            
+
         lines = ["Key Concepts:"]
         lines.extend(
             f"- {concept.title}: {concept.description}"
             for concept in sorted(graph.concepts, key=lambda c: c.id)
         )
-            
+
         return "\n".join(lines)
 
     def _build_relationships(self, graph: KnowledgeGraph) -> str:
         if not graph.relationships:
             return ""
-            
+
         lines = ["Relationships:"]
         lines.extend(
             f"- {rel.source_concept} --[{rel.relationship_type.name}]--> {rel.target_concept}"
@@ -59,14 +59,14 @@ class SummaryPromptBuilder:
                 graph.relationships, key=lambda r: (r.source_concept, r.target_concept)
             )
         )
-            
+
         return "\n".join(lines)
 
     def _build_source_content(self, chunks: ChunkCollection) -> str:
         if not chunks.chunks:
             return "Source Text:\n(No content provided)"
-            
+
         lines = ["Source Text:"]
         lines.extend(chunk.text.strip() for chunk in chunks.chunks)
-            
+
         return "\n".join(lines)

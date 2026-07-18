@@ -15,7 +15,8 @@ def test_learning_content_metadata_valid() -> None:
     )
     assert metadata.provider == "test_provider"
     assert metadata.prompt_version is None
-    
+
+
 def test_learning_content_metadata_optional_fields() -> None:
     metadata = LearningContentMetadata(
         provider="test_provider",

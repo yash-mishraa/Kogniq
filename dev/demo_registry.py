@@ -13,7 +13,7 @@ from content.processors.txt import TXTProcessor
 
 def main() -> None:
     registry = ProcessorRegistry()
-    
+
     # Automatic registration check: The registry requires no changes to support these
     registry.register(PDFProcessor())
     registry.register(MarkdownProcessor())
@@ -25,21 +25,21 @@ def main() -> None:
     print("Registered processors")
     for name in registry.available_processors():
         print(name)
-        
+
     print("\n" + "-" * 32)
     print("Supported extensions")
     for ext in registry.supported_extensions():
         print(f".{ext}")
-        
+
     print("\n" + "-" * 32)
     print("Supported MIME types")
     for mime in registry.supported_mime_types():
         print(mime)
-        
+
     print("\n" + "-" * 32)
     print(f"Total processors: {registry.processor_count()}")
     print("-" * 32)
-    
+
     print("\nDetailed Introspection:")
     for name in registry.available_processors():
         info = registry.processor_info(name)
@@ -48,6 +48,7 @@ def main() -> None:
         print(f"Supported Extensions: {', '.join(info.supported_extensions)}")
         print(f"Supported MIME Types: {', '.join(info.supported_mime_types)}")
         print(f"Description         : {info.description}")
+
 
 if __name__ == "__main__":
     main()

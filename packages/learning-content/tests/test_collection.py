@@ -36,12 +36,13 @@ def _create_content(id_val: str, chars: int, words: int, tokens: int) -> Learnin
         created_at=datetime.now(UTC),
     )
 
+
 def test_learning_content_collection() -> None:
     c1 = _create_content("1", 10, 2, 3)
     c2 = _create_content("2", 20, 4, 5)
-    
+
     collection = LearningContentCollection(contents=(c1, c2))
-    
+
     assert collection.total_items == 2
     assert collection.total_characters == 30
     assert collection.total_words == 6

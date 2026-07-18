@@ -75,9 +75,14 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-17 — OpenRouter Text Generation Provider (Stage 12 Prompt 3)
+- **Completed:** First concrete implementation of `AbstractTextGenerationProvider` using OpenRouter API and OpenAI SDK.
+- **Files Changed:** `pyproject.toml`, `packages/learning-content/src/learning_content/providers/base.py`, `packages/learning-content/src/learning_content/providers/openrouter/*`, `packages/learning-content/tests/test_openrouter_provider.py`, `dev/demo_openrouter_provider.py`, `docs/architecture/openrouter-provider.md`.
+- **Architecture Changes:** Implemented the canonical provider for Text Generation strictly decoupled from business logic and LLM SDK leakage. Provided lazy loading, exception translation (`OpenRouterError`), and standard configuration controls (`TextGenerationProviderInfo`).
+
 ### 2026-07-17 — Summary Generator Foundation (Stage 12 Prompt 2)
 - **Completed:** First concrete implementation of `AbstractLearningGenerator` using the `SummaryGenerator`.
-- **Files Changed:** `packages/learning-content/src/learning_content/generators/summary/*`, `packages/learning-content/src/learning_content/providers/text_generation.py`, `packages/learning-content/tests/test_summary_generator.py`, `dev/demo_summary_generator.py`, `docs/architecture/summary-generator.md`.
+- **Files Changed:** `packages/learning-content/src/learning_content/generators/summary/*`, `packages/learning-content/src/learning_content/providers/base.py`, `packages/learning-content/tests/test_summary_generator.py`, `dev/demo_summary_generator.py`, `docs/architecture/summary-generator.md`.
 - **Architecture Changes:** Established the canonical reference architecture for all future generators (Prompt Builder -> Provider -> Parser). Introduced the `AbstractTextGenerationProvider` to completely decouple generators from concrete LLM SDKs.
 
 ### 2026-07-14 — Gemini Knowledge Extractor Foundation (Stage 10 Prompt 1)

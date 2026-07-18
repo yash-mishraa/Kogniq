@@ -32,22 +32,33 @@ class MockPinecone(AbstractVectorStore):
     def store(self, embedding: Embedding) -> StorageResult:
         _ = embedding
         from embedding.vectorstores.storage_result import StorageResult
+
         return StorageResult(stored_count=1, collection_name="fake", metadata=None)
+
     def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
         from embedding.vectorstores.storage_result import StorageResult
+
         return StorageResult(
             stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
         )
-    def delete(self, embedding_id: str) -> None: pass
-    def delete_batch(self, embedding_ids: tuple[str, ...]) -> None: pass
-    def search(
-        self, vector: EmbeddingVector, *, limit: int = 10
-    ) -> tuple[SearchResult, ...]:
+
+    def delete(self, embedding_id: str) -> None:
+        pass
+
+    def delete_batch(self, embedding_ids: tuple[str, ...]) -> None:
+        pass
+
+    def search(self, vector: EmbeddingVector, *, limit: int = 10) -> tuple[SearchResult, ...]:
         _ = vector
         _ = limit
         return ()
-    def count(self) -> int: return 0
-    def clear(self) -> None: pass
+
+    def count(self) -> int:
+        return 0
+
+    def clear(self) -> None:
+        pass
+
 
 class MockQdrant(AbstractVectorStore):
     @property
@@ -66,32 +77,43 @@ class MockQdrant(AbstractVectorStore):
     def store(self, embedding: Embedding) -> StorageResult:
         _ = embedding
         from embedding.vectorstores.storage_result import StorageResult
+
         return StorageResult(stored_count=1, collection_name="fake", metadata=None)
+
     def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
         from embedding.vectorstores.storage_result import StorageResult
+
         return StorageResult(
             stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
         )
-    def delete(self, embedding_id: str) -> None: pass
-    def delete_batch(self, embedding_ids: tuple[str, ...]) -> None: pass
-    def search(
-        self, vector: EmbeddingVector, *, limit: int = 10
-    ) -> tuple[SearchResult, ...]:
+
+    def delete(self, embedding_id: str) -> None:
+        pass
+
+    def delete_batch(self, embedding_ids: tuple[str, ...]) -> None:
+        pass
+
+    def search(self, vector: EmbeddingVector, *, limit: int = 10) -> tuple[SearchResult, ...]:
         _ = vector
         _ = limit
         return ()
-    def count(self) -> int: return 0
-    def clear(self) -> None: pass
+
+    def count(self) -> int:
+        return 0
+
+    def clear(self) -> None:
+        pass
+
 
 def main() -> None:
     print("Initializing Vector Store Registry...")
     registry = VectorStoreRegistry()
-    
+
     registry.register(MockPinecone())
     registry.register(MockQdrant())
-    
+
     print(f"\nRegistry Count: {registry.store_count()}")
-    
+
     print("\nAvailable Stores:")
     for store in registry.available_stores():
         info = store.info
@@ -100,6 +122,7 @@ def main() -> None:
         print(f"Store Name : {info.store_name}")
         print(f"Metrics    : {', '.join(info.supported_distance_metrics)}")
         print(f"Metadata Filtering: {'Yes' if info.supports_metadata_filtering else 'No'}")
+
 
 if __name__ == "__main__":
     main()

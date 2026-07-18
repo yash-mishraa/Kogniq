@@ -8,6 +8,7 @@ dependencies = [
     "kogniq-shared",
     "kogniq-content",
     "kogniq-knowledge",
+    "openai>=1.14.0",
 ]
 
 [build-system]

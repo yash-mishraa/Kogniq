@@ -43,9 +43,7 @@ class DemoLearningGenerator(AbstractLearningGenerator):
             supports_batch_generation=True,
         )
 
-    def generate(
-        self, chunks: ChunkCollection, graph: KnowledgeGraph
-    ) -> LearningContent:
+    def generate(self, chunks: ChunkCollection, graph: KnowledgeGraph) -> LearningContent:
         _ = graph  # Unused
         return LearningContent(
             id="demo-content-1",
@@ -78,12 +76,9 @@ class DemoLearningGenerator(AbstractLearningGenerator):
     def generate_batch(
         self, collections: tuple[ChunkCollection, ...], graphs: tuple[KnowledgeGraph, ...]
     ) -> LearningContentCollection:
-            return LearningContentCollection(
-                contents=tuple(
-                    self.generate(c, g) 
-                    for c, g in zip(collections, graphs, strict=True)
-                )
-            )
+        return LearningContentCollection(
+            contents=tuple(self.generate(c, g) for c, g in zip(collections, graphs, strict=True))
+        )
 
 
 def main() -> None:
@@ -93,7 +88,7 @@ def main() -> None:
     chunk_mock = MagicMock(spec=Chunk)
     chunk_mock.id = "chunk-abc"
     chunk_mock.document_id = "doc-123"
-    
+
     chunks = ChunkCollection(chunks=(chunk_mock,))
     graph = MagicMock(spec=KnowledgeGraph)
 

@@ -83,10 +83,12 @@ class DemoVectorStore(AbstractVectorStore):
     def store(self, embedding: Embedding) -> StorageResult:
         _ = embedding
         from embedding.vectorstores.storage_result import StorageResult
+
         return StorageResult(stored_count=1, collection_name="fake", metadata=None)
 
     def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
         from embedding.vectorstores.storage_result import StorageResult
+
         return StorageResult(
             stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
         )
@@ -129,16 +131,16 @@ def main() -> None:
     print("Initializing Demo Components...")
     provider = DemoEmbeddingProvider()
     store = DemoVectorStore()
-    
+
     config = RetrieverConfig(default_top_k=5, similarity_threshold=0.5)
     retriever = SemanticRetriever(embedding_provider=provider, vector_store=store, config=config)
-    
+
     query_text = "What is the capital of France?"
     print(f"\nExecuting query: '{query_text}'")
     query = RetrievalQuery(text=query_text, top_k=3)
-    
+
     results = retriever.retrieve(query)
-    
+
     print("\nRetrieval Results:")
     for rr in results:
         print("-" * 40)

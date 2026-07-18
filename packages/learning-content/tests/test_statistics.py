@@ -14,6 +14,7 @@ def test_statistics_valid() -> None:
     )
     assert stats.character_count == 100
 
+
 def test_statistics_negative_counts() -> None:
     with pytest.raises(InvalidLearningContentError, match="Character count cannot be negative"):
         LearningContentStatistics(
@@ -23,6 +24,7 @@ def test_statistics_negative_counts() -> None:
             processing_time_ms=10.0,
             confidence=0.9,
         )
+
 
 def test_statistics_invalid_confidence_high() -> None:
     with pytest.raises(
@@ -35,6 +37,7 @@ def test_statistics_invalid_confidence_high() -> None:
             processing_time_ms=10.0,
             confidence=1.1,
         )
+
 
 def test_statistics_invalid_confidence_low() -> None:
     with pytest.raises(

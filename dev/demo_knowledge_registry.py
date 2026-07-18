@@ -42,7 +42,7 @@ class GeminiFakeExtractor(AbstractKnowledgeExtractor):
             version="1",
             processing_time_ms=0.0,
             processed_chunks=0,
-            created_at=datetime.now(UTC)
+            created_at=datetime.now(UTC),
         )
 
     def extract_batch(
@@ -75,7 +75,7 @@ class LocalLLMFakeExtractor(AbstractKnowledgeExtractor):
             version="1",
             processing_time_ms=0.0,
             processed_chunks=0,
-            created_at=datetime.now(UTC)
+            created_at=datetime.now(UTC),
         )
 
     def extract_batch(

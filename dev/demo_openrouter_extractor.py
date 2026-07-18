@@ -48,8 +48,8 @@ def main() -> None:
             checksum="fake_hash",
         ),
         statistics=ChunkStatistics(
-            character_count=100, 
-            word_count=20, 
+            character_count=100,
+            word_count=20,
             estimated_tokens=15,
             line_count=4,
             processing_timestamp=datetime.now(UTC),
@@ -63,7 +63,7 @@ def main() -> None:
     result = extractor.extract(collection)
 
     print(f"\nExtraction completed in {result.processing_time_ms:.2f} ms")
-    
+
     graph = result.graph
     print(f"Concepts extracted: {graph.concept_count}")
     for concept in graph.concepts:

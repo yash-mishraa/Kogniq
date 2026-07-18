@@ -38,7 +38,7 @@ def main() -> None:
         pdf_path = Path(sys.argv[1]).resolve()
     else:
         pdf_path = Path(__file__).parent / "sample_documents" / "transformer_paper.pdf"
-    
+
     if not pdf_path.exists():
         print(f"Error: Could not find PDF at {pdf_path}")
         print("Please ensure the document exists before running this script.")

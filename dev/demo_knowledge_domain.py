@@ -95,8 +95,7 @@ def main() -> None:
     print("\nRelationships:")
     for r in graph.relationships:
         print(
-            f"  - [{r.id}] {r.source_concept} "
-            f"--({r.relationship_type.name})--> {r.target_concept}"
+            f"  - [{r.id}] {r.source_concept} --({r.relationship_type.name})--> {r.target_concept}"
         )
         print(f"    Confidence: {r.confidence:.2f}")
 

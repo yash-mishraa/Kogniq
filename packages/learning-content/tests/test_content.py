@@ -22,6 +22,7 @@ def create_valid_metadata() -> LearningContentMetadata:
         tags=("test",),
     )
 
+
 def create_valid_statistics() -> LearningContentStatistics:
     return LearningContentStatistics(
         character_count=100,
@@ -30,6 +31,7 @@ def create_valid_statistics() -> LearningContentStatistics:
         processing_time_ms=10.0,
         confidence=0.9,
     )
+
 
 def test_learning_content_valid() -> None:
     content = LearningContent(
@@ -45,6 +47,7 @@ def test_learning_content_valid() -> None:
     )
     assert content.title == "Valid Title"
 
+
 def test_learning_content_empty_body() -> None:
     with pytest.raises(InvalidLearningContentError, match="Content body cannot be empty"):
         LearningContent(
@@ -59,6 +62,7 @@ def test_learning_content_empty_body() -> None:
             created_at=datetime.now(UTC),
         )
 
+
 def test_learning_content_empty_title() -> None:
     with pytest.raises(InvalidLearningContentError, match="Content title cannot be empty"):
         LearningContent(
@@ -72,6 +76,7 @@ def test_learning_content_empty_title() -> None:
             statistics=create_valid_statistics(),
             created_at=datetime.now(UTC),
         )
+
 
 def test_learning_content_empty_chunks() -> None:
     with pytest.raises(InvalidLearningContentError, match="Source chunk IDs must not be empty"):
