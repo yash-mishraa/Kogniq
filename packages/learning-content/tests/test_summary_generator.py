@@ -5,11 +5,8 @@ from knowledge.graph import KnowledgeGraph
 
 from content.chunking import Chunk, ChunkCollection, ChunkMetadata, ChunkStatistics
 from learning_content.enums import ContentType
-from learning_content.generators.summary import (
-    EmptyResponseError,
-    SummaryGenerationError,
-    SummaryGenerator,
-)
+from learning_content.generators.base import LearningGenerationError, ParsingError
+from learning_content.generators.summary import SummaryGenerator
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
     TextGenerationProviderInfo,
@@ -144,7 +141,10 @@ def test_generate_empty_chunks() -> None:
     chunks = create_empty_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
 
-    with pytest.raises(SummaryGenerationError, match="Source chunk IDs must not be empty"):
+    with pytest.raises(
+        LearningGenerationError,
+        match="Failed to generate learning content: Source chunk IDs must not be empty",
+    ):
         generator.generate(chunks, graph)
 
 
@@ -203,7 +203,7 @@ def test_generate_whitespace_only_response() -> None:
     chunks = create_sample_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
 
-    with pytest.raises(EmptyResponseError):
+    with pytest.raises(ParsingError):
         generator.generate(chunks, graph)
 
 
@@ -213,7 +213,7 @@ def test_generate_placeholder_response() -> None:
     chunks = create_sample_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
 
-    with pytest.raises(EmptyResponseError, match="placeholder response"):
+    with pytest.raises(ParsingError, match="placeholder response"):
         generator.generate(chunks, graph)
 
 
@@ -244,6 +244,7 @@ def test_generate_provider_exception() -> None:
     chunks = create_sample_chunks()
     graph = KnowledgeGraph(concepts=(), relationships=())
 
-    with pytest.raises(SummaryGenerationError, match="Failed to generate summary: Provider failed"):
+    with pytest.raises(
+        LearningGenerationError, match="Failed to generate learning content: Provider failed"
+    ):
         generator.generate(chunks, graph)
-

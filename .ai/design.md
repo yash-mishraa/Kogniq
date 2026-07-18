@@ -153,7 +153,7 @@ Future domain plugins will package examination-specific concepts, curriculum map
 5.  **Retrieval Context (`packages/retrieval`)**: Manages semantic search and document ranking algorithms over embedded content.
 6.  **Knowledge Context (`packages/knowledge`)**: Handles extraction and synthesis of concepts and relationships to form knowledge graphs from document chunks.
 7.  **Pipeline Context (`packages/pipeline`)**: Orchestrates the flow of documents through the intelligence pipeline (parsing -> chunking -> embedding -> extraction -> storing).
-8.  **Learning Content Generation Context (`packages/learning-content`)**: The canonical domain for generating educational content (e.g. summaries, flashcards) from chunk collections and knowledge graphs. Contains `AbstractTextGenerationProvider` for decoupling generation models (e.g. OpenRouter API) and `SummaryGenerator` as the canonical reference architecture for all generators. For detailed pipeline architecture, see `docs/architecture/summary-generation-pipeline.md`.
+8.  **Learning Content Generation Context (`packages/learning-content`)**: The canonical domain for generating educational content (e.g. summaries, flashcards) from chunk collections and knowledge graphs. Contains `AbstractTextGenerationProvider` for decoupling generation models (e.g. OpenRouter API) and `BaseLearningGenerator` providing the reusable orchestration framework. For detailed pipeline architecture, see `docs/architecture/learning-generation-framework.md` and `docs/architecture/summary-generation-pipeline.md`.
 
 ## Directory Responsibilities
 

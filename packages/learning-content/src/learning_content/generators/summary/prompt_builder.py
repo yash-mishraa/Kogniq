@@ -1,20 +1,20 @@
 from knowledge.graph import KnowledgeGraph
 
 from content.chunking import ChunkCollection
+from learning_content.generators.base import AbstractPromptBuilder, GenerationContext
 
 
-class SummaryPromptBuilder:
+class SummaryPromptBuilder(AbstractPromptBuilder):
     """
     Deterministically builds prompts for the Summary Generator.
     """
 
-    def build(self, chunks: ChunkCollection, graph: KnowledgeGraph) -> str:
+    def build(self, context: GenerationContext) -> str:
         """
         Build a deterministic summary prompt from chunks and knowledge graph.
 
         Args:
-            chunks: The source chunks.
-            graph: The extracted knowledge graph.
+            context: The generation context containing chunks and graph.
 
         Returns:
             The complete prompt string.
@@ -22,9 +22,9 @@ class SummaryPromptBuilder:
         parts = [
             self._build_system(),
             self._build_objective(),
-            self._build_concepts(graph),
-            self._build_relationships(graph),
-            self._build_source_content(chunks),
+            self._build_concepts(context.graph),
+            self._build_relationships(context.graph),
+            self._build_source_content(context.chunks),
             self._build_output_requirements(),
         ]
 
@@ -76,10 +76,4 @@ class SummaryPromptBuilder:
         return "\n".join(lines)
 
     def _build_output_requirements(self) -> str:
-        return (
-            "OUTPUT REQUIREMENTS\n"
-            "- concise\n"
-            "- accurate\n"
-            "- no hallucinations\n"
-            "- markdown allowed"
-        )
+        return "OUTPUT REQUIREMENTS\n- concise\n- accurate\n- no hallucinations\n- markdown allowed"

@@ -75,6 +75,11 @@ Await explicit user direction. Do not begin Stage 1 automatically.
 
 Append new entries; never remove earlier sessions.
 
+### 2026-07-18 — Learning Generation Framework (Stage 13 Prompt 1)
+- **Completed:** Reusable `BaseLearningGenerator` orchestration framework.
+- **Files Changed:** `packages/learning-content/src/learning_content/generators/base/*`, `packages/learning-content/src/learning_content/generators/summary/*`, `dev/demo_generation_framework.py`, `docs/architecture/learning-generation-framework.md`.
+- **Architecture Changes:** Centralized the prompt-building, provider-invoking, and parsing orchestration into a reusable `BaseLearningGenerator`. Introduced immutable `GenerationContext` and `GenerationMetadata`. Refactored `SummaryGenerator` to act strictly as a provider of specialized PromptBuilder and Parser components.
+
 ### 2026-07-18 — Summary Generator + OpenRouter Integration (Stage 12 Prompt 4)
 - **Completed:** End-to-end AI-powered learning pipeline for generating educational summaries.
 - **Files Changed:** `packages/learning-content/src/learning_content/generators/summary/*`, `packages/learning-content/src/learning_content/utils/token_estimator.py`, `packages/learning-content/tests/test_summary_generator.py`, `dev/demo_summary_openrouter.py`, `docs/architecture/summary-generation-pipeline.md`.
