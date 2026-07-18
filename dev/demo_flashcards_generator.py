@@ -1,3 +1,4 @@
+import json
 import sys
 import time
 from datetime import UTC, datetime
@@ -14,7 +15,7 @@ from knowledge.graph import KnowledgeGraph
 from knowledge.metadata import KnowledgeMetadata
 
 from content.chunking import Chunk, ChunkCollection, ChunkMetadata, ChunkStatistics
-from learning_content.generators.notes.generator import NotesGenerator
+from learning_content.generators.flashcards.generator import FlashcardsGenerator
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
     TextGenerationProviderInfo,
@@ -40,29 +41,36 @@ class DemoProvider(AbstractTextGenerationProvider):
         max_tokens: int | None = None,
     ) -> str:
         _ = (prompt, temperature, max_tokens)
-        return (
-            "# Machine Learning Basics\n\n"
-            "## Core Concepts\n"
-            "- **Supervised Learning**: Training on labeled data.\n"
-            "- **Unsupervised Learning**: Discovering patterns in unlabeled data.\n\n"
-            "### Important Facts\n"
-            "- Overfitting happens when a model learns the training data too well.\n\n"
-            "### Key Definitions\n"
-            "- **Gradient Descent**: Optimization algorithm to minimize loss.\n\n"
-            "### Exam Tips\n"
-            "- Remember the difference between L1 and L2 regularization.\n\n"
-            "### Common Mistakes\n"
-            "- Not scaling features before applying gradient descent.\n"
+        return json.dumps(
+            [
+                {
+                    "question": "What is Gradient Descent?",
+                    "answer": (
+                        "An optimization algorithm used to minimize loss "
+                        "by iteratively moving in the direction of steepest descent."
+                    ),
+                    "difficulty": "medium",
+                },
+                {
+                    "question": "What happens during overfitting?",
+                    "answer": (
+                        "The model learns the training data too well, including its noise, "
+                        "leading to poor generalization on new data."
+                    ),
+                    "difficulty": "easy",
+                },
+            ],
+            indent=2,
         )
 
 
 if __name__ == "__main__":
     print("============================================================")
-    print("Notes Generator Demo")
+    print("Flashcards Generator Demo")
     print("============================================================")
 
     provider = DemoProvider()
-    generator = NotesGenerator(provider)
+    generator = FlashcardsGenerator(provider)
 
     chunks = ChunkCollection(
         chunks=(
@@ -70,15 +78,15 @@ if __name__ == "__main__":
                 id="chunk-1",
                 document_id="ml-intro",
                 chunk_index=0,
-                text="Machine learning consists of supervised and unsupervised approaches.",
+                text="Machine learning models use optimization algorithms like Gradient Descent.",
                 metadata=ChunkMetadata(
                     processor="txt", document_version="1", source="demo", checksum="123"
                 ),
                 statistics=ChunkStatistics(
-                    character_count=66,
+                    character_count=70,
                     line_count=1,
-                    word_count=9,
-                    estimated_tokens=12,
+                    word_count=10,
+                    estimated_tokens=13,
                     processing_timestamp=datetime.now(UTC),
                     confidence=1.0,
                 ),
@@ -91,9 +99,9 @@ if __name__ == "__main__":
         concepts=(
             KnowledgeConcept(
                 id="c1",
-                title="Supervised Learning",
-                description="Learning with labels",
-                concept_type=ConceptType.PRINCIPLE,
+                title="Gradient Descent",
+                description="Optimization algorithm",
+                concept_type=ConceptType.ALGORITHM,
                 aliases=(),
                 metadata=KnowledgeMetadata(
                     source_document="ml-intro",
@@ -108,19 +116,23 @@ if __name__ == "__main__":
         relationships=(),
     )
 
-    print("\n[1] Generating Notes...")
+    print("\n[1] Generating Flashcards...")
     start = time.perf_counter()
     content = generator.generate(chunks, graph)
     end = time.perf_counter()
 
     print(f"\n[2] Generation Complete in {end - start:.2f}s!")
     print(f"Title: {content.title}")
-    print(
-        f"Stats: {content.statistics.word_count} words, {content.statistics.character_count} chars"
-    )
+
+    parsed_cards = json.loads(content.body)
+    print(f"Total Cards: {len(parsed_cards)}")
     print(
         f"Metadata: Provider={content.metadata.provider}, "
         f"PromptVersion={content.metadata.prompt_version}"
     )
-    print("\n[3] Generated Content:\n")
-    print(content.body)
+
+    print("\n[3] Generated Structured Content:\n")
+    for i, card in enumerate(parsed_cards, 1):
+        print(f"--- Card {i} [{card.get('difficulty', 'unknown').upper()}] ---")
+        print(f"Q: {card.get('question')}")
+        print(f"A: {card.get('answer')}\n")
