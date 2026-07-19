@@ -161,8 +161,9 @@ Future domain plugins will package examination-specific concepts, curriculum map
     3. **Prompt Builders (`prompt_builder.py`)**: Dedicated prompt templates and logic for each generator type.
     4. **Parsers (`parser.py`)**: Validates text or JSON into corresponding immutable models.
     5. **Composers & Renderers (`composer.py`, `renderer.py`)**: Isolates the assembly and presentation of complex composite artifacts like Study Guides.
+9. **Backend Context (`packages/backend`)**: The FastAPI application serving as the entry point for all API requests. Provides dependency injection, global exception handling, lifecycle management, and routing infrastructure.
 
-Currently, all three generators utilize the central `BaseLearningGenerator` orchestration framework. For detailed pipeline architecture, see `docs/architecture/learning-generation-framework.md` and `docs/architecture/summary-generation-pipeline.md`.
+Currently, all learning generators utilize the central `BaseLearningGenerator` orchestration framework. For detailed pipeline architecture, see `docs/architecture/learning-generation-framework.md` and `docs/architecture/summary-generation-pipeline.md`.
 
 ## Directory Responsibilities
 

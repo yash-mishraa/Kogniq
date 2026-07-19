@@ -89,6 +89,10 @@ Append new entries; never remove earlier sessions.
 - [x] **Stage 14 (Prompt 4):** Explanation Generator
 - [x] **Stage 15 (Prompt 1):** Study Guide Composer
 
+### 2026-07-19 — FastAPI Backend Foundation (Stage 16 Prompt 1)
+- **Completed:** Clean, dependency-injected FastAPI application foundation.
+- **Milestone:** Backend infrastructure fully isolated from business logic. Ready for future endpoint integration.
+
 ### 2026-07-18 — Summary Generator + OpenRouter Integration (Stage 12 Prompt 4)
 - **Completed:** End-to-end AI-powered learning pipeline for generating educational summaries.
 - **Files Changed:** `packages/learning-content/src/learning_content/generators/summary/*`, `packages/learning-content/src/learning_content/utils/token_estimator.py`, `packages/learning-content/tests/test_summary_generator.py`, `dev/demo_summary_openrouter.py`, `docs/architecture/summary-generation-pipeline.md`.
