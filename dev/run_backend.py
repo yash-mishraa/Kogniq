@@ -3,11 +3,13 @@ from pathlib import Path
 
 import uvicorn
 
-# Ensure the workspace packages are resolvable when run directly
-sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "shared" / "src"))
-sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "backend" / "src"))
+# Ensure all workspace packages are resolvable when run directly
+root_dir = Path(__file__).parent.parent
+for pkg_dir in (root_dir / "packages").iterdir():
+    if pkg_dir.is_dir() and (pkg_dir / "src").exists():
+        sys.path.insert(0, str(pkg_dir / "src"))
 
-from backend.core.settings import settings
+from backend.core.settings import settings  # noqa: E402
 
 if __name__ == "__main__":
     print(

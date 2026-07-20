@@ -13,7 +13,11 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Typing :: Typed",
 ]
-dependencies = ["kogniq-api", "kogniq-education"]
+dependencies = [
+    "kogniq-api",
+    "kogniq-education",
+    "python-multipart>=0.0.32",
+]
 
 # Feature dependencies will be added only by the package that owns them.
 [project.optional-dependencies]

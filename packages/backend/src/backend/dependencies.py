@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from backend.services.document_service import DocumentService
 from backend.services.stubs import (
     LearningService,
     PipelineService,
@@ -25,6 +26,19 @@ async def get_learning_service() -> LearningService:
 
 async def get_retrieval_service() -> RetrievalService:
     return StubRetrievalService()
+
+
+# -----------------
+# Core Services
+# -----------------
+
+
+async def get_document_service() -> "DocumentService":
+    from backend.services.document_service import DocumentService
+    from backend.services.pipeline_factory import PipelineFactory
+
+    pipeline = PipelineFactory.create()
+    return DocumentService(pipeline=pipeline)
 
 
 # Typed dependencies for clean injection in route handlers
