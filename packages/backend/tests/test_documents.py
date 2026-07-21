@@ -1,6 +1,7 @@
 import pytest
 from backend.app import create_app
 from backend.core.validators import DocumentValidator
+from backend.dependencies import get_authorization_service, get_document_service
 from fastapi.testclient import TestClient
 
 
@@ -18,6 +19,7 @@ class MockAuthorizationService:
 @pytest.fixture
 def client() -> TestClient:
     app = create_app()
+    app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
     return TestClient(app)
 
 
@@ -70,8 +72,6 @@ def test_process_document_oversized(client: TestClient, monkeypatch: pytest.Monk
 
 
 def test_process_document_pipeline_failure() -> None:
-    from backend.dependencies import get_document_service
-
     class FailingMockService:
         def process_document(self, doc_input: object) -> None:
             _ = doc_input
@@ -82,6 +82,7 @@ def test_process_document_pipeline_failure() -> None:
     # Override dependency
     app = create_app()
     app.dependency_overrides[get_document_service] = lambda: FailingMockService()
+    app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
 
     test_client = TestClient(app)
     files = {"file": ("test.txt", b"content", "text/plain")}

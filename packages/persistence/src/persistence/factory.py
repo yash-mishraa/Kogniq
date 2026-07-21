@@ -1,3 +1,7 @@
+import abc
+import sqlite3
+from typing import Any
+
 from persistence.memory import (
     MemoryChunkRepository,
     MemoryDocumentRepository,
@@ -10,13 +14,34 @@ from persistence.repositories.base import (
     AbstractKnowledgeRepository,
     AbstractLearningRepository,
 )
+from persistence.sqlite.chunk_repository import SQLiteChunkRepository
+from persistence.sqlite.document_repository import SQLiteDocumentRepository
+from persistence.sqlite.knowledge_repository import SQLiteKnowledgeRepository
+from persistence.sqlite.learning_repository import SQLiteLearningRepository
 
 
-class RepositoryFactory:
-    """Factory to provide concrete repository implementations.
-    Currently defaults to in-memory repositories. Future implementations
-    like SQLite, Postgres, or Supabase will swap in here.
-    """
+class AbstractRepositoryFactory(abc.ABC):
+    """Abstract factory for creating concrete repository implementations."""
+
+    @abc.abstractmethod
+    def create_document_repository(self, conn: Any = None) -> AbstractDocumentRepository:
+        pass
+
+    @abc.abstractmethod
+    def create_chunk_repository(self, conn: Any = None) -> AbstractChunkRepository:
+        pass
+
+    @abc.abstractmethod
+    def create_knowledge_repository(self, conn: Any = None) -> AbstractKnowledgeRepository:
+        pass
+
+    @abc.abstractmethod
+    def create_learning_repository(self, conn: Any = None) -> AbstractLearningRepository:
+        pass
+
+
+class MemoryRepositoryFactory(AbstractRepositoryFactory):
+    """Provides singleton in-memory repositories."""
 
     def __init__(self) -> None:
         self._document_repo = MemoryDocumentRepository()
@@ -24,14 +49,46 @@ class RepositoryFactory:
         self._knowledge_repo = MemoryKnowledgeRepository()
         self._learning_repo = MemoryLearningRepository()
 
-    def get_document_repository(self) -> AbstractDocumentRepository:
+    def create_document_repository(self, conn: Any = None) -> AbstractDocumentRepository:  # noqa: ARG002
         return self._document_repo
 
-    def get_chunk_repository(self) -> AbstractChunkRepository:
+    def create_chunk_repository(self, conn: Any = None) -> AbstractChunkRepository:  # noqa: ARG002
         return self._chunk_repo
 
-    def get_knowledge_repository(self) -> AbstractKnowledgeRepository:
+    def create_knowledge_repository(self, conn: Any = None) -> AbstractKnowledgeRepository:  # noqa: ARG002
         return self._knowledge_repo
 
-    def get_learning_repository(self) -> AbstractLearningRepository:
+    def create_learning_repository(self, conn: Any = None) -> AbstractLearningRepository:  # noqa: ARG002
         return self._learning_repo
+
+
+class SQLiteRepositoryFactory(AbstractRepositoryFactory):
+    """Provides SQLite repositories."""
+
+    def create_document_repository(
+        self, conn: sqlite3.Connection | None = None
+    ) -> AbstractDocumentRepository:
+        if not conn:
+            raise ValueError("SQLite repositories require a connection instance.")
+        return SQLiteDocumentRepository(conn)
+
+    def create_chunk_repository(
+        self, conn: sqlite3.Connection | None = None
+    ) -> AbstractChunkRepository:
+        if not conn:
+            raise ValueError("SQLite repositories require a connection instance.")
+        return SQLiteChunkRepository(conn)
+
+    def create_knowledge_repository(
+        self, conn: sqlite3.Connection | None = None
+    ) -> AbstractKnowledgeRepository:
+        if not conn:
+            raise ValueError("SQLite repositories require a connection instance.")
+        return SQLiteKnowledgeRepository(conn)
+
+    def create_learning_repository(
+        self, conn: sqlite3.Connection | None = None
+    ) -> AbstractLearningRepository:
+        if not conn:
+            raise ValueError("SQLite repositories require a connection instance.")
+        return SQLiteLearningRepository(conn)

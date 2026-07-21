@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from backend.core.exceptions import BackendError
 from backend.schemas.document import DocumentInput, DocumentProcessResult
-from persistence.factory import RepositoryFactory
+from persistence.uow_factory import AbstractUnitOfWorkFactory
 from pipeline.pipeline import DocumentIntelligencePipeline
 
 from content.resource.checksum import Checksum, ChecksumAlgorithm
@@ -31,10 +31,10 @@ class DocumentService:
     """
 
     def __init__(
-        self, pipeline: DocumentIntelligencePipeline, repository_factory: RepositoryFactory
+        self, pipeline: DocumentIntelligencePipeline, uow_factory: AbstractUnitOfWorkFactory
     ) -> None:
         self.pipeline = pipeline
-        self.repository_factory = repository_factory
+        self.uow_factory = uow_factory
 
     async def process_document(self, doc_input: DocumentInput) -> DocumentProcessResult:
         doc_id = str(uuid.uuid4())
@@ -76,14 +76,12 @@ class DocumentService:
 
         # Map PipelineResult to our internal DocumentProcessResult
         # Persist domain objects
-        doc_repo = self.repository_factory.get_document_repository()
-        chunk_repo = self.repository_factory.get_chunk_repository()
-        knowledge_repo = self.repository_factory.get_knowledge_repository()
-
         try:
-            await doc_repo.save(result.content.document)
-            await chunk_repo.save(result.content.chunks)
-            await knowledge_repo.save(doc_id, result.knowledge.extraction_result.graph)
+            with self.uow_factory.create() as uow:
+                await uow.documents.save(result.content.document)
+                await uow.chunks.save(result.content.chunks)
+                await uow.knowledge.save(doc_id, result.knowledge.extraction_result.graph)
+                uow.commit()
         except Exception as e:
             raise BackendError(
                 "persistence_failed", f"Failed to persist pipeline results: {e}", status_code=500

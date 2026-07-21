@@ -4,7 +4,7 @@ import time
 
 from backend.core.exceptions import BackendError
 from backend.schemas.retrieval import RetrievalRequest, RetrievalResponse, RetrievalResultItem
-from persistence.repositories.base import AbstractChunkRepository
+from persistence.uow_factory import AbstractUnitOfWorkFactory
 from retrieval.exceptions import RetrievalError
 from retrieval.interfaces import AbstractRetriever
 from retrieval.models import RetrievalQuery
@@ -21,10 +21,10 @@ class RetrievalService:
     def __init__(
         self,
         retriever: AbstractRetriever,
-        chunk_repository: AbstractChunkRepository,
+        uow_factory: AbstractUnitOfWorkFactory,
     ) -> None:
         self.retriever = retriever
-        self.chunk_repository = chunk_repository
+        self.uow_factory = uow_factory
 
     async def search(self, request: RetrievalRequest) -> RetrievalResponse:
         start_time = time.perf_counter()
@@ -32,7 +32,9 @@ class RetrievalService:
 
         # 1. Obtain document context (chunks) from repository
         # to ensure doc exists and we can hydrate
-        chunk_collection = await self.chunk_repository.get_by_document(request.document_id)
+        with self.uow_factory.create() as uow:
+            chunk_collection = await uow.chunks.get_by_document(request.document_id)
+
         if not chunk_collection or not chunk_collection.chunks:
             raise BackendError(
                 code="document_not_found",

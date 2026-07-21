@@ -3,8 +3,9 @@ from datetime import UTC, datetime
 import pytest
 from backend.app import create_app
 from backend.dependencies import (
-    get_repository_factory,
-    get_retrieval_service,
+    get_authorization_service,
+    get_retrieve_use_case,
+    get_uow_factory,
 )
 from backend.services.retrieval_service import RetrievalService
 from fastapi.testclient import TestClient
@@ -89,20 +90,33 @@ def client_with_mocks(
     mock_chunks: ChunkCollection, mock_results: list[RetrievalResult]
 ) -> TestClient:
     app = create_app()
+    app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
 
-    # Pre-seed memory repository
-    repo_factory = get_repository_factory()
+    uow_factory = get_uow_factory()
     import asyncio
 
-    asyncio.run(repo_factory.get_chunk_repository().save(mock_chunks))
+    async def seed() -> None:
+        with uow_factory.create() as uow:
+            await uow.chunks.save(mock_chunks)
+
+    asyncio.run(seed())
 
     retriever = MockRetriever(mock_results)
     mock_service = RetrievalService(
         retriever=retriever,
-        chunk_repository=repo_factory.get_chunk_repository(),
+        uow_factory=uow_factory,
     )
 
-    app.dependency_overrides[get_retrieval_service] = lambda: mock_service
+    from unittest.mock import MagicMock
+
+    from application.retrieval.retrieve import RetrieveUseCase
+
+    authz_svc = MockAuthorizationService()
+    use_case = RetrieveUseCase(
+        auth_service=MagicMock(), authorization_service=authz_svc, retrieval_service=mock_service
+    )
+
+    app.dependency_overrides[get_retrieve_use_case] = lambda: use_case
 
     return TestClient(app)
 
@@ -165,7 +179,8 @@ def test_retrieval_top_k_larger_than_available(client_with_mocks: TestClient) ->
 def test_retrieval_chunk_repository_miss() -> None:
     # Retriever returns chunk-99 which is not in the document.
     app = create_app()
-    repo_factory = get_repository_factory()
+    app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
+    uow_factory = get_uow_factory()
 
     bad_results = [
         RetrievalResult(
@@ -181,9 +196,18 @@ def test_retrieval_chunk_repository_miss() -> None:
     retriever = MockRetriever(bad_results)
     mock_service = RetrievalService(
         retriever=retriever,
-        chunk_repository=repo_factory.get_chunk_repository(),
+        uow_factory=uow_factory,
     )
-    app.dependency_overrides[get_retrieval_service] = lambda: mock_service
+    from unittest.mock import MagicMock
+
+    from application.retrieval.retrieve import RetrieveUseCase
+
+    auth_svc = MagicMock()
+    authz_svc = MockAuthorizationService()
+    use_case = RetrieveUseCase(
+        auth_service=auth_svc, authorization_service=authz_svc, retrieval_service=mock_service
+    )
+    app.dependency_overrides[get_retrieve_use_case] = lambda: use_case
 
     client = TestClient(app)
     request_data = {"document_id": "test-doc", "query": "test"}
@@ -198,14 +222,24 @@ def test_retrieval_chunk_repository_miss() -> None:
 
 def test_retriever_exception_translation() -> None:
     app = create_app()
-    repo_factory = get_repository_factory()
+    app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
+    uow_factory = get_uow_factory()
 
     retriever = MockRetriever([], should_fail=True)
     mock_service = RetrievalService(
         retriever=retriever,
-        chunk_repository=repo_factory.get_chunk_repository(),
+        uow_factory=uow_factory,
     )
-    app.dependency_overrides[get_retrieval_service] = lambda: mock_service
+    from unittest.mock import MagicMock
+
+    from application.retrieval.retrieve import RetrieveUseCase
+
+    auth_svc = MagicMock()
+    authz_svc = MockAuthorizationService()
+    use_case = RetrieveUseCase(
+        auth_service=auth_svc, authorization_service=authz_svc, retrieval_service=mock_service
+    )
+    app.dependency_overrides[get_retrieve_use_case] = lambda: use_case
 
     client = TestClient(app)
     request_data = {"document_id": "test-doc", "query": "test"}

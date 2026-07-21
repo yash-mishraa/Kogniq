@@ -10,6 +10,8 @@ class BackendConfig(BaseSettings):
 
     # Database Settings
     chroma_db_path: str = "./data/chroma"
+    persistence_provider: Literal["memory", "sqlite"] = "sqlite"
+    sqlite_database_path: str = "./data/kogniq.db"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

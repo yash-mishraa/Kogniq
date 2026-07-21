@@ -3,7 +3,16 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import Depends
-from persistence.factory import RepositoryFactory
+from persistence.factory import (
+    AbstractRepositoryFactory,
+    MemoryRepositoryFactory,
+    SQLiteRepositoryFactory,
+)
+from persistence.memory_uow import MemoryUnitOfWork
+from persistence.sqlite.connection import SQLiteConnectionManager
+from persistence.sqlite.schema import init_db
+from persistence.uow import AbstractUnitOfWork, SQLiteUnitOfWork
+from persistence.uow_factory import AbstractUnitOfWorkFactory
 
 from application.document.process_document import ProcessDocumentUseCase
 from application.jobs.get_job_status import GetJobStatusUseCase
@@ -95,15 +104,41 @@ class _JobManagerSingleton:
         return cls._instance
 
 
-_repository_factory_instance: RepositoryFactory | None = None
+_uow_factory_instance: AbstractUnitOfWorkFactory | None = None
 
 
-def get_repository_factory() -> RepositoryFactory:
-    global _repository_factory_instance
-    # Use a singleton for now to share the in-memory state across requests.
-    if _repository_factory_instance is None:
-        _repository_factory_instance = RepositoryFactory()
-    return _repository_factory_instance
+class DefaultUnitOfWorkFactory(AbstractUnitOfWorkFactory):
+    def __init__(self, provider: str, sqlite_path: str) -> None:
+        self.provider = provider
+        self.sqlite_path = sqlite_path
+        self.factory: AbstractRepositoryFactory
+
+        if self.provider == "sqlite":
+            from pathlib import Path
+
+            Path(self.sqlite_path).parent.mkdir(parents=True, exist_ok=True)
+            self.manager = SQLiteConnectionManager(self.sqlite_path)
+            self.factory = SQLiteRepositoryFactory()
+            # Initialize schema once
+            with self.manager.get_connection() as conn:
+                init_db(conn)
+        else:
+            self.factory = MemoryRepositoryFactory()
+
+    def create(self) -> AbstractUnitOfWork:
+        if self.provider == "sqlite":
+            return SQLiteUnitOfWork(self.manager.get_connection(), self.factory)
+        return MemoryUnitOfWork(self.factory)  # type: ignore
+
+
+def get_uow_factory() -> AbstractUnitOfWorkFactory:
+    global _uow_factory_instance
+    if _uow_factory_instance is None:
+        _uow_factory_instance = DefaultUnitOfWorkFactory(
+            provider=settings.persistence_provider,
+            sqlite_path=settings.sqlite_database_path,
+        )
+    return _uow_factory_instance
 
 
 _retrieval_factory_instance: RetrievalFactory | None = None
@@ -121,24 +156,24 @@ async def get_pipeline_service() -> PipelineService:
 
 
 async def get_learning_service() -> LearningService:
-    repo_factory = get_repository_factory()
-    context_provider = LearningContextProvider(repository_factory=repo_factory)
+    uow_factory = get_uow_factory()
+    context_provider = LearningContextProvider(uow_factory=uow_factory)
     factory = GeneratorFactory()
 
     return LearningService(
         context_provider=context_provider,
         generator_factory=factory,
-        repository_factory=repo_factory,
+        uow_factory=uow_factory,
     )
 
 
 async def get_retrieval_service() -> RetrievalService:
     retrieval_factory = get_retrieval_factory()
-    repo_factory = get_repository_factory()
+    uow_factory = get_uow_factory()
 
     return RetrievalService(
         retriever=retrieval_factory.get_retriever(),
-        chunk_repository=repo_factory.get_chunk_repository(),
+        uow_factory=uow_factory,
     )
 
 
@@ -152,8 +187,8 @@ async def get_document_service() -> DocumentService:
     from backend.services.pipeline_factory import PipelineFactory
 
     pipeline = PipelineFactory.create()
-    repo_factory = get_repository_factory()
-    return DocumentService(pipeline=pipeline, repository_factory=repo_factory)
+    uow_factory = get_uow_factory()
+    return DocumentService(pipeline=pipeline, uow_factory=uow_factory)
 
 
 def get_job_manager() -> AbstractJobManager:

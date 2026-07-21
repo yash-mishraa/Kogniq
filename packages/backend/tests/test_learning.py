@@ -3,7 +3,11 @@ from datetime import UTC, datetime
 
 import pytest
 from backend.app import create_app
-from backend.dependencies import get_repository_factory
+from backend.dependencies import (
+    get_authorization_service,
+    get_generate_learning_use_case,
+    get_uow_factory,
+)
 from fastapi.testclient import TestClient
 from knowledge.graph import KnowledgeGraph
 
@@ -24,13 +28,16 @@ class MockAuthorizationService:
         return MockAuthResult(allowed=True, reason="")
 
 
+# Apply globally to the module
+app = create_app()
+app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
+
+
 @pytest.fixture
 def client() -> TestClient:
     app = create_app()
-
-    factory = get_repository_factory()
-    chunk_repo = factory.get_chunk_repository()
-    know_repo = factory.get_knowledge_repository()
+    app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
+    uow_factory = get_uow_factory()
 
     async def seed() -> None:
         chunk = Chunk(
@@ -51,8 +58,9 @@ def client() -> TestClient:
             ),
             created_at=datetime.now(UTC),
         )
-        await chunk_repo.save(ChunkCollection(chunks=(chunk,)))
-        await know_repo.save("test-doc-123", KnowledgeGraph(concepts=(), relationships=()))
+        with uow_factory.create() as uow:
+            await uow.chunks.save(ChunkCollection(chunks=(chunk,)))
+            await uow.knowledge.save("test-doc-123", KnowledgeGraph(concepts=(), relationships=()))
 
     asyncio.run(seed())
 
@@ -105,17 +113,14 @@ def test_learning_generation_unsupported_document_id(client: TestClient) -> None
 
 
 def test_learning_generation_factory_failure() -> None:
-    from backend.dependencies import get_learning_service
-
-    class FailingContextMockService:
-        def generate_artifact(self, request: object) -> None:
-            _ = request
+    class FailingUseCase:
+        async def execute(self, _request: object) -> None:
             from backend.core.exceptions import BackendError
 
             raise BackendError("generation_failed", "Simulated failure", 500)
 
     app = create_app()
-    app.dependency_overrides[get_learning_service] = lambda: FailingContextMockService()
+    app.dependency_overrides[get_generate_learning_use_case] = lambda: FailingUseCase()
 
     test_client = TestClient(app)
     response = test_client.post(

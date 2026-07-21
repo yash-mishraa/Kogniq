@@ -63,7 +63,7 @@ chemical energy.
         from datetime import datetime
         from typing import cast
 
-        from backend.dependencies import get_repository_factory, get_retrieval_factory
+        from backend.dependencies import get_retrieval_factory, get_uow_factory
         from retrieval.semantic_retriever import SemanticRetriever
 
         from content.chunking.chunk import Chunk
@@ -99,7 +99,8 @@ chemical energy.
                 chunks.append(chunk)
 
             collection = ChunkCollection(chunks=tuple(chunks))
-            await get_repository_factory().get_chunk_repository().save(collection)
+            with get_uow_factory().create() as uow:
+                await uow.chunks.save(collection)
 
             # Populate vector store
             retriever = get_retrieval_factory().get_retriever()

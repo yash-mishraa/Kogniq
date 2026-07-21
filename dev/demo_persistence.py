@@ -23,17 +23,17 @@ sys.path.insert(0, str(root / "packages" / "content" / "src"))
 sys.path.insert(0, str(root / "packages" / "knowledge" / "src"))
 sys.path.insert(0, str(root / "packages" / "learning-content" / "src"))
 
-from persistence.factory import RepositoryFactory  # noqa: E402
-
 
 async def main() -> None:
     print("--- Kogniq Persistence Demo ---")
 
-    factory = RepositoryFactory()
-    doc_repo = factory.get_document_repository()
-    chunk_repo = factory.get_chunk_repository()
-    know_repo = factory.get_knowledge_repository()
-    learn_repo = factory.get_learning_repository()
+    from persistence.factory import MemoryRepositoryFactory
+
+    factory = MemoryRepositoryFactory()
+    doc_repo = factory.create_document_repository()
+    chunk_repo = factory.create_chunk_repository()
+    know_repo = factory.create_knowledge_repository()
+    learn_repo = factory.create_learning_repository()
 
     # 1. Document Repository
     print("\n[Document Repository]")

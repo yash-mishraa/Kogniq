@@ -2,7 +2,7 @@ from backend.core.exceptions import BackendError
 from backend.schemas.learning import LearningGenerationRequest, LearningGenerationResponse
 from backend.services.context_provider import LearningContextProvider
 from backend.services.generator_factory import GeneratorFactory
-from persistence.factory import RepositoryFactory
+from persistence.uow_factory import AbstractUnitOfWorkFactory
 
 
 class LearningService:
@@ -15,11 +15,11 @@ class LearningService:
         self,
         context_provider: LearningContextProvider,
         generator_factory: GeneratorFactory,
-        repository_factory: RepositoryFactory,
+        uow_factory: AbstractUnitOfWorkFactory,
     ) -> None:
         self.context_provider = context_provider
         self.generator_factory = generator_factory
-        self.repository_factory = repository_factory
+        self.uow_factory = uow_factory
 
     async def generate_artifact(
         self, request: LearningGenerationRequest
@@ -44,9 +44,10 @@ class LearningService:
             ) from e
 
         # Persist content
-        learning_repo = self.repository_factory.get_learning_repository()
         try:
-            await learning_repo.save(content)
+            with self.uow_factory.create() as uow:
+                await uow.learning.save(content)
+                uow.commit()
         except Exception as e:
             raise BackendError(
                 "persistence_failed", f"Failed to persist learning artifact: {e}", status_code=500

@@ -65,9 +65,9 @@ async def main() -> None:
     learn_svc = await get_learning_service()
     ret_svc = await get_retrieval_service()
 
-    process_uc = ProcessDocumentUseCase(auth_svc, authorization_service, doc_svc)
-    learn_uc = GenerateLearningUseCase(auth_svc, authorization_service, learn_svc)
-    retrieve_uc = RetrieveUseCase(auth_svc, authorization_service, ret_svc)
+    process_uc = ProcessDocumentUseCase(auth_svc, authorization_service, doc_svc)  # type: ignore
+    learn_uc = GenerateLearningUseCase(auth_svc, authorization_service, learn_svc)  # type: ignore
+    retrieve_uc = RetrieveUseCase(auth_svc, authorization_service, ret_svc)  # type: ignore
 
     # 3. Process Document
     print("\n[1] Processing Document natively via Use Case...")
