@@ -5,10 +5,21 @@ from typing import Annotated
 from fastapi import Depends
 from persistence.factory import RepositoryFactory
 
+from auth.authorization_interfaces import (
+    AbstractAuthorizationProvider,
+    AbstractPermissionRepository,
+    AbstractRoleRepository,
+)
+from auth.authorization_memory import (
+    MemoryAuthorizationProvider,
+    MemoryPermissionRepository,
+    MemoryRoleRepository,
+)
 from auth.interfaces import AbstractAuthenticationProvider, AbstractUserRepository
 from auth.memory import MemoryAuthenticationProvider, MemoryUserRepository
 from backend.core.settings import settings
 from backend.services.auth_service import AuthenticationService
+from backend.services.authorization_service import AuthorizationService
 from backend.services.context_provider import LearningContextProvider
 from backend.services.document_service import DocumentService
 from backend.services.generator_factory import GeneratorFactory
@@ -39,6 +50,33 @@ class _AuthSingletons:
     def get_auth_provider(cls) -> AbstractAuthenticationProvider:
         if cls._auth_provider is None:
             cls._auth_provider = MemoryAuthenticationProvider(cls.get_user_repo())
+        return cls._auth_provider
+
+
+class _AuthorizationSingletons:
+    _permission_repo: AbstractPermissionRepository | None = None
+    _role_repo: AbstractRoleRepository | None = None
+    _auth_provider: AbstractAuthorizationProvider | None = None
+
+    @classmethod
+    def get_permission_repo(cls) -> AbstractPermissionRepository:
+        if cls._permission_repo is None:
+            cls._permission_repo = MemoryPermissionRepository()
+        return cls._permission_repo
+
+    @classmethod
+    def get_role_repo(cls) -> AbstractRoleRepository:
+        if cls._role_repo is None:
+            cls._role_repo = MemoryRoleRepository()
+        return cls._role_repo
+
+    @classmethod
+    def get_auth_provider(cls) -> AbstractAuthorizationProvider:
+        if cls._auth_provider is None:
+            cls._auth_provider = MemoryAuthorizationProvider(
+                role_repo=cls.get_role_repo(),
+                permission_repo=cls.get_permission_repo(),
+            )
         return cls._auth_provider
 
 
@@ -138,6 +176,26 @@ async def get_authentication_service() -> AuthenticationService:
     )
 
 
+def get_permission_repository() -> AbstractPermissionRepository:
+    return _AuthorizationSingletons.get_permission_repo()
+
+
+def get_role_repository() -> AbstractRoleRepository:
+    return _AuthorizationSingletons.get_role_repo()
+
+
+def get_authorization_provider() -> AbstractAuthorizationProvider:
+    return _AuthorizationSingletons.get_auth_provider()
+
+
+async def get_authorization_service() -> AuthorizationService:
+    return AuthorizationService(
+        auth_provider=get_authorization_provider(),
+        role_repo=get_role_repository(),
+        permission_repo=get_permission_repository(),
+    )
+
+
 
 
 
@@ -146,3 +204,4 @@ PipelineDependency = Annotated[PipelineService, Depends(get_pipeline_service)]
 LearningDependency = Annotated[LearningService, Depends(get_learning_service)]
 RetrievalDependency = Annotated[RetrievalService, Depends(get_retrieval_service)]
 JobDependency = Annotated[JobService, Depends(get_job_service)]
+AuthorizationDependency = Annotated[AuthorizationService, Depends(get_authorization_service)]
