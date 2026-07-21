@@ -6,6 +6,7 @@ requires-python = "==3.13.*"
 members = [
     "kogniq",
     "kogniq-api",
+    "kogniq-auth",
     "kogniq-backend",
     "kogniq-content",
     "kogniq-education",
@@ -997,11 +998,24 @@ requires-dist = [
 ]
 
 [[package]]
+name = "kogniq-auth"
+version = "0.1.0"
+source = { editable = "packages/auth" }
+dependencies = [
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pydantic", specifier = ">=2.7.4" }]
+
+[[package]]
 name = "kogniq-backend"
 version = "0.1.0"
 source = { editable = "packages/backend" }
 dependencies = [
     { name = "fastapi" },
+    { name = "kogniq-auth" },
+    { name = "kogniq-jobs" },
     { name = "kogniq-knowledge" },
     { name = "kogniq-learning-content" },
     { name = "kogniq-persistence" },
@@ -1013,6 +1027,8 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.111.0" },
+    { name = "kogniq-auth", editable = "packages/auth" },
+    { name = "kogniq-jobs", editable = "packages/jobs" },
     { name = "kogniq-knowledge", editable = "packages/knowledge" },
     { name = "kogniq-learning-content", editable = "packages/learning-content" },
     { name = "kogniq-persistence", editable = "packages/persistence" },

@@ -60,6 +60,7 @@ kogniq-shared = { workspace = true }
 kogniq-learning = { workspace = true }
 kogniq-content = { workspace = true }
 kogniq-jobs = { workspace = true }
+kogniq-auth = { workspace = true }
 
 # Workspace members are added when a directory becomes an installable Python
 # project. Documentation-only package directories are intentionally excluded.
@@ -78,6 +79,7 @@ members = [
     "packages/backend",
     "packages/persistence",
     "packages/jobs",
+    "packages/auth",
 ]
 
 [tool.ruff]
@@ -135,7 +137,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["apps", "shared", "learning", "content", "education", "learning_content", "jobs"]
+known-first-party = ["apps", "shared", "learning", "content", "education", "learning_content", "jobs", "auth"]
 combine-as-imports = true
 
 [tool.ruff.format]
@@ -150,8 +152,8 @@ python_version = "3.12"
 strict = true
 namespace_packages = true
 explicit_package_bases = true
-mypy_path = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src", "packages/embedding/src", "packages/knowledge/src", "packages/retrieval/src", "packages/pipeline/src", "packages/learning-content/src", "packages/backend/src", "packages/persistence/src", "packages/jobs/src"]
-files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared", "packages/learning/src/learning", "packages/learning/tests", "packages/content/src/content", "packages/content/tests", "packages/education/src/education", "packages/education/tests", "packages/embedding/src/embedding", "packages/embedding/tests", "packages/knowledge/src/knowledge", "packages/knowledge/tests", "packages/retrieval/src/retrieval", "packages/retrieval/tests", "packages/pipeline/src/pipeline", "packages/pipeline/tests", "packages/learning-content/src/learning_content", "packages/learning-content/tests", "packages/backend/src/backend", "packages/backend/tests", "packages/persistence/src/persistence", "packages/persistence/tests", "packages/jobs/src/jobs", "packages/jobs/tests"]
+mypy_path = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src", "packages/embedding/src", "packages/knowledge/src", "packages/retrieval/src", "packages/pipeline/src", "packages/learning-content/src", "packages/backend/src", "packages/persistence/src", "packages/jobs/src", "packages/auth/src"]
+files = ["apps/api/src/apps/api/app", "apps/api/tests", "packages/shared/src/shared", "packages/learning/src/learning", "packages/learning/tests", "packages/content/src/content", "packages/content/tests", "packages/education/src/education", "packages/education/tests", "packages/embedding/src/embedding", "packages/embedding/tests", "packages/knowledge/src/knowledge", "packages/knowledge/tests", "packages/retrieval/src/retrieval", "packages/retrieval/tests", "packages/pipeline/src/pipeline", "packages/pipeline/tests", "packages/learning-content/src/learning_content", "packages/learning-content/tests", "packages/backend/src/backend", "packages/backend/tests", "packages/persistence/src/persistence", "packages/persistence/tests", "packages/jobs/src/jobs", "packages/jobs/tests", "packages/auth/src/auth", "packages/auth/tests"]
 exclude = [
     "(^|/)\\.venv/",
     "(^|/)build/",
@@ -165,8 +167,8 @@ pretty = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-testpaths = ["apps/api/tests", "tests", "packages/learning/tests", "packages/content/tests", "packages/education/tests", "packages/embedding/tests", "packages/knowledge/tests", "packages/retrieval/tests", "packages/pipeline/tests", "packages/learning-content/tests", "packages/backend/tests", "packages/persistence/tests", "packages/jobs/tests"]
-pythonpath = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src", "packages/embedding/src", "packages/knowledge/src", "packages/retrieval/src", "packages/pipeline/src", "packages/learning-content/src", "packages/backend/src", "packages/persistence/src", "packages/jobs/src"]
+testpaths = ["apps/api/tests", "tests", "packages/learning/tests", "packages/content/tests", "packages/education/tests", "packages/embedding/tests", "packages/knowledge/tests", "packages/retrieval/tests", "packages/pipeline/tests", "packages/learning-content/tests", "packages/backend/tests", "packages/persistence/tests", "packages/jobs/tests", "packages/auth/tests"]
+pythonpath = ["apps/api/src", "packages/shared/src", "packages/learning/src", "packages/content/src", "packages/education/src", "packages/embedding/src", "packages/knowledge/src", "packages/retrieval/src", "packages/pipeline/src", "packages/learning-content/src", "packages/backend/src", "packages/persistence/src", "packages/jobs/src", "packages/auth/src"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

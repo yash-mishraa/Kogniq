@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 from typing import Annotated
 
 from fastapi import Depends
 from persistence.factory import RepositoryFactory
 
+from auth.interfaces import AbstractAuthenticationProvider, AbstractUserRepository
+from auth.memory import MemoryAuthenticationProvider, MemoryUserRepository
 from backend.core.settings import settings
+from backend.services.auth_service import AuthenticationService
 from backend.services.context_provider import LearningContextProvider
 from backend.services.document_service import DocumentService
 from backend.services.generator_factory import GeneratorFactory
@@ -18,8 +23,23 @@ from backend.services.stubs import (
 from jobs.interfaces import AbstractJobManager
 from jobs.memory import MemoryJobManager
 
-# In the future, these dependencies will construct the real implementations
-# or pull them from an application-level container.
+
+# --- Singletons for In-Memory Adapters ---
+class _AuthSingletons:
+    _user_repo: AbstractUserRepository | None = None
+    _auth_provider: AbstractAuthenticationProvider | None = None
+
+    @classmethod
+    def get_user_repo(cls) -> AbstractUserRepository:
+        if cls._user_repo is None:
+            cls._user_repo = MemoryUserRepository()
+        return cls._user_repo
+
+    @classmethod
+    def get_auth_provider(cls) -> AbstractAuthenticationProvider:
+        if cls._auth_provider is None:
+            cls._auth_provider = MemoryAuthenticationProvider(cls.get_user_repo())
+        return cls._auth_provider
 
 
 class _JobManagerSingleton:
@@ -84,7 +104,7 @@ async def get_retrieval_service() -> RetrievalService:
 # -----------------
 
 
-async def get_document_service() -> "DocumentService":
+async def get_document_service() -> DocumentService:
     from backend.services.document_service import DocumentService
     from backend.services.pipeline_factory import PipelineFactory
 
@@ -101,6 +121,21 @@ async def get_job_service() -> JobService:
     job_manager = get_job_manager()
     document_service = await get_document_service()
     return JobService(job_manager=job_manager, document_service=document_service)
+
+
+def get_user_repository() -> AbstractUserRepository:
+    return _AuthSingletons.get_user_repo()
+
+
+def get_auth_provider() -> AbstractAuthenticationProvider:
+    return _AuthSingletons.get_auth_provider()
+
+
+async def get_authentication_service() -> AuthenticationService:
+    return AuthenticationService(
+        auth_provider=get_auth_provider(),
+        user_repository=get_user_repository(),
+    )
 
 
 
