@@ -1,0 +1,1 @@
+"""Kogniq Jobs domain package."""

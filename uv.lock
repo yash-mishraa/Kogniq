@@ -10,6 +10,7 @@ members = [
     "kogniq-content",
     "kogniq-education",
     "kogniq-embedding",
+    "kogniq-jobs",
     "kogniq-knowledge",
     "kogniq-learning",
     "kogniq-learning-content",
@@ -922,6 +923,7 @@ dev = [
     { name = "httpx" },
     { name = "kogniq-content" },
     { name = "kogniq-embedding" },
+    { name = "kogniq-jobs" },
     { name = "kogniq-knowledge" },
     { name = "kogniq-learning" },
     { name = "kogniq-learning-content" },
@@ -948,6 +950,7 @@ dev = [
     { name = "httpx" },
     { name = "kogniq-content", editable = "packages/content" },
     { name = "kogniq-embedding", editable = "packages/embedding" },
+    { name = "kogniq-jobs", editable = "packages/jobs" },
     { name = "kogniq-knowledge", editable = "packages/knowledge" },
     { name = "kogniq-learning", editable = "packages/learning" },
     { name = "kogniq-learning-content", editable = "packages/learning-content" },
@@ -1068,6 +1071,17 @@ requires-dist = [
     { name = "sentence-transformers", specifier = ">=3.0.0" },
     { name = "torch", specifier = ">=2.0.0" },
 ]
+
+[[package]]
+name = "kogniq-jobs"
+version = "0.1.0"
+source = { editable = "packages/jobs" }
+dependencies = [
+    { name = "kogniq-shared" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "kogniq-shared", editable = "packages/shared" }]
 
 [[package]]
 name = "kogniq-knowledge"

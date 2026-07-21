@@ -7,6 +7,7 @@ from backend.core.settings import settings
 from backend.services.context_provider import LearningContextProvider
 from backend.services.document_service import DocumentService
 from backend.services.generator_factory import GeneratorFactory
+from backend.services.job_service import JobService
 from backend.services.learning_service import LearningService
 from backend.services.retrieval_factory import RetrievalFactory
 from backend.services.retrieval_service import RetrievalService
@@ -14,9 +15,21 @@ from backend.services.stubs import (
     PipelineService,
     StubPipelineService,
 )
+from jobs.interfaces import AbstractJobManager
+from jobs.memory import MemoryJobManager
 
 # In the future, these dependencies will construct the real implementations
 # or pull them from an application-level container.
+
+
+class _JobManagerSingleton:
+    _instance: AbstractJobManager | None = None
+
+    @classmethod
+    def get(cls) -> AbstractJobManager:
+        if cls._instance is None:
+            cls._instance = MemoryJobManager()
+        return cls._instance
 
 
 _repository_factory_instance: RepositoryFactory | None = None
@@ -80,7 +93,21 @@ async def get_document_service() -> "DocumentService":
     return DocumentService(pipeline=pipeline, repository_factory=repo_factory)
 
 
+def get_job_manager() -> AbstractJobManager:
+    return _JobManagerSingleton.get()
+
+
+async def get_job_service() -> JobService:
+    job_manager = get_job_manager()
+    document_service = await get_document_service()
+    return JobService(job_manager=job_manager, document_service=document_service)
+
+
+
+
+
 # Typed dependencies for clean injection in route handlers
 PipelineDependency = Annotated[PipelineService, Depends(get_pipeline_service)]
 LearningDependency = Annotated[LearningService, Depends(get_learning_service)]
 RetrievalDependency = Annotated[RetrievalService, Depends(get_retrieval_service)]
+JobDependency = Annotated[JobService, Depends(get_job_service)]
