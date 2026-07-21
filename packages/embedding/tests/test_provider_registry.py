@@ -16,7 +16,7 @@ from content.chunking import Chunk, ChunkCollection
 class DummyProvider(AbstractEmbeddingProvider):
     def __init__(self, provider_id: str) -> None:
         self._id = provider_id
-        
+
     @property
     def info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -32,12 +32,13 @@ class DummyProvider(AbstractEmbeddingProvider):
             maximum_tokens=1,
             normalized_output=False,
         )
-        
+
     def generate(self, chunk: Chunk) -> Embedding:
         raise NotImplementedError
-        
+
     def generate_batch(self, chunks: ChunkCollection) -> EmbeddingCollection:
         raise NotImplementedError
+
 
 def test_registry_registration() -> None:
     reg = EmbeddingProviderRegistry()
@@ -47,6 +48,7 @@ def test_registry_registration() -> None:
     assert reg.has_provider("dummy")
     assert reg.provider("dummy") is p
 
+
 def test_registry_duplicate_provider() -> None:
     reg = EmbeddingProviderRegistry()
     p1 = DummyProvider("dummy")
@@ -55,15 +57,18 @@ def test_registry_duplicate_provider() -> None:
     with pytest.raises(DuplicateProviderError):
         reg.register(p2)
 
+
 def test_registry_lookup_not_found() -> None:
     reg = EmbeddingProviderRegistry()
     with pytest.raises(ProviderNotFoundError):
         reg.provider("missing")
 
+
 def test_registry_invalid_provider() -> None:
     reg = EmbeddingProviderRegistry()
     with pytest.raises(InvalidProviderDefinitionError):
-        reg.register("Not A Provider") # type: ignore[arg-type]
+        reg.register("Not A Provider")  # type: ignore[arg-type]
+
 
 def test_registry_available_providers() -> None:
     reg = EmbeddingProviderRegistry()

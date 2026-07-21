@@ -49,10 +49,10 @@ class GeminiResponseParser:
                 title = str(item.get("title", "")).strip()
                 if not c_id or not title:
                     continue
-                    
+
                 aliases_raw = item.get("aliases", [])
                 aliases = tuple(str(a).strip() for a in aliases_raw if str(a).strip())
-                
+
                 # Prevent duplicates
                 if c_id not in concepts:
                     concepts[c_id] = KnowledgeConcept(
@@ -71,21 +71,21 @@ class GeminiResponseParser:
                 source = str(item.get("source", "")).strip()
                 target = str(item.get("target", "")).strip()
                 rel_type_str = str(item.get("type", "")).strip().upper()
-                
+
                 if not source or not target or not rel_type_str:
                     continue
-                    
+
                 # Ensure both concepts actually exist in the graph
                 if source not in concepts or target not in concepts:
                     continue
-                    
+
                 try:
                     rel_type = RelationshipType(rel_type_str)
                 except ValueError:
                     rel_type = RelationshipType.RELATED_TO
-                    
+
                 r_id = f"{source}_{target}_{rel_type.value}"
-                
+
                 if r_id not in relationships:
                     relationships[r_id] = KnowledgeRelationship(
                         id=r_id,

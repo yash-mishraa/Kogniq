@@ -60,8 +60,7 @@ class ChromaVectorStore(AbstractVectorStore):
 
             # We explicitly enforce cosine similarity as per store info
             self._collection = self._client.get_or_create_collection(
-                name=self._collection_name,
-                metadata={"hnsw:space": "cosine"}
+                name=self._collection_name, metadata={"hnsw:space": "cosine"}
             )
             return self._collection
         except Exception as e:
@@ -77,10 +76,10 @@ class ChromaVectorStore(AbstractVectorStore):
             "dimensions": embedding.metadata.dimensions,
             "normalized": embedding.metadata.normalized,
         }
-        
+
         if embedding.metadata.language is not None:
             meta["language"] = embedding.metadata.language
-            
+
         return meta
 
     def store(self, embedding: Embedding) -> StorageResult:
@@ -89,12 +88,12 @@ class ChromaVectorStore(AbstractVectorStore):
             collection.add(
                 ids=[embedding.id],
                 embeddings=[list(embedding.vector.values)],
-                metadatas=[self._extract_metadata(embedding)]
+                metadatas=[self._extract_metadata(embedding)],
             )
             return StorageResult(
                 stored_count=1,
                 collection_name=self._collection_name,
-                metadata={"provider": "chroma", "ids": [embedding.id]}
+                metadata={"provider": "chroma", "ids": [embedding.id]},
             )
         except Exception as e:
             raise StorageError(f"Failed to store embedding {embedding.id}: {e}") from e
@@ -106,12 +105,12 @@ class ChromaVectorStore(AbstractVectorStore):
                 f"maximum {self.info.maximum_batch_size}"
             )
             raise StorageError(msg)
-            
+
         if len(embeddings.embeddings) == 0:
             return StorageResult(
                 stored_count=0,
                 collection_name=self._collection_name,
-                metadata={"provider": "chroma", "ids": []}
+                metadata={"provider": "chroma", "ids": []},
             )
 
         collection = self._get_collection()
@@ -120,33 +119,27 @@ class ChromaVectorStore(AbstractVectorStore):
             vectors = [list(emb.vector.values) for emb in embeddings.embeddings]
             metadatas = [self._extract_metadata(emb) for emb in embeddings.embeddings]
 
-            collection.add(
-                ids=ids,
-                embeddings=vectors,
-                metadatas=metadatas
-            )
+            collection.add(ids=ids, embeddings=vectors, metadatas=metadatas)
             return StorageResult(
                 stored_count=len(ids),
                 collection_name=self._collection_name,
-                metadata={"provider": "chroma", "ids": ids}
+                metadata={"provider": "chroma", "ids": ids},
             )
         except Exception as e:
             raise StorageError(f"Failed to store batch of embeddings: {e}") from e
 
-    def search(
-        self, vector: EmbeddingVector, *, limit: int = 10
-    ) -> tuple[SearchResult, ...]:
+    def search(self, vector: EmbeddingVector, *, limit: int = 10) -> tuple[SearchResult, ...]:
         collection = self._get_collection()
         try:
             # Query returns distances. For cosine space, Chroma returns cosine distance.
-            # Cosine distance = 1 - cosine similarity. 
+            # Cosine distance = 1 - cosine similarity.
             # We want similarity_score from 0.0 to 1.0, so we do 1.0 - distance.
             results = collection.query(
                 query_embeddings=[list(vector.values)],
                 n_results=limit,
-                include=["embeddings", "metadatas", "distances"]
+                include=["embeddings", "metadatas", "distances"],
             )
-            
+
             if not results["ids"] or not results["ids"][0]:
                 return ()
 
@@ -156,7 +149,7 @@ class ChromaVectorStore(AbstractVectorStore):
                 emb_values = results["embeddings"][0][i]
                 meta_dict = results["metadatas"][0][i]
                 distance = results["distances"][0][i]
-                
+
                 # Chroma distance for cosine is (1 - cosine_similarity).
                 # Normalizing to 0.0 - 1.0 range where 1.0 is exact match.
                 # In case floating point error makes it negative or > 1, clamp it.
@@ -172,14 +165,14 @@ class ChromaVectorStore(AbstractVectorStore):
                 metadata = EmbeddingMetadata(
                     provider=meta_dict["provider"],
                     model_name=meta_dict["model_name"],
-                    model_version="unknown", # We didn't serialize model_version, but wait...
+                    model_version="unknown",  # We didn't serialize model_version, but wait...
                     embedding_version=meta_dict["embedding_version"],
                     dimensions=meta_dict["dimensions"],
                     normalized=meta_dict.get("normalized", False),
                     language=meta_dict.get("language"),
-                    created_at=datetime.now(UTC), # Fallback since we don't serialize this yet
+                    created_at=datetime.now(UTC),  # Fallback since we don't serialize this yet
                 )
-                
+
                 # We need a dummy stats because we don't persist it.
                 stats = EmbeddingStatistics(
                     processing_time_ms=0.0,
@@ -193,9 +186,9 @@ class ChromaVectorStore(AbstractVectorStore):
                     ),
                     metadata=metadata,
                     statistics=stats,
-                    created_at=datetime.now(UTC)
+                    created_at=datetime.now(UTC),
                 )
-                
+
                 search_results.append(
                     SearchResult(embedding=recovered_emb, similarity_score=similarity)
                 )

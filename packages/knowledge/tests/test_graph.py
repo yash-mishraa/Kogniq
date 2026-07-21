@@ -44,9 +44,9 @@ def test_valid_graph(valid_metadata: KnowledgeMetadata) -> None:
         confidence=0.8,
         metadata=valid_metadata,
     )
-    
+
     graph = KnowledgeGraph(concepts=(c1, c2), relationships=(r1,))
-    
+
     assert graph.concept_count == 2
     assert graph.relationship_count == 1
 
@@ -68,7 +68,7 @@ def test_duplicate_concept_id_raises_error(valid_metadata: KnowledgeMetadata) ->
         aliases=(),
         metadata=valid_metadata,
     )
-    
+
     with pytest.raises(InvalidGraphError, match="Duplicate concept id found: c1"):
         KnowledgeGraph(concepts=(c1, c2), relationships=())
 
@@ -106,6 +106,6 @@ def test_duplicate_relationship_id_raises_error(valid_metadata: KnowledgeMetadat
         confidence=0.7,
         metadata=valid_metadata,
     )
-    
+
     with pytest.raises(InvalidGraphError, match="Duplicate relationship id found: r1"):
         KnowledgeGraph(concepts=(c1, c2), relationships=(r1, r2))

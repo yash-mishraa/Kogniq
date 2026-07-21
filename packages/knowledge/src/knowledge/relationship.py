@@ -8,7 +8,7 @@ from knowledge.metadata import KnowledgeMetadata
 @dataclass(frozen=True, kw_only=True)
 class KnowledgeRelationship:
     """An immutable relationship between two knowledge concepts."""
-    
+
     id: str
     source_concept: str
     target_concept: str
@@ -18,9 +18,7 @@ class KnowledgeRelationship:
 
     def __post_init__(self) -> None:
         if self.source_concept == self.target_concept:
-            raise InvalidRelationshipError(
-                "Source and target concepts cannot be the same."
-            )
+            raise InvalidRelationshipError("Source and target concepts cannot be the same.")
         if not (0.0 <= self.confidence <= 1.0):
             raise InvalidRelationshipError(
                 f"Confidence must be between 0.0 and 1.0, got {self.confidence}"

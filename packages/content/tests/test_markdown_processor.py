@@ -49,7 +49,7 @@ def test_markdown_processor_headings() -> None:
     handle = create_handle(md.encode("utf-8"))
     processor = MarkdownProcessor()
     result = processor.process(handle)
-    
+
     assert result.title == "Title 1"
     assert len(result.pages) == 1
     blocks = result.pages[0].blocks
@@ -58,7 +58,7 @@ def test_markdown_processor_headings() -> None:
     assert blocks[0].text == "Title 1"
     assert blocks[1].block_type == BlockType.HEADING
     assert blocks[1].text == "Subtitle 2"
-    
+
     stats = result.statistics
     assert stats is not None
     assert stats["headings_extracted"] == 2
@@ -69,7 +69,7 @@ def test_markdown_processor_paragraphs() -> None:
     handle = create_handle(md.encode("utf-8"))
     processor = MarkdownProcessor()
     result = processor.process(handle)
-    
+
     # Title fallback to filename because no headings exist
     assert result.title == "test.md"
     blocks = result.pages[0].blocks
@@ -85,12 +85,12 @@ def test_markdown_processor_lists() -> None:
     handle = create_handle(md.encode("utf-8"))
     processor = MarkdownProcessor()
     result = processor.process(handle)
-    
+
     blocks = result.pages[0].blocks
     assert len(blocks) == 2
     assert blocks[0].block_type == BlockType.LIST
     assert "- Item 1\n- Item 2" in blocks[0].text
-    
+
     assert blocks[1].block_type == BlockType.LIST
     assert "1. First\n2. Second" in blocks[1].text
 
@@ -100,7 +100,7 @@ def test_markdown_processor_fenced_code() -> None:
     handle = create_handle(md.encode("utf-8"))
     processor = MarkdownProcessor()
     result = processor.process(handle)
-    
+
     blocks = result.pages[0].blocks
     assert len(blocks) == 1
     assert blocks[0].block_type == BlockType.CODE
@@ -112,7 +112,7 @@ def test_markdown_processor_tables() -> None:
     handle = create_handle(md.encode("utf-8"))
     processor = MarkdownProcessor()
     result = processor.process(handle)
-    
+
     blocks = result.pages[0].blocks
     assert len(blocks) == 1
     assert blocks[0].block_type == BlockType.TABLE
@@ -131,7 +131,7 @@ def test_markdown_processor_invalid_encoding() -> None:
     processor = MarkdownProcessor()
     with pytest.raises(MarkdownEncodingError, match="Failed to decode Markdown file"):
         processor.process(handle)
-        
+
 
 def test_markdown_processor_info() -> None:
     processor = MarkdownProcessor()

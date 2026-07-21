@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 
 from backend.core.exceptions import BackendError
 from backend.schemas.document import DocumentInput, DocumentProcessResult
+from persistence.factory import RepositoryFactory
 from pipeline.pipeline import DocumentIntelligencePipeline
 
 from content.resource.checksum import Checksum, ChecksumAlgorithm
@@ -29,10 +30,13 @@ class DocumentService:
     No business logic, solely translates internal inputs to domain bounds.
     """
 
-    def __init__(self, pipeline: DocumentIntelligencePipeline) -> None:
+    def __init__(
+        self, pipeline: DocumentIntelligencePipeline, repository_factory: RepositoryFactory
+    ) -> None:
         self.pipeline = pipeline
+        self.repository_factory = repository_factory
 
-    def process_document(self, doc_input: DocumentInput) -> DocumentProcessResult:
+    async def process_document(self, doc_input: DocumentInput) -> DocumentProcessResult:
         doc_id = str(uuid.uuid4())
 
         # We need a proper extension format for the content registry (.pdf -> pdf)
@@ -71,6 +75,20 @@ class DocumentService:
             raise BackendError("pipeline_execution_failed", str(e), status_code=500) from e
 
         # Map PipelineResult to our internal DocumentProcessResult
+        # Persist domain objects
+        doc_repo = self.repository_factory.get_document_repository()
+        chunk_repo = self.repository_factory.get_chunk_repository()
+        knowledge_repo = self.repository_factory.get_knowledge_repository()
+
+        try:
+            await doc_repo.save(result.content.document)
+            await chunk_repo.save(result.content.chunks)
+            await knowledge_repo.save(doc_id, result.knowledge.extraction_result.graph)
+        except Exception as e:
+            raise BackendError(
+                "persistence_failed", f"Failed to persist pipeline results: {e}", status_code=500
+            ) from e
+
         return DocumentProcessResult(
             document_id=doc_id,
             filename=doc_input.filename,

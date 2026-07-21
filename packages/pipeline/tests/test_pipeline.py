@@ -61,7 +61,7 @@ class FakeProcessor(AbstractContentProcessor):
 class FakeChunkEngine(HybridChunkEngine):
     def __init__(self) -> None:
         pass
-        
+
     def chunk(self, document: NormalizedDocument) -> ChunkCollection:
         c = Chunk(
             id="chunk_1",
@@ -69,10 +69,7 @@ class FakeChunkEngine(HybridChunkEngine):
             document_id=document.id,
             chunk_index=0,
             metadata=ChunkMetadata(
-                processor="fake",
-                document_version="1.0",
-                source="fake",
-                checksum="hash"
+                processor="fake", document_version="1.0", source="fake", checksum="hash"
             ),
             statistics=ChunkStatistics(
                 character_count=10,
@@ -120,10 +117,10 @@ class FakeEmbeddingProvider(AbstractEmbeddingProvider):
                 dimensions=3,
                 normalized=True,
                 language="en",
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(UTC),
             ),
             statistics=EmbeddingStatistics(processing_time_ms=10.0),
-            created_at=datetime.now(UTC)
+            created_at=datetime.now(UTC),
         )
 
     def generate_batch(self, collection: ChunkCollection) -> EmbeddingCollection:
@@ -142,7 +139,7 @@ class FakeVectorStore(AbstractVectorStore):
             supports_metadata_filtering=False,
             supports_batch_insert=True,
             supports_batch_delete=True,
-            maximum_batch_size=10
+            maximum_batch_size=10,
         )
 
     @property
@@ -168,9 +165,7 @@ class FakeVectorStore(AbstractVectorStore):
     def delete_batch(self, embedding_ids: tuple[str, ...]) -> None:
         pass
 
-    def search(
-        self, vector: EmbeddingVector, *, limit: int = 10
-    ) -> tuple[SearchResult, ...]:
+    def search(self, vector: EmbeddingVector, *, limit: int = 10) -> tuple[SearchResult, ...]:
         _ = vector
         _ = limit
         return ()
@@ -221,12 +216,12 @@ class FakeKnowledgeExtractor(AbstractKnowledgeExtractor):
 def test_document_intelligence_pipeline_success() -> None:
     registry = ProcessorRegistry()
     registry.register(FakeProcessor())
-    
+
     chunk_engine = FakeChunkEngine()
     embedding_provider = FakeEmbeddingProvider()
     vector_store = FakeVectorStore()
     knowledge_extractor = FakeKnowledgeExtractor()
-    
+
     pipeline = DocumentIntelligencePipeline(
         processor_registry=registry,
         chunk_engine=chunk_engine,
@@ -234,26 +229,26 @@ def test_document_intelligence_pipeline_success() -> None:
         vector_store=vector_store,
         knowledge_extractor=knowledge_extractor,
     )
-    
+
     handle = MagicMock(spec=ResourceHandle)
     handle.id = "res_1"
     handle.mime_type = "text/plain"
     handle.extension = ".txt"
-    
+
     result = pipeline.run(cast(ResourceHandle, handle))
-    
+
     # Verify Content
     assert result.content.document.id == "res_1"
     assert result.content.chunks.total_chunks == 1
-    
+
     # Verify Embeddings
     assert len(result.embeddings.collection.embeddings) == 1
     assert result.embeddings.storage_result.stored_count == 1
     assert vector_store.count() == 1
-    
+
     # Verify Knowledge
     assert result.knowledge.extraction_result.graph.concept_count == 0
-    
+
     # Verify Metadata
     assert result.metadata.processor_name == "Fake Processor"
     assert result.metadata.embedding_provider_name == "Fake Provider"

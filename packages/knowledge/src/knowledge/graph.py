@@ -8,7 +8,7 @@ from knowledge.relationship import KnowledgeRelationship
 @dataclass(frozen=True, kw_only=True)
 class KnowledgeGraph:
     """An immutable collection of concepts and relationships forming a knowledge graph."""
-    
+
     concepts: tuple[KnowledgeConcept, ...]
     relationships: tuple[KnowledgeRelationship, ...]
 

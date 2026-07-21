@@ -25,7 +25,7 @@ class HTMLProcessor(AbstractContentProcessor):
     def process(self, handle: ResourceHandle) -> NormalizedDocument:
         start_time = time.perf_counter()
         stats = HTMLProcessorStatistics()
-        
+
         try:
             with handle.stream_reference.open_stream() as f:
                 stream_bytes = f.read()
@@ -33,15 +33,15 @@ class HTMLProcessor(AbstractContentProcessor):
             raise HTMLInvalidStreamError(f"Failed to read HTML stream: {e}") from e
 
         parser = HTMLParser(stream_bytes)
-        
+
         # parse() returns the single NormalizedPage and populates stats
         page, soup = parser.parse(stats)
 
         stats.processing_duration_ms = (time.perf_counter() - start_time) * 1000
-        
+
         # Extract title and metadata
         title_meta, metadata = extract_metadata(soup, handle, stats)
-        
+
         stats.character_count = sum(len(b.text) for b in page.blocks)
 
         return NormalizedDocument(

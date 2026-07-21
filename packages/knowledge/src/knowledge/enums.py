@@ -3,6 +3,7 @@ from enum import Enum, auto
 
 class ConceptType(Enum):
     """Types of educational concepts."""
+
     DEFINITION = auto()
     ALGORITHM = auto()
     FORMULA = auto()
@@ -17,6 +18,7 @@ class ConceptType(Enum):
 
 class RelationshipType(Enum):
     """Types of relationships between educational concepts."""
+
     DEPENDS_ON = auto()
     USES = auto()
     DEFINES = auto()

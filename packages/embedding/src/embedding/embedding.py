@@ -9,7 +9,7 @@ from .vector import EmbeddingVector
 @dataclass(frozen=True, slots=True)
 class Embedding:
     """Immutable representation of a generated chunk embedding."""
-    
+
     id: str
     chunk_id: str
     vector: EmbeddingVector

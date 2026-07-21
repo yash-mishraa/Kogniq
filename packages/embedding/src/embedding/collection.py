@@ -7,18 +7,18 @@ from .exceptions import InvalidEmbeddingError
 @dataclass(frozen=True, slots=True)
 class EmbeddingCollection:
     """A strictly validated collection of homogenous embeddings."""
-    
+
     embeddings: tuple[Embedding, ...]
-    
+
     def __post_init__(self) -> None:
         if not self.embeddings:
             return
-            
+
         first_emb = self.embeddings[0]
         expected_dim = first_emb.vector.dimension
         expected_provider = first_emb.metadata.provider
         expected_model = first_emb.metadata.model_name
-        
+
         for i, emb in enumerate(self.embeddings):
             if emb.vector.dimension != expected_dim:
                 raise InvalidEmbeddingError(
@@ -45,7 +45,7 @@ class EmbeddingCollection:
         if not self.embeddings:
             return 0
         return self.embeddings[0].vector.dimension
-        
+
     @property
     def provider(self) -> str | None:
         if not self.embeddings:

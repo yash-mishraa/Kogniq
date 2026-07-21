@@ -6,7 +6,7 @@ from knowledge.extractors.exceptions import ExtractorConfigurationError
 @dataclass(frozen=True, kw_only=True)
 class KnowledgeExtractorInfo:
     """Immutable metadata describing a Knowledge Extractor's capabilities."""
-    
+
     extractor_id: str
     extractor_name: str
     version: str

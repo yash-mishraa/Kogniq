@@ -25,11 +25,11 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
         self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
         if not self.api_key:
             raise ValueError("OPENROUTER_API_KEY is required")
-            
+
         self.model_name = model_name
         self.temperature = temperature
         self.max_output_tokens = max_output_tokens
-        
+
         self._client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=self.api_key,
@@ -58,10 +58,10 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
     def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
         """Extract a KnowledgeGraph from chunks using OpenRouter."""
         start_time = time.perf_counter()
-        
+
         prompt = self._prompt_builder.build(chunks)
         document_id = chunks.document_id if hasattr(chunks, "document_id") else "unknown"
-        
+
         models_to_try = [
             self.model_name,
             "meta-llama/llama-3.3-70b-instruct:free",
@@ -69,10 +69,10 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
             "google/gemma-4-31b-it:free",
             "google/gemma-4-26b-a4b-it:free",
         ]
-        
+
         response_text = None
         last_error = None
-        
+
         for model in models_to_try:
             try:
                 response = self._client.chat.completions.create(
@@ -84,7 +84,7 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
                     extra_headers={
                         "HTTP-Referer": "http://localhost:3000",
                         "X-Title": "Kogniq",
-                    }
+                    },
                 )
                 response_text = response.choices[0].message.content
                 if response_text:
@@ -92,7 +92,7 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
             except Exception as e:
                 last_error = e
                 continue
-                
+
         if not response_text:
             raise RuntimeError(f"All OpenRouter free models failed. Last error: {last_error}")
 
@@ -100,9 +100,9 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
             raise RuntimeError("Received empty response from OpenRouter")
 
         graph = self._parser.parse(response_text, document_id=document_id)
-        
+
         end_time = time.perf_counter()
-        
+
         return KnowledgeExtractionResult(
             graph=graph,
             extractor_id=self.info.extractor_id,

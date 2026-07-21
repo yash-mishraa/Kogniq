@@ -15,19 +15,19 @@ def test_embedding_creation() -> None:
         embedding_version="v1",
         created_at=datetime.now(UTC),
         dimensions=2,
-        normalized=True
+        normalized=True,
     )
     stats = EmbeddingStatistics(processing_time_ms=10.5)
-    
+
     emb = Embedding(
         id="emb-1",
         chunk_id="chunk-1",
         vector=vec,
         metadata=meta,
         statistics=stats,
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC),
     )
-    
+
     assert emb.id == "emb-1"
     assert emb.vector.dimension == 2
     assert emb.metadata.provider == "openai"

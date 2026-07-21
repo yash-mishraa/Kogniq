@@ -29,7 +29,7 @@ async def process_document(
     )
 
     # 3. Process via Service
-    result = document_service.process_document(doc_input)
+    result = await document_service.process_document(doc_input)
 
     # 4. Map to Response Schema
     return DocumentProcessResponse(

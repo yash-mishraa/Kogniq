@@ -29,11 +29,11 @@ class MarkdownProcessor(AbstractContentProcessor):
             stream_bytes = f.read()
 
         parser = MarkdownItParser(stream_bytes)
-        
+
         pages = list(parser.iter_pages(stats))
 
         stats.processing_duration_ms = (time.perf_counter() - start_time) * 1000
-        
+
         blocks = pages[0].blocks if pages else ()
         title_meta, metadata = extract_metadata(blocks)
         title = title_meta if title_meta else handle.filename

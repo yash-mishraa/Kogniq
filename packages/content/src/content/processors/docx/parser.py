@@ -27,14 +27,11 @@ class DocxParser:
         return self.doc
 
     def iter_pages(self, stats: DOCXProcessorStatistics) -> Iterator[NormalizedPage]:
-        # We treat the entire DOCX as a single logical page because 
+        # We treat the entire DOCX as a single logical page because
         # python-docx does not reliably expose dynamic pagination breaks.
         blocks = extract_blocks(self.doc, stats)
-        
+
         if not blocks:
             raise DOCXEmptyError("DOCX file contains no readable blocks.")
-            
-        yield NormalizedPage(
-            page_number=1,
-            blocks=blocks
-        )
+
+        yield NormalizedPage(page_number=1, blocks=blocks)

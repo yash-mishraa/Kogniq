@@ -13,5 +13,5 @@ def extract_metadata(blocks: tuple[NormalizedBlock, ...]) -> tuple[str | None, D
         if block.block_type == BlockType.HEADING and block.text.strip():
             title = block.text.strip()
             break
-            
+
     return title, DocumentMetadata()

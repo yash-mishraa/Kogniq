@@ -27,13 +27,14 @@ class GeneratorFactory:
         provider = MagicMock(spec=AbstractTextGenerationProvider)
 
         from learning_content.providers.base import TextGenerationProviderInfo
+
         provider.info = TextGenerationProviderInfo(
             provider_id="mock-provider",
             provider_name="Mock Provider",
             default_model="mock-model-v1",
             model_version="1.0",
             context_window=16000,
-            supports_streaming=False
+            supports_streaming=False,
         )
 
         def mock_generate(prompt: str) -> str:
@@ -46,14 +47,14 @@ class GeneratorFactory:
                     '"correct_answer": "A", "explanation": "E"}]'
                 )
             elif "concept" in lower or "intuition" in lower or "explanation" in lower:
-                return '''# Concept
+                return """# Concept
 ## Why It Matters
 ## Intuition
 ## Detailed Explanation
 ## Example
 ## Common Mistakes
 ## Related Concepts
-## Key Takeaways'''
+## Key Takeaways"""
             return '{"title": "Fake Title", "content": "Fake content"}'
 
         provider.generate.side_effect = mock_generate

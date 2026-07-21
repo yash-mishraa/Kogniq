@@ -6,7 +6,7 @@ from knowledge.exceptions import KnowledgeDomainError
 @dataclass(frozen=True, kw_only=True)
 class KnowledgeMetadata:
     """Immutable metadata describing the origin and confidence of a knowledge entity."""
-    
+
     source_document: str
     source_chunk: str
     language: str

@@ -6,7 +6,7 @@ from .exceptions import ProviderConfigurationError
 @dataclass(frozen=True, slots=True)
 class ProviderInfo:
     """Immutable metadata describing the capabilities of an embedding provider."""
-    
+
     provider_id: str
     provider_name: str
     model_name: str
@@ -18,7 +18,7 @@ class ProviderInfo:
     maximum_batch_size: int
     maximum_tokens: int
     normalized_output: bool
-    
+
     def __post_init__(self) -> None:
         if self.dimensions <= 0:
             raise ProviderConfigurationError(f"Dimensions must be > 0, got {self.dimensions}")

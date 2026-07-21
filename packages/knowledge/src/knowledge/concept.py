@@ -8,7 +8,7 @@ from knowledge.metadata import KnowledgeMetadata
 @dataclass(frozen=True, kw_only=True)
 class KnowledgeConcept:
     """An immutable educational concept."""
-    
+
     id: str
     title: str
     description: str

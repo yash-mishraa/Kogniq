@@ -33,7 +33,7 @@ class SemanticRetriever(AbstractRetriever):
     def retrieve(self, query: RetrievalQuery) -> tuple[RetrievalResult, ...]:
         """
         Executes semantic retrieval.
-        
+
         Orchestration flow:
         1. query text -> embedding provider -> embedding vector
         2. embedding vector -> vector store -> search results
@@ -62,21 +62,21 @@ class SemanticRetriever(AbstractRetriever):
                 ),
                 created_at=datetime.now(UTC),
             )
-            
+
             # 2. Generate query embedding
             query_embedding_obj = self._provider.generate(query_chunk)
             query_embedding = query_embedding_obj.vector
-            
+
             # 3. Search vector store
             limit = query.top_k or self._config.default_top_k
             search_results = self._store.search(query_embedding, limit=limit)
-            
+
             # 4. Map to RetrievalResult domain models
             retrieval_results = []
             for sr in search_results:
                 if sr.similarity_score < self._config.similarity_threshold:
                     continue
-                    
+
                 emb = sr.embedding
                 rr = RetrievalResult(
                     query_id=query.query_id,
@@ -88,7 +88,7 @@ class SemanticRetriever(AbstractRetriever):
                     model=emb.metadata.model_name,
                 )
                 retrieval_results.append(rr)
-                
+
             return tuple(retrieval_results)
 
         except Exception as e:

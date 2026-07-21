@@ -15,14 +15,16 @@ def create_doc(blocks: list[NormalizedBlock]) -> NormalizedDocument:
         source="test",
         checksum="123",
         version="1.0",
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC),
     )
+
 
 def test_empty_document() -> None:
     doc = create_doc([])
     strategy = StructuralChunkStrategy()
     collection = strategy.chunk(doc)
     assert collection.total_chunks == 0
+
 
 def test_single_heading() -> None:
     blocks = [
@@ -32,10 +34,11 @@ def test_single_heading() -> None:
     doc = create_doc(blocks)
     strategy = StructuralChunkStrategy()
     collection = strategy.chunk(doc)
-    
+
     assert collection.total_chunks == 1
     assert collection.chunks[0].title == "Heading 1"
     assert "Heading 1\nParagraph 1" in collection.chunks[0].text
+
 
 def test_multiple_headings() -> None:
     blocks = [
@@ -47,15 +50,16 @@ def test_multiple_headings() -> None:
     doc = create_doc(blocks)
     strategy = StructuralChunkStrategy()
     collection = strategy.chunk(doc)
-    
+
     assert collection.total_chunks == 2
     assert collection.chunks[0].title == "Heading 1"
     assert "P1" in collection.chunks[0].text
     assert collection.chunks[1].title == "Heading 2"
     assert "P2" in collection.chunks[1].text
-    
+
     assert collection.chunks[0].chunk_index == 0
     assert collection.chunks[1].chunk_index == 1
+
 
 def test_document_without_headings() -> None:
     blocks = [
@@ -65,10 +69,11 @@ def test_document_without_headings() -> None:
     doc = create_doc(blocks)
     strategy = StructuralChunkStrategy()
     collection = strategy.chunk(doc)
-    
+
     assert collection.total_chunks == 1
     assert collection.chunks[0].title == "Introduction"
     assert collection.chunks[0].text == "P1\nP2"
+
 
 def test_consecutive_headings() -> None:
     blocks = [
@@ -79,13 +84,14 @@ def test_consecutive_headings() -> None:
     doc = create_doc(blocks)
     strategy = StructuralChunkStrategy()
     collection = strategy.chunk(doc)
-    
+
     # H1 is a chunk by itself, H2 owns P1
     assert collection.total_chunks == 2
     assert collection.chunks[0].title == "H1"
     assert collection.chunks[0].text == "H1"
     assert collection.chunks[1].title == "H2"
     assert collection.chunks[1].text == "H2\nP1"
+
 
 def test_multiple_empty_paragraphs() -> None:
     blocks = [
@@ -97,9 +103,10 @@ def test_multiple_empty_paragraphs() -> None:
     doc = create_doc(blocks)
     strategy = StructuralChunkStrategy()
     collection = strategy.chunk(doc)
-    
+
     assert collection.total_chunks == 1
     assert collection.chunks[0].text == "H1\nP1"
+
 
 def test_documents_containing_only_headings() -> None:
     blocks = [
@@ -109,10 +116,11 @@ def test_documents_containing_only_headings() -> None:
     doc = create_doc(blocks)
     strategy = StructuralChunkStrategy()
     collection = strategy.chunk(doc)
-    
+
     assert collection.total_chunks == 2
     assert collection.chunks[0].text == "H1"
     assert collection.chunks[1].text == "H2"
+
 
 def test_various_block_types() -> None:
     blocks = [
@@ -125,9 +133,10 @@ def test_various_block_types() -> None:
     doc = create_doc(blocks)
     strategy = StructuralChunkStrategy()
     collection = strategy.chunk(doc)
-    
+
     assert collection.total_chunks == 1
     assert collection.chunks[0].text == "H1\nTable 1\nList 1\nCode 1\nQuote 1"
+
 
 def test_page_number_assignment() -> None:
     pages = (
@@ -135,19 +144,19 @@ def test_page_number_assignment() -> None:
             page_number=1,
             blocks=(
                 NormalizedBlock(block_id="1", block_type=BlockType.PARAGRAPH, text="P1", order=0),
-            )
+            ),
         ),
         NormalizedPage(
             page_number=2,
             blocks=(
                 NormalizedBlock(block_id="2", block_type=BlockType.HEADING, text="H1", order=1),
-            )
+            ),
         ),
         NormalizedPage(
             page_number=3,
             blocks=(
                 NormalizedBlock(block_id="3", block_type=BlockType.PARAGRAPH, text="P2", order=2),
-            )
+            ),
         ),
     )
     doc = NormalizedDocument(
@@ -157,14 +166,14 @@ def test_page_number_assignment() -> None:
         source="test",
         checksum="123",
         version="1.0",
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC),
     )
     strategy = StructuralChunkStrategy()
     collection = strategy.chunk(doc)
-    
+
     assert collection.total_chunks == 2
     assert collection.chunks[0].title == "Introduction"
     assert collection.chunks[0].page_number == 1
-    
+
     assert collection.chunks[1].title == "H1"
     assert collection.chunks[1].page_number == 2

@@ -1,0 +1,16 @@
+[project]
+name = "kogniq-persistence"
+version = "0.1.0"
+description = "Repository abstractions and implementations for Kogniq"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "kogniq-shared",
+    "kogniq-content",
+    "kogniq-knowledge",
+    "kogniq-learning-content",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

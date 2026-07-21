@@ -54,8 +54,7 @@ class FakeVectorStore(AbstractVectorStore):
     def search(self, vector: EmbeddingVector, *, limit: int = 10) -> tuple[SearchResult, ...]:
         _ = vector
         results = [
-            SearchResult(embedding=emb, similarity_score=0.99)
-            for emb in self._store.values()
+            SearchResult(embedding=emb, similarity_score=0.99) for emb in self._store.values()
         ]
         return tuple(results[:limit])
 
@@ -64,6 +63,7 @@ class FakeVectorStore(AbstractVectorStore):
 
     def clear(self) -> None:
         self._store.clear()
+
 
 def test_store_info_validation() -> None:
     with pytest.raises(StoreConfigurationError):
@@ -77,6 +77,7 @@ def test_store_info_validation() -> None:
             supports_batch_delete=False,
             maximum_batch_size=0,
         )
+
 
 def test_abstract_vector_store_implementation() -> None:
     store = FakeVectorStore()
@@ -97,12 +98,12 @@ def test_abstract_vector_store_implementation() -> None:
         processing_time_ms=10.0,
     )
     emb = Embedding(
-        id="e1", 
-        chunk_id="c1", 
-        vector=vector, 
+        id="e1",
+        chunk_id="c1",
+        vector=vector,
         metadata=meta,
         statistics=stats,
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC),
     )
 
     store.store(emb)

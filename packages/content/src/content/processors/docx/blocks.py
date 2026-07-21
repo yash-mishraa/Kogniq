@@ -19,13 +19,13 @@ def extract_blocks(
         if isinstance(child, CT_P):
             p = Paragraph(child, doc)
             text = p.text.strip()
-            
+
             if not text:
                 continue
-                
+
             style_name = p.style.name if p.style else ""
             block_type = BlockType.PARAGRAPH
-            
+
             if style_name.startswith("Heading") or style_name == "Title":
                 block_type = BlockType.HEADING
                 stats.headings_extracted += 1
@@ -37,10 +37,7 @@ def extract_blocks(
 
             normalized_blocks.append(
                 NormalizedBlock(
-                    block_id=f"docx_block_{order}",
-                    block_type=block_type,
-                    text=text,
-                    order=order
+                    block_id=f"docx_block_{order}", block_type=block_type, text=text, order=order
                 )
             )
             order += 1
@@ -52,7 +49,7 @@ def extract_blocks(
             for row in t.rows:
                 row_data = [cell.text.strip() for cell in row.cells]
                 table_text += "| " + " | ".join(row_data) + " |\n"
-                
+
             table_text = table_text.strip()
             if table_text:
                 normalized_blocks.append(
@@ -60,7 +57,7 @@ def extract_blocks(
                         block_id=f"docx_block_{order}",
                         block_type=BlockType.TABLE,
                         text=table_text,
-                        order=order
+                        order=order,
                     )
                 )
                 order += 1

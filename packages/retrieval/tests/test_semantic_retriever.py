@@ -81,10 +81,12 @@ class FakeVectorStore(AbstractVectorStore):
     def store(self, embedding: Embedding) -> StorageResult:
         _ = embedding
         from embedding.vectorstores.storage_result import StorageResult
+
         return StorageResult(stored_count=1, collection_name="fake", metadata=None)
 
     def store_batch(self, embeddings: EmbeddingCollection) -> StorageResult:
         from embedding.vectorstores.storage_result import StorageResult
+
         return StorageResult(
             stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
         )
@@ -132,14 +134,14 @@ def test_semantic_retriever_success() -> None:
         create_fake_search_result(0.8, "chunk_2"),
         create_fake_search_result(0.2, "chunk_3"),  # Below threshold
     )
-    
+
     provider = FakeEmbeddingProvider()
     store = FakeVectorStore(mock_results=results)
-    
+
     # We set a threshold of 0.5 to filter out chunk_3
     config = RetrieverConfig(default_top_k=5, similarity_threshold=0.5)
     retriever = SemanticRetriever(embedding_provider=provider, vector_store=store, config=config)
-    
+
     query = RetrievalQuery(text="test query", top_k=2)
 
     # Act
@@ -147,7 +149,7 @@ def test_semantic_retriever_success() -> None:
 
     # Assert
     assert len(retrievals) == 2
-    
+
     assert retrievals[0].query_text == "test query"
     assert retrievals[0].chunk_id == "chunk_1"
     assert retrievals[0].similarity_score == 0.9
@@ -167,8 +169,8 @@ def test_semantic_retriever_failure_wrapping() -> None:
     provider = FailingEmbeddingProvider()
     store = FakeVectorStore(mock_results=())
     retriever = SemanticRetriever(embedding_provider=provider, vector_store=store)
-    
+
     query = RetrievalQuery(text="fail")
-    
+
     with pytest.raises(RetrievalError, match="Failed to execute semantic retrieval"):
         retriever.retrieve(query)

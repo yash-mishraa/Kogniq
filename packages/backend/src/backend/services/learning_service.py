@@ -2,6 +2,7 @@ from backend.core.exceptions import BackendError
 from backend.schemas.learning import LearningGenerationRequest, LearningGenerationResponse
 from backend.services.context_provider import LearningContextProvider
 from backend.services.generator_factory import GeneratorFactory
+from persistence.factory import RepositoryFactory
 
 
 class LearningService:
@@ -11,22 +12,28 @@ class LearningService:
     """
 
     def __init__(
-        self, context_provider: LearningContextProvider, generator_factory: GeneratorFactory
+        self,
+        context_provider: LearningContextProvider,
+        generator_factory: GeneratorFactory,
+        repository_factory: RepositoryFactory,
     ) -> None:
         self.context_provider = context_provider
         self.generator_factory = generator_factory
+        self.repository_factory = repository_factory
 
-    def generate_artifact(self, request: LearningGenerationRequest) -> LearningGenerationResponse:
+    async def generate_artifact(
+        self, request: LearningGenerationRequest
+    ) -> LearningGenerationResponse:
         # 1. Resolve Generator
         generator = self.generator_factory.get_generator(request.generator)
 
         # 2. Resolve Context
-        context = self.context_provider.resolve_context(request.document_id)
+        context = await self.context_provider.resolve_context(request.document_id)
 
         # 3. Generate
         try:
             # We bypass the batching for the simple single-document case
-            # StudyGuideGenerator uses the same BaseLearningGenerator or 
+            # StudyGuideGenerator uses the same BaseLearningGenerator or
             # AbstractLearningGenerator interface.
             content = generator.generate(context.chunks, context.graph)
         except BackendError:
@@ -34,6 +41,15 @@ class LearningService:
         except Exception as e:
             raise BackendError(
                 "generation_failed", f"Failed to generate artifact: {e}", status_code=500
+            ) from e
+
+        # Persist content
+        learning_repo = self.repository_factory.get_learning_repository()
+        try:
+            await learning_repo.save(content)
+        except Exception as e:
+            raise BackendError(
+                "persistence_failed", f"Failed to persist learning artifact: {e}", status_code=500
             ) from e
 
         # 4. Map Response

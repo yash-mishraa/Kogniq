@@ -27,7 +27,4 @@ class MarkdownItParser:
         if not blocks:
             raise MarkdownEmptyError("Markdown file contains no readable blocks.")
 
-        yield NormalizedPage(
-            page_number=1,
-            blocks=blocks
-        )
+        yield NormalizedPage(page_number=1, blocks=blocks)

@@ -11,7 +11,7 @@ class HTMLProcessorStatistics:
     tables_extracted: int = 0
     code_blocks_extracted: int = 0
     blockquotes_extracted: int = 0
-    
+
     total_blocks: int = 0
     character_count: int = 0
     processing_duration_ms: float = 0.0
@@ -22,11 +22,7 @@ class HTMLProcessorStatistics:
 
     def __post_init__(self) -> None:
         if self.metadata_availability is None:
-            self.metadata_availability = {
-                "title": False,
-                "description": False,
-                "keywords": False
-            }
+            self.metadata_availability = {"title": False, "description": False, "keywords": False}
 
     def to_dict(self) -> dict[str, float | int | str | dict[str, bool] | None]:
         return {

@@ -17,7 +17,9 @@ class DOCXProcessor(AbstractContentProcessor):
             name="kogniq-docx",
             version="1.0",
             supported_extensions=("docx",),
-            supported_mime_types=("application/vnd.openxmlformats-officedocument.wordprocessingml.document",),
+            supported_mime_types=(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ),
             description="Extracts semantic content from DOCX files using python-docx",
         )
 
@@ -30,14 +32,14 @@ class DOCXProcessor(AbstractContentProcessor):
 
         parser = DocxParser(stream_bytes)
         doc_obj = parser.get_document()
-        
+
         if hasattr(doc_obj, "core_properties") and doc_obj.core_properties:
             stats.metadata_available = True
-            
+
         pages = list(parser.iter_pages(stats))
 
         stats.processing_duration_ms = (time.perf_counter() - start_time) * 1000
-        
+
         blocks = pages[0].blocks if pages else ()
         title, metadata = extract_metadata(doc_obj, blocks, handle.filename)
 

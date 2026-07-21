@@ -1,4 +1,3 @@
-
 from ..normalized.block import NormalizedBlock
 from ..normalized.document import NormalizedDocument
 from ..normalized.enums import BlockType
@@ -10,7 +9,7 @@ from .strategies.structural import StructuralChunkStrategy
 
 class HybridChunkEngine:
     """Orchestrates chunking strategies based on document structure."""
-    
+
     def __init__(
         self,
         structural_strategy: AbstractChunkStrategy | None = None,
@@ -18,7 +17,7 @@ class HybridChunkEngine:
     ) -> None:
         self.structural_strategy = structural_strategy or StructuralChunkStrategy()
         self.fixed_strategy = fixed_strategy or FixedSizeChunkStrategy()
-        
+
         self._last_selected_strategy: str | None = None
 
     @property
@@ -28,6 +27,7 @@ class HybridChunkEngine:
 
     def _has_headings(self, document: NormalizedDocument) -> bool:
         """Short-circuiting scan to detect if any block (or child block) is a HEADING."""
+
         def check_blocks(blocks: tuple[NormalizedBlock, ...]) -> bool:
             for block in blocks:
                 if block.block_type == BlockType.HEADING:
@@ -35,12 +35,12 @@ class HybridChunkEngine:
                 if block.children and check_blocks(block.children):
                     return True
             return False
-            
+
         return any(check_blocks(page.blocks) for page in document.pages)
 
     def chunk(self, document: NormalizedDocument) -> ChunkCollection:
         """Selects a strategy and delegates chunking to it."""
         strategy = self.structural_strategy if self._has_headings(document) else self.fixed_strategy
-            
+
         self._last_selected_strategy = strategy.__class__.__name__
         return strategy.chunk(document)

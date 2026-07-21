@@ -1,12 +1,6 @@
-from datetime import UTC, datetime
-
 from backend.core.exceptions import BackendError
-from knowledge.graph import KnowledgeGraph
+from persistence.factory import RepositoryFactory
 
-from content.chunking.chunk import Chunk
-from content.chunking.collection import ChunkCollection
-from content.chunking.metadata import ChunkMetadata
-from content.chunking.statistics import ChunkStatistics
 from learning_content.generators.base.models import GenerationContext
 
 
@@ -16,7 +10,10 @@ class LearningContextProvider:
     Today it generates fakes. Tomorrow it queries a database.
     """
 
-    def resolve_context(self, document_id: str) -> GenerationContext:
+    def __init__(self, repository_factory: RepositoryFactory) -> None:
+        self.repository_factory = repository_factory
+
+    async def resolve_context(self, document_id: str) -> GenerationContext:
         """
         Loads the chunks and knowledge graph for the specified document ID.
         """
@@ -29,26 +26,23 @@ class LearningContextProvider:
         if not document_id:
             raise BackendError("invalid_request", "document_id cannot be empty", status_code=400)
 
-        chunk_mock = Chunk(
-            id=f"chunk-{document_id}-1",
-            document_id=document_id,
-            chunk_index=0,
-            text="This is simulated chunk content for generation.",
-            metadata=ChunkMetadata(
-                processor="mock", document_version="v1", source="mock", checksum="123"
-            ),
-            statistics=ChunkStatistics(
-                character_count=45,
-                line_count=1,
-                word_count=7,
-                estimated_tokens=10,
-                processing_timestamp=datetime.now(UTC),
-                confidence=1.0,
-            ),
-            created_at=datetime.now(UTC),
-        )
+        chunk_repo = self.repository_factory.get_chunk_repository()
+        knowledge_repo = self.repository_factory.get_knowledge_repository()
 
-        chunks = ChunkCollection(chunks=(chunk_mock,))
-        graph = KnowledgeGraph(concepts=(), relationships=())
+        chunks = await chunk_repo.get_by_document(document_id)
+        if not chunks:
+            raise BackendError(
+                "chunks_not_found", f"No chunks found for document {document_id}", status_code=404
+            )
+
+        graph = await knowledge_repo.get(document_id)
+        if not graph:
+            # We allow empty graph if extraction failed but chunks exist?
+            # The prompt implies graph should exist.
+            raise BackendError(
+                "graph_not_found",
+                f"No knowledge graph found for document {document_id}",
+                status_code=404,
+            )
 
         return GenerationContext(chunks=chunks, graph=graph)

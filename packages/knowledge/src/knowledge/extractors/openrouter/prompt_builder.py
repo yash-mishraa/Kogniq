@@ -9,22 +9,22 @@ class GeminiPromptBuilder:
     def build(self, chunks: ChunkCollection) -> str:
         """Construct a deterministic prompt from a collection of chunks."""
         text_content = "\n\n".join(chunk.text for chunk in chunks.chunks)
-        
+
         schema_format = {
             "concepts": [
                 {
                     "id": "unique_concept_id",
                     "title": "Concept Title",
-                    "aliases": ["Alias1", "Alias2"]
+                    "aliases": ["Alias1", "Alias2"],
                 }
             ],
             "relationships": [
                 {
                     "source": "source_concept_id",
                     "target": "target_concept_id",
-                    "type": "RELATIONSHIP_TYPE"
+                    "type": "RELATIONSHIP_TYPE",
                 }
-            ]
+            ],
         }
 
         return f"""You are an expert knowledge extractor.

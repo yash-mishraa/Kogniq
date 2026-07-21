@@ -43,9 +43,7 @@ def is_all_caps_heading(line: str) -> bool:
     return len(alpha_chars) / len(non_space_chars) >= 0.5
 
 
-def extract_blocks(
-    lines: list[str], stats: TXTProcessorStatistics
-) -> tuple[NormalizedBlock, ...]:
+def extract_blocks(lines: list[str], stats: TXTProcessorStatistics) -> tuple[NormalizedBlock, ...]:
     normalized_blocks = []
     order = 0
 

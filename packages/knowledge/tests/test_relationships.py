@@ -35,8 +35,7 @@ def test_valid_relationship(valid_metadata: KnowledgeMetadata) -> None:
 
 def test_self_referential_relationship_raises_error(valid_metadata: KnowledgeMetadata) -> None:
     with pytest.raises(
-        InvalidRelationshipError,
-        match="Source and target concepts cannot be the same"
+        InvalidRelationshipError, match="Source and target concepts cannot be the same"
     ):
         KnowledgeRelationship(
             id="r2",
@@ -49,10 +48,7 @@ def test_self_referential_relationship_raises_error(valid_metadata: KnowledgeMet
 
 
 def test_invalid_relationship_confidence(valid_metadata: KnowledgeMetadata) -> None:
-    with pytest.raises(
-        InvalidRelationshipError,
-        match=r"Confidence must be between 0\.0 and 1\.0"
-    ):
+    with pytest.raises(InvalidRelationshipError, match=r"Confidence must be between 0\.0 and 1\.0"):
         KnowledgeRelationship(
             id="r3",
             source_concept="c1",
@@ -64,10 +60,7 @@ def test_invalid_relationship_confidence(valid_metadata: KnowledgeMetadata) -> N
 
 
 def test_invalid_metadata_confidence() -> None:
-    with pytest.raises(
-        KnowledgeDomainError,
-        match=r"Confidence must be between 0\.0 and 1\.0"
-    ):
+    with pytest.raises(KnowledgeDomainError, match=r"Confidence must be between 0\.0 and 1\.0"):
         KnowledgeMetadata(
             source_document="doc_1",
             source_chunk="chunk_1",

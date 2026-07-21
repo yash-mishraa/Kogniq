@@ -31,7 +31,7 @@ class FakeProvider(AbstractEmbeddingProvider):
             maximum_tokens=1000,
             normalized_output=True,
         )
-        
+
     def generate(self, chunk: Chunk) -> Embedding:
         vec = EmbeddingVector(values=(0.5, 0.5), dimension=2)
         meta = EmbeddingMetadata(
@@ -45,13 +45,18 @@ class FakeProvider(AbstractEmbeddingProvider):
         )
         stats = EmbeddingStatistics(processing_time_ms=1.0)
         return Embedding(
-            id="1", chunk_id=chunk.id, vector=vec, metadata=meta,
-            statistics=stats, created_at=datetime.now(UTC)
+            id="1",
+            chunk_id=chunk.id,
+            vector=vec,
+            metadata=meta,
+            statistics=stats,
+            created_at=datetime.now(UTC),
         )
 
     def generate_batch(self, chunks: ChunkCollection) -> EmbeddingCollection:
         embs = tuple(self.generate(c) for c in chunks.chunks)
         return EmbeddingCollection(embeddings=embs)
+
 
 def test_provider_info_validation() -> None:
     with pytest.raises(ProviderConfigurationError):
@@ -66,8 +71,9 @@ def test_provider_info_validation() -> None:
             supports_async_generation=False,
             maximum_batch_size=1,
             maximum_tokens=1,
-            normalized_output=False
+            normalized_output=False,
         )
+
 
 def test_fake_provider_interface() -> None:
     provider = FakeProvider()

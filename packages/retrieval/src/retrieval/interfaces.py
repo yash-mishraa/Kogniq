@@ -14,10 +14,10 @@ class AbstractRetriever(ABC):
     def retrieve(self, query: RetrievalQuery) -> tuple[RetrievalResult, ...]:
         """
         Execute a retrieval query and return results.
-        
+
         Args:
             query: The domain query to execute.
-            
+
         Returns:
             A tuple of RetrievalResult objects matching the query.
         """

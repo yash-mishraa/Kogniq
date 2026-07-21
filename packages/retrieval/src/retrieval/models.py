@@ -10,6 +10,7 @@ class RetrievalQuery:
     Immutable representation of a retrieval query.
     Defines the exact text to search for, the desired limit, and optional filtering metadata.
     """
+
     text: str
     top_k: int = 10
     query_id: str = field(default_factory=lambda: uuid.uuid4().hex)
@@ -24,6 +25,7 @@ class RetrievalResult:
     Abstracts away the Vector Store response to expose only the retrieval
     context and chunk reference. Actual Chunk hydration is deferred to a future repository layer.
     """
+
     query_id: str
     query_text: str
     embedding_id: str

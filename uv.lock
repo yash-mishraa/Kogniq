@@ -13,6 +13,7 @@ members = [
     "kogniq-knowledge",
     "kogniq-learning",
     "kogniq-learning-content",
+    "kogniq-persistence",
     "kogniq-pipeline",
     "kogniq-retrieval",
     "kogniq-shared",
@@ -998,6 +999,9 @@ version = "0.1.0"
 source = { editable = "packages/backend" }
 dependencies = [
     { name = "fastapi" },
+    { name = "kogniq-knowledge" },
+    { name = "kogniq-learning-content" },
+    { name = "kogniq-persistence" },
     { name = "pydantic-settings" },
     { name = "python-multipart" },
     { name = "uvicorn" },
@@ -1006,6 +1010,9 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.111.0" },
+    { name = "kogniq-knowledge", editable = "packages/knowledge" },
+    { name = "kogniq-learning-content", editable = "packages/learning-content" },
+    { name = "kogniq-persistence", editable = "packages/persistence" },
     { name = "pydantic-settings", specifier = ">=2.3.4" },
     { name = "python-multipart", specifier = ">=0.0.9" },
     { name = "uvicorn", specifier = ">=0.30.1" },
@@ -1109,6 +1116,25 @@ requires-dist = [
     { name = "kogniq-knowledge", editable = "packages/knowledge" },
     { name = "kogniq-shared", editable = "packages/shared" },
     { name = "openai", specifier = ">=1.14.0" },
+]
+
+[[package]]
+name = "kogniq-persistence"
+version = "0.1.0"
+source = { editable = "packages/persistence" }
+dependencies = [
+    { name = "kogniq-content" },
+    { name = "kogniq-knowledge" },
+    { name = "kogniq-learning-content" },
+    { name = "kogniq-shared" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "kogniq-content", editable = "packages/content" },
+    { name = "kogniq-knowledge", editable = "packages/knowledge" },
+    { name = "kogniq-learning-content", editable = "packages/learning-content" },
+    { name = "kogniq-shared", editable = "packages/shared" },
 ]
 
 [[package]]

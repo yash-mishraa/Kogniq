@@ -70,8 +70,7 @@ class StudyGuideRenderer:
             for i, q in enumerate(questions, 1):
                 lines.append(f"**Question {i}:**\n{q.get('question')}\n")
                 lines.extend(
-                    f"{opt.get('id', '-')}. {opt.get('text', '')}"
-                    for opt in q.get("options", [])
+                    f"{opt.get('id', '-')}. {opt.get('text', '')}" for opt in q.get("options", [])
                 )
                 lines.append(f"\n**Correct Answer:**\n{q.get('correct_answer')}\n")
                 lines.append(f"**Explanation:**\n{q.get('explanation')}\n")

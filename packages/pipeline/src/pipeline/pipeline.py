@@ -47,7 +47,7 @@ class DocumentIntelligencePipeline:
         """
         start_time = time.perf_counter()
         started_at = datetime.now(UTC)
-        
+
         logger.info(f"Starting pipeline execution for resource: {handle.id}")
 
         try:
@@ -56,32 +56,32 @@ class DocumentIntelligencePipeline:
             processor = self.processor_registry.processor_for_resource(handle)
             logger.info(f"Processor resolved: {processor.processor_info.name}. Processing...")
             document = processor.process(handle)
-            
+
             # 2. Chunk document
             logger.info("Chunking document...")
             chunks = self.chunk_engine.chunk(document)
             logger.info(f"Generated {chunks.total_chunks} chunks.")
-            
+
             content_result = ContentPipelineResult(
                 document=document,
                 chunks=chunks,
             )
-            
+
             # 3. Generate embeddings
             logger.info("Generating embeddings...")
             embeddings = self.embedding_provider.generate_batch(chunks)
             logger.info(f"Generated {len(embeddings.embeddings)} embeddings.")
-            
+
             # 4. Store embeddings
             logger.info("Storing embeddings in vector store...")
             storage_result = self.vector_store.store_batch(embeddings)
             logger.info(f"Stored {storage_result.stored_count} embeddings.")
-            
+
             embedding_result = EmbeddingPipelineResult(
                 collection=embeddings,
                 storage_result=storage_result,
             )
-            
+
             # 5. Extract Knowledge Graph
             logger.info("Extracting knowledge graph...")
             knowledge = self.knowledge_extractor.extract(chunks)
@@ -89,14 +89,14 @@ class DocumentIntelligencePipeline:
                 f"Extracted {knowledge.graph.concept_count} concepts and "
                 f"{knowledge.graph.relationship_count} relationships."
             )
-            
+
             knowledge_result = KnowledgePipelineResult(
                 extraction_result=knowledge,
             )
-            
+
             completed_at = datetime.now(UTC)
             end_time = time.perf_counter()
-            
+
             metadata = PipelineExecutionMetadata(
                 started_at=started_at,
                 completed_at=completed_at,
@@ -107,9 +107,9 @@ class DocumentIntelligencePipeline:
                 vector_store_name=self.vector_store.info.store_name,
                 knowledge_extractor_name=self.knowledge_extractor.info.extractor_name,
             )
-            
+
             logger.info("Pipeline execution completed successfully.")
-            
+
             return PipelineResult(
                 content=content_result,
                 embeddings=embedding_result,

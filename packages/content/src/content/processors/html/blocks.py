@@ -8,14 +8,27 @@ from ...normalized.enums import BlockType
 from .statistics import HTMLProcessorStatistics
 
 IGNORED_TAGS = {
-    'script', 'style', 'noscript', 'svg', 'canvas', 'iframe',
-    'video', 'audio', 'form', 'input', 'button', 'footer',
-    'nav', 'aside'
+    "script",
+    "style",
+    "noscript",
+    "svg",
+    "canvas",
+    "iframe",
+    "video",
+    "audio",
+    "form",
+    "input",
+    "button",
+    "footer",
+    "nav",
+    "aside",
 }
+
 
 def normalize_text(text: str) -> str:
     """Collapses repeated whitespace into a single space."""
     return " ".join(text.split())
+
 
 def extract_blocks(
     soup: BeautifulSoup, stats: HTMLProcessorStatistics
@@ -57,7 +70,7 @@ def extract_blocks(
                 current_loose_text.append(text)
             return
 
-        if element.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+        if element.name in ["h1", "h2", "h3", "h4", "h5", "h6"]:
             flush_loose_text()
             text = normalize_text(element.get_text(separator=" "))
             if text:
@@ -74,7 +87,7 @@ def extract_blocks(
                 stats.total_blocks += 1
             return
 
-        if element.name == 'p':
+        if element.name == "p":
             flush_loose_text()
             text = normalize_text(element.get_text(separator=" "))
             if text:
@@ -91,7 +104,7 @@ def extract_blocks(
                 stats.total_blocks += 1
             return
 
-        if element.name == 'li':
+        if element.name == "li":
             flush_loose_text()
             text = normalize_text(element.get_text(separator=" "))
             if text:
@@ -108,7 +121,7 @@ def extract_blocks(
                 stats.total_blocks += 1
             return
 
-        if element.name == 'blockquote':
+        if element.name == "blockquote":
             flush_loose_text()
             text = normalize_text(element.get_text(separator=" "))
             if text:
@@ -125,18 +138,16 @@ def extract_blocks(
                 stats.total_blocks += 1
             return
 
-        if element.name in ('pre', 'code'):
+        if element.name in ("pre", "code"):
             flush_loose_text()
             # Preserve newlines for code blocks if they are preformatted
-            if element.name == 'pre':
+            if element.name == "pre":
                 text = "\n".join(
-                    line.strip()
-                    for line in element.get_text().splitlines()
-                    if line.strip()
+                    line.strip() for line in element.get_text().splitlines() if line.strip()
                 )
             else:
                 text = normalize_text(element.get_text(separator=" "))
-                
+
             if text:
                 normalized_blocks.append(
                     NormalizedBlock(
@@ -151,11 +162,11 @@ def extract_blocks(
                 stats.total_blocks += 1
             return
 
-        if element.name == 'table':
+        if element.name == "table":
             flush_loose_text()
             table_text = ""
-            for row in element.find_all('tr'):
-                cells = row.find_all(['td', 'th'])
+            for row in element.find_all("tr"):
+                cells = row.find_all(["td", "th"])
                 row_data = [normalize_text(cell.get_text(separator=" ")) for cell in cells]
                 table_text += "| " + " | ".join(row_data) + " |\n"
             table_text = table_text.strip()

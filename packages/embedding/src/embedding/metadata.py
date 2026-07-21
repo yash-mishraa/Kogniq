@@ -5,7 +5,7 @@ from datetime import datetime
 @dataclass(frozen=True, slots=True)
 class EmbeddingMetadata:
     """Infrastructure-agnostic metadata about how a vector was generated."""
-    
+
     provider: str
     model_name: str
     model_version: str

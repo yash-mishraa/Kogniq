@@ -1,4 +1,3 @@
-
 from ..resource.handle import ResourceHandle
 from .exceptions import (
     DuplicateExtensionError,
@@ -133,11 +132,11 @@ class ProcessorRegistry:
         norm_ext = self._normalize_extension(handle.extension)
         if norm_ext in self._extension_map:
             return self._extension_map[norm_ext]
-            
+
         norm_mime = self._normalize_mime_type(handle.mime_type)
         if norm_mime in self._mime_map:
             return self._mime_map[norm_mime]
-            
+
         raise UnsupportedResourceError(
             f"No processor found for extension '{handle.extension}' "
             f"or MIME type '{handle.mime_type}'."

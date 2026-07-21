@@ -12,6 +12,7 @@ from content.normalized.document import NormalizedDocument
 @dataclass(frozen=True)
 class ContentPipelineResult:
     """Results from the content processing and chunking stage."""
+
     document: NormalizedDocument
     chunks: ChunkCollection
 
@@ -19,6 +20,7 @@ class ContentPipelineResult:
 @dataclass(frozen=True)
 class EmbeddingPipelineResult:
     """Results from the embedding generation and storage stage."""
+
     collection: EmbeddingCollection
     storage_result: StorageResult
 
@@ -26,12 +28,14 @@ class EmbeddingPipelineResult:
 @dataclass(frozen=True)
 class KnowledgePipelineResult:
     """Results from the knowledge extraction stage."""
+
     extraction_result: KnowledgeExtractionResult
 
 
 @dataclass(frozen=True)
 class PipelineExecutionMetadata:
     """Metadata and statistics about the pipeline execution."""
+
     started_at: datetime
     completed_at: datetime
     total_processing_time_ms: float
@@ -45,6 +49,7 @@ class PipelineExecutionMetadata:
 @dataclass(frozen=True)
 class PipelineResult:
     """Immutable result from a complete end-to-end Document Intelligence Pipeline execution."""
+
     content: ContentPipelineResult
     embeddings: EmbeddingPipelineResult
     knowledge: KnowledgePipelineResult

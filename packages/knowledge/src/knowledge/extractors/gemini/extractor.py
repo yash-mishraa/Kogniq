@@ -28,7 +28,7 @@ class GeminiKnowledgeExtractor(AbstractKnowledgeExtractor):
     ) -> None:
         if genai is None:
             raise ImportError("google-genai is not installed. Please install it to use Gemini.")
-            
+
         self.api_key = api_key
         self.model_name = model_name
         self.temperature = temperature
@@ -66,10 +66,10 @@ class GeminiKnowledgeExtractor(AbstractKnowledgeExtractor):
     def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
         """Extract a KnowledgeGraph from chunks using Gemini."""
         start_time = time.perf_counter()
-        
+
         prompt = self._prompt_builder.build(chunks)
         document_id = chunks.document_id if hasattr(chunks, "document_id") else "unknown"
-        
+
         try:
             response = self.client.models.generate_content(
                 model=self.model_name,
@@ -87,9 +87,9 @@ class GeminiKnowledgeExtractor(AbstractKnowledgeExtractor):
             raise GeminiAPIError("Received empty response from Gemini")
 
         graph = self._parser.parse(response.text, document_id=document_id)
-        
+
         end_time = time.perf_counter()
-        
+
         return KnowledgeExtractionResult(
             graph=graph,
             extractor_id=self.info.extractor_id,

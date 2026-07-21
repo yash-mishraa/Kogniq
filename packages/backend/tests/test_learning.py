@@ -1,11 +1,50 @@
+import asyncio
+from datetime import UTC, datetime
+
 import pytest
 from backend.app import create_app
+from backend.dependencies import get_repository_factory
 from fastapi.testclient import TestClient
+from knowledge.graph import KnowledgeGraph
+
+from content.chunking.chunk import Chunk
+from content.chunking.collection import ChunkCollection
+from content.chunking.metadata import ChunkMetadata
+from content.chunking.statistics import ChunkStatistics
 
 
 @pytest.fixture
 def client() -> TestClient:
     app = create_app()
+
+    factory = get_repository_factory()
+    chunk_repo = factory.get_chunk_repository()
+    know_repo = factory.get_knowledge_repository()
+
+    async def seed() -> None:
+        chunk = Chunk(
+            id="chunk-test-1",
+            document_id="test-doc-123",
+            chunk_index=0,
+            text="Simulated chunk content for testing.",
+            metadata=ChunkMetadata(
+                processor="mock", document_version="v1", source="mock", checksum="123"
+            ),
+            statistics=ChunkStatistics(
+                character_count=36,
+                line_count=1,
+                word_count=5,
+                estimated_tokens=10,
+                processing_timestamp=datetime.now(UTC),
+                confidence=1.0,
+            ),
+            created_at=datetime.now(UTC),
+        )
+        await chunk_repo.save(ChunkCollection(chunks=(chunk,)))
+        await know_repo.save("test-doc-123", KnowledgeGraph(concepts=(), relationships=()))
+
+    asyncio.run(seed())
+
     return TestClient(app)
 
 

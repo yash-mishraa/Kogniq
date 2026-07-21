@@ -14,4 +14,4 @@ async def generate_learning_content(
     """
     Generate an educational artifact from a processed document.
     """
-    return learning_service.generate_artifact(request)
+    return await learning_service.generate_artifact(request)
