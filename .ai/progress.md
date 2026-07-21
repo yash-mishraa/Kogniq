@@ -30,6 +30,11 @@ Stage 1 Prompt 3 — FastAPI Core & Backend Foundation.
 - Added minimal standard-library shared configuration, logging, generic exceptions, and foundational provider protocols.
 - Recorded ADR-0005 and updated Python technology status.
 - Clarified Kogniq's public repository identity, active-development status, planned learning-intelligence capabilities, and GATE reference-domain role.
+- [x] Implement authorization provider and ownership policies
+- [x] **Stage 21: Application Layer Foundation**
+- [x] Create `kogniq-application` package
+- [x] Isolate Feature Use Cases (Document, Learning, Retrieval, Jobs)
+- [x] Refactor backend routers into thin HTTP transport adapters
 - Replaced public author and ownership placeholders with Yash Mishra and added the `yash-mishraa` GitHub profile reference.
 - Established `apps/api` and `packages/shared` as installable uv workspace packages.
 - Implemented the factory-only FastAPI foundation with environment settings, lifespan, logging, middleware, standardized errors, and system metadata endpoints.
@@ -87,7 +92,11 @@ Append new entries; never remove earlier sessions.
 - [x] **Stage 14 (Prompt 2):** Flashcards Generator
 - [x] **Stage 14 (Prompt 3):** Quiz Generator
 - [x] **Stage 14 (Prompt 4):** Explanation Generator
-- [x] **Stage 15 (Prompt 1):** Study Guide Composer### 2026-07-21 — Learning Generation API (Stage 16 Prompt 3)
+- [x] **Stage 15 (Prompt 1):** Study Guide Composer### 2026-07-21 — Application Layer Foundation (Stage 21 Prompt 1)
+- **Completed**: Introduced a dedicated `Application` layer to orchestrate cross-domain workflows via Use Cases (`ProcessDocumentUseCase`, `GenerateLearningUseCase`, etc.).
+- **Milestone**: The `backend` is now a thin HTTP adapter. All orchestration logic is moved to `kogniq-application`, relying purely on Domain Services and eliminating FastAPI dependencies from business logic.
+
+### 2026-07-21 — Learning Generation API (Stage 16 Prompt 3)
 - **Completed**: Exposed the learning generation framework via `/api/v1/learning/generate`.
 - **Milestone**: Full decoupling achieved at the HTTP layer, relying on `LearningContextProvider` and `GeneratorFactory` to handle domain logic and injection, keeping the service purely orchestral.
 

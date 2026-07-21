@@ -42,8 +42,7 @@ async def test_permission_and_role_creation(
 
     # Update role
     r_updated = Role(
-        role_id="USER", name="User", description="Updated", 
-        permissions=("docs:read", "docs:write")
+        role_id="USER", name="User", description="Updated", permissions=("docs:read", "docs:write")
     )
     await role_repo.update_role(r_updated)
     fetched_updated = await role_repo.get_role("USER")
@@ -69,7 +68,7 @@ async def test_authorization_checks(
 
     # Assign role
     await auth_provider.assign_role(user_id, "USER")
-    
+
     # Duplicate assignment should not throw, just overwrite
     await auth_provider.assign_role(user_id, "USER")
 
@@ -99,8 +98,7 @@ async def test_multiple_roles_and_overlapping_permissions(
     user_id = "user-456"
     r1 = Role(role_id="READER", name="Reader", description="", permissions=("docs:read",))
     r2 = Role(
-        role_id="WRITER", name="Writer", description="", 
-        permissions=("docs:write", "docs:read")
+        role_id="WRITER", name="Writer", description="", permissions=("docs:write", "docs:read")
     )
     await role_repo.create_role(r1)
     await role_repo.create_role(r2)
@@ -114,9 +112,9 @@ async def test_multiple_roles_and_overlapping_permissions(
     # Overlapping permission check
     res_read = await auth_provider.has_permission(user_id, "docs:read")
     assert res_read.allowed  # Should pass since both have it
-    
+
     res_write = await auth_provider.has_permission(user_id, "docs:write")
-    assert res_write.allowed # Passes because of WRITER
+    assert res_write.allowed  # Passes because of WRITER
 
     res_delete = await auth_provider.has_permission(user_id, "docs:delete")
     assert not res_delete.allowed

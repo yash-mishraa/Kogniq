@@ -6,6 +6,7 @@ requires-python = "==3.13.*"
 members = [
     "kogniq",
     "kogniq-api",
+    "kogniq-application",
     "kogniq-auth",
     "kogniq-backend",
     "kogniq-content",
@@ -922,6 +923,8 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "httpx" },
+    { name = "kogniq-application" },
+    { name = "kogniq-auth" },
     { name = "kogniq-content" },
     { name = "kogniq-embedding" },
     { name = "kogniq-jobs" },
@@ -949,6 +952,8 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "httpx" },
+    { name = "kogniq-application", editable = "packages/application" },
+    { name = "kogniq-auth", editable = "packages/auth" },
     { name = "kogniq-content", editable = "packages/content" },
     { name = "kogniq-embedding", editable = "packages/embedding" },
     { name = "kogniq-jobs", editable = "packages/jobs" },
@@ -995,6 +1000,25 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.10,<3" },
     { name = "sqlalchemy", specifier = ">=2.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.35,<1" },
+]
+
+[[package]]
+name = "kogniq-application"
+version = "0.1.0"
+source = { editable = "packages/application" }
+dependencies = [
+    { name = "kogniq-auth" },
+    { name = "kogniq-jobs" },
+    { name = "kogniq-knowledge" },
+    { name = "kogniq-pipeline" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "kogniq-auth", editable = "packages/auth" },
+    { name = "kogniq-jobs", editable = "packages/jobs" },
+    { name = "kogniq-knowledge", editable = "packages/knowledge" },
+    { name = "kogniq-pipeline", editable = "packages/pipeline" },
 ]
 
 [[package]]

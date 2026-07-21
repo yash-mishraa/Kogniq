@@ -44,22 +44,22 @@ def main() -> None:
         job_id = result["job_id"]
         status = result["status"]
         print(f"Job submitted successfully. ID: {job_id} | Status: {status}")
-        
+
         print("\n--- 2. Polling Job Status ---")
-        
+
         for _ in range(10):
             res = httpx.get(f"http://127.0.0.1:8002/api/v1/jobs/{job_id}")
             res.raise_for_status()
             data = res.json()
-            
+
             print(
                 f"Status: {data['status']:>10} | Progress: {data['progress']:>3}% | "
                 f"Message: {data['message']}"
             )
-            
+
             if data["status"] in ("completed", "failed", "cancelled"):
                 break
-                
+
             time.sleep(1)
 
         print("\nDemo finished.")

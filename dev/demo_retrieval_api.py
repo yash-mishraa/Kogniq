@@ -57,7 +57,7 @@ chemical energy.
 
         doc_id = response.json()["document_id"]
         print(f"Document processed successfully. ID: {doc_id}")
-        
+
         # Populate repositories manually since pipeline is stubbed
         import asyncio
         from datetime import datetime
@@ -72,7 +72,7 @@ chemical energy.
         from content.chunking.statistics import ChunkStatistics
 
         async def populate() -> None:
-            
+
             chunks = []
             paragraphs = [
                 p.strip() for p in content.split("\n\n") if p.strip() and not p.startswith("#")
@@ -94,19 +94,19 @@ chemical energy.
                         processing_timestamp=datetime.now(UTC),
                         confidence=1.0,
                     ),
-                    created_at=datetime.now(UTC)
+                    created_at=datetime.now(UTC),
                 )
                 chunks.append(chunk)
-            
+
             collection = ChunkCollection(chunks=tuple(chunks))
             await get_repository_factory().get_chunk_repository().save(collection)
-            
+
             # Populate vector store
             retriever = get_retrieval_factory().get_retriever()
             semantic_retriever = cast(SemanticRetriever, retriever)
             embeddings = semantic_retriever._provider.generate_batch(collection)
             semantic_retriever._store.store_batch(embeddings)
-            
+
         asyncio.run(populate())
 
         print("\n--- 2. Executing Semantic Searches ---")

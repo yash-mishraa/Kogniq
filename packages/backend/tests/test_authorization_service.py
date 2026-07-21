@@ -10,6 +10,17 @@ from auth.authorization_memory import (
 )
 
 
+class MockAuthResult:
+    def __init__(self, allowed: bool, reason: str = "") -> None:
+        self.allowed = allowed
+        self.reason = reason
+
+
+class MockAuthorizationService:
+    async def require_permission(self, _user_id: str, _permission_id: str) -> MockAuthResult:
+        return MockAuthResult(allowed=True, reason="")
+
+
 @pytest.fixture
 def permission_repo() -> MemoryPermissionRepository:
     return MemoryPermissionRepository()
@@ -47,27 +58,26 @@ async def test_require_permission(
     role_repo: MemoryRoleRepository,
 ) -> None:
     await permission_repo.create_permission(DOCUMENTS_READ)
-    
+
     r = Role(
-        role_id="USER", name="User", description="", 
-        permissions=(DOCUMENTS_READ.permission_id,)
+        role_id="USER", name="User", description="", permissions=(DOCUMENTS_READ.permission_id,)
     )
     await role_repo.create_role(r)
-    
+
     user_id = "user-123"
-    
+
     # Fails initially
     with pytest.raises(AuthorizationError):
         await auth_service.require_permission(user_id, DOCUMENTS_READ.permission_id)
-        
+
     await auth_service.assign_role(user_id, "USER")
-    
+
     # Should succeed now
     res = await auth_service.require_permission(user_id, DOCUMENTS_READ.permission_id)
     assert res.allowed
-    
+
     await auth_service.remove_role(user_id, "USER")
-    
+
     with pytest.raises(AuthorizationError):
         await auth_service.require_permission(user_id, DOCUMENTS_READ.permission_id)
 
@@ -79,14 +89,14 @@ async def test_require_role(
 ) -> None:
     r = Role(role_id="ADMIN", name="Admin", description="", permissions=())
     await role_repo.create_role(r)
-    
+
     user_id = "admin-1"
-    
+
     with pytest.raises(AuthorizationError):
         await auth_service.require_role(user_id, "ADMIN")
-        
+
     await auth_service.assign_role(user_id, "ADMIN")
-    
+
     res = await auth_service.require_role(user_id, "ADMIN")
     assert res.allowed
 
@@ -94,19 +104,19 @@ async def test_require_role(
 def test_ownership_policy() -> None:
     user_id = "user-1"
     other_user = "user-2"
-    
+
     # Admin override
     res = OwnershipPolicy.evaluate(user_id, other_user, is_admin=True)
     assert res.allowed
-    
+
     # Owner access
     res = OwnershipPolicy.evaluate(user_id, user_id, is_admin=False)
     assert res.allowed
-    
+
     # Unowned resource
     res = OwnershipPolicy.evaluate(user_id, None, is_admin=False)
     assert res.allowed
-    
+
     # Denied access
     res = OwnershipPolicy.evaluate(user_id, other_user, is_admin=False)
     assert not res.allowed

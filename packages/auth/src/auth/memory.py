@@ -72,24 +72,24 @@ class MemoryAuthenticationProvider(AbstractAuthenticationProvider):
         user = await self._user_repo.get_user_by_email(email)
         if not user:
             raise ValueError("Authentication failed: User not found")
-            
+
         with self._lock:
             # Upsert Identity
             user_identities = self._identities.setdefault(user.user_id, [])
             provider_user_id = request.payload.get("provider_user_id", email)
-            
+
             identity = None
             for idx in user_identities:
                 if idx.provider == request.provider and idx.provider_user_id == provider_user_id:
                     identity = idx
                     break
-                    
+
             if not identity:
                 identity = Identity(
                     identity_id=str(uuid.uuid4()),
                     user_id=user.user_id,
                     provider=request.provider,
-                    provider_user_id=provider_user_id
+                    provider_user_id=provider_user_id,
                 )
                 user_identities.append(identity)
 
@@ -100,7 +100,7 @@ class MemoryAuthenticationProvider(AbstractAuthenticationProvider):
             identity=identity,
             provider=request.provider,
             session=session,
-            authenticated_at=datetime.now(UTC)
+            authenticated_at=datetime.now(UTC),
         )
 
     async def create_session(self, user_id: str) -> Session:
@@ -126,7 +126,7 @@ class MemoryAuthenticationProvider(AbstractAuthenticationProvider):
                     user_id=session.user_id,
                     expires_at=session.expires_at,
                     is_active=False,
-                    created_at=session.created_at
+                    created_at=session.created_at,
                 )
                 return None
             return session
@@ -140,5 +140,5 @@ class MemoryAuthenticationProvider(AbstractAuthenticationProvider):
                     user_id=session.user_id,
                     expires_at=session.expires_at,
                     is_active=False,
-                    created_at=session.created_at
+                    created_at=session.created_at,
                 )

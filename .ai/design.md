@@ -142,7 +142,12 @@ Future infrastructure will own build, runtime, deployment, observability, secret
 
 ### Learning Domains
 
-Future domain plugins will package examination-specific concepts, curriculum mappings, assessment rules, terminology, data adapters, and evaluation suites. GATE is the first planned reference implementation. A dedicated directory and plugin contract will be selected in a later architecture decision; no domain implementation exists during Stage 0.
+Future domain plugins will package examination-specific concepts, curriculum mappings, assessment rules, terminology, data adapters, and evaluation suites. GATE is the first planned reference domain.
+
+## Application Layer & Dependency Rule
+
+Kogniq enforces a strict dependency direction: `Backend -> Application -> Domain Services -> Repositories -> Domain`.
+The `Application` layer exposes Feature Use Cases (e.g., `ProcessDocumentUseCase`) using strict Command and Result DTOs. No FastAPI dependencies, request models, or HTTP concepts leak into this layer, enabling maximum reusability.
 
 ## Bounded Contexts
 
@@ -161,7 +166,9 @@ Future domain plugins will package examination-specific concepts, curriculum map
     3. **Prompt Builders (`prompt_builder.py`)**: Dedicated prompt templates and logic for each generator type.
     4. **Parsers (`parser.py`)**: Validates text or JSON into corresponding immutable models.
     5. **Composers & Renderers (`composer.py`, `renderer.py`)**: Isolates the assembly and presentation of complex composite artifacts like Study Guides.
-9. **Backend Context (`packages/backend`)**: The FastAPI application serving as the entry point for all API requests. Provides dependency injection, global exception handling, lifecycle management, and routing infrastructure.
+9. **Backend Context (`packages/backend`)**:
+    4. **`kogniq-application`**: Framework-independent Use Cases coordinating cross-domain workflows via domain services.
+    5. **`kogniq-backend`**: FastAPI transport adapters, DI wiring, and configuration. The FastAPI application serving as the entry point for all API requests. Provides dependency injection, global exception handling, lifecycle management, and routing infrastructure.
     1. **Document API**: Orchestrates `UploadFile -> DocumentInput -> DocumentService -> DocumentIntelligencePipeline -> API Response`. Contains zero AI logic; only validates parameters, translates HTTP errors, and injects dynamic dependencies via `PipelineFactory`.
     2. **Learning API**: Orchestrates `LearningGenerationRequest -> LearningContextProvider & GeneratorFactory -> BaseLearningGenerator -> API Response`. Enables generating isolated or composite learning artifacts dynamically.
 

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, Header, UploadFile
 
+from application.document.commands import ProcessDocumentCommand
+from application.document.process_document import ProcessDocumentUseCase
 from backend.core.validators import DocumentValidator
-from backend.dependencies import get_document_service
-from backend.schemas.document import DocumentInput, DocumentProcessResponse
-from backend.services.document_service import DocumentService
+from backend.dependencies import get_process_document_use_case
+from backend.schemas.document import DocumentProcessResponse
 
 documents_router = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -11,7 +12,8 @@ documents_router = APIRouter(prefix="/documents", tags=["Documents"])
 @documents_router.post("/process", response_model=DocumentProcessResponse)
 async def process_document(
     file: UploadFile = File(...),  # noqa: B008
-    document_service: DocumentService = Depends(get_document_service),  # noqa: B008
+    x_user_id: str = Header("demo-user-1", alias="X-User-Id"),
+    use_case: ProcessDocumentUseCase = Depends(get_process_document_use_case),  # noqa: B008
 ) -> DocumentProcessResponse:
     """
     Upload and process a document through the AI Intelligence Pipeline.
@@ -19,17 +21,18 @@ async def process_document(
     # 1. Validation
     DocumentValidator.validate(file)
 
-    # 2. Extract into safe DocumentInput
+    # 2. Map to Command
     content = await file.read()
-    doc_input = DocumentInput(
+    command = ProcessDocumentCommand(
+        user_id=x_user_id,
         filename=file.filename or "unknown",
         content_type=file.content_type or "application/octet-stream",
         size_bytes=len(content),
         content=content,
     )
 
-    # 3. Process via Service
-    result = await document_service.process_document(doc_input)
+    # 3. Process via Use Case
+    result = await use_case.execute(command)
 
     # 4. Map to Response Schema
     return DocumentProcessResponse(
@@ -42,5 +45,5 @@ async def process_document(
         knowledge_concepts=result.knowledge_concepts,
         knowledge_relationships=result.knowledge_relationships,
         processing_time_ms=result.processing_time_ms,
-        warnings=result.warnings,
+        warnings=list(result.warnings),
     )

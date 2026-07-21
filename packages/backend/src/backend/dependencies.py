@@ -5,6 +5,11 @@ from typing import Annotated
 from fastapi import Depends
 from persistence.factory import RepositoryFactory
 
+from application.document.process_document import ProcessDocumentUseCase
+from application.jobs.get_job_status import GetJobStatusUseCase
+from application.jobs.submit_job import SubmitJobUseCase
+from application.learning.generate_learning import GenerateLearningUseCase
+from application.retrieval.retrieve import RetrieveUseCase
 from auth.authorization_interfaces import (
     AbstractAuthorizationProvider,
     AbstractPermissionRepository,
@@ -196,7 +201,64 @@ async def get_authorization_service() -> AuthorizationService:
     )
 
 
+async def get_process_document_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    document_service: DocumentService = Depends(get_document_service),  # noqa: B008
+) -> ProcessDocumentUseCase:
+    return ProcessDocumentUseCase(
+        auth_service=auth_service,  # type: ignore
+        authorization_service=authorization_service,  # type: ignore
+        document_service=document_service,
+    )
 
+
+async def get_generate_learning_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    learning_service: LearningService = Depends(get_learning_service),  # noqa: B008
+) -> GenerateLearningUseCase:
+    return GenerateLearningUseCase(
+        auth_service=auth_service,  # type: ignore
+        authorization_service=authorization_service,  # type: ignore
+        learning_service=learning_service,
+    )
+
+
+async def get_retrieve_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    retrieval_service: RetrievalService = Depends(get_retrieval_service),  # noqa: B008
+) -> RetrieveUseCase:
+    return RetrieveUseCase(
+        auth_service=auth_service,  # type: ignore
+        authorization_service=authorization_service,  # type: ignore
+        retrieval_service=retrieval_service,
+    )
+
+
+async def get_submit_job_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    job_service: JobService = Depends(get_job_service),  # noqa: B008
+) -> SubmitJobUseCase:
+    return SubmitJobUseCase(
+        auth_service=auth_service,  # type: ignore
+        authorization_service=authorization_service,  # type: ignore
+        job_service=job_service,
+    )
+
+
+async def get_job_status_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    job_service: JobService = Depends(get_job_service),  # noqa: B008
+) -> GetJobStatusUseCase:
+    return GetJobStatusUseCase(
+        auth_service=auth_service,  # type: ignore
+        authorization_service=authorization_service,  # type: ignore
+        job_service=job_service,
+    )
 
 
 # Typed dependencies for clean injection in route handlers

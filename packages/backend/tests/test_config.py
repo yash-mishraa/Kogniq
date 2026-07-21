@@ -4,6 +4,17 @@ from unittest import mock
 from backend.core.settings import BackendConfig
 
 
+class MockAuthResult:
+    def __init__(self, allowed: bool, reason: str = "") -> None:
+        self.allowed = allowed
+        self.reason = reason
+
+
+class MockAuthorizationService:
+    async def require_permission(self, _user_id: str, _permission_id: str) -> MockAuthResult:
+        return MockAuthResult(allowed=True, reason="")
+
+
 def test_default_config() -> None:
     config = BackendConfig()
     assert config.app_name == "Kogniq API"

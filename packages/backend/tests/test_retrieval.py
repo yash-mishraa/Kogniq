@@ -2,7 +2,10 @@ from datetime import UTC, datetime
 
 import pytest
 from backend.app import create_app
-from backend.dependencies import get_repository_factory, get_retrieval_service
+from backend.dependencies import (
+    get_repository_factory,
+    get_retrieval_service,
+)
 from backend.services.retrieval_service import RetrievalService
 from fastapi.testclient import TestClient
 from retrieval.exceptions import RetrievalError
@@ -13,6 +16,17 @@ from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
 from content.chunking.metadata import ChunkMetadata
 from content.chunking.statistics import ChunkStatistics
+
+
+class MockAuthResult:
+    def __init__(self, allowed: bool, reason: str = "") -> None:
+        self.allowed = allowed
+        self.reason = reason
+
+
+class MockAuthorizationService:
+    async def require_permission(self, _user_id: str, _permission_id: str) -> MockAuthResult:
+        return MockAuthResult(allowed=True, reason="")
 
 
 class MockRetriever(AbstractRetriever):

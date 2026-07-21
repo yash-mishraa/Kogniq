@@ -1,8 +1,8 @@
 import logging
+from typing import Any
 
 from backend.schemas.document import DocumentInput
 from backend.services.document_service import DocumentService
-from fastapi import BackgroundTasks
 
 from jobs.interfaces import AbstractJobManager
 from jobs.models import Job, JobResult
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class JobService:
     """
-    Orchestrates job execution using FastAPI BackgroundTasks.
+    Orchestrates job execution.
     Strictly coordinates between the API boundary and domain logic.
     """
 
@@ -20,25 +20,24 @@ class JobService:
         self._manager = job_manager
         self._document_service = document_service
 
-    async def get_job(self, job_id: str) -> Job | None:
+    async def get_job_status(self, job_id: str) -> Job | None:
         """Fetch a job by ID."""
         return await self._manager.get(job_id)
 
-    async def submit_document_processing(
-        self, doc_input: DocumentInput, background_tasks: BackgroundTasks
-    ) -> Job:
+    async def process_document_background(self, payload: dict[str, Any]) -> Job:
         """
         Creates a new document processing job and queues it for background execution.
         """
+        doc_input = DocumentInput(**payload)
         job = await self._manager.submit("document_processing")
-        
+
         # Enqueue the background task
-        background_tasks.add_task(
-            self._process_document_background,
-            job_id=job.id,
-            doc_input=doc_input
+        import asyncio
+
+        self._bg_task = asyncio.create_task(
+            self._process_document_background(job_id=job.id, doc_input=doc_input)
         )
-        
+
         return job
 
     async def _process_document_background(self, job_id: str, doc_input: DocumentInput) -> None:
@@ -53,13 +52,13 @@ class JobService:
                 message="Starting document processing",
                 milestone="Processing started",
             )
-            
+
             # Since PipelineService currently isn't natively instrumented with the job manager,
             # we'll just run the whole processing and mark as complete when done.
             # In the future, PipelineService itself could accept the job_id and report progress.
-            
+
             result = await self._document_service.process_document(doc_input)
-            
+
             # Convert result to dict for JobResult
             result_dict = {
                 "document_id": result.document_id,
@@ -73,9 +72,9 @@ class JobService:
                 "status": result.status,
                 "warnings": result.warnings,
             }
-            
+
             await self._manager.complete(job_id, JobResult(data=result_dict))
-            
+
         except Exception as e:
             logger.exception(f"Job {job_id} failed during document processing")
             await self._manager.fail(job_id, error_message=str(e))

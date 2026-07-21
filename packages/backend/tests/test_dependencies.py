@@ -11,6 +11,17 @@ from backend.services.stubs import (
 )
 
 
+class MockAuthResult:
+    def __init__(self, allowed: bool, reason: str = "") -> None:
+        self.allowed = allowed
+        self.reason = reason
+
+
+class MockAuthorizationService:
+    async def require_permission(self, _user_id: str, _permission_id: str) -> MockAuthResult:
+        return MockAuthResult(allowed=True, reason="")
+
+
 @pytest.mark.asyncio
 async def test_get_pipeline_service() -> None:
     service = await get_pipeline_service()

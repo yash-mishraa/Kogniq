@@ -12,6 +12,7 @@ from auth.authorization_interfaces import (
 
 class AuthorizationError(BackendError):
     """Raised when authorization is denied."""
+
     def __init__(self, message: str) -> None:
         super().__init__(code="AUTHORIZATION_DENIED", message=message, status_code=403)
 
@@ -50,6 +51,6 @@ class AuthorizationService:
 
     async def list_all_roles(self) -> Sequence[Role]:
         return await self._role_repo.list_roles()
-        
+
     async def list_all_permissions(self) -> Sequence[Permission]:
         return await self._permission_repo.list_permissions()

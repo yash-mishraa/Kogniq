@@ -86,7 +86,7 @@ class MemoryAuthorizationProvider(AbstractAuthorizationProvider):
     async def get_roles(self, user_id: str) -> Sequence[Role]:
         with self._lock:
             user_role_ids = list(self._user_roles.get(user_id, {}).keys())
-        
+
         roles = []
         for role_id in user_role_ids:
             role = await self._role_repo.get_role(role_id)
@@ -115,7 +115,7 @@ class MemoryAuthorizationProvider(AbstractAuthorizationProvider):
         with self._lock:
             user_role_ids = self._user_roles.get(user_id, {})
             has_it = role_id in user_role_ids
-            
+
         if has_it:
             return AuthorizationResult(
                 allowed=True,
