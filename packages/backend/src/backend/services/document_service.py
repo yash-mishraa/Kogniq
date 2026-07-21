@@ -81,7 +81,6 @@ class DocumentService:
                 await uow.documents.save(result.content.document)
                 await uow.chunks.save(result.content.chunks)
                 await uow.knowledge.save(doc_id, result.knowledge.extraction_result.graph)
-                uow.commit()
         except Exception as e:
             raise BackendError(
                 "persistence_failed", f"Failed to persist pipeline results: {e}", status_code=500

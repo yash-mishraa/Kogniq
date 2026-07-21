@@ -17,6 +17,20 @@ from backend.app import create_app  # noqa: E402
 
 def start_server() -> None:
     app = create_app()
+    
+    from backend.dependencies import get_authorization_service
+    from backend.services.authorization_service import AuthorizationService
+    from auth.authorization import AuthorizationResult
+
+    class MockAuthorizationService(AuthorizationService):
+        def __init__(self) -> None:
+            pass
+
+        async def require_permission(self, user_id: str, permission_id: str) -> AuthorizationResult:
+            return AuthorizationResult(allowed=True, reason="Demo")
+
+    app.dependency_overrides[get_authorization_service] = MockAuthorizationService
+
     uvicorn.run(app, host="127.0.0.1", port=8001, log_level="warning")
 
 

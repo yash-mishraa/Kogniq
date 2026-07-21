@@ -10,6 +10,9 @@ class BackendConfig(BaseSettings):
 
     # Database Settings
     chroma_db_path: str = "./data/chroma"
+    vector_store_provider: Literal["memory", "chroma", "qdrant"] = "chroma"
+    qdrant_url: str = "http://localhost:6333"
+    qdrant_collection: str = "kogniq_documents"
     persistence_provider: Literal["memory", "sqlite"] = "sqlite"
     sqlite_database_path: str = "./data/kogniq.db"
 

@@ -14,36 +14,51 @@ class PipelineFactory:
     def create(cls) -> DocumentIntelligencePipeline:
         pipeline_mock = MagicMock(spec=DocumentIntelligencePipeline)
 
-        result_mock = MagicMock()
-        result_mock.metadata.processor_name = "mock"
-        result_mock.content.chunks.total_chunks = 1
-        result_mock.embeddings.collection.embeddings = []
-        result_mock.knowledge.extraction_result.graph.concept_count = 0
-        result_mock.knowledge.extraction_result.graph.relationship_count = 0
-        result_mock.metadata.total_processing_time_ms = 10.0
+        def mock_run(handle) -> MagicMock:
+            result_mock = MagicMock()
+            from content.chunking.collection import ChunkCollection
+            from embedding.collection import EmbeddingCollection
+            from knowledge.graph import KnowledgeGraph
+            from pipeline.result import PipelineExecutionMetadata
+            from datetime import UTC, datetime
 
-        # We need a concrete NormalizedDocument to avoid SQLite failing to bind MagicMock
-        from datetime import UTC, datetime
+            result_mock.content.chunks = ChunkCollection(chunks=())
+            result_mock.embeddings.collection = EmbeddingCollection(embeddings=())
+            result_mock.knowledge.extraction_result.graph = KnowledgeGraph(concepts=(), relationships=())
+            result_mock.metadata = PipelineExecutionMetadata(
+                started_at=datetime.now(UTC),
+                completed_at=datetime.now(UTC),
+                total_processing_time_ms=10.0,
+                processor_name="mock",
+                chunk_engine_name="mock",
+                embedding_provider_name="mock",
+                vector_store_name="mock",
+                knowledge_extractor_name="mock",
+            )
 
-        from content.normalized.block import NormalizedBlock
-        from content.normalized.document import NormalizedDocument
-        from content.normalized.enums import BlockType
-        from content.normalized.metadata import DocumentMetadata
-        from content.normalized.page import NormalizedPage
+            # We need a concrete NormalizedDocument to avoid SQLite failing to bind MagicMock
+            from datetime import UTC, datetime
 
-        block = NormalizedBlock(block_id="b1", block_type=BlockType.PARAGRAPH, text="test", order=0)
-        page = NormalizedPage(page_number=1, blocks=(block,))
+            from content.normalized.block import NormalizedBlock
+            from content.normalized.document import NormalizedDocument
+            from content.normalized.enums import BlockType
+            from content.normalized.metadata import DocumentMetadata
+            from content.normalized.page import NormalizedPage
 
-        result_mock.content.document = NormalizedDocument(
-            id="test-doc-123",
-            title="Test Doc",
-            source="mock",
-            checksum="123",
-            version="v1",
-            pages=(page,),
-            metadata=DocumentMetadata(author="test"),
-            created_at=datetime.now(UTC),
-        )
+            block = NormalizedBlock(block_id="b1", block_type=BlockType.PARAGRAPH, text="test", order=0)
+            page = NormalizedPage(page_number=1, blocks=(block,))
 
-        pipeline_mock.run.return_value = result_mock
+            result_mock.content.document = NormalizedDocument(
+                id=handle.id,
+                title="Test Doc",
+                source="mock",
+                checksum="123",
+                version="v1",
+                pages=(page,),
+                metadata=DocumentMetadata(author="test"),
+                created_at=datetime.now(UTC),
+            )
+            return result_mock
+
+        pipeline_mock.run.side_effect = mock_run
         return pipeline_mock

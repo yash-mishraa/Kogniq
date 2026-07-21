@@ -1,6 +1,8 @@
 from backend.core.settings import BackendConfig
 from embedding.providers.local.provider import LocalEmbeddingProvider
 from embedding.vectorstores.chroma.store import ChromaVectorStore
+from embedding.vectorstores.qdrant.client import QdrantClientManager
+from embedding.vectorstores.qdrant.store import QdrantVectorStore
 from retrieval.config import RetrieverConfig
 from retrieval.interfaces import AbstractRetriever
 from retrieval.semantic_retriever import SemanticRetriever
@@ -23,11 +25,24 @@ class RetrievalFactory:
             # LocalEmbeddingProvider uses sentence-transformers inside.
             provider = LocalEmbeddingProvider()
 
-            # Using persistence directory from settings to avoid ephemeral loss of embeddings
-            vector_store = ChromaVectorStore(
-                collection_name="kogniq",
-                persist_directory=self.settings.chroma_db_path,
-            )
+            from embedding.vectorstores.interfaces import AbstractVectorStore
+            
+            vector_store: AbstractVectorStore
+            if self.settings.vector_store_provider == "qdrant":
+                manager = QdrantClientManager(url=self.settings.qdrant_url)
+                vector_store = QdrantVectorStore(
+                    manager=manager,
+                    collection_name=self.settings.qdrant_collection,
+                )
+            elif self.settings.vector_store_provider == "chroma":
+                # Using persistence directory from settings to avoid ephemeral loss of embeddings
+                vector_store = ChromaVectorStore(
+                    collection_name="kogniq",
+                    persist_directory=self.settings.chroma_db_path,
+                )
+            else:
+                # Fallback for memory testing without persistence
+                vector_store = ChromaVectorStore(collection_name="kogniq")
 
             config = RetrieverConfig()
 
