@@ -163,6 +163,7 @@ Future domain plugins will package examination-specific concepts, curriculum map
     5. **Composers & Renderers (`composer.py`, `renderer.py`)**: Isolates the assembly and presentation of complex composite artifacts like Study Guides.
 9. **Backend Context (`packages/backend`)**: The FastAPI application serving as the entry point for all API requests. Provides dependency injection, global exception handling, lifecycle management, and routing infrastructure.
     1. **Document API**: Orchestrates `UploadFile -> DocumentInput -> DocumentService -> DocumentIntelligencePipeline -> API Response`. Contains zero AI logic; only validates parameters, translates HTTP errors, and injects dynamic dependencies via `PipelineFactory`.
+    2. **Learning API**: Orchestrates `LearningGenerationRequest -> LearningContextProvider & GeneratorFactory -> BaseLearningGenerator -> API Response`. Enables generating isolated or composite learning artifacts dynamically.
 
 Currently, all learning generators utilize the central `BaseLearningGenerator` orchestration framework. For detailed pipeline architecture, see `docs/architecture/learning-generation-framework.md` and `docs/architecture/summary-generation-pipeline.md`.
 

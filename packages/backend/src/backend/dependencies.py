@@ -2,12 +2,13 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from backend.services.context_provider import LearningContextProvider
 from backend.services.document_service import DocumentService
+from backend.services.generator_factory import GeneratorFactory
+from backend.services.learning_service import LearningService
 from backend.services.stubs import (
-    LearningService,
     PipelineService,
     RetrievalService,
-    StubLearningService,
     StubPipelineService,
     StubRetrievalService,
 )
@@ -21,7 +22,10 @@ async def get_pipeline_service() -> PipelineService:
 
 
 async def get_learning_service() -> LearningService:
-    return StubLearningService()
+    context_provider = LearningContextProvider()
+    factory = GeneratorFactory()
+
+    return LearningService(context_provider=context_provider, generator_factory=factory)
 
 
 async def get_retrieval_service() -> RetrievalService:

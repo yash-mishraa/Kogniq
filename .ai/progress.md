@@ -87,7 +87,10 @@ Append new entries; never remove earlier sessions.
 - [x] **Stage 14 (Prompt 2):** Flashcards Generator
 - [x] **Stage 14 (Prompt 3):** Quiz Generator
 - [x] **Stage 14 (Prompt 4):** Explanation Generator
-- [x] **Stage 15 (Prompt 1):** Study Guide Composer
+- [x] **Stage 15 (Prompt 1):** Study Guide Composer### 2026-07-21 — Learning Generation API (Stage 16 Prompt 3)
+- **Completed**: Exposed the learning generation framework via `/api/v1/learning/generate`.
+- **Milestone**: Full decoupling achieved at the HTTP layer, relying on `LearningContextProvider` and `GeneratorFactory` to handle domain logic and injection, keeping the service purely orchestral.
+
 ### 2026-07-20 — Document Processing API (Stage 16 Prompt 2)
 - **Completed:** Document intelligence pipeline exposed via a decoupled FastAPI endpoint.
 - **Milestone:** The system can accept raw documents via HTTP and orchestrate end-to-end knowledge extraction without backend coupling to actual model or storage implementations.

@@ -4,8 +4,8 @@ from backend.dependencies import (
     get_pipeline_service,
     get_retrieval_service,
 )
+from backend.services.learning_service import LearningService
 from backend.services.stubs import (
-    StubLearningService,
     StubPipelineService,
     StubRetrievalService,
 )
@@ -20,7 +20,7 @@ async def test_get_pipeline_service() -> None:
 @pytest.mark.asyncio
 async def test_get_learning_service() -> None:
     service = await get_learning_service()
-    assert isinstance(service, StubLearningService)
+    assert isinstance(service, LearningService)
 
 
 @pytest.mark.asyncio
