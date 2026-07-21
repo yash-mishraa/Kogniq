@@ -8,6 +8,9 @@ class BackendConfig(BaseSettings):
     Core application configuration, driven by environment variables.
     """
 
+    # Database Settings
+    chroma_db_path: str = "./data/chroma"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     app_name: str = "Kogniq API"

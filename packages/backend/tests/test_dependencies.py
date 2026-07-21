@@ -5,9 +5,9 @@ from backend.dependencies import (
     get_retrieval_service,
 )
 from backend.services.learning_service import LearningService
+from backend.services.retrieval_service import RetrievalService
 from backend.services.stubs import (
     StubPipelineService,
-    StubRetrievalService,
 )
 
 
@@ -26,4 +26,5 @@ async def test_get_learning_service() -> None:
 @pytest.mark.asyncio
 async def test_get_retrieval_service() -> None:
     service = await get_retrieval_service()
-    assert isinstance(service, StubRetrievalService)
+    # We now use the real RetrievalService
+    assert isinstance(service, RetrievalService)

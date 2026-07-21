@@ -3,15 +3,16 @@ from typing import Annotated
 from fastapi import Depends
 from persistence.factory import RepositoryFactory
 
+from backend.core.settings import settings
 from backend.services.context_provider import LearningContextProvider
 from backend.services.document_service import DocumentService
 from backend.services.generator_factory import GeneratorFactory
 from backend.services.learning_service import LearningService
+from backend.services.retrieval_factory import RetrievalFactory
+from backend.services.retrieval_service import RetrievalService
 from backend.services.stubs import (
     PipelineService,
-    RetrievalService,
     StubPipelineService,
-    StubRetrievalService,
 )
 
 # In the future, these dependencies will construct the real implementations
@@ -27,6 +28,16 @@ def get_repository_factory() -> RepositoryFactory:
     if _repository_factory_instance is None:
         _repository_factory_instance = RepositoryFactory()
     return _repository_factory_instance
+
+
+_retrieval_factory_instance: RetrievalFactory | None = None
+
+
+def get_retrieval_factory() -> RetrievalFactory:
+    global _retrieval_factory_instance
+    if _retrieval_factory_instance is None:
+        _retrieval_factory_instance = RetrievalFactory(settings)
+    return _retrieval_factory_instance
 
 
 async def get_pipeline_service() -> PipelineService:
@@ -46,7 +57,13 @@ async def get_learning_service() -> LearningService:
 
 
 async def get_retrieval_service() -> RetrievalService:
-    return StubRetrievalService()
+    retrieval_factory = get_retrieval_factory()
+    repo_factory = get_repository_factory()
+
+    return RetrievalService(
+        retriever=retrieval_factory.get_retriever(),
+        chunk_repository=repo_factory.get_chunk_repository(),
+    )
 
 
 # -----------------
