@@ -2,7 +2,6 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Command, CornerDownLeft, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 
 const entries = ["Open workspace", "Find in knowledge", "Toggle inspector", "Switch theme"];
 export function CommandPalette() {

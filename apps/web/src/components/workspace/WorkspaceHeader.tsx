@@ -1,0 +1,2 @@
+import type { EnvironmentMetadata } from "@/app/workspace/WorkspaceTypes";
+export function WorkspaceHeader({ environment, onLeave }: { environment: EnvironmentMetadata; onLeave?: () => void }) { return <header><button type="button" onClick={onLeave} aria-label="Choose another environment" className="w-fit text-left text-[clamp(1.45rem,2.5vw,2.3rem)] font-medium tracking-[-.05em] text-ink outline-none hover:text-accent focus-visible:text-accent">{environment.title}</button></header>; }
