@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Future composition root for Kogniq's accessible learner, reviewer, and operator browser experience.
+Composition root for Kogniq's accessible browser experience. Its first product flow is a deliberately minimal progression from Arrival through Access and Intention into a contextual Workspace.
 
 ## Responsibilities
 
@@ -10,7 +10,7 @@ Own presentation, interaction state, accessibility, safe rendering, progressive 
 
 ## Public Interface
 
-Future routes and deliberately reusable presentation contracts. No route, component, page, or client API exists yet.
+The root route implements the product contract. Reusable behavioral primitives live in `src/components/ui`; the visible experience belongs to `src/components/experience` and is guided by the Locus interaction language.
 
 ## Dependencies
 
