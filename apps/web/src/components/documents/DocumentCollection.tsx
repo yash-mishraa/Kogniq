@@ -34,7 +34,6 @@ export function DocumentCollection() {
               <DocumentItem
                 key={doc.id}
                 document={doc}
-                isActive={isActive}
                 isCondensed={hasActiveDocument}
                 onClick={() => {
                   if (isActive) {

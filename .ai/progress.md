@@ -1,5 +1,21 @@
 # Progress
 
+### 2026-07-22 — Stage 23: Workspace Engine Foundation
+- **Completed:** Added the frontend Workspace Engine, metadata-only environment registry, shared workspace primitives, a single Locus system, centralized workspace motion, focus restoration, per-environment memory, and a Vitest verification suite.
+- **Files Changed:** `apps/web/src/app/workspace/*`, `apps/web/src/components/workspace/*`, `apps/web/src/components/locus/*`, `apps/web/src/components/experience/experience-flow.tsx`, `apps/web/src/app/workspace/workspace-engine.test.tsx`, `docs/frontend/workspace-engine.md`, and web tooling configuration.
+- **Architecture Changes:** Future web capabilities now register environment metadata and compose through `WorkspaceEngine`; no environment-specific functionality, backend integration, or document rendering was introduced.
+- **Validation:** `npm run lint`, `npm run typecheck`, `npm run test` (4 tests), and `npm run build` pass in `apps/web`.
+
+### 2026-07-22 — Phase B: Document Workspace Foundation
+- **Completed:** Implemented the Kogniq Documents workspace environment, including the unified Locus file picker integration, editorial document list collection, and an unfolding typography-heavy ReadingSurface.
+- **Files Changed:** `apps/web/src/app/workspace/environments/documents/*`, `apps/web/src/components/documents/*`, `apps/web/src/components/workspace/ReadingSurface.tsx`, `docs/frontend/document-workspace.md`, and updated `WorkspaceEngine.tsx`.
+- **Architecture Changes:** The Documents Workspace is now integrated into the `WorkspaceEngine`. `ReadingSurface` was abstracted as a reusable component for all knowledge artifacts. Document lifecycle states are displayed contextually without resorting to traditional spinners.
+
+### 2026-07-22 — Phase C: Knowledge Workspace Foundation
+- **Completed:** Implemented the Knowledge Workspace environment mapping extracted concepts to a typography-first editorial graph.
+- **Files Changed:** `apps/web/src/app/workspace/environments/knowledge/*`, `apps/web/src/components/knowledge/*`, `docs/frontend/knowledge-workspace.md`, and updated `WorkspaceEngine.tsx` and `environments/index.ts`.
+- **Architecture Changes:** The Knowledge Workspace was added as a parallel semantic environment. It deliberately avoids force-directed simulations (like D3), favoring a calm, intentional `KnowledgeMap` where selection drives a soft spatial reorganization through a `KnowledgeTrail` and contextual `KnowledgeInspector`.
+
 ## Current Stage
 
 Stage 4.1 — Content Intelligence Foundation (In Progress)

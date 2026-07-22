@@ -9,6 +9,10 @@
 
 Build Kogniq, an open-source AI Learning Intelligence Platform that helps learners prepare deliberately across multiple competitive-examination domains while serving as a production-grade reference for modern AI engineering.
 
+## Workspace Engine Design Contract
+
+The web experience moves through Arrival, Access, Intention, and one shared Workspace Engine. The Workspace is not a page collection: environments register metadata and inherit common state, transitions, focus restoration, workspace memory, and the contextual Locus. The Locus is Kogniq's single typing-first interaction primitive; its placeholder changes by environment while its behavior remains shared. Capability pages, backend calls, document rendering, and AI behavior remain outside the Workspace Engine foundation.
+
 Kogniq is the platform. GATE is the first planned domain plugin and reference implementation. The architecture must allow future domains such as GRE, CAT, UPSC, JEE, and NEET without embedding any one examination's curriculum, terminology, or rules into the platform core.
 
 ## Goals
@@ -60,6 +64,9 @@ These documents refine this architecture without replacing it:
 - [`service_catalog.md`](service_catalog.md) inventories planned logical service capabilities.
 - [`pipeline_catalog.md`](pipeline_catalog.md) inventories planned processing and intelligence pipelines.
 - [`api_catalog.md`](api_catalog.md) inventories possible external APIs without implementing or finalizing them.
+- [`frontend-constitution.md`](frontend-constitution.md) is the permanent design constitution that governs Kogniq's frontend architecture, interaction philosophy, and visual language.
+- [`../docs/frontend/document-workspace.md`](../docs/frontend/document-workspace.md) defines the interaction principles and architecture of the Documents Workspace.
+- [`../docs/frontend/knowledge-workspace.md`](../docs/frontend/knowledge-workspace.md) defines the semantic exploration principles and architecture of the Knowledge Workspace.
 
 When these references conflict with an accepted ADR, the ADR records the decision and this living architecture must be reconciled explicitly.
 

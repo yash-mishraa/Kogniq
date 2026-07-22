@@ -7,12 +7,11 @@ import { DocumentLifecycle } from "./DocumentLifecycle";
 
 interface DocumentItemProps {
   document: DocumentItemType;
-  isActive: boolean;
   isCondensed: boolean;
   onClick: () => void;
 }
 
-export function DocumentItem({ document, isActive, isCondensed, onClick }: DocumentItemProps) {
+export function DocumentItem({ document, isCondensed, onClick }: DocumentItemProps) {
   return (
     <motion.li
       layout

@@ -13,7 +13,7 @@ function WorkspaceProbe() {
 
 describe("Workspace Engine foundation", () => {
   it("registers every metadata-only environment", () => {
-    expect(environmentRegistry.listEnvironments().map((environment) => environment.id)).toEqual(["documents", "graph", "search", "studio", "study", "flashcards", "quiz", "analytics"]);
+    expect(environmentRegistry.listEnvironments().map((environment) => environment.id)).toEqual(["documents", "graph", "knowledge", "search", "studio", "study", "flashcards", "quiz", "analytics"]);
     const registry = new EnvironmentRegistry();
     registry.registerEnvironment(environmentRegistry.getEnvironment("documents")!);
     expect(registry.getEnvironment("documents")?.locusPlaceholder).toBe("Import knowledge…");
@@ -29,8 +29,8 @@ describe("Workspace Engine foundation", () => {
   });
 
   it("restores focus to the contextual Locus", async () => {
-    render(<WorkspaceEngine initialEnvironmentId="documents" />);
-    const locus = screen.getByRole("textbox", { name: "Documents: Import knowledge…" });
+    render(<WorkspaceEngine initialEnvironmentId="search" />);
+    const locus = screen.getByRole("textbox", { name: "Search: Find meaning…" });
     await waitFor(() => expect(locus).toHaveFocus());
   });
 

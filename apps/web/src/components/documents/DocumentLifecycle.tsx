@@ -21,7 +21,6 @@ export function DocumentLifecycle({ status }: { status: DocumentStatus }) {
       {LIFECYCLE_STAGES.map((stage, i) => {
         const isPast = i < currentIndex;
         const isActive = i === currentIndex;
-        const isFuture = i > currentIndex;
 
         return (
           <div key={stage.status} className="flex items-center gap-1.5">
