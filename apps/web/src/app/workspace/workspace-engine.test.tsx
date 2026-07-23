@@ -30,7 +30,7 @@ describe("Workspace Engine foundation", () => {
 
   it("restores focus to the contextual Locus", async () => {
     render(<WorkspaceEngine initialEnvironmentId="search" />);
-    const locus = screen.getByRole("textbox", { name: "Search: Find meaning…" });
+    const locus = screen.getByRole("textbox", { name: "Search: Search your knowledge..." });
     await waitFor(() => expect(locus).toHaveFocus());
   });
 
