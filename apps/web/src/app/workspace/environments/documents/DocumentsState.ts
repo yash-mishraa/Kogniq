@@ -49,16 +49,29 @@ export const MOCK_DOCUMENTS: DocumentItem[] = [
 ];
 
 export const initialDocumentsState: DocumentsState = {
-  documents: MOCK_DOCUMENTS,
+  documents: {
+    status: "idle",
+    data: null,
+    error: null,
+  },
   activeDocumentId: null,
 };
 
 export function documentsReducer(state: DocumentsState, action: DocumentsAction): DocumentsState {
   switch (action.type) {
-    case "IMPORT_DOCUMENT":
+    case "SET_DOCUMENTS":
       return {
         ...state,
-        documents: [action.payload, ...state.documents],
+        documents: action.payload,
+      };
+    case "IMPORT_DOCUMENT":
+      if (!state.documents.data) return state;
+      return {
+        ...state,
+        documents: {
+          ...state.documents,
+          data: [action.payload, ...state.documents.data],
+        }
       };
     case "SELECT_DOCUMENT":
       return {
@@ -66,11 +79,15 @@ export function documentsReducer(state: DocumentsState, action: DocumentsAction)
         activeDocumentId: action.payload,
       };
     case "UPDATE_STATUS":
+      if (!state.documents.data) return state;
       return {
         ...state,
-        documents: state.documents.map((doc) =>
-          doc.id === action.payload.id ? { ...doc, status: action.payload.status } : doc
-        ),
+        documents: {
+          ...state.documents,
+          data: state.documents.data.map((doc) =>
+            doc.id === action.payload.id ? { ...doc, status: action.payload.status } : doc
+          ),
+        }
       };
     default:
       return state;

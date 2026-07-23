@@ -6,6 +6,8 @@ import { KnowledgeRelationship } from "./KnowledgeRelationship";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 
+import type { KnowledgeConcept, KnowledgeRelationship as KnowledgeRelationshipType } from "@/app/workspace/environments/knowledge/KnowledgeTypes";
+
 // Hardcoded intentional, editorial positions for the mock knowledge graph
 // In a real app, this would be computed via an intentional layout algorithm (e.g., hierarchical or semantic clustering) rather than force simulation.
 const MOCK_LAYOUT: Record<string, { x: number; y: number }> = {
@@ -32,10 +34,10 @@ export function KnowledgeMap() {
 
   // Compute active region (active node + immediate neighbors) to fade unrelated regions
   const activeRegionIds = useMemo(() => {
-    if (!activeConceptId || !graph) return new Set<string>();
+    if (!activeConceptId || !graph.data) return new Set<string>();
     
     const ids = new Set<string>([activeConceptId]);
-    graph.relationships.forEach(r => {
+    graph.data.relationships.forEach((r: KnowledgeRelationshipType) => {
       if (r.sourceId === activeConceptId) ids.add(r.targetId);
       if (r.targetId === activeConceptId) ids.add(r.sourceId);
     });
@@ -43,7 +45,7 @@ export function KnowledgeMap() {
     return ids;
   }, [graph, activeConceptId]);
 
-  if (!graph) return null;
+  if (!graph.data) return null;
 
   return (
     <div className="absolute inset-0 pointer-events-none">
@@ -51,7 +53,7 @@ export function KnowledgeMap() {
         
         {/* SVG layer for subtle relationship edges */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none">
-          {graph.relationships.map((rel, idx) => {
+          {graph.data.relationships.map((rel: KnowledgeRelationshipType, idx: number) => {
             const sourcePos = MOCK_LAYOUT[rel.sourceId];
             const targetPos = MOCK_LAYOUT[rel.targetId];
             if (!sourcePos || !targetPos) return null;
@@ -72,7 +74,7 @@ export function KnowledgeMap() {
         </svg>
 
         {/* Nodes layer */}
-        {graph.concepts.map((concept) => {
+        {graph.data.concepts.map((concept: KnowledgeConcept) => {
           const pos = MOCK_LAYOUT[concept.id];
           if (!pos) return null;
 

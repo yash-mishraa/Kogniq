@@ -12,7 +12,7 @@ interface StudyPerspectiveProps {
 }
 
 export function StudyPerspective({ state }: StudyPerspectiveProps) {
-  if (!state.material) return null;
+  if (!state.material.data) return null;
 
   return (
     <AnimatePresence mode="wait">
@@ -24,10 +24,10 @@ export function StudyPerspective({ state }: StudyPerspectiveProps) {
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="w-full h-full"
       >
-        {state.activeMode === "understand" && <StudyUnderstand content={state.material.understand} />}
-        {state.activeMode === "review" && <StudyReview content={state.material.review} />}
-        {state.activeMode === "recall" && <StudyRecall content={state.material.recall[state.recallIndex]} />}
-        {state.activeMode === "test" && <StudyTest content={state.material.test[state.testIndex]} />}
+        {state.activeMode === "understand" && <StudyUnderstand content={state.material.data.understand} />}
+        {state.activeMode === "review" && <StudyReview content={state.material.data.review} />}
+        {state.activeMode === "recall" && <StudyRecall content={state.material.data.recall[state.recallIndex]} />}
+        {state.activeMode === "test" && <StudyTest content={state.material.data.test[state.testIndex]} />}
       </motion.div>
     </AnimatePresence>
   );

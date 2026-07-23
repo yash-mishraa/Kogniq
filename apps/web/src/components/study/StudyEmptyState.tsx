@@ -2,14 +2,16 @@
 
 import { useStudy } from "@/app/workspace/environments/study/StudyContext";
 import { Locus } from "@/components/locus";
-import { MOCK_STUDY_MATERIAL } from "@/app/workspace/environments/study/StudyState";
 
 export function StudyEmptyState() {
   const { dispatch } = useStudy();
 
   const handleSelect = () => {
     // In a real app, this would load the specific context
-    dispatch({ type: "START_STUDY", payload: MOCK_STUDY_MATERIAL });
+    dispatch({ 
+      type: "START_STUDY", 
+      payload: { status: "idle", data: null, error: null } 
+    });
   };
 
   const suggestions = [

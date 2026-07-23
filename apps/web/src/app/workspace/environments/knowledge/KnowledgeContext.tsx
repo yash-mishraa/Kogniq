@@ -2,10 +2,13 @@
 
 import { createContext, useContext, useReducer, type ReactNode } from "react";
 import type { KnowledgeState, KnowledgeAction } from "./KnowledgeState";
-import { MOCK_TRANSFORMER_GRAPH } from "./KnowledgeState";
 
 const initialState: KnowledgeState = {
-  graph: MOCK_TRANSFORMER_GRAPH,
+  graph: {
+    status: "idle",
+    data: null,
+    error: null,
+  },
   activeConceptId: null,
   trail: [],
 };

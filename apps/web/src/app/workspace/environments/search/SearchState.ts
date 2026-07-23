@@ -44,7 +44,11 @@ export const initialSearchState: SearchState = {
   query: "",
   activeFilter: "all",
   retrievalState: "idle",
-  findings: [],
+  findings: {
+    status: "idle",
+    data: null,
+    error: null,
+  },
   activeFindingId: null,
 };
 

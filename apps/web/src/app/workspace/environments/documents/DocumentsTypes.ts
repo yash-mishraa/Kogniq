@@ -13,12 +13,15 @@ export interface DocumentItem {
   content?: string; // Mock content for reading
 }
 
+import type { ResourceState } from "@/lib/core/ResourceState";
+
 export interface DocumentsState {
-  documents: DocumentItem[];
+  documents: ResourceState<DocumentItem[]>;
   activeDocumentId: string | null;
 }
 
 export type DocumentsAction =
+  | { type: "SET_DOCUMENTS"; payload: ResourceState<DocumentItem[]> }
   | { type: "IMPORT_DOCUMENT"; payload: DocumentItem }
   | { type: "SELECT_DOCUMENT"; payload: string | null }
   | { type: "UPDATE_STATUS"; payload: { id: string; status: DocumentStatus } };

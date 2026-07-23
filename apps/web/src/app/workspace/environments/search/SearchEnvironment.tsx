@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useSearch, SearchProvider } from "./SearchContext";
 import { SearchSurface, SearchEmptyState, SearchFindings, SearchThinkingState } from "@/components/search";
-import { MOCK_FINDINGS } from "./SearchState";
+import { serviceProvider } from "@/lib/providers";
 
 function SearchEnvironmentBody() {
   const { state, dispatch } = useSearch();
@@ -11,35 +11,31 @@ function SearchEnvironmentBody() {
   useEffect(() => {
     if (state.retrievalState === "idle" && state.query) {
       dispatch({ type: "SET_RETRIEVAL_STATE", payload: "connecting" });
+      dispatch({ type: "SET_FINDINGS", payload: { ...state.findings, status: "loading" } });
       
-      // Simulate "connecting related concepts" state
-      const timer1 = setTimeout(() => {
-        dispatch({ type: "SET_RETRIEVAL_STATE", payload: "found" });
-        
-        // Mock retrieval logic:
-        const queryLower = state.query.toLowerCase();
-        let found = false;
-        
-        for (const [key, results] of Object.entries(MOCK_FINDINGS)) {
-          if (queryLower.includes(key) || key.includes(queryLower)) {
-            dispatch({ type: "SET_FINDINGS", payload: results });
-            found = true;
-            break;
-          }
+      const controller = new AbortController();
+      
+      async function retrieve() {
+        try {
+          const data = await serviceProvider.getProvider().search.search({
+            query: state.query,
+            filter: state.activeFilter,
+            signal: controller.signal
+          });
+          
+          dispatch({ type: "SET_FINDINGS", payload: { status: "ready", data, error: null } });
+          dispatch({ type: "SET_RETRIEVAL_STATE", payload: data.length > 0 ? "found" : "empty" });
+        } catch (err: unknown) {
+          if (err instanceof Error && err.name === "AbortError") return;
+          dispatch({ type: "SET_FINDINGS", payload: { status: "error", data: null, error: err as Error } });
+          dispatch({ type: "SET_RETRIEVAL_STATE", payload: "empty" }); // Or a new error state if preferred
         }
-        
-        if (!found) {
-          // If no mock match, just return empty or default to the first one for demonstration
-          dispatch({ type: "SET_FINDINGS", payload: [] });
-          // If we wanted an empty state, we could set retrievalState to "empty"
-          // dispatch({ type: "SET_RETRIEVAL_STATE", payload: "empty" });
-        }
-        
-      }, 1500);
+      }
 
-      return () => clearTimeout(timer1);
+      retrieve();
+      return () => controller.abort();
     }
-  }, [state.query, state.retrievalState, dispatch]);
+  }, [state.query, state.activeFilter, state.retrievalState, dispatch, state.findings]);
 
   return (
     <SearchSurface>

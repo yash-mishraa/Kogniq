@@ -40,11 +40,14 @@ export interface Notebook {
   entries: NotebookEntry[];
 }
 
+import type { ResourceState } from "@/lib/core/ResourceState";
+
 export interface NotebookState {
-  notebooks: Notebook[];
+  notebooks: ResourceState<Notebook[]>;
   activeNotebookId: string | null;
 }
 
 export type NotebookAction =
+  | { type: "SET_NOTEBOOKS"; payload: ResourceState<Notebook[]> }
   | { type: "SET_ACTIVE_NOTEBOOK"; payload: string }
   | { type: "ADD_THOUGHT"; payload: { notebookId: string; entryId: string; thought: NotebookThought } };

@@ -100,12 +100,18 @@ export const MOCK_NOTEBOOKS: Notebook[] = [
 ];
 
 export const initialNotebookState: NotebookState = {
-  notebooks: MOCK_NOTEBOOKS,
+  notebooks: {
+    status: "idle",
+    data: null,
+    error: null,
+  },
   activeNotebookId: "transformer-research",
 };
 
 export function notebookReducer(state: NotebookState, action: NotebookAction): NotebookState {
   switch (action.type) {
+    case "SET_NOTEBOOKS":
+      return { ...state, notebooks: action.payload };
     case "SET_ACTIVE_NOTEBOOK":
       return { ...state, activeNotebookId: action.payload };
     case "ADD_THOUGHT": {

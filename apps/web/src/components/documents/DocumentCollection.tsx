@@ -23,7 +23,7 @@ export function DocumentCollection() {
       )}
       <ul className="flex flex-col gap-1 pb-24">
         <AnimatePresence initial={false}>
-          {documents.map((doc) => {
+          {documents.data && documents.data.map((doc) => {
             const isActive = activeDocumentId === doc.id;
 
             // When a document is active, we might still show other documents but subdued, 

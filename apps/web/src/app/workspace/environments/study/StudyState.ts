@@ -70,7 +70,11 @@ export const MOCK_STUDY_MATERIAL: StudyMaterial = {
 export const initialStudyState: StudyState = {
   isStudying: false,
   activeMode: "understand",
-  material: null,
+  material: {
+    status: "idle",
+    data: null,
+    error: null,
+  },
   recallIndex: 0,
   testIndex: 0,
 };

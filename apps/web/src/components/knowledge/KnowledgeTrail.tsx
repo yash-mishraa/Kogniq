@@ -3,11 +3,13 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useKnowledge } from "@/app/workspace/environments/knowledge/KnowledgeContext";
 
+import type { KnowledgeConcept } from "@/app/workspace/environments/knowledge/KnowledgeTypes";
+
 export function KnowledgeTrail() {
   const { state, dispatch } = useKnowledge();
   const { trail, graph, activeConceptId } = state;
 
-  if (trail.length === 0 || !graph) return null;
+  if (trail.length === 0 || !graph || !graph.data) return null;
 
   return (
     <motion.div 
@@ -22,7 +24,7 @@ export function KnowledgeTrail() {
       <div className="flex-1 overflow-y-auto pointer-events-auto flex flex-col gap-6 no-scrollbar">
         <AnimatePresence initial={false}>
           {trail.map((conceptId, index) => {
-            const concept = graph.concepts.find(c => c.id === conceptId);
+            const concept = graph.data?.concepts.find((c: KnowledgeConcept) => c.id === conceptId);
             if (!concept) return null;
             
             const isLast = index === trail.length - 1;

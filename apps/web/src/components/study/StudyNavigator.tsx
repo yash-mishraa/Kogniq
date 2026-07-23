@@ -6,7 +6,7 @@ import { useStudy } from "@/app/workspace/environments/study/StudyContext";
 export function StudyNavigator() {
   const { state, dispatch } = useStudy();
 
-  if (!state.isStudying || !state.material) return null;
+  if (!state.isStudying || !state.material || !state.material.data) return null;
 
   const currentMode = state.activeMode;
   let nextAction: { label: string; onClick: () => void } | null = null;
@@ -22,7 +22,7 @@ export function StudyNavigator() {
       onClick: () => dispatch({ type: "SET_MODE", payload: "recall" }),
     };
   } else if (currentMode === "recall") {
-    if (state.recallIndex < state.material.recall.length - 1) {
+    if (state.recallIndex < state.material.data.recall.length - 1) {
       nextAction = {
         label: "Next Concept →",
         onClick: () => dispatch({ type: "NEXT_RECALL" }),
@@ -34,7 +34,7 @@ export function StudyNavigator() {
       };
     }
   } else if (currentMode === "test") {
-    if (state.testIndex < state.material.test.length - 1) {
+    if (state.testIndex < state.material.data.test.length - 1) {
       nextAction = {
         label: "Next Question →",
         onClick: () => dispatch({ type: "NEXT_TEST" }),

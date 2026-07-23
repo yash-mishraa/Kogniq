@@ -23,14 +23,14 @@ export function SearchFindings() {
         <SearchFilters activeFilter={activeFilter} onFilterChange={(f) => dispatch({ type: "SET_FILTER", payload: f })} />
       </div>
 
-      {findings.length === 0 ? (
+      {(!findings.data || findings.data.length === 0) ? (
         <div className="pt-12 text-ink/40 font-serif text-lg tracking-tight">
           No semantic matches found.
         </div>
       ) : (
         <ul className="flex flex-col gap-1 pb-24">
           <AnimatePresence initial={false}>
-            {findings.map((finding) => {
+            {findings.data.map((finding) => {
               const isActive = activeFindingId === finding.id;
 
               return (

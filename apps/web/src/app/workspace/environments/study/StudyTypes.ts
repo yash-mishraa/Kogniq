@@ -37,16 +37,18 @@ export interface StudyMaterial {
   test: TestContent[];
 }
 
+import type { ResourceState } from "@/lib/core/ResourceState";
+
 export interface StudyState {
   isStudying: boolean;
   activeMode: LearningMode;
-  material: StudyMaterial | null;
+  material: ResourceState<StudyMaterial>;
   recallIndex: number;
   testIndex: number;
 }
 
 export type StudyAction =
-  | { type: "START_STUDY"; payload: StudyMaterial }
+  | { type: "START_STUDY"; payload: ResourceState<StudyMaterial> }
   | { type: "SET_MODE"; payload: LearningMode }
   | { type: "NEXT_RECALL" }
   | { type: "NEXT_TEST" }

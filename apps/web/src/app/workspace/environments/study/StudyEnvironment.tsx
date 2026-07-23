@@ -3,10 +3,36 @@
 import { useStudy, StudyProvider } from "./StudyContext";
 import { StudySurface, StudyEmptyState, StudyPerspective, StudyTimeline, StudyNavigator, StudyContextPanel } from "@/components/study";
 
-function StudyEnvironmentBody() {
-  const { state } = useStudy();
+import { useEffect } from "react";
+import { serviceProvider } from "@/lib/providers";
 
-  if (!state.isStudying || !state.material) {
+function StudyEnvironmentBody() {
+  const { state, dispatch } = useStudy();
+
+  useEffect(() => {
+    if (state.isStudying && state.material.status === "idle") {
+      const controller = new AbortController();
+      
+      async function hydrate() {
+        dispatch({ type: "START_STUDY", payload: { ...state.material, status: "loading" } });
+        try {
+          const data = await serviceProvider.getProvider().study.generateMaterial({
+            topicId: "transformer-architecture", // Mock ID for now
+            signal: controller.signal
+          });
+          dispatch({ type: "START_STUDY", payload: { status: "ready", data, error: null } });
+        } catch (err: unknown) {
+          if (err instanceof Error && err.name === "AbortError") return;
+          dispatch({ type: "START_STUDY", payload: { status: "error", data: null, error: err as Error } });
+        }
+      }
+      
+      hydrate();
+      return () => controller.abort();
+    }
+  }, [state.isStudying, state.material, dispatch]);
+
+  if (!state.isStudying) {
     return (
       <StudySurface>
         <StudyEmptyState />
@@ -14,12 +40,34 @@ function StudyEnvironmentBody() {
     );
   }
 
+  if (state.material.status === "loading") {
+    return (
+      <StudySurface>
+        <div className="flex-1 flex items-center justify-center h-full">
+          <p className="text-secondary text-lg">Preparing study material...</p>
+        </div>
+      </StudySurface>
+    );
+  }
+
+  if (state.material.status === "error") {
+    return (
+      <StudySurface>
+        <div className="flex-1 flex items-center justify-center h-full">
+          <p className="text-secondary text-lg">Unable to generate study material right now.</p>
+        </div>
+      </StudySurface>
+    );
+  }
+
+  if (!state.material.data) return null;
+
   return (
     <StudySurface>
       <div className="flex w-full h-full">
         {/* Left Panel: The Learning Context */}
         <div className="w-64 flex-shrink-0 pt-12 pr-8 hidden md:block">
-          <StudyContextPanel concept={state.material.concept} />
+          <StudyContextPanel concept={state.material.data.concept} />
         </div>
 
         {/* Center Canvas: The Learning Content */}

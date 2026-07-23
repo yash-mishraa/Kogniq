@@ -1,13 +1,15 @@
 import type { KnowledgeConceptId, KnowledgeGraph } from "./KnowledgeTypes";
 
+import type { ResourceState } from "@/lib/core/ResourceState";
+
 export interface KnowledgeState {
-  graph: KnowledgeGraph | null;
+  graph: ResourceState<KnowledgeGraph>;
   activeConceptId: KnowledgeConceptId | null;
   trail: KnowledgeConceptId[]; // History of visited concepts
 }
 
 export type KnowledgeAction =
-  | { type: "SET_GRAPH"; payload: KnowledgeGraph }
+  | { type: "SET_GRAPH"; payload: ResourceState<KnowledgeGraph> }
   | { type: "SELECT_CONCEPT"; payload: KnowledgeConceptId | null };
 
 export const MOCK_TRANSFORMER_GRAPH: KnowledgeGraph = {

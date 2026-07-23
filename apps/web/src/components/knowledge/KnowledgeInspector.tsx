@@ -2,14 +2,15 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useKnowledge } from "@/app/workspace/environments/knowledge/KnowledgeContext";
+import type { KnowledgeConcept, KnowledgeRelationship, KnowledgeEvidence } from "@/app/workspace/environments/knowledge/KnowledgeTypes";
 
 export function KnowledgeInspector() {
   const { state, dispatch } = useKnowledge();
   const { graph, activeConceptId } = state;
 
-  if (!graph) return null;
+  if (!graph || !graph.data) return null;
 
-  const concept = activeConceptId ? graph.concepts.find(c => c.id === activeConceptId) : null;
+  const concept = activeConceptId ? graph.data.concepts.find((c: KnowledgeConcept) => c.id === activeConceptId) : null;
 
   return (
     <AnimatePresence>
@@ -40,11 +41,11 @@ export function KnowledgeInspector() {
                 Related Concepts
               </h3>
               <ul className="flex flex-col gap-3">
-                {graph.relationships
-                  .filter(r => r.sourceId === concept.id || r.targetId === concept.id)
-                  .map(r => {
+                {graph.data.relationships
+                  .filter((r: KnowledgeRelationship) => r.sourceId === concept.id || r.targetId === concept.id)
+                  .map((r: KnowledgeRelationship) => {
                     const relatedId = r.sourceId === concept.id ? r.targetId : r.sourceId;
-                    const relatedConcept = graph.concepts.find(c => c.id === relatedId);
+                    const relatedConcept = graph.data!.concepts.find((c: KnowledgeConcept) => c.id === relatedId);
                     if (!relatedConcept) return null;
 
                     return (
@@ -68,9 +69,9 @@ export function KnowledgeInspector() {
                 Evidence
               </h3>
               <div className="flex flex-col gap-6">
-                {graph.evidence
-                  .filter(e => e.conceptId === concept.id)
-                  .map((evidence, idx) => (
+                {graph.data.evidence
+                  .filter((e: KnowledgeEvidence) => e.conceptId === concept.id)
+                  .map((evidence: KnowledgeEvidence, idx: number) => (
                     <div key={idx} className="flex flex-col gap-3">
                       <div className="text-[11px] font-mono text-ink/40">
                         {evidence.documentId}
@@ -80,7 +81,7 @@ export function KnowledgeInspector() {
                       </blockquote>
                     </div>
                   ))}
-                {graph.evidence.filter(e => e.conceptId === concept.id).length === 0 && (
+                {graph.data.evidence.filter((e: KnowledgeEvidence) => e.conceptId === concept.id).length === 0 && (
                   <div className="text-ink/30 italic text-sm">
                     No direct textual evidence available.
                   </div>
