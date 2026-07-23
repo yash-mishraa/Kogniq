@@ -4,6 +4,7 @@ import { documentsEnvironment } from "./documents";
 import { flashcardsEnvironment } from "./flashcards";
 import { graphEnvironment } from "./graph";
 import { knowledgeEnvironment } from "./knowledge";
+import { notebookEnvironment } from "./notebook";
 import { quizEnvironment } from "./quiz";
 import { searchEnvironment } from "./search";
 import { studioEnvironment } from "./studio";
@@ -18,5 +19,5 @@ export class EnvironmentRegistry {
   listEnvironments() { return [...this.entries.values()]; }
 }
 
-export const environmentRegistry = new EnvironmentRegistry([documentsEnvironment, graphEnvironment, knowledgeEnvironment, searchEnvironment, studioEnvironment, studyEnvironment, flashcardsEnvironment, quizEnvironment, analyticsEnvironment]);
+export const environmentRegistry = new EnvironmentRegistry([documentsEnvironment, graphEnvironment, knowledgeEnvironment, searchEnvironment, studioEnvironment, studyEnvironment, notebookEnvironment, flashcardsEnvironment, quizEnvironment, analyticsEnvironment]);
 export const environments = environmentRegistry.listEnvironments();

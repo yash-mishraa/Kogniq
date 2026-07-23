@@ -13,7 +13,7 @@ function WorkspaceProbe() {
 
 describe("Workspace Engine foundation", () => {
   it("registers every metadata-only environment", () => {
-    expect(environmentRegistry.listEnvironments().map((environment) => environment.id)).toEqual(["documents", "graph", "knowledge", "search", "studio", "study", "flashcards", "quiz", "analytics"]);
+    expect(environmentRegistry.listEnvironments().map((environment) => environment.id)).toEqual(["documents", "graph", "knowledge", "search", "studio", "study", "notebook", "flashcards", "quiz", "analytics"]);
     const registry = new EnvironmentRegistry();
     registry.registerEnvironment(environmentRegistry.getEnvironment("documents")!);
     expect(registry.getEnvironment("documents")?.locusPlaceholder).toBe("Import knowledge…");

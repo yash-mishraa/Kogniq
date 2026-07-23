@@ -9,6 +9,7 @@ import { DocumentsEnvironment } from "./environments/documents/DocumentsEnvironm
 import { KnowledgeEnvironment } from "./environments/knowledge/KnowledgeEnvironment";
 import { SearchEnvironment } from "./environments/search/SearchEnvironment";
 import { StudyEnvironment } from "./environments/study/StudyEnvironment";
+import { NotebookEnvironment } from "./environments/notebook/NotebookEnvironment";
 import { WorkspaceContent, WorkspaceEmptyState, WorkspaceFooter, WorkspaceHeader, WorkspaceSurface, WorkspaceTransitionBoundary } from "@/components/workspace";
 
 export function WorkspaceEngine({ initialEnvironmentId, onLeave }: { initialEnvironmentId: EnvironmentId; onLeave?: () => void }) { return <WorkspaceProvider initialEnvironmentId={initialEnvironmentId}><WorkspaceEngineBody onLeave={onLeave} /></WorkspaceProvider>; }
@@ -30,6 +31,8 @@ function WorkspaceEngineBody({ onLeave }: { onLeave?: () => void }) {
     environmentContent = <SearchEnvironment />;
   } else if (activeEnvironmentId === "study") {
     environmentContent = <StudyEnvironment />;
+  } else if (activeEnvironmentId === "notebook") {
+    environmentContent = <NotebookEnvironment />;
   } else {
     environmentContent = <WorkspaceEmptyState environment={environment} />;
   }
