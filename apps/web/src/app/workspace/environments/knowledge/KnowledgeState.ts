@@ -10,7 +10,9 @@ export interface KnowledgeState {
 
 export type KnowledgeAction =
   | { type: "SET_GRAPH"; payload: ResourceState<KnowledgeGraph> }
-  | { type: "SELECT_CONCEPT"; payload: KnowledgeConceptId | null };
+  | { type: "SELECT_CONCEPT"; payload: KnowledgeConceptId | null }
+  | { type: "START_HYDRATION"; payload: { requestId: string } }
+  | { type: "ABORT_HYDRATION"; payload: { requestId: string } };
 
 export const MOCK_TRANSFORMER_GRAPH: KnowledgeGraph = {
   concepts: [

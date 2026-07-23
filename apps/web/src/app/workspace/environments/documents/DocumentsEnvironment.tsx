@@ -14,24 +14,32 @@ function DocumentsEnvironmentBody() {
   const activeDocument = documents.data?.find((doc) => doc.id === activeDocumentId);
 
   useEffect(() => {
-    if (documents.status !== "idle") return;
-    
+    let isMounted = true;
     const controller = new AbortController();
     
     async function hydrate() {
-      dispatch({ type: "SET_DOCUMENTS", payload: { ...documents, status: "loading" } });
+      const currentRequestId = crypto.randomUUID();
+      dispatch({ type: "START_HYDRATION", payload: { requestId: currentRequestId } });
       try {
         const data = await serviceProvider.getProvider().documents.getDocuments(controller.signal);
-        dispatch({ type: "SET_DOCUMENTS", payload: { status: "ready", data, error: null } });
+        if (isMounted) {
+          dispatch({ type: "SET_DOCUMENTS", payload: { status: "ready", data, error: null, requestId: currentRequestId } });
+        }
       } catch (err: unknown) {
-        if (err instanceof Error && err.name === "AbortError") return;
-        dispatch({ type: "SET_DOCUMENTS", payload: { status: "error", data: null, error: err as Error } });
+        if (isMounted) {
+          if (err instanceof Error && err.name === "AbortError") return;
+          dispatch({ type: "SET_DOCUMENTS", payload: { status: "error", data: null, error: err as Error, requestId: currentRequestId } });
+        }
       }
     }
     
     hydrate();
-    return () => controller.abort();
-  }, [documents.status, dispatch, documents]);
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+    
+  }, [dispatch]);
 
   if (documents.status === "loading") {
     return (

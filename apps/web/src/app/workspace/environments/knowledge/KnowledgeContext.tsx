@@ -3,11 +3,14 @@
 import { createContext, useContext, useReducer, type ReactNode } from "react";
 import type { KnowledgeState, KnowledgeAction } from "./KnowledgeState";
 
+import { abortResourceHydration, startResourceHydration } from "@/lib/core/ResourceState";
+
 const initialState: KnowledgeState = {
   graph: {
     status: "idle",
     data: null,
     error: null,
+    requestId: undefined,
   },
   activeConceptId: null,
   trail: [],
@@ -17,6 +20,10 @@ function knowledgeReducer(state: KnowledgeState, action: KnowledgeAction): Knowl
   switch (action.type) {
     case "SET_GRAPH":
       return { ...state, graph: action.payload, activeConceptId: null, trail: [] };
+    case "START_HYDRATION":
+      return { ...state, graph: startResourceHydration(state.graph, action.payload.requestId) };
+    case "ABORT_HYDRATION":
+      return { ...state, graph: abortResourceHydration(state.graph, action.payload.requestId) };
     case "SELECT_CONCEPT": {
       const newConceptId = action.payload;
       

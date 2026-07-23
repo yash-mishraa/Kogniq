@@ -9,9 +9,11 @@ function SearchEnvironmentBody() {
   const { state, dispatch } = useSearch();
 
   useEffect(() => {
-    if (state.retrievalState === "idle" && state.query) {
+    if (state.query) {
+      let isMounted = true;
+      const currentRequestId = crypto.randomUUID();
       dispatch({ type: "SET_RETRIEVAL_STATE", payload: "connecting" });
-      dispatch({ type: "SET_FINDINGS", payload: { ...state.findings, status: "loading" } });
+      dispatch({ type: "START_HYDRATION", payload: { requestId: currentRequestId } });
       
       const controller = new AbortController();
       
@@ -23,19 +25,27 @@ function SearchEnvironmentBody() {
             signal: controller.signal
           });
           
-          dispatch({ type: "SET_FINDINGS", payload: { status: "ready", data, error: null } });
-          dispatch({ type: "SET_RETRIEVAL_STATE", payload: data.length > 0 ? "found" : "empty" });
+          if (isMounted) {
+            dispatch({ type: "SET_FINDINGS", payload: { status: "ready", data, error: null, requestId: currentRequestId } });
+            dispatch({ type: "SET_RETRIEVAL_STATE", payload: data.length > 0 ? "found" : "empty" });
+          }
         } catch (err: unknown) {
-          if (err instanceof Error && err.name === "AbortError") return;
-          dispatch({ type: "SET_FINDINGS", payload: { status: "error", data: null, error: err as Error } });
-          dispatch({ type: "SET_RETRIEVAL_STATE", payload: "empty" }); // Or a new error state if preferred
+          if (isMounted) {
+            if (err instanceof Error && err.name === "AbortError") return;
+            dispatch({ type: "SET_FINDINGS", payload: { status: "error", data: null, error: err as Error, requestId: currentRequestId } });
+            dispatch({ type: "SET_RETRIEVAL_STATE", payload: "empty" }); // Or a new error state if preferred
+          }
         }
       }
 
       retrieve();
-      return () => controller.abort();
+      return () => {
+        isMounted = false;
+        controller.abort();
+      };
     }
-  }, [state.query, state.activeFilter, state.retrievalState, dispatch, state.findings]);
+    
+  }, [state.query, state.activeFilter, dispatch]);
 
   return (
     <SearchSurface>

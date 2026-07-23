@@ -11,24 +11,32 @@ function NotebookEnvironmentBody() {
   const { notebooks } = state;
 
   useEffect(() => {
-    if (notebooks.status !== "idle") return;
-    
+    let isMounted = true;
     const controller = new AbortController();
     
     async function hydrate() {
-      dispatch({ type: "SET_NOTEBOOKS", payload: { ...notebooks, status: "loading" } });
+      const currentRequestId = crypto.randomUUID();
+      dispatch({ type: "START_HYDRATION", payload: { requestId: currentRequestId } });
       try {
         const data = await serviceProvider.getProvider().notebooks.getNotebooks(controller.signal);
-        dispatch({ type: "SET_NOTEBOOKS", payload: { status: "ready", data, error: null } });
+        if (isMounted) {
+          dispatch({ type: "SET_NOTEBOOKS", payload: { status: "ready", data, error: null, requestId: currentRequestId } });
+        }
       } catch (err: unknown) {
-        if (err instanceof Error && err.name === "AbortError") return;
-        dispatch({ type: "SET_NOTEBOOKS", payload: { status: "error", data: null, error: err as Error } });
+        if (isMounted) {
+          if (err instanceof Error && err.name === "AbortError") return;
+          dispatch({ type: "SET_NOTEBOOKS", payload: { status: "error", data: null, error: err as Error, requestId: currentRequestId } });
+        }
       }
     }
     
     hydrate();
-    return () => controller.abort();
-  }, [notebooks.status, dispatch, notebooks]);
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+    
+  }, [dispatch]);
 
   if (notebooks.status === "loading") {
     return (

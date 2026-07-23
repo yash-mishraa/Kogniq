@@ -8,9 +8,9 @@ import { motion } from "framer-motion";
 
 import type { KnowledgeConcept, KnowledgeRelationship as KnowledgeRelationshipType } from "@/app/workspace/environments/knowledge/KnowledgeTypes";
 
-// Hardcoded intentional, editorial positions for the mock knowledge graph
+// Hardcoded intentional, editorial positions for the canonical knowledge graph
 // In a real app, this would be computed via an intentional layout algorithm (e.g., hierarchical or semantic clustering) rather than force simulation.
-const MOCK_LAYOUT: Record<string, { x: number; y: number }> = {
+const KNOWLEDGE_LAYOUT: Record<string, { x: number; y: number }> = {
   "transformer": { x: 50, y: 15 },
   
   "encoder": { x: 30, y: 35 },
@@ -54,8 +54,8 @@ export function KnowledgeMap() {
         {/* SVG layer for subtle relationship edges */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none">
           {graph.data.relationships.map((rel: KnowledgeRelationshipType, idx: number) => {
-            const sourcePos = MOCK_LAYOUT[rel.sourceId];
-            const targetPos = MOCK_LAYOUT[rel.targetId];
+            const sourcePos = KNOWLEDGE_LAYOUT[rel.sourceId];
+            const targetPos = KNOWLEDGE_LAYOUT[rel.targetId];
             if (!sourcePos || !targetPos) return null;
 
             const isFaded = activeConceptId && !activeRegionIds.has(rel.sourceId) && !activeRegionIds.has(rel.targetId);
@@ -75,7 +75,7 @@ export function KnowledgeMap() {
 
         {/* Nodes layer */}
         {graph.data.concepts.map((concept: KnowledgeConcept) => {
-          const pos = MOCK_LAYOUT[concept.id];
+          const pos = KNOWLEDGE_LAYOUT[concept.id];
           if (!pos) return null;
 
           const isSelected = concept.id === activeConceptId;

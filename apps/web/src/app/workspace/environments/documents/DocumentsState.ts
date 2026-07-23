@@ -1,4 +1,5 @@
 import type { DocumentsState, DocumentsAction, DocumentItem } from "./DocumentsTypes";
+import { abortResourceHydration, startResourceHydration } from "@/lib/core/ResourceState";
 
 export const MOCK_DOCUMENTS: DocumentItem[] = [
   {
@@ -88,6 +89,16 @@ export function documentsReducer(state: DocumentsState, action: DocumentsAction)
             doc.id === action.payload.id ? { ...doc, status: action.payload.status } : doc
           ),
         }
+      };
+    case "START_HYDRATION":
+      return {
+        ...state,
+        documents: startResourceHydration(state.documents, action.payload.requestId),
+      };
+    case "ABORT_HYDRATION":
+      return {
+        ...state,
+        documents: abortResourceHydration(state.documents, action.payload.requestId),
       };
     default:
       return state;

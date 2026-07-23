@@ -2,13 +2,16 @@
 
 import { useNotebook } from "@/app/workspace/environments/notebook/NotebookContext";
 import { Locus } from "@/components/locus";
-import { MOCK_NOTEBOOKS } from "@/app/workspace/environments/notebook/NotebookState";
 
 export function NotebookEmptyState() {
-  const { dispatch } = useNotebook();
+  const { state, dispatch } = useNotebook();
 
   const handleSelect = () => {
-    dispatch({ type: "SET_ACTIVE_NOTEBOOK", payload: MOCK_NOTEBOOKS[0].id });
+    const defaultId = state.notebooks.data && state.notebooks.data.length > 0
+      ? state.notebooks.data[0].id
+      : crypto.randomUUID();
+      
+    dispatch({ type: "SET_ACTIVE_NOTEBOOK", payload: defaultId });
   };
 
   const suggestions = [

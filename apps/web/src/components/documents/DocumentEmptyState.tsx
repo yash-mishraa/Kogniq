@@ -18,7 +18,7 @@ export function DocumentEmptyState() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Mock import action
+      
       dispatch({
         type: "IMPORT_DOCUMENT",
         payload: {

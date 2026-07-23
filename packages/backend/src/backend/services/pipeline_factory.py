@@ -14,17 +14,43 @@ class PipelineFactory:
     def create(cls) -> DocumentIntelligencePipeline:
         pipeline_mock = MagicMock(spec=DocumentIntelligencePipeline)
 
-        def mock_run(handle) -> MagicMock:
+        from typing import Any
+
+        def mock_run(handle: Any) -> MagicMock:
             result_mock = MagicMock()
-            from content.chunking.collection import ChunkCollection
+            from datetime import UTC, datetime
+
             from embedding.collection import EmbeddingCollection
             from knowledge.graph import KnowledgeGraph
             from pipeline.result import PipelineExecutionMetadata
-            from datetime import UTC, datetime
 
-            result_mock.content.chunks = ChunkCollection(chunks=())
+            from content.chunking import Chunk, ChunkMetadata, ChunkStatistics
+            from content.chunking.collection import ChunkCollection
+
+            dummy_chunk = Chunk(
+                id="c1",
+                document_id=handle.id,
+                chunk_index=0,
+                text="test chunk",
+                created_at=datetime.now(UTC),
+                metadata=ChunkMetadata(
+                    processor="mock", document_version="v1", source="mock", checksum="123"
+                ),
+                statistics=ChunkStatistics(
+                    character_count=10,
+                    line_count=1,
+                    word_count=2,
+                    estimated_tokens=2,
+                    processing_timestamp=datetime.now(UTC),
+                    confidence=1.0,
+                ),
+            )
+
+            result_mock.content.chunks = ChunkCollection(chunks=(dummy_chunk,))
             result_mock.embeddings.collection = EmbeddingCollection(embeddings=())
-            result_mock.knowledge.extraction_result.graph = KnowledgeGraph(concepts=(), relationships=())
+            result_mock.knowledge.extraction_result.graph = KnowledgeGraph(
+                concepts=(), relationships=()
+            )
             result_mock.metadata = PipelineExecutionMetadata(
                 started_at=datetime.now(UTC),
                 completed_at=datetime.now(UTC),
@@ -45,7 +71,9 @@ class PipelineFactory:
             from content.normalized.metadata import DocumentMetadata
             from content.normalized.page import NormalizedPage
 
-            block = NormalizedBlock(block_id="b1", block_type=BlockType.PARAGRAPH, text="test", order=0)
+            block = NormalizedBlock(
+                block_id="b1", block_type=BlockType.PARAGRAPH, text="test", order=0
+            )
             page = NormalizedPage(page_number=1, blocks=(block,))
 
             result_mock.content.document = NormalizedDocument(

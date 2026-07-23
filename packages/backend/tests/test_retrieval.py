@@ -96,7 +96,27 @@ def client_with_mocks(
     import asyncio
 
     async def seed() -> None:
+        from content.normalized.block import NormalizedBlock
+        from content.normalized.document import NormalizedDocument
+        from content.normalized.enums import BlockType
+        from content.normalized.metadata import DocumentMetadata
+        from content.normalized.page import NormalizedPage
+
+        block = NormalizedBlock(block_id="b1", block_type=BlockType.PARAGRAPH, text="test", order=0)
+        page = NormalizedPage(page_number=1, blocks=(block,))
+
+        doc = NormalizedDocument(
+            id="test-doc",
+            title="Test Doc",
+            source="mock",
+            checksum="123",
+            version="v1",
+            pages=(page,),
+            metadata=DocumentMetadata(author="test"),
+            created_at=datetime.now(UTC),
+        )
         with uow_factory.create() as uow:
+            await uow.documents.save(doc)
             await uow.chunks.save(mock_chunks)
 
     asyncio.run(seed())
@@ -182,6 +202,57 @@ def test_retrieval_chunk_repository_miss() -> None:
     app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
     uow_factory = get_uow_factory()
 
+    async def seed() -> None:
+        from content.chunking.chunk import Chunk
+        from content.chunking.collection import ChunkCollection
+        from content.chunking.metadata import ChunkMetadata
+        from content.chunking.statistics import ChunkStatistics
+
+        chunk = Chunk(
+            id="chunk-0",
+            document_id="test-doc",
+            chunk_index=0,
+            text="Mock content",
+            metadata=ChunkMetadata(
+                processor="mock", document_version="v1", source="mock", checksum="123"
+            ),
+            statistics=ChunkStatistics(
+                character_count=10,
+                line_count=1,
+                word_count=2,
+                estimated_tokens=2,
+                processing_timestamp=datetime.now(UTC),
+                confidence=1.0,
+            ),
+            created_at=datetime.now(UTC),
+        )
+        from content.normalized.block import NormalizedBlock
+        from content.normalized.document import NormalizedDocument
+        from content.normalized.enums import BlockType
+        from content.normalized.metadata import DocumentMetadata
+        from content.normalized.page import NormalizedPage
+
+        block = NormalizedBlock(block_id="b1", block_type=BlockType.PARAGRAPH, text="test", order=0)
+        page = NormalizedPage(page_number=1, blocks=(block,))
+
+        doc = NormalizedDocument(
+            id="test-doc",
+            title="Test Doc",
+            source="mock",
+            checksum="123",
+            version="v1",
+            pages=(page,),
+            metadata=DocumentMetadata(author="test"),
+            created_at=datetime.now(UTC),
+        )
+        with uow_factory.create() as uow:
+            await uow.documents.save(doc)
+            await uow.chunks.save(ChunkCollection(chunks=(chunk,)))
+
+    import asyncio
+
+    asyncio.run(seed())
+
     bad_results = [
         RetrievalResult(
             query_id="q1",
@@ -224,6 +295,57 @@ def test_retriever_exception_translation() -> None:
     app = create_app()
     app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
     uow_factory = get_uow_factory()
+
+    async def seed() -> None:
+        from content.chunking.chunk import Chunk
+        from content.chunking.collection import ChunkCollection
+        from content.chunking.metadata import ChunkMetadata
+        from content.chunking.statistics import ChunkStatistics
+
+        chunk = Chunk(
+            id="chunk-0",
+            document_id="test-doc",
+            chunk_index=0,
+            text="Mock content",
+            metadata=ChunkMetadata(
+                processor="mock", document_version="v1", source="mock", checksum="123"
+            ),
+            statistics=ChunkStatistics(
+                character_count=10,
+                line_count=1,
+                word_count=2,
+                estimated_tokens=2,
+                processing_timestamp=datetime.now(UTC),
+                confidence=1.0,
+            ),
+            created_at=datetime.now(UTC),
+        )
+        from content.normalized.block import NormalizedBlock
+        from content.normalized.document import NormalizedDocument
+        from content.normalized.enums import BlockType
+        from content.normalized.metadata import DocumentMetadata
+        from content.normalized.page import NormalizedPage
+
+        block = NormalizedBlock(block_id="b1", block_type=BlockType.PARAGRAPH, text="test", order=0)
+        page = NormalizedPage(page_number=1, blocks=(block,))
+
+        doc = NormalizedDocument(
+            id="test-doc",
+            title="Test Doc",
+            source="mock",
+            checksum="123",
+            version="v1",
+            pages=(page,),
+            metadata=DocumentMetadata(author="test"),
+            created_at=datetime.now(UTC),
+        )
+        with uow_factory.create() as uow:
+            await uow.documents.save(doc)
+            await uow.chunks.save(ChunkCollection(chunks=(chunk,)))
+
+    import asyncio
+
+    asyncio.run(seed())
 
     retriever = MockRetriever([], should_fail=True)
     mock_service = RetrievalService(

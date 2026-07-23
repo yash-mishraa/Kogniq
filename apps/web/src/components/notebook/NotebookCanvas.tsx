@@ -35,9 +35,9 @@ export function NotebookCanvas({ notebook }: NotebookCanvasProps) {
             environmentTitle="Notebook"
             placeholder="│ Capture an idea..."
             mode="free-text"
-            onSubmitQuery={(query) => {
+            onSubmitQuery={() => {
               // In the future this would create an observation/question
-              console.log("Captured:", query);
+              
             }}
           />
         </div>

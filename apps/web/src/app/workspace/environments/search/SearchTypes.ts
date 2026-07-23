@@ -32,4 +32,6 @@ export type SearchAction =
   | { type: "SET_RETRIEVAL_STATE"; payload: RetrievalState }
   | { type: "SET_FINDINGS"; payload: ResourceState<SearchFinding[]> }
   | { type: "SELECT_FINDING"; payload: string | null }
-  | { type: "RESET" };
+  | { type: "RESET" }
+  | { type: "START_HYDRATION"; payload: { requestId: string } }
+  | { type: "ABORT_HYDRATION"; payload: { requestId: string } };

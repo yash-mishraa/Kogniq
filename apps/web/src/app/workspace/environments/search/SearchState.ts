@@ -1,4 +1,5 @@
 import type { SearchState, SearchAction, SearchFinding } from "./SearchTypes";
+import { abortResourceHydration, startResourceHydration } from "@/lib/core/ResourceState";
 
 export const MOCK_FINDINGS: Record<string, SearchFinding[]> = {
   "self attention": [
@@ -62,6 +63,14 @@ export function searchReducer(state: SearchState, action: SearchAction): SearchS
       return { ...state, retrievalState: action.payload };
     case "SET_FINDINGS":
       return { ...state, findings: action.payload };
+    case "START_HYDRATION":
+      return { ...state, findings: startResourceHydration(state.findings, action.payload.requestId) };
+    case "ABORT_HYDRATION":
+      return { 
+        ...state, 
+        findings: abortResourceHydration(state.findings, action.payload.requestId),
+        retrievalState: state.findings.requestId === action.payload.requestId ? "idle" : state.retrievalState
+      };
     case "SELECT_FINDING":
       return { ...state, activeFindingId: action.payload };
     case "RESET":

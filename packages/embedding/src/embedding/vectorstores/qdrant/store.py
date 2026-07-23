@@ -188,15 +188,16 @@ class QdrantVectorStore(AbstractVectorStore):
                 )
 
                 from typing import cast
+
                 # Recover vector values
                 vec_values_raw = hit.vector if hit.vector is not None else []
                 if isinstance(vec_values_raw, dict):
-                    # In some qdrant versions, named vectors might return a dict. 
+                    # In some qdrant versions, named vectors might return a dict.
                     # Assuming default unnamed vector:
                     vec_values = vec_values_raw.get("", [])
                 else:
                     vec_values = vec_values_raw
-                
+
                 # Make mypy happy by ensuring we pass a sequence of floats
                 if (
                     isinstance(vec_values, list)

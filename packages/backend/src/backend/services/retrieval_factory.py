@@ -26,7 +26,7 @@ class RetrievalFactory:
             provider = LocalEmbeddingProvider()
 
             from embedding.vectorstores.interfaces import AbstractVectorStore
-            
+
             vector_store: AbstractVectorStore
             if self.settings.vector_store_provider == "qdrant":
                 manager = QdrantClientManager(url=self.settings.qdrant_url)

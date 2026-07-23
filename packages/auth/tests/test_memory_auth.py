@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from auth.exceptions import UserAlreadyExistsError, UserNotFoundError
 from auth.memory import MemoryAuthenticationProvider, MemoryUserRepository
 from auth.models import (
     AuthenticationRequest,
@@ -40,7 +41,7 @@ async def test_create_duplicate_user(repo: MemoryUserRepository) -> None:
 
     await repo.create_user(user1)
 
-    with pytest.raises(ValueError, match="already exists"):
+    with pytest.raises(UserAlreadyExistsError, match="already exists"):
         await repo.create_user(user2)
 
 
@@ -81,7 +82,7 @@ async def test_authentication_missing_user(provider: MemoryAuthenticationProvide
     request = AuthenticationRequest(
         provider=AuthProvider.LOCAL, payload={"email": "unknown@kogniq.ai"}
     )
-    with pytest.raises(ValueError, match="User not found"):
+    with pytest.raises(UserNotFoundError, match="User not found"):
         await provider.authenticate(request)
 
 

@@ -2,23 +2,70 @@
 
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import { useForm } from "react-hook-form";
-import { type KeyboardEvent, useState } from "react";
+import { type KeyboardEvent, useState, useEffect } from "react";
 import { environments } from "@/app/workspace/environments";
 import { WorkspaceEngine } from "@/app/workspace/WorkspaceEngine";
-import type { EnvironmentId } from "@/app/workspace/WorkspaceTypes";
+import type { EnvironmentId, WorkspaceMemory } from "@/app/workspace/WorkspaceTypes";
+import type { SerializedWorkspaceState } from "@/app/workspace/WorkspaceProvider";
 import { Footline } from "./footer";
+import { serviceProvider } from "@/lib/providers";
 
-type Phase = "arrival" | "access" | "intention" | "workspace";
+type Phase = "restoring" | "arrival" | "access" | "intention" | "workspace";
 type AccessValues = { email: string; password: string };
 const transition = { duration: 0.46, ease: [0.22, 1, 0.36, 1] as const };
 
 export function ExperienceFlow() {
-  const [phase, setPhase] = useState<Phase>("arrival");
+  const [phase, setPhase] = useState<Phase>("restoring");
   const [activeIndex, setActiveIndex] = useState(0);
   const [chosenEnvironmentId, setChosenEnvironmentId] = useState<EnvironmentId>("documents");
+  const [restoredHistory, setRestoredHistory] = useState<readonly EnvironmentId[] | undefined>(undefined);
+  const [restoredMemory, setRestoredMemory] = useState<Partial<Record<EnvironmentId, WorkspaceMemory>> | undefined>(undefined);
   const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    async function restoreSession() {
+      try {
+        const session = await serviceProvider.getProvider().auth.getSession();
+        if (session && isMounted) {
+          // Check for saved workspace state
+          const savedStateStr = localStorage.getItem("kogniq_workspace_state");
+          if (savedStateStr) {
+            try {
+              const savedState = JSON.parse(savedStateStr) as SerializedWorkspaceState;
+              if (savedState.activeEnvironmentId) {
+                setChosenEnvironmentId(savedState.activeEnvironmentId);
+                const envIndex = environments.findIndex((e) => e.id === savedState.activeEnvironmentId);
+                if (envIndex !== -1) setActiveIndex(envIndex);
+              }
+              if (savedState.history) setRestoredHistory(savedState.history);
+              if (savedState.memory) setRestoredMemory(savedState.memory);
+            } catch (e) {
+              console.error("Failed to parse restored workspace state", e);
+            }
+          }
+          setPhase("workspace");
+        } else if (isMounted) {
+          setPhase("arrival");
+        }
+      } catch { 
+        if (isMounted) setPhase("arrival");
+      }
+    }
+    
+    restoreSession();
+    return () => { isMounted = false; };
+  }, []);
+
   const selectEnvironment = (index: number) => { setActiveIndex(index); setChosenEnvironmentId(environments[index].id); setPhase("workspace"); };
-  return <LayoutGroup id="kogniq-flow"><main className="min-h-dvh overflow-hidden bg-canvas"><AnimatePresence mode="sync" initial={false}>{phase === "arrival" && <Arrival onEnter={() => setPhase("access")} reduceMotion={reduceMotion} />}{phase === "access" && <Access onContinue={() => setPhase("intention")} reduceMotion={reduceMotion} />}{phase === "intention" && <Intention activeIndex={activeIndex} onActiveChange={setActiveIndex} onSelect={selectEnvironment} reduceMotion={reduceMotion} />}{phase === "workspace" && <motion.div key="workspace" initial={false} animate={{ opacity: 1 }}><WorkspaceEngine initialEnvironmentId={chosenEnvironmentId} onLeave={() => setPhase("intention")} /></motion.div>}</AnimatePresence></main></LayoutGroup>;
+  
+  if (phase === "restoring") {
+    // Return nothing while restoring to avoid flashing the arrival screen
+    return <main className="min-h-dvh bg-canvas" />;
+  }
+  
+  return <LayoutGroup id="kogniq-flow"><main className="min-h-dvh overflow-hidden bg-canvas"><AnimatePresence mode="sync" initial={false}>{phase === "arrival" && <Arrival onEnter={() => setPhase("access")} reduceMotion={reduceMotion} />}{phase === "access" && <Access onContinue={() => setPhase("intention")} reduceMotion={reduceMotion} />}{phase === "intention" && <Intention activeIndex={activeIndex} onActiveChange={setActiveIndex} onSelect={selectEnvironment} reduceMotion={reduceMotion} />}{phase === "workspace" && <motion.div key="workspace" initial={false} animate={{ opacity: 1 }}><WorkspaceEngine initialEnvironmentId={chosenEnvironmentId} initialHistory={restoredHistory} initialMemory={restoredMemory} onLeave={() => setPhase("intention")} /></motion.div>}</AnimatePresence></main></LayoutGroup>;
 }
 
 function Arrival({ onEnter, reduceMotion }: { onEnter: () => void; reduceMotion: boolean | null }) {
@@ -29,7 +76,15 @@ function Access({ onContinue, reduceMotion }: { onContinue: () => void; reduceMo
   const { handleSubmit, register, watch } = useForm<AccessValues>({ defaultValues: { email: "", password: "" } });
   const [emailFocused, setEmailFocused] = useState(false); const email = watch("email"); const showPassword = emailFocused || email.length > 0;
   const focusEmail = () => { setEmailFocused(true); };
-  return <motion.section key="access" initial={false} exit={reduceMotion ? undefined : { opacity: 0.99 }} transition={transition} className="relative flex min-h-dvh flex-col bg-[hsl(var(--night))] px-6 py-7 text-[hsl(var(--night-ink))] sm:px-10 sm:py-9"><motion.div layoutId="kogniq-word" transition={transition} className="kogniq-word text-[clamp(1.9rem,4vw,3.25rem)]">Kogniq</motion.div><div className="mx-auto flex w-full max-w-6xl flex-1 items-center py-16 sm:py-20"><form onSubmit={handleSubmit(onContinue)} className="w-full max-w-2xl tracking-[-0.035em]" aria-label="Begin a Kogniq session"><p className="text-[clamp(2rem,4.5vw,4.8rem)] font-medium leading-[.98]">Build knowledge.</p><p className="mt-3 text-[clamp(1.25rem,2.3vw,2rem)] text-[hsl(var(--night-ink)/.82)]">Connect ideas.</p><p className="mt-1 text-[clamp(1.25rem,2.3vw,2rem)] text-[hsl(var(--night-ink)/.82)]">Understand concepts.</p><div className="mt-14 max-w-md space-y-0 sm:mt-20"><label className="group block"><span className="sr-only">Email address</span><span aria-hidden className="mr-3 inline-block h-[1.05em] w-px translate-y-[.14em] bg-[hsl(var(--night-ink)/.64)] [animation:locus-idle_2.2s_cubic-bezier(.45,0,.55,1)_infinite] group-focus-within:bg-[hsl(var(--night-ink))]" /><input type="email" autoComplete="email" required placeholder="email" className="w-[calc(100%-1.25rem)] border-b border-transparent bg-transparent py-2 text-[clamp(1.15rem,2vw,1.45rem)] outline-none placeholder:text-[hsl(var(--night-muted))] focus:border-[hsl(var(--night-ink)/.7)] focus-visible:text-white" {...register("email")} onFocus={focusEmail} /></label><motion.div initial={false} animate={{ height: showPassword ? "auto" : 0, opacity: showPassword ? 1 : 0, marginTop: showPassword ? 12 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.22, 1, .36, 1] }} className="overflow-hidden"><label className="block"><span className="sr-only">Password</span><input type="password" autoComplete="current-password" required tabIndex={showPassword ? 0 : -1} aria-hidden={!showPassword} placeholder="password" className="w-full border-b border-transparent bg-transparent py-2 text-[clamp(1.15rem,2vw,1.45rem)] outline-none placeholder:text-[hsl(var(--night-muted))] focus:border-[hsl(var(--night-ink)/.7)] focus-visible:text-white" {...register("password")} /></label></motion.div><motion.div initial={false} animate={{ height: showPassword ? "auto" : 0, opacity: showPassword ? 1 : 0, marginTop: showPassword ? 22 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.22, 1, .36, 1] }} className="overflow-hidden"><button type="submit" className="text-[clamp(1rem,1.7vw,1.2rem)] text-[hsl(var(--night-ink)/.75)] outline-none transition-colors hover:text-white focus-visible:text-white">Continue.</button></motion.div></div><div className="mt-20 text-[clamp(1rem,1.55vw,1.2rem)] leading-8 text-[hsl(var(--night-muted))]"><p>Upload documents.</p><p>Generate learning.</p><p>Search meaning.</p></div></form></div><Footline night /></motion.section>;
+  const handleLogin = async (data: AccessValues) => {
+    try {
+      await serviceProvider.getProvider().auth.login(data.email, data.password);
+      onContinue();
+    } catch (e) {
+      console.error("Login failed", e);
+    }
+  };
+  return <motion.section key="access" initial={false} exit={reduceMotion ? undefined : { opacity: 0.99 }} transition={transition} className="relative flex min-h-dvh flex-col bg-[hsl(var(--night))] px-6 py-7 text-[hsl(var(--night-ink))] sm:px-10 sm:py-9"><motion.div layoutId="kogniq-word" transition={transition} className="kogniq-word text-[clamp(1.9rem,4vw,3.25rem)]">Kogniq</motion.div><div className="mx-auto flex w-full max-w-6xl flex-1 items-center py-16 sm:py-20"><form onSubmit={handleSubmit(handleLogin)} className="w-full max-w-2xl tracking-[-0.035em]" aria-label="Begin a Kogniq session"><p className="text-[clamp(2rem,4.5vw,4.8rem)] font-medium leading-[.98]">Build knowledge.</p><p className="mt-3 text-[clamp(1.25rem,2.3vw,2rem)] text-[hsl(var(--night-ink)/.82)]">Connect ideas.</p><p className="mt-1 text-[clamp(1.25rem,2.3vw,2rem)] text-[hsl(var(--night-ink)/.82)]">Understand concepts.</p><div className="mt-14 max-w-md space-y-0 sm:mt-20"><label className="group block"><span className="sr-only">Email address</span><span aria-hidden className="mr-3 inline-block h-[1.05em] w-px translate-y-[.14em] bg-[hsl(var(--night-ink)/.64)] [animation:locus-idle_2.2s_cubic-bezier(.45,0,.55,1)_infinite] group-focus-within:bg-[hsl(var(--night-ink))]" /><input type="email" autoComplete="email" required placeholder="email" className="w-[calc(100%-1.25rem)] border-b border-transparent bg-transparent py-2 text-[clamp(1.15rem,2vw,1.45rem)] outline-none placeholder:text-[hsl(var(--night-muted))] focus:border-[hsl(var(--night-ink)/.7)] focus-visible:text-white" {...register("email")} onFocus={focusEmail} /></label><motion.div initial={false} animate={{ height: showPassword ? "auto" : 0, opacity: showPassword ? 1 : 0, marginTop: showPassword ? 12 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.22, 1, .36, 1] }} className="overflow-hidden"><label className="block"><span className="sr-only">Password</span><input type="password" autoComplete="current-password" required tabIndex={showPassword ? 0 : -1} aria-hidden={!showPassword} placeholder="password" className="w-full border-b border-transparent bg-transparent py-2 text-[clamp(1.15rem,2vw,1.45rem)] outline-none placeholder:text-[hsl(var(--night-muted))] focus:border-[hsl(var(--night-ink)/.7)] focus-visible:text-white" {...register("password")} /></label></motion.div><motion.div initial={false} animate={{ height: showPassword ? "auto" : 0, opacity: showPassword ? 1 : 0, marginTop: showPassword ? 22 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.22, 1, .36, 1] }} className="overflow-hidden"><button type="submit" className="text-[clamp(1rem,1.7vw,1.2rem)] text-[hsl(var(--night-ink)/.75)] outline-none transition-colors hover:text-white focus-visible:text-white">Continue.</button></motion.div></div><div className="mt-20 text-[clamp(1rem,1.55vw,1.2rem)] leading-8 text-[hsl(var(--night-muted))]"><p>Upload documents.</p><p>Generate learning.</p><p>Search meaning.</p></div></form></div><Footline night /></motion.section>;
 }
 
 function Intention({ activeIndex, onActiveChange, onSelect, reduceMotion }: { activeIndex: number; onActiveChange: (index: number) => void; onSelect: (index: number) => void; reduceMotion: boolean | null }) {

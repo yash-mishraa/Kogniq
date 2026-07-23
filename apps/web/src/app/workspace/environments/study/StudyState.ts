@@ -1,4 +1,5 @@
 import type { StudyState, StudyAction, StudyMaterial } from "./StudyTypes";
+import { abortResourceHydration, startResourceHydration } from "@/lib/core/ResourceState";
 
 export const MOCK_STUDY_MATERIAL: StudyMaterial = {
   concept: {
@@ -96,6 +97,10 @@ export function studyReducer(state: StudyState, action: StudyAction): StudyState
       return { ...state, recallIndex: state.recallIndex + 1 };
     case "NEXT_TEST":
       return { ...state, testIndex: state.testIndex + 1 };
+    case "START_HYDRATION":
+      return { ...state, material: startResourceHydration(state.material, action.payload.requestId) };
+    case "ABORT_HYDRATION":
+      return { ...state, material: abortResourceHydration(state.material, action.payload.requestId) };
     case "END_STUDY":
       return initialStudyState;
     default:

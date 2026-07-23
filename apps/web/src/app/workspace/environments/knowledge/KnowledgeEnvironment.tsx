@@ -25,24 +25,32 @@ function KnowledgeEnvironmentBody() {
   }, [remember]);
 
   useEffect(() => {
-    if (graph.status !== "idle") return;
-    
+    let isMounted = true;
     const controller = new AbortController();
     
     async function hydrate() {
-      dispatch({ type: "SET_GRAPH", payload: { ...graph, status: "loading" } });
+      const currentRequestId = crypto.randomUUID();
+      dispatch({ type: "START_HYDRATION", payload: { requestId: currentRequestId } });
       try {
         const data = await serviceProvider.getProvider().knowledge.getKnowledgeMap(controller.signal);
-        dispatch({ type: "SET_GRAPH", payload: { status: "ready", data, error: null } });
+        if (isMounted) {
+          dispatch({ type: "SET_GRAPH", payload: { status: "ready", data, error: null, requestId: currentRequestId } });
+        }
       } catch (err: unknown) {
-        if (err instanceof Error && err.name === "AbortError") return;
-        dispatch({ type: "SET_GRAPH", payload: { status: "error", data: null, error: err as Error } });
+        if (isMounted) {
+          if (err instanceof Error && err.name === "AbortError") return;
+          dispatch({ type: "SET_GRAPH", payload: { status: "error", data: null, error: err as Error, requestId: currentRequestId } });
+        }
       }
     }
     
     hydrate();
-    return () => controller.abort();
-  }, [graph.status, dispatch, graph]);
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+    
+  }, [dispatch]);
 
   if (graph.status === "loading") {
     return (

@@ -76,6 +76,11 @@ class APISettings(BaseSettings):
     request_id_header: str = "X-Request-ID"
     process_time_header: str = "X-Process-Time-Ms"
 
+    # Session Configuration
+    session_cookie_name: str = "kogniq_session"
+    session_cookie_max_age: int = 86400  # 24 hours
+    session_cookie_secure: bool = False  # Set to true in prod
+
     openapi_description: str = (
         "Foundational application API for the Kogniq AI Learning Intelligence Platform."
     )

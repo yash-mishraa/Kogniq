@@ -2,6 +2,10 @@ import threading
 import uuid
 from datetime import UTC, datetime, timedelta
 
+from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
+
+from .exceptions import InvalidCredentialsError, UserAlreadyExistsError, UserNotFoundError
 from .interfaces import AbstractAuthenticationProvider, AbstractUserRepository
 from .models import (
     AuthenticationRequest,
@@ -15,12 +19,13 @@ from .models import (
 class MemoryUserRepository(AbstractUserRepository):
     def __init__(self) -> None:
         self._users: dict[str, User] = {}
+        self._passwords: dict[str, str] = {}
         self._lock = threading.RLock()
 
     async def create_user(self, user: User) -> User:
         with self._lock:
             if await self.exists(user.email):
-                raise ValueError(f"User with email {user.email} already exists")
+                raise UserAlreadyExistsError(f"User with email {user.email} already exists")
             self._users[user.user_id] = user
             return user
 
@@ -55,6 +60,16 @@ class MemoryUserRepository(AbstractUserRepository):
         with self._lock:
             return any(user.email == email for user in self._users.values())
 
+    async def set_password_hash(self, user_id: str, password_hash: str) -> None:
+        with self._lock:
+            if user_id not in self._users:
+                raise ValueError(f"User with id {user_id} not found")
+            self._passwords[user_id] = password_hash
+
+    async def get_password_hash(self, user_id: str) -> str | None:
+        with self._lock:
+            return self._passwords.get(user_id)
+
 
 class MemoryAuthenticationProvider(AbstractAuthenticationProvider):
     def __init__(self, user_repo: AbstractUserRepository) -> None:
@@ -64,14 +79,27 @@ class MemoryAuthenticationProvider(AbstractAuthenticationProvider):
         self._lock = threading.RLock()
 
     async def authenticate(self, request: AuthenticationRequest) -> AuthenticationResult:
-        """Simulate authentication without checking actual passwords."""
+        """Simulate authentication, checking actual passwords via pwdlib."""
         email = request.payload.get("email")
+        password = request.payload.get("password")
+        is_registration = request.payload.get("is_registration", False)
+
         if not email:
             raise ValueError("Email is required for local authentication")
 
         user = await self._user_repo.get_user_by_email(email)
         if not user:
-            raise ValueError("Authentication failed: User not found")
+            raise UserNotFoundError("Authentication failed: User not found")
+
+        # Check password hash if not registering (since register sets and immediately authenticates)
+        if not is_registration and password and hasattr(self._user_repo, "get_password_hash"):
+            stored_hash = await self._user_repo.get_password_hash(user.user_id)
+            if stored_hash:
+                password_hash = PasswordHash((Argon2Hasher(),))
+                if not password_hash.verify(password, stored_hash):
+                    raise InvalidCredentialsError("Authentication failed: Invalid credentials")
+            else:
+                raise InvalidCredentialsError("Authentication failed: No credentials found")
 
         with self._lock:
             # Upsert Identity

@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { SearchFinding } from "@/app/workspace/environments/search/SearchTypes";
 import { SearchInspector } from "./SearchInspector";
+import { SearchEvidence } from "./SearchEvidence";
 
 interface SearchFindingItemProps {
   finding: SearchFinding;
@@ -21,19 +22,16 @@ export function SearchFindingItem({ finding, isActive, isCondensed, onClick }: S
     >
       <button
         onClick={onClick}
-        className="w-full text-left flex flex-col gap-2 py-5 outline-none cursor-pointer group"
+        className="w-full text-left flex flex-col gap-4 py-6 outline-none cursor-pointer group"
       >
-        <div className="flex flex-col gap-1">
+        <SearchEvidence evidence={finding.evidence} />
+        
+        <div className="flex flex-col gap-1 pl-4 border-l-2 border-transparent">
           <h3 className={`font-serif tracking-tight transition-all duration-300 ${
-            isActive ? "text-3xl leading-snug text-ink" : "text-2xl leading-snug text-ink group-hover:text-ink/70"
+            isActive ? "text-xl text-ink" : "text-lg text-ink/80 group-hover:text-ink"
           }`}>
             {finding.title}
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] uppercase tracking-widest font-medium text-ink/30">
-              {finding.documentId}
-            </span>
-          </div>
         </div>
       </button>
       

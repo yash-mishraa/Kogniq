@@ -52,4 +52,6 @@ export type StudyAction =
   | { type: "SET_MODE"; payload: LearningMode }
   | { type: "NEXT_RECALL" }
   | { type: "NEXT_TEST" }
-  | { type: "END_STUDY" };
+  | { type: "END_STUDY" }
+  | { type: "START_HYDRATION"; payload: { requestId: string } }
+  | { type: "ABORT_HYDRATION"; payload: { requestId: string } };

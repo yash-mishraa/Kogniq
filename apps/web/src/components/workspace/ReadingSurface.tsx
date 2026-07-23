@@ -36,29 +36,8 @@ export function ReadingSurface({ title, layoutId, content }: ReadingSurfaceProps
               {content}
             </div>
           ) : (
-            <div className="space-y-12 animate-pulse-slow">
-              {/* Mock Editorial Abstract */}
-              <div className="space-y-4">
-                <div className="h-4 bg-black/5 rounded w-full" />
-                <div className="h-4 bg-black/5 rounded w-11/12" />
-                <div className="h-4 bg-black/5 rounded w-4/5" />
-              </div>
-              
-              {/* Mock Section 1 */}
-              <div className="space-y-6">
-                <div className="h-6 bg-black/10 rounded w-1/3 mb-8" />
-                <div className="h-4 bg-black/5 rounded w-full" />
-                <div className="h-4 bg-black/5 rounded w-full" />
-                <div className="h-4 bg-black/5 rounded w-10/12" />
-              </div>
-
-              {/* Mock Section 2 */}
-              <div className="space-y-6">
-                <div className="h-6 bg-black/10 rounded w-1/4 mb-8" />
-                <div className="h-4 bg-black/5 rounded w-11/12" />
-                <div className="h-4 bg-black/5 rounded w-full" />
-                <div className="h-4 bg-black/5 rounded w-3/4" />
-              </div>
+            <div className="flex items-center justify-center py-32 opacity-50">
+              <span className="font-serif italic text-lg tracking-wide">Extracting text...</span>
             </div>
           )}
         </div>

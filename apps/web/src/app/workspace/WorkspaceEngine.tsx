@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { environmentRegistry } from "./environments";
 import { WorkspaceProvider } from "./WorkspaceProvider";
-import type { EnvironmentId } from "./WorkspaceTypes";
+import type { EnvironmentId, WorkspaceMemory } from "./WorkspaceTypes";
 import { useWorkspace } from "./WorkspaceContext";
 import { DocumentsEnvironment } from "./environments/documents/DocumentsEnvironment";
 import { KnowledgeEnvironment } from "./environments/knowledge/KnowledgeEnvironment";
@@ -12,7 +12,19 @@ import { StudyEnvironment } from "./environments/study/StudyEnvironment";
 import { NotebookEnvironment } from "./environments/notebook/NotebookEnvironment";
 import { WorkspaceContent, WorkspaceEmptyState, WorkspaceFooter, WorkspaceHeader, WorkspaceSurface, WorkspaceTransitionBoundary } from "@/components/workspace";
 
-export function WorkspaceEngine({ initialEnvironmentId, onLeave }: { initialEnvironmentId: EnvironmentId; onLeave?: () => void }) { return <WorkspaceProvider initialEnvironmentId={initialEnvironmentId}><WorkspaceEngineBody onLeave={onLeave} /></WorkspaceProvider>; }
+export function WorkspaceEngine({ 
+  initialEnvironmentId, 
+  initialHistory,
+  initialMemory,
+  onLeave 
+}: { 
+  initialEnvironmentId: EnvironmentId; 
+  initialHistory?: readonly EnvironmentId[];
+  initialMemory?: Partial<Record<EnvironmentId, WorkspaceMemory>>;
+  onLeave?: () => void;
+}) { 
+  return <WorkspaceProvider initialEnvironmentId={initialEnvironmentId} initialHistory={initialHistory} initialMemory={initialMemory}><WorkspaceEngineBody onLeave={onLeave} /></WorkspaceProvider>; 
+}
 
 function WorkspaceEngineBody({ onLeave }: { onLeave?: () => void }) {
   const { activeEnvironmentId, memory } = useWorkspace();

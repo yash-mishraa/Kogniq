@@ -26,6 +26,7 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
         license_info=build_license(effective_settings),
         servers=build_servers(effective_settings),
         lifespan=create_lifespan(effective_settings),
+        swagger_ui_parameters={"withCredentials": True},
     )
     application.state.settings = effective_settings
 

@@ -58,7 +58,28 @@ def client() -> TestClient:
             ),
             created_at=datetime.now(UTC),
         )
+        from content.normalized.block import NormalizedBlock
+        from content.normalized.document import NormalizedDocument
+        from content.normalized.enums import BlockType
+        from content.normalized.metadata import DocumentMetadata
+        from content.normalized.page import NormalizedPage
+
+        block = NormalizedBlock(block_id="b1", block_type=BlockType.PARAGRAPH, text="test", order=0)
+        page = NormalizedPage(page_number=1, blocks=(block,))
+
+        doc = NormalizedDocument(
+            id="test-doc-123",
+            title="Test Doc",
+            source="mock",
+            checksum="123",
+            version="v1",
+            pages=(page,),
+            metadata=DocumentMetadata(author="test"),
+            created_at=datetime.now(UTC),
+        )
+
         with uow_factory.create() as uow:
+            await uow.documents.save(doc)
             await uow.chunks.save(ChunkCollection(chunks=(chunk,)))
             await uow.knowledge.save("test-doc-123", KnowledgeGraph(concepts=(), relationships=()))
 

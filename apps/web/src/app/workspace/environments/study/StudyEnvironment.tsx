@@ -10,27 +10,37 @@ function StudyEnvironmentBody() {
   const { state, dispatch } = useStudy();
 
   useEffect(() => {
-    if (state.isStudying && state.material.status === "idle") {
+    if (state.isStudying) {
+      let isMounted = true;
       const controller = new AbortController();
       
       async function hydrate() {
-        dispatch({ type: "START_STUDY", payload: { ...state.material, status: "loading" } });
+        const currentRequestId = crypto.randomUUID();
+        dispatch({ type: "START_HYDRATION", payload: { requestId: currentRequestId } });
         try {
           const data = await serviceProvider.getProvider().study.generateMaterial({
             topicId: "transformer-architecture", // Mock ID for now
             signal: controller.signal
           });
-          dispatch({ type: "START_STUDY", payload: { status: "ready", data, error: null } });
+          if (isMounted) {
+            dispatch({ type: "START_STUDY", payload: { status: "ready", data, error: null, requestId: currentRequestId } });
+          }
         } catch (err: unknown) {
-          if (err instanceof Error && err.name === "AbortError") return;
-          dispatch({ type: "START_STUDY", payload: { status: "error", data: null, error: err as Error } });
+          if (isMounted) {
+            if (err instanceof Error && err.name === "AbortError") return;
+            dispatch({ type: "START_STUDY", payload: { status: "error", data: null, error: err as Error, requestId: currentRequestId } });
+          }
         }
       }
       
       hydrate();
-      return () => controller.abort();
+      return () => {
+        isMounted = false;
+        controller.abort();
+      };
     }
-  }, [state.isStudying, state.material, dispatch]);
+    
+  }, [state.isStudying, dispatch]);
 
   if (!state.isStudying) {
     return (
