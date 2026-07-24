@@ -54,15 +54,12 @@ def _map_auth_error(e: AuthDomainError) -> APIError:
     )
 
 
-
-
-
 @router.post("/auth/register", response_model=UserResponse)
 async def register_user(
     request_data: RegisterRequest,
     response: Response,
     settings: SettingsDependency,
-    use_case: RegisterUserUseCase = Depends(get_register_user_use_case), # noqa: B008
+    use_case: RegisterUserUseCase = Depends(get_register_user_use_case),  # noqa: B008
 ) -> UserResponse:
     """Create a new account, assign default roles, and establish an authenticated session."""
     try:

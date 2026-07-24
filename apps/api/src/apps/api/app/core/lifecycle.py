@@ -44,8 +44,8 @@ def create_lifespan(settings: APISettings) -> Lifespan:
             auth_service = await get_authentication_service()
             authorization_service = await get_authorization_service()
             use_case = RegisterUserUseCase(
-                auth_service=auth_service, # type: ignore
-                authorization_service=authorization_service # type: ignore
+                auth_service=auth_service,  # type: ignore
+                authorization_service=authorization_service,  # type: ignore
             )
             await bootstrap_development_demo(use_case)
 

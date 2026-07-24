@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from datetime import UTC, datetime
@@ -22,7 +24,8 @@ from knowledge.extractors.extraction_result import KnowledgeExtractionResult
 from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
 from knowledge.extractors.provider_info import KnowledgeExtractorInfo
 from knowledge.graph import KnowledgeGraph
-from pipeline.pipeline import DocumentIngestionPipeline
+from pipeline.pipeline import DocumentIntelligencePipeline
+from pipeline.stages.ingestion import IngestionStage
 
 from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
@@ -213,31 +216,51 @@ class FakeKnowledgeExtractor(AbstractKnowledgeExtractor):
         return tuple(self.extract(c) for c in collections)
 
 
-def test_document_intelligence_pipeline_success() -> None:
+
+
+@pytest.mark.asyncio
+async def test_document_intelligence_pipeline_success() -> None:
     registry = ProcessorRegistry()
     registry.register(FakeProcessor())
-
     chunk_engine = FakeChunkEngine()
-    FakeEmbeddingProvider()
-    FakeVectorStore()
-    FakeKnowledgeExtractor()
 
-    pipeline = DocumentIngestionPipeline(
+    # We need a fake UnitOfWorkFactory for the ingestion stage
+    from unittest.mock import AsyncMock
+
+    mock_uow_factory = MagicMock()
+    mock_uow = MagicMock()
+    mock_uow.__enter__.return_value = mock_uow
+    mock_uow.__exit__.return_value = False
+
+    mock_uow.documents = AsyncMock()
+    mock_uow.chunks = AsyncMock()
+
+    mock_uow_factory.create.return_value = mock_uow
+
+    stage = IngestionStage(
         processor_registry=registry,
         chunk_engine=chunk_engine,
+        uow_factory=mock_uow_factory,
     )
+
+    pipeline = DocumentIntelligencePipeline(stages=[stage])
 
     handle = MagicMock(spec=ResourceHandle)
     handle.id = "res_1"
     handle.mime_type = "text/plain"
     handle.extension = ".txt"
+    handle.checksum = None
 
-    result = pipeline.run(cast(ResourceHandle, handle))
+    result = await pipeline.run(cast(ResourceHandle, handle))
 
-    # Verify Content
-    assert result.content.document.id == "res_1"
-    assert result.content.chunks.total_chunks == 1
+    # Verify Output
+    assert "metadata" in result
+    assert "stages" in result
 
-    # Verify Metadata
-    assert result.metadata.processor_name == "Fake Processor"
-    assert result.metadata.total_processing_time_ms > 0
+    stages = result["stages"]
+    assert "Ingestion" in stages
+    assert stages["Ingestion"]["status"] == "completed"
+
+    data = stages["Ingestion"]["data"]
+    assert data["processor_name"] == "Fake Processor"
+    assert data["chunk_count"] == 1

@@ -69,10 +69,12 @@ class DocumentProcessResponse(BaseModel):
         default_factory=list, description="Non-fatal warnings during processing"
     )
 
+
 class DocumentResponse(BaseModel):
     """
     API Response Schema for retrieving a document.
     """
+
     id: str
     title: str
     source: str

@@ -41,6 +41,7 @@ class PipelineExecutionMetadata:
 @dataclass
 class IngestionPipelineResult:
     """Result of the first half of the intelligence pipeline (parsing + chunking)."""
+
     content: ContentPipelineResult
     metadata: PipelineExecutionMetadata
 

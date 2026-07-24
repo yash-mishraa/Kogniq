@@ -16,6 +16,7 @@ from apps.api.app.dependencies.auth import CurrentUserDependency
 
 router = APIRouter(tags=["Documents"])
 
+
 @router.get("/documents", response_model=list[DocumentResponse])
 async def list_documents(
     _current_user: CurrentUserDependency,

@@ -13,6 +13,9 @@ class JobStatusResult:
     job_id: str
     job_type: str
     status: str
-    progress_percentage: int
+    current_stage: str | None
+    completed_stages: int
+    total_stages: int
+    stage_status: str
     message: str | None
     error_message: str | None

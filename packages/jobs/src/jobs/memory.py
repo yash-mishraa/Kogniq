@@ -4,7 +4,7 @@ from dataclasses import replace
 from datetime import UTC, datetime
 
 from .interfaces import AbstractJobManager
-from .models import Job, JobProgress, JobResult, JobStatus
+from .models import Job, JobProgress, JobResult, JobStatus, StageStatus
 
 
 class MemoryJobManager(AbstractJobManager):
@@ -33,9 +33,11 @@ class MemoryJobManager(AbstractJobManager):
     async def update_progress(
         self,
         job_id: str,
-        percentage: int,
+        current_stage: str | None = None,
+        completed_stages: int | None = None,
+        total_stages: int | None = None,
+        stage_status: str | None = None,
         message: str | None = None,
-        milestone: str | None = None,
     ) -> Job:
         with self._lock:
             job = self._jobs.get(job_id)
@@ -59,9 +61,19 @@ class MemoryJobManager(AbstractJobManager):
                 stats = replace(stats, started_at=now)
 
             progress = JobProgress(
-                percentage=percentage,
+                current_stage=current_stage
+                if current_stage is not None
+                else job.progress.current_stage,
+                completed_stages=completed_stages
+                if completed_stages is not None
+                else job.progress.completed_stages,
+                total_stages=total_stages
+                if total_stages is not None
+                else job.progress.total_stages,
+                status=StageStatus(stage_status)
+                if stage_status is not None
+                else job.progress.status,
                 message=message,
-                milestone=milestone,
                 updated_at=now,
             )
 
@@ -90,7 +102,14 @@ class MemoryJobManager(AbstractJobManager):
                 processing_time_ms=processing_time,
             )
 
-            progress = JobProgress(percentage=100, message="Job completed", updated_at=now)
+            progress = JobProgress(
+                current_stage=job.progress.current_stage,
+                completed_stages=job.progress.total_stages,
+                total_stages=job.progress.total_stages,
+                status=StageStatus.COMPLETED,
+                message="Job completed",
+                updated_at=now,
+            )
 
             updated_job = replace(
                 job,

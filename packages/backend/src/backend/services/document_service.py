@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from backend.core.exceptions import BackendError
 from backend.schemas.document import DocumentInput, DocumentLifecycleState, DocumentProcessResult
 from persistence.uow_factory import AbstractUnitOfWorkFactory
-from pipeline.pipeline import DocumentIngestionPipeline
+from pipeline.pipeline import DocumentIntelligencePipeline
 
 from content.resource.checksum import Checksum, ChecksumAlgorithm
 from content.resource.handle import ResourceHandle
@@ -23,6 +23,7 @@ class BackendStreamReference(AbstractStreamReference):
 
     def open_stream(self) -> object:
         import io
+
         return io.BytesIO(self.doc_input.content)
 
 
@@ -33,12 +34,14 @@ class DocumentService:
     """
 
     def __init__(
-        self, pipeline: DocumentIngestionPipeline, uow_factory: AbstractUnitOfWorkFactory
+        self, pipeline: DocumentIntelligencePipeline, uow_factory: AbstractUnitOfWorkFactory
     ) -> None:
         self.pipeline = pipeline
         self.uow_factory = uow_factory
 
-    async def process_document(self, doc_input: DocumentInput) -> DocumentProcessResult:
+    async def process_document(
+        self, doc_input: DocumentInput, job_id: str | None = None
+    ) -> DocumentProcessResult:
         doc_id = str(uuid.uuid4())
 
         ext = ""
@@ -46,6 +49,7 @@ class DocumentService:
             ext = doc_input.filename.rsplit(".", 1)[1].lower()
 
         import hashlib
+
         checksum_value = hashlib.sha256(doc_input.content).hexdigest()
 
         handle = ResourceHandle(
@@ -69,29 +73,43 @@ class DocumentService:
         )
 
         try:
-            result = self.pipeline.run(handle)
+            result = await self.pipeline.run(handle, job_id=job_id)
         except Exception as e:
             raise BackendError("pipeline_execution_failed", str(e), status_code=500) from e
 
-        # Persist domain objects
+        # In Phase II, the pipeline stages handle persistence natively
+        # So we just construct the result from the pipeline execution metadata
+
+        metadata = result.get("metadata", {})
+        stages = result.get("stages", {})
+
+        processor = "Unknown"
+        chunk_count = 0
+
+        if "Ingestion" in stages and stages["Ingestion"].get("status") == "completed":
+            data = stages["Ingestion"].get("data", {})
+            doc_id = data.get("document_id", doc_id)
+            processor = data.get("processor_name", "Unknown")
+            chunk_count = data.get("chunk_count", 0)
+
+        # Retrieve title from DB for result
+        title = doc_input.filename
         try:
             with self.uow_factory.create() as uow:
-                await uow.documents.save(result.content.document)
-                await uow.chunks.save(result.content.chunks)
-                # Removed embedding and knowledge persistence for Phase I
-        except Exception as e:
-            raise BackendError(
-                "persistence_failed", f"Failed to persist pipeline results: {e}", status_code=500
-            ) from e
+                doc = await uow.documents.get(doc_id)
+                if doc:
+                    title = doc.title
+        except Exception:
+            pass
 
         return DocumentProcessResult(
             document_id=doc_id,
             filename=doc_input.filename,
-            title=result.content.document.title,
-            source=result.content.document.source,
-            processor=result.metadata.processor_name,
-            chunk_count=result.content.chunks.total_chunks,
-            processing_time_ms=result.metadata.total_processing_time_ms,
+            title=title,
+            source=ContentSource.UPLOAD.name,
+            processor=processor,
+            chunk_count=chunk_count,
+            processing_time_ms=metadata.get("total_processing_time_ms", 0),
             status=DocumentLifecycleState.READY,
             warnings=[],
         )
@@ -105,7 +123,7 @@ class DocumentService:
                     "title": doc.title,
                     "source": doc.source,
                     "status": "Ready",
-                    "importDate": doc.created_at.isoformat()
+                    "importDate": doc.created_at.isoformat(),
                 }
                 for doc in docs
             ]

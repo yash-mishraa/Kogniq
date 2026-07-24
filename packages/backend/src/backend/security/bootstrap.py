@@ -21,6 +21,7 @@ from auth.authorization_interfaces import AbstractPermissionRepository, Abstract
 
 logger = logging.getLogger(__name__)
 
+
 async def bootstrap_authorization(
     role_repo: AbstractRoleRepository,
     permission_repo: AbstractPermissionRepository,
@@ -57,7 +58,7 @@ async def bootstrap_authorization(
                 LEARNING_GENERATE.permission_id,
                 RETRIEVAL_SEARCH.permission_id,
                 JOBS_VIEW.permission_id,
-            )
+            ),
         )
         await role_repo.create_role(user_role)
         logger.info(f"Created canonical role: {ROLE_USER_ID}")
@@ -69,10 +70,11 @@ async def bootstrap_authorization(
             role_id=ROLE_ADMIN_ID,
             name="Administrator",
             description="Full access",
-            permissions=tuple(p.permission_id for p in canonical_permissions)
+            permissions=tuple(p.permission_id for p in canonical_permissions),
         )
         await role_repo.create_role(admin_role)
         logger.info(f"Created canonical role: {ROLE_ADMIN_ID}")
+
 
 async def bootstrap_development_demo(use_case: "RegisterUserUseCase") -> None:
     """Idempotently seed a demo user for development and testing environments."""
@@ -80,11 +82,11 @@ async def bootstrap_development_demo(use_case: "RegisterUserUseCase") -> None:
     from auth.exceptions import UserAlreadyExistsError
 
     try:
-        await use_case.execute(RegisterUserCommand(
-            email="admin@kogniq.ai",
-            password="password",
-            display_name="Demo Admin"
-        ))
+        await use_case.execute(
+            RegisterUserCommand(
+                email="admin@kogniq.ai", password="password", display_name="Demo Admin"
+            )
+        )
         logger.info("Seeded development demo user: admin@kogniq.ai")
     except UserAlreadyExistsError:
         logger.debug("Demo user already exists, skipping seed.")

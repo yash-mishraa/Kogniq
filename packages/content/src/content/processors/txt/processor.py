@@ -42,9 +42,7 @@ class TXTProcessor(AbstractContentProcessor):
             title=title,
             pages=tuple(pages),
             source=(
-                handle.source.name.lower()
-                if hasattr(handle.source, "name")
-                else str(handle.source)
+                handle.source.name.lower() if hasattr(handle.source, "name") else str(handle.source)
             ),
             checksum=handle.checksum.value,
             version=self.processor_info.version,

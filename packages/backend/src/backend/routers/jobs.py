@@ -16,6 +16,10 @@ class JobResponse(BaseModel):
     job_id: str
     status: str
     progress: int | None = None
+    current_stage: str | None = None
+    completed_stages: int | None = None
+    total_stages: int | None = None
+    stage_status: str | None = None
     message: str | None = None
 
 
@@ -44,6 +48,10 @@ async def process_document_job(
         job_id=result.job_id,
         status=result.status,
         progress=0,
+        current_stage="Initialization",
+        completed_stages=0,
+        total_stages=1,
+        stage_status="queued",
         message=result.message,
     )
 
@@ -57,10 +65,18 @@ async def get_job_status(
     command = GetJobStatusCommand(user_id=x_user_id, job_id=job_id)
     try:
         result = await use_case.execute(command)
+        progress_percentage = 0
+        if result.total_stages > 0:
+            progress_percentage = int((result.completed_stages / result.total_stages) * 100)
+
         return JobResponse(
             job_id=result.job_id,
             status=result.status,
-            progress=result.progress_percentage,
+            progress=progress_percentage,
+            current_stage=result.current_stage,
+            completed_stages=result.completed_stages,
+            total_stages=result.total_stages,
+            stage_status=result.stage_status,
             message=result.message,
         )
     except ApplicationError as e:

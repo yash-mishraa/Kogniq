@@ -36,9 +36,11 @@ class GetJobStatusUseCase:
             job_id=getattr(result, "id", getattr(result, "job_id", "")),
             job_type=getattr(result, "job_type", ""),
             status=getattr(result, "status", ""),
-            progress_percentage=result.progress.percentage
-            if hasattr(result, "progress") and result.progress
-            else getattr(result, "progress_percentage", 0),
-            message=getattr(result, "message", None),
+            current_stage=result.progress.current_stage if hasattr(result, "progress") else None,
+            completed_stages=result.progress.completed_stages if hasattr(result, "progress") else 0,
+            total_stages=result.progress.total_stages if hasattr(result, "progress") else 0,
+            stage_status=result.progress.status.value if hasattr(result, "progress") else "queued",
+            message=getattr(result, "message", None)
+            or (result.progress.message if hasattr(result, "progress") else None),
             error_message=getattr(result, "error_message", None),
         )

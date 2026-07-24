@@ -46,9 +46,7 @@ def auth_user() -> User:
     return User(user_id="user-123", email="user@test.com", display_name="User")
 
 
-def test_process_document_success(
-    client: TestClient, test_app: FastAPI, auth_user: User
-) -> None:
+def test_process_document_success(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
     class MockResult:
         status = "Ready"
         document_id = "doc-123"

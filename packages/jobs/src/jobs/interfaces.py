@@ -21,9 +21,11 @@ class AbstractJobManager(ABC):
     async def update_progress(
         self,
         job_id: str,
-        percentage: int,
+        current_stage: str | None = None,
+        completed_stages: int | None = None,
+        total_stages: int | None = None,
+        stage_status: str | None = None,
         message: str | None = None,
-        milestone: str | None = None,
     ) -> Job:
         """Update job progress and transition to RUNNING if not already."""
 

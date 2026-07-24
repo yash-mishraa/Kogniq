@@ -16,16 +16,20 @@ async def test_job_lifecycle_success() -> None:
     assert job.id is not None
 
     # Progress
-    job = await manager.update_progress(job.id, 50, "Halfway")
+    job = await manager.update_progress(
+        job.id, current_stage="A", completed_stages=1, total_stages=2, message="Halfway"
+    )
     assert job.status == JobStatus.RUNNING
-    assert job.progress.percentage == 50
+    assert job.progress.completed_stages == 1
     assert job.progress.message == "Halfway"
 
     # Complete
-    result = JobResult(data={"key": "value"})
+    result = JobResult(data={"success": True})
     job = await manager.complete(job.id, result)
     assert job.status == JobStatus.COMPLETED
-    assert job.result == result
+    assert job.progress.status == "completed"
+    assert job.result is not None
+    assert job.result.data["success"] is True
     assert job.statistics.started_at is not None
     assert job.statistics.completed_at is not None
     assert job.statistics.processing_time_ms is not None
@@ -52,7 +56,7 @@ async def test_job_cancellation() -> None:
 async def test_job_not_found() -> None:
     manager = MemoryJobManager()
     with pytest.raises(ValueError):
-        await manager.update_progress("invalid", 10)
+        await manager.update_progress("invalid", current_stage="A")
 
 
 @pytest.mark.asyncio
@@ -61,7 +65,7 @@ async def test_concurrent_jobs() -> None:
 
     async def run_job(i: int) -> None:
         job = await manager.submit(f"type_{i}")
-        await manager.update_progress(job.id, 50)
+        await manager.update_progress(job.id, current_stage="Parse")
         await asyncio.sleep(0.01)
         await manager.complete(job.id, JobResult(data={}))
 

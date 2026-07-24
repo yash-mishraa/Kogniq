@@ -1,0 +1,709 @@
+--- MOCK_ ---
+apps/api/tests/test_db.py:    mock_engine = mocker.AsyncMock(spec=AsyncEngine)
+apps/api/tests/test_db.py:    mock_conn = mocker.AsyncMock()
+apps/api/tests/test_db.py:    mock_engine.connect.return_value.__aenter__.return_value = mock_conn
+apps/api/tests/test_db.py:    result = await check_database_health(mock_engine)
+apps/api/tests/test_db.py:    mock_conn.execute.assert_called_once()
+apps/api/tests/test_db.py:    mock_engine = mocker.AsyncMock(spec=AsyncEngine)
+apps/api/tests/test_db.py:    mock_conn = mocker.AsyncMock()
+apps/api/tests/test_db.py:    mock_engine.connect.return_value.__aenter__.return_value = mock_conn
+apps/api/tests/test_db.py:    mock_conn.execute.side_effect = Exception("Connection refused")
+apps/api/tests/test_db.py:    result = await check_database_health(mock_engine)
+apps/web/src/app/workspace/environments/documents/DocumentsState.ts:export const MOCK_DOCUMENTS: DocumentItem[] = [];
+apps/web/src/app/workspace/environments/knowledge/KnowledgeState.ts:export const MOCK_TRANSFORMER_GRAPH: KnowledgeGraph = {
+apps/web/src/app/workspace/environments/search/SearchState.ts:export const MOCK_FINDINGS: Record<string, SearchFinding[]> = {
+apps/web/src/app/workspace/environments/study/StudyState.ts:export const MOCK_STUDY_MATERIAL: StudyMaterial = {
+apps/web/src/lib/services/mock/MockAuthService.ts:    // Only return session if mock_session is set (simulating a login)
+apps/web/src/lib/services/mock/MockAuthService.ts:    if (typeof window !== "undefined" && localStorage.getItem("mock_session") === "true") {
+apps/web/src/lib/services/mock/MockAuthService.ts:      localStorage.setItem("mock_session", "true");
+apps/web/src/lib/services/mock/MockDocumentService.ts:import { MOCK_DOCUMENTS } from "@/app/workspace/environments/documents/DocumentsState";
+apps/web/src/lib/services/mock/MockDocumentService.ts:        resolve(MOCK_DOCUMENTS);
+apps/web/src/lib/services/mock/MockKnowledgeService.ts:import { MOCK_TRANSFORMER_GRAPH } from "@/app/workspace/environments/knowledge/KnowledgeState";
+apps/web/src/lib/services/mock/MockKnowledgeService.ts:        resolve(MOCK_TRANSFORMER_GRAPH);
+apps/web/src/lib/services/mock/MockNotebookService.ts:export const MOCK_NOTEBOOKS: Notebook[] = [
+apps/web/src/lib/services/mock/MockNotebookService.ts:        resolve(MOCK_NOTEBOOKS);
+apps/web/src/lib/services/mock/MockSearchService.ts:import { MOCK_FINDINGS } from "@/app/workspace/environments/search/SearchState";
+apps/web/src/lib/services/mock/MockSearchService.ts:          results = MOCK_FINDINGS["self attention"];
+apps/web/src/lib/services/mock/MockSearchService.ts:          results = MOCK_FINDINGS["database"];
+apps/web/src/lib/services/mock/MockSearchService.ts:          results = MOCK_FINDINGS["self attention"];
+apps/web/src/lib/services/mock/MockStudyService.ts:import { MOCK_STUDY_MATERIAL } from "@/app/workspace/environments/study/StudyState";
+apps/web/src/lib/services/mock/MockStudyService.ts:        resolve(MOCK_STUDY_MATERIAL);
+dev/demo_embedding_registry.py:            provider_id="mock_a",
+dev/demo_embedding_registry.py:            provider_id="mock_b",
+packages/backend/src/backend/services/generator_factory.py:        self._provider = self._create_mock_provider()
+packages/backend/src/backend/services/generator_factory.py:    def _create_mock_provider(self) -> AbstractTextGenerationProvider:
+packages/backend/src/backend/services/generator_factory.py:        def mock_generate(prompt: str) -> str:
+packages/backend/src/backend/services/generator_factory.py:        provider.generate.side_effect = mock_generate
+packages/backend/tests/test_retrieval.py:def mock_chunks() -> ChunkCollection:
+packages/backend/tests/test_retrieval.py:def mock_results() -> list[RetrievalResult]:
+packages/backend/tests/test_retrieval.py:    mock_chunks: ChunkCollection, mock_results: list[RetrievalResult]
+packages/backend/tests/test_retrieval.py:            await uow.chunks.save(mock_chunks)
+packages/backend/tests/test_retrieval.py:    retriever = MockRetriever(mock_results)
+packages/backend/tests/test_retrieval.py:    mock_service = RetrievalService(
+packages/backend/tests/test_retrieval.py:        auth_service=MagicMock(), authorization_service=authz_svc, retrieval_service=mock_service
+packages/backend/tests/test_retrieval.py:    mock_service = RetrievalService(
+packages/backend/tests/test_retrieval.py:        auth_service=auth_svc, authorization_service=authz_svc, retrieval_service=mock_service
+packages/backend/tests/test_retrieval.py:    mock_service = RetrievalService(
+packages/backend/tests/test_retrieval.py:        auth_service=auth_svc, authorization_service=authz_svc, retrieval_service=mock_service
+packages/content/tests/test_hybrid_chunk_engine.py:    mock_structural = MockStrategy("MockStructural")
+packages/content/tests/test_hybrid_chunk_engine.py:    mock_fixed = MockStrategy("MockFixed")
+packages/content/tests/test_hybrid_chunk_engine.py:    engine = HybridChunkEngine(structural_strategy=mock_structural, fixed_strategy=mock_fixed)
+packages/content/tests/test_hybrid_chunk_engine.py:    assert mock_structural.called is True
+packages/content/tests/test_hybrid_chunk_engine.py:    assert mock_fixed.called is False
+packages/content/tests/test_hybrid_chunk_engine.py:    mock_structural.called = False
+packages/content/tests/test_hybrid_chunk_engine.py:    mock_fixed.called = False
+packages/content/tests/test_hybrid_chunk_engine.py:    assert mock_structural.called is False
+packages/content/tests/test_hybrid_chunk_engine.py:    assert mock_fixed.called is True
+packages/content/tests/test_resource.py:        return "mock_stream"
+packages/learning-content/tests/test_base_generator.py:    mock_builder = cast(MockPromptBuilder, generator.prompt_builder)
+packages/learning-content/tests/test_base_generator.py:    mock_parser = cast(MockParser, generator.parser)
+packages/learning-content/tests/test_base_generator.py:    assert mock_builder.call_count == 1
+packages/learning-content/tests/test_base_generator.py:    assert mock_parser.call_count == 1
+packages/learning-content/tests/test_base_generator.py:    meta = mock_parser.last_metadata
+packages/learning-content/tests/test_base_generator.py:    mock_builder = cast(MockPromptBuilder, generator.prompt_builder)
+packages/learning-content/tests/test_base_generator.py:    mock_builder.fail_on_build = True
+packages/learning-content/tests/test_base_generator.py:    mock_parser = cast(MockParser, generator.parser)
+packages/learning-content/tests/test_base_generator.py:    assert mock_parser.call_count == 0
+packages/learning-content/tests/test_base_generator.py:    mock_builder = cast(MockPromptBuilder, generator.prompt_builder)
+packages/learning-content/tests/test_base_generator.py:    mock_parser = cast(MockParser, generator.parser)
+packages/learning-content/tests/test_base_generator.py:    assert mock_builder.call_count == 1
+packages/learning-content/tests/test_base_generator.py:    assert mock_parser.call_count == 0
+packages/learning-content/tests/test_base_generator.py:    mock_parser = cast(MockParser, generator.parser)
+packages/learning-content/tests/test_base_generator.py:    mock_parser.fail_on_parse = True
+packages/learning-content/tests/test_base_generator.py:    mock_builder = cast(MockPromptBuilder, generator.prompt_builder)
+packages/learning-content/tests/test_base_generator.py:    assert mock_builder.call_count == 1
+packages/learning-content/tests/test_base_generator.py:    mock_builder = cast(MockPromptBuilder, generator.prompt_builder)
+packages/learning-content/tests/test_base_generator.py:    mock_parser = cast(MockParser, generator.parser)
+packages/learning-content/tests/test_base_generator.py:    assert mock_builder.call_count == 2
+packages/learning-content/tests/test_base_generator.py:    assert mock_parser.call_count == 2
+packages/learning-content/tests/test_openrouter_provider.py:def mock_openai() -> Iterator[MagicMock]:
+packages/learning-content/tests/test_openrouter_provider.py:    provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response = MagicMock()
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices = [MagicMock()]
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices[0].message.content = "This is a test response."
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.return_value = mock_response
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.assert_called_once_with(
+packages/learning-content/tests/test_openrouter_provider.py:    provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response = MagicMock()
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices = [MagicMock()]
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices[0].message.content = "Response"
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.return_value = mock_response
+packages/learning-content/tests/test_openrouter_provider.py:    assert mock_client.chat.completions.create.call_count == 2
+packages/learning-content/tests/test_openrouter_provider.py:    provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock
+packages/learning-content/tests/test_openrouter_provider.py:    mock_openai.assert_not_called()
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response = MagicMock()
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices = [MagicMock()]
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices[0].message.content = "Response"
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.return_value = mock_response
+packages/learning-content/tests/test_openrouter_provider.py:    mock_openai.assert_called_once()
+packages/learning-content/tests/test_openrouter_provider.py:    mock_openai.assert_called_once()  # Call count stays 1
+packages/learning-content/tests/test_openrouter_provider.py:    provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response = MagicMock()
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices = [MagicMock()]
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices[0].message.content = None
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.return_value = mock_response
+packages/learning-content/tests/test_openrouter_provider.py:    provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.side_effect = AuthenticationError(
+packages/learning-content/tests/test_openrouter_provider.py:    provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.side_effect = RateLimitError(
+packages/learning-content/tests/test_openrouter_provider.py:    provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.side_effect = APIConnectionError(
+packages/learning-content/tests/test_openrouter_provider.py:def test_api_error(provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock) -> None:
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.side_effect = APIError(
+packages/learning-content/tests/test_openrouter_provider.py:    provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.side_effect = ValueError("Some weird error")
+packages/learning-content/tests/test_openrouter_provider.py:    provider: OpenRouterTextGenerationProvider, mock_openai: MagicMock
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client = mock_openai.return_value
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response = MagicMock()
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices = [MagicMock()]
+packages/learning-content/tests/test_openrouter_provider.py:    mock_response.choices[0].message.content = "OK"
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.return_value = mock_response
+packages/learning-content/tests/test_openrouter_provider.py:    mock_client.chat.completions.create.assert_called_once_with(
+packages/retrieval/tests/test_semantic_retriever.py:    def __init__(self, mock_results: tuple[SearchResult, ...]) -> None:
+packages/retrieval/tests/test_semantic_retriever.py:        self.mock_results = mock_results
+packages/retrieval/tests/test_semantic_retriever.py:        return self.mock_results[:limit]
+packages/retrieval/tests/test_semantic_retriever.py:        return len(self.mock_results)
+packages/retrieval/tests/test_semantic_retriever.py:    store = FakeVectorStore(mock_results=results)
+packages/retrieval/tests/test_semantic_retriever.py:    store = FakeVectorStore(mock_results=())
+--- Stub ---
+dev/demo_retrieval_api.py:        # Populate repositories manually since pipeline is stubbed
+docs/architecture/backend-foundation.md:        Dep --> Stub[Stub Providers]
+docs/architecture/backend-foundation.md:        Stub -.-> PS[PipelineService]
+docs/architecture/backend-foundation.md:        Stub -.-> RS[RetrievalService]
+docs/architecture/backend-foundation.md:        Stub -.-> LS[LearningService]
+docs/frontend/study-workspace.md:*(Note: The architecture includes a stub for a future "Reflection" stage between Understand and Review).*
+packages/backend/src/backend/dependencies.py:from backend.services.stubs import (
+packages/backend/src/backend/dependencies.py:    StubPipelineService,
+packages/backend/src/backend/dependencies.py:    return StubPipelineService()
+packages/backend/src/backend/services/stubs.py:# --- Lightweight Stub Implementations --- #
+packages/backend/src/backend/services/stubs.py:class StubPipelineService:
+packages/backend/src/backend/services/stubs.py:class StubLearningService:
+packages/backend/src/backend/services/stubs.py:        return {"status": "stubbed"}
+packages/backend/src/backend/services/stubs.py:class StubRetrievalService:
+packages/backend/tests/test_dependencies.py:from backend.services.stubs import (
+packages/backend/tests/test_dependencies.py:    StubPipelineService,
+packages/backend/tests/test_dependencies.py:    assert isinstance(service, StubPipelineService)
+--- Fake ---
+dev/demo_chroma_store.py:def create_fake_embedding(id_str: str, values: tuple[float, ...]) -> Embedding:
+dev/demo_chroma_store.py:    print("\nCreating fake embeddings...")
+dev/demo_chroma_store.py:    e1 = create_fake_embedding("emb_1", (1.0, 0.0, 0.0))
+dev/demo_chroma_store.py:    e2 = create_fake_embedding("emb_2", (0.0, 1.0, 0.0))
+dev/demo_chroma_store.py:    e3 = create_fake_embedding("emb_3", (0.7, 0.7, 0.0))
+dev/demo_gemini_extractor.py:            checksum="fake_hash",
+dev/demo_generation_framework.py:    """A fake provider that logs when it is called."""
+dev/demo_knowledge_registry.py:class GeminiFakeExtractor(AbstractKnowledgeExtractor):
+dev/demo_knowledge_registry.py:class LocalLLMFakeExtractor(AbstractKnowledgeExtractor):
+dev/demo_knowledge_registry.py:    registry.register(GeminiFakeExtractor())
+dev/demo_knowledge_registry.py:    registry.register(LocalLLMFakeExtractor())
+dev/demo_learning_content.py:    """A fake generator for demonstration purposes."""
+dev/demo_learning_content.py:    # 1. Setup Fake Data
+dev/demo_openrouter_extractor.py:            checksum="fake_hash",
+dev/demo_retriever.py:        return StorageResult(stored_count=1, collection_name="fake", metadata=None)
+dev/demo_retriever.py:            stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
+dev/demo_retriever.py:        # Return fake matches
+dev/demo_summary_generator.py:    print("Initializing Fake Chunks...")
+dev/demo_summary_generator.py:    print("Initializing Fake Knowledge Graph...")
+dev/demo_vector_store_registry.py:        return StorageResult(stored_count=1, collection_name="fake", metadata=None)
+dev/demo_vector_store_registry.py:            stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
+dev/demo_vector_store_registry.py:        return StorageResult(stored_count=1, collection_name="fake", metadata=None)
+dev/demo_vector_store_registry.py:            stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
+docs/architecture/document-processing-api.md:- **Factory-Driven Pipeline Injection**: The API constructs the pipeline via `PipelineFactory`, seamlessly allowing integration tests to fake the pipeline while production uses fully loaded vector stores and models.
+docs/architecture/knowledge-extractors.md:2. We can easily unit test the system using Fake extractors.
+packages/auth/tests/test_memory_auth.py:    # Create fake expired session
+packages/backend/src/backend/services/generator_factory.py:            return '{"title": "Fake Title", "content": "Fake content"}'
+packages/embedding/tests/test_provider_interface.py:class FakeProvider(AbstractEmbeddingProvider):
+packages/embedding/tests/test_provider_interface.py:            provider_id="fake",
+packages/embedding/tests/test_provider_interface.py:            provider_name="Fake Provider",
+packages/embedding/tests/test_provider_interface.py:            model_name="fake-model",
+packages/embedding/tests/test_provider_interface.py:def test_fake_provider_interface() -> None:
+packages/embedding/tests/test_provider_interface.py:    provider = FakeProvider()
+packages/embedding/tests/test_provider_interface.py:    assert provider.info.provider_id == "fake"
+packages/embedding/tests/test_vector_store_interface.py:class FakeVectorStore(AbstractVectorStore):
+packages/embedding/tests/test_vector_store_interface.py:            store_id="fake_store",
+packages/embedding/tests/test_vector_store_interface.py:            store_name="Fake In-Memory Store",
+packages/embedding/tests/test_vector_store_interface.py:        return StorageResult(stored_count=1, collection_name="fake", metadata=None)
+packages/embedding/tests/test_vector_store_interface.py:            stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
+packages/embedding/tests/test_vector_store_interface.py:    store = FakeVectorStore()
+packages/embedding/tests/test_vector_store_interface.py:    assert store.info.store_id == "fake_store"
+packages/embedding/tests/test_vector_store_registry.py:from .test_vector_store_interface import FakeVectorStore
+packages/embedding/tests/test_vector_store_registry.py:    store = FakeVectorStore()
+packages/embedding/tests/test_vector_store_registry.py:    assert registry.has_store("fake_store")
+packages/embedding/tests/test_vector_store_registry.py:    retrieved = registry.store("fake_store")
+packages/embedding/tests/test_vector_store_registry.py:    store = FakeVectorStore()
+packages/embedding/tests/test_vector_store_registry.py:    registry.register(FakeVectorStore())
+packages/knowledge/tests/test_extractor_interface.py:class FakeExtractor(AbstractKnowledgeExtractor):
+packages/knowledge/tests/test_extractor_interface.py:    def __init__(self, extractor_id: str = "fake") -> None:
+packages/knowledge/tests/test_extractor_interface.py:            extractor_name="Fake Extractor",
+packages/knowledge/tests/test_extractor_interface.py:            provider="Fake Provider",
+packages/knowledge/tests/test_extractor_interface.py:def test_fake_extractor_interface() -> None:
+packages/knowledge/tests/test_extractor_interface.py:    extractor = FakeExtractor()
+packages/knowledge/tests/test_extractor_interface.py:    assert extractor.info.extractor_id == "fake"
+packages/knowledge/tests/test_extractor_registry.py:from .test_extractor_interface import FakeExtractor
+packages/knowledge/tests/test_extractor_registry.py:    extractor1 = FakeExtractor(extractor_id="ext_1")
+packages/knowledge/tests/test_extractor_registry.py:    extractor2 = FakeExtractor(extractor_id="ext_2")
+packages/knowledge/tests/test_extractor_registry.py:    extractor1 = FakeExtractor(extractor_id="ext_1")
+packages/knowledge/tests/test_extractor_registry.py:    extractor2 = FakeExtractor(extractor_id="ext_1")  # duplicate ID
+packages/learning-content/tests/test_explanation_generator.py:class FakeTextGenerationProvider(AbstractTextGenerationProvider):
+packages/learning-content/tests/test_explanation_generator.py:            provider_id="fake-provider",
+packages/learning-content/tests/test_explanation_generator.py:            provider_name="Fake Provider",
+packages/learning-content/tests/test_explanation_generator.py:            default_model="fake-model",
+packages/learning-content/tests/test_explanation_generator.py:    provider = FakeTextGenerationProvider(VALID_EXPLANATION)
+packages/learning-content/tests/test_explanation_generator.py:    provider = FakeTextGenerationProvider(VALID_EXPLANATION)
+packages/learning-content/tests/test_explanation_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_explanation_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_explanation_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_explanation_generator.py:    provider = FakeTextGenerationProvider("   \n  ")
+packages/learning-content/tests/test_explanation_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_flashcards_generator.py:class FakeTextGenerationProvider(AbstractTextGenerationProvider):
+packages/learning-content/tests/test_flashcards_generator.py:            provider_id="fake-provider",
+packages/learning-content/tests/test_flashcards_generator.py:            provider_name="Fake Provider",
+packages/learning-content/tests/test_flashcards_generator.py:            default_model="fake-model",
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider("[]")
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider("[{missing quotes}]")
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_flashcards_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_notes_generator.py:class FakeTextGenerationProvider(AbstractTextGenerationProvider):
+packages/learning-content/tests/test_notes_generator.py:    def __init__(self, response: str = "Fake generated notes.") -> None:
+packages/learning-content/tests/test_notes_generator.py:            provider_id="fake-provider",
+packages/learning-content/tests/test_notes_generator.py:            provider_name="Fake Provider",
+packages/learning-content/tests/test_notes_generator.py:            default_model="fake-model-v1",
+packages/learning-content/tests/test_notes_generator.py:    provider = FakeTextGenerationProvider()
+packages/learning-content/tests/test_notes_generator.py:    assert info.provider_name == "fake-provider"
+packages/learning-content/tests/test_notes_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_notes_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_notes_generator.py:        provider = FakeTextGenerationProvider(p)
+packages/learning-content/tests/test_notes_generator.py:    provider = FakeTextGenerationProvider("   \n\n   ")
+packages/learning-content/tests/test_notes_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_notes_generator.py:    provider = FakeTextGenerationProvider("# Large Notes\n- Done")
+packages/learning-content/tests/test_provider_interface.py:class FakeLearningGenerator(AbstractLearningGenerator):
+packages/learning-content/tests/test_provider_interface.py:            generator_id="fake-gen",
+packages/learning-content/tests/test_provider_interface.py:            generator_name="Fake Generator",
+packages/learning-content/tests/test_provider_interface.py:            provider_name="Fake Provider",
+packages/learning-content/tests/test_provider_interface.py:                provider="Fake Provider",
+packages/learning-content/tests/test_provider_interface.py:                model="fake-model",
+packages/learning-content/tests/test_provider_interface.py:def test_fake_generator() -> None:
+packages/learning-content/tests/test_provider_interface.py:    generator = FakeLearningGenerator()
+packages/learning-content/tests/test_provider_interface.py:    assert generator.info().generator_id == "fake-gen"
+packages/learning-content/tests/test_quiz_generator.py:class FakeTextGenerationProvider(AbstractTextGenerationProvider):
+packages/learning-content/tests/test_quiz_generator.py:            provider_id="fake-provider",
+packages/learning-content/tests/test_quiz_generator.py:            provider_name="Fake Provider",
+packages/learning-content/tests/test_quiz_generator.py:            default_model="fake-model",
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider("[]")
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider("[{missing quotes}]")
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_quiz_generator.py:    provider = FakeTextGenerationProvider(response)
+packages/learning-content/tests/test_registry.py:class FakeLearningGenerator(AbstractLearningGenerator):
+packages/learning-content/tests/test_registry.py:            generator_id="fake-gen",
+packages/learning-content/tests/test_registry.py:            generator_name="Fake Generator",
+packages/learning-content/tests/test_registry.py:            provider_name="Fake Provider",
+packages/learning-content/tests/test_registry.py:class AnotherFakeLearningGenerator(FakeLearningGenerator):
+packages/learning-content/tests/test_registry.py:            provider_name="Fake Provider",
+packages/learning-content/tests/test_registry.py:    gen1 = FakeLearningGenerator()
+packages/learning-content/tests/test_registry.py:    gen2 = AnotherFakeLearningGenerator()
+packages/learning-content/tests/test_registry.py:    assert registry.has_generator("fake-gen")
+packages/learning-content/tests/test_registry.py:    gen1 = FakeLearningGenerator()
+packages/learning-content/tests/test_registry.py:    gen1 = FakeLearningGenerator()
+packages/learning-content/tests/test_registry.py:    retrieved = registry.generator_for_id("fake-gen")
+packages/learning-content/tests/test_registry.py:    gen1 = FakeLearningGenerator()
+packages/learning-content/tests/test_registry.py:    assert infos[0].generator_id == "fake-gen"
+packages/learning-content/tests/test_summary_generator.py:class FakeTextGenerationProvider(AbstractTextGenerationProvider):
+packages/learning-content/tests/test_summary_generator.py:    def __init__(self, response: str = "Fake generated summary.") -> None:
+packages/learning-content/tests/test_summary_generator.py:            provider_id="fake-provider",
+packages/learning-content/tests/test_summary_generator.py:            provider_name="Fake Provider",
+packages/learning-content/tests/test_summary_generator.py:            default_model="fake-model-v1",
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider()
+packages/learning-content/tests/test_summary_generator.py:    assert info.provider_name == "fake-provider"
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider("This is a summary.")
+packages/learning-content/tests/test_summary_generator.py:    assert content.metadata.provider == "fake-provider"
+packages/learning-content/tests/test_summary_generator.py:    assert content.metadata.model == "fake-model-v1"
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider("Summary of nothing.")
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider("Summary without graph.")
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider("Summary of large chunk.")
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider("こんにちは世界 Summary ✅")
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider("Line 1\nLine 2\n\nLine 3")
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider("   \n\t  ")
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider("I cannot answer.")
+packages/learning-content/tests/test_summary_generator.py:    provider = FakeTextGenerationProvider("# Summary\n\n- Point 1\n- Point 2")
+packages/learning-content/tests/test_summary_generator.py:    class FailingProvider(FakeTextGenerationProvider):
+packages/pipeline/tests/test_pipeline.py:class FakeProcessor(AbstractContentProcessor):
+packages/pipeline/tests/test_pipeline.py:            name="Fake Processor",
+packages/pipeline/tests/test_pipeline.py:            description="A fake processor",
+packages/pipeline/tests/test_pipeline.py:        doc.title = "Fake Title"
+packages/pipeline/tests/test_pipeline.py:        doc.content = "Fake content"
+packages/pipeline/tests/test_pipeline.py:class FakeChunkEngine(HybridChunkEngine):
+packages/pipeline/tests/test_pipeline.py:            text="Fake content chunk",
+packages/pipeline/tests/test_pipeline.py:                processor="fake", document_version="1.0", source="fake", checksum="hash"
+packages/pipeline/tests/test_pipeline.py:class FakeEmbeddingProvider(AbstractEmbeddingProvider):
+packages/pipeline/tests/test_pipeline.py:            provider_id="fake_provider",
+packages/pipeline/tests/test_pipeline.py:            provider_name="Fake Provider",
+packages/pipeline/tests/test_pipeline.py:            model_name="fake-model",
+packages/pipeline/tests/test_pipeline.py:                provider="fake",
+packages/pipeline/tests/test_pipeline.py:                model_name="fake-model",
+packages/pipeline/tests/test_pipeline.py:class FakeVectorStore(AbstractVectorStore):
+packages/pipeline/tests/test_pipeline.py:            store_id="fake_store",
+packages/pipeline/tests/test_pipeline.py:            store_name="Fake Store",
+packages/pipeline/tests/test_pipeline.py:            stored_count=1, collection_name="fake_col", metadata={"ids": [embedding.id]}
+packages/pipeline/tests/test_pipeline.py:            stored_count=len(ids), collection_name="fake_col", metadata={"ids": ids}
+packages/pipeline/tests/test_pipeline.py:class FakeKnowledgeExtractor(AbstractKnowledgeExtractor):
+packages/pipeline/tests/test_pipeline.py:            extractor_id="fake_extractor",
+packages/pipeline/tests/test_pipeline.py:            extractor_name="Fake Extractor",
+packages/pipeline/tests/test_pipeline.py:            provider="Fake",
+packages/pipeline/tests/test_pipeline.py:    registry.register(FakeProcessor())
+packages/pipeline/tests/test_pipeline.py:    chunk_engine = FakeChunkEngine()
+packages/pipeline/tests/test_pipeline.py:    FakeEmbeddingProvider()
+packages/pipeline/tests/test_pipeline.py:    FakeVectorStore()
+packages/pipeline/tests/test_pipeline.py:    FakeKnowledgeExtractor()
+packages/pipeline/tests/test_pipeline.py:    assert result.metadata.processor_name == "Fake Processor"
+packages/retrieval/tests/test_semantic_retriever.py:class FakeEmbeddingProvider(AbstractEmbeddingProvider):
+packages/retrieval/tests/test_semantic_retriever.py:            provider_id="fake",
+packages/retrieval/tests/test_semantic_retriever.py:            provider_name="Fake Provider",
+packages/retrieval/tests/test_semantic_retriever.py:            model_name="fake_model",
+packages/retrieval/tests/test_semantic_retriever.py:                provider="fake_provider",
+packages/retrieval/tests/test_semantic_retriever.py:                model_name="fake_model",
+packages/retrieval/tests/test_semantic_retriever.py:class FakeVectorStore(AbstractVectorStore):
+packages/retrieval/tests/test_semantic_retriever.py:            store_id="fake_store",
+packages/retrieval/tests/test_semantic_retriever.py:            store_name="Fake Store",
+packages/retrieval/tests/test_semantic_retriever.py:        return StorageResult(stored_count=1, collection_name="fake", metadata=None)
+packages/retrieval/tests/test_semantic_retriever.py:            stored_count=len(embeddings.embeddings), collection_name="fake", metadata=None
+packages/retrieval/tests/test_semantic_retriever.py:def create_fake_search_result(score: float, chunk_id: str) -> SearchResult:
+packages/retrieval/tests/test_semantic_retriever.py:            provider="fake_provider",
+packages/retrieval/tests/test_semantic_retriever.py:            model_name="fake_model",
+packages/retrieval/tests/test_semantic_retriever.py:        create_fake_search_result(0.9, "chunk_1"),
+packages/retrieval/tests/test_semantic_retriever.py:        create_fake_search_result(0.8, "chunk_2"),
+packages/retrieval/tests/test_semantic_retriever.py:        create_fake_search_result(0.2, "chunk_3"),  # Below threshold
+packages/retrieval/tests/test_semantic_retriever.py:    provider = FakeEmbeddingProvider()
+packages/retrieval/tests/test_semantic_retriever.py:    store = FakeVectorStore(mock_results=results)
+packages/retrieval/tests/test_semantic_retriever.py:    assert retrievals[0].provider == "fake_provider"
+packages/retrieval/tests/test_semantic_retriever.py:    assert retrievals[0].model == "fake_model"
+packages/retrieval/tests/test_semantic_retriever.py:class FailingEmbeddingProvider(FakeEmbeddingProvider):
+packages/retrieval/tests/test_semantic_retriever.py:    store = FakeVectorStore(mock_results=())
+--- Dummy ---
+apps/api/tests/test_db.py:    class DummyModel(Base, UUIDMixin, TimestampMixin):
+apps/api/tests/test_db.py:        __tablename__ = "dummy"
+apps/api/tests/test_db.py:    assert hasattr(DummyModel, "id")
+apps/api/tests/test_db.py:    assert hasattr(DummyModel, "created_at")
+apps/api/tests/test_db.py:    assert hasattr(DummyModel, "updated_at")
+dev/demo_docx_processor.py:        checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value="dummy_checksum"),
+dev/demo_html_processor.py:        checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value="dummy_checksum"),
+dev/demo_markdown_processor.py:        checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value="dummy_checksum"),
+dev/demo_pdf_processor.py:        checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value="dummy_checksum_for_demo"),
+dev/demo_retrieval_api.py:    # 1. Create a dummy Markdown document
+dev/demo_txt_processor.py:        checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value="dummy_checksum"),
+packages/content/tests/test_docx_processor.py:        checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value="dummy"),
+packages/content/tests/test_html_processor.py:        checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value="dummy"),
+packages/content/tests/test_plugins.py:class DummyProcessor(AbstractContentProcessor):
+packages/content/tests/test_plugins.py:        name: str = "dummy",
+packages/content/tests/test_plugins.py:            description="A dummy processor",
+packages/content/tests/test_plugins.py:    proc = DummyProcessor("valid", ("ext1", ".ext2"), ("mime/type1", "mime/type2"))
+packages/content/tests/test_plugins.py:        registry.register(DummyProcessor(""))
+packages/content/tests/test_plugins.py:        registry.register(DummyProcessor("p", exts=()))
+packages/content/tests/test_plugins.py:        registry.register(DummyProcessor("p", exts=("ext", ".ext")))
+packages/content/tests/test_plugins.py:        registry.register(DummyProcessor("p", mimes=("mime", "MIME")))
+packages/content/tests/test_plugins.py:    proc1 = DummyProcessor("proc1", ("ext1",), ("mime1",))
+packages/content/tests/test_plugins.py:        registry.register(DummyProcessor("proc1", ("ext2",), ("mime2",)))
+packages/content/tests/test_plugins.py:        registry.register(DummyProcessor("proc2", ("ext1",), ("mime2",)))
+packages/content/tests/test_plugins.py:        registry.register(DummyProcessor("proc3", ("ext3",), ("mime1",)))
+packages/content/tests/test_plugins.py:    proc = DummyProcessor("proc", ("txt",), ("text/plain",))
+packages/content/tests/test_txt_processor.py:        checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value="dummy"),
+packages/embedding/src/embedding/vectorstores/chroma/store.py:                # We need a dummy stats because we don't persist it.
+packages/embedding/tests/test_provider_registry.py:class DummyProvider(AbstractEmbeddingProvider):
+packages/embedding/tests/test_provider_registry.py:    p = DummyProvider("dummy")
+packages/embedding/tests/test_provider_registry.py:    assert reg.has_provider("dummy")
+packages/embedding/tests/test_provider_registry.py:    assert reg.provider("dummy") is p
+packages/embedding/tests/test_provider_registry.py:    p1 = DummyProvider("dummy")
+packages/embedding/tests/test_provider_registry.py:    p2 = DummyProvider("dummy")
+packages/embedding/tests/test_provider_registry.py:    p1 = DummyProvider("dummy1")
+packages/embedding/tests/test_provider_registry.py:    p2 = DummyProvider("dummy2")
+--- Temporary ---
+.ai/design.md:Own temporary, reproducible investigations. Successful experiments require explicit graduation criteria before production adoption.
+.gitignore:# Temporary files
+packages/retrieval/src/retrieval/semantic_retriever.py:            # 1. Create a temporary chunk for the query text since EmbeddingProviders expect Chunks
+--- Placeholder ---
+.ai/contributing.md:Keep changes focused, evidence-backed, documented, and testable. Preserve privacy, accessibility, licensing, and security. Do not add dependencies, generated data, model artifacts, secrets, or vendor coupling without review. Use placeholders rather than guessing manual project information.
+.ai/decisions.md:- **Context:** ADR-0003 defined future `apps/*`, `packages/*`, and `infrastructure` contracts while the repository still used Stage 0 top-level capability placeholders. Beginning engineering work with two competing layouts would create ambiguous ownership, broken dependency guidance, and later migration cost.
+.ai/design.md:The web experience moves through Arrival, Access, Intention, and one shared Workspace Engine. The Workspace is not a page collection: environments register metadata and inherit common state, transitions, focus restoration, workspace memory, and the contextual Locus. The Locus is Kogniq's single typing-first interaction primitive; its placeholder changes by environment while its behavior remains shared. Capability pages, backend calls, document rendering, and AI behavior remain outside the Workspace Engine foundation.
+.ai/progress.md:- Recorded ADR-0004 and retired superseded top-level capability placeholders.
+.ai/progress.md:- Replaced public author and ownership placeholders with Yash Mishra and added the `yash-mishraa` GitHub profile reference.
+.ai/progress.md:- **Architecture Changes:** Established an immutable, processor-independent chunk representation ready for downstream AI consumption, with placeholders for future embeddings and knowledge graph nodes. No specific splitting strategies or AI SDKs were introduced.
+.ai/progress.md:- **Known Issues:** Manual metadata placeholders and later-stage architecture decisions remain open.
+.ai/progress.md:- **Completed:** Established the physical modular-monorepo workspace, nine package/application boundaries plus infrastructure, six domain bounded contexts, shared-package documentation structure, architecture placeholders, and categorized script placeholders.
+.ai/progress.md:- **Validation:** Confirmed required directory structure, README sections, bounded contexts, architecture placeholders, script categories, naming consistency, non-empty files, and absence of source/dependency/configuration implementations.
+.ai/progress.md:- **Completed:** Initialized the uv root workspace; configured Python 3.12–3.13, Ruff, strict MyPy, pytest, coverage, editor rules, ignore rules, environment placeholders, and developer commands; added minimal reusable shared scaffolding.
+.ai/progress.md:- **Validation:** Generated and checked `uv.lock`, compiled and imported all shared modules, exercised environment loading and logging construction, and reviewed repository naming and placeholders. Full Ruff, MyPy, and pytest runs require the intentionally unsynced dev environment.
+.ai/progress.md:- **Completed:** Reworked the root README opening for immediate product clarity; identified Kogniq as an actively developed AI Learning Intelligence Platform; named GATE as the first supported domain/reference implementation; replaced public ownership placeholders.
+.ai/progress.md:- **Validation:** Audited visible files for owner/author placeholders, legacy active product names, README clarity, non-empty content, and documentation-only scope.
+.env.example:# Copy to `.env` for local use only. Replace placeholders locally; never commit secrets.
+CHANGELOG.md:- **Validation**: Strict schema enforcement and placeholder rejection for LLM responses.
+WORKSPACE.md:4. Avoid placeholder source code and speculative dependency declarations.
+apps/web/src/app/globals.css:  .locus-input::placeholder { color: hsl(var(--muted)); opacity: 1; }
+apps/web/src/app/workspace/WorkspaceTypes.ts:  locusPlaceholder: string;
+apps/web/src/app/workspace/environments/analytics.ts:export const analyticsEnvironment: EnvironmentMetadata = { id: "analytics", title: "Analytics", description: "A restrained environment for inspecting progress.", locusPlaceholder: "Inspect progress…", motionProfile: "measured", rhythm: "structured", contextualPanels: ["time scope", "measures"] };
+apps/web/src/app/workspace/environments/documents.ts:export const documentsEnvironment: EnvironmentMetadata = { id: "documents", title: "Documents", description: "A source-aware reading environment.", locusPlaceholder: "Import knowledge…", motionProfile: "reading", rhythm: "editorial", contextualPanels: ["outline", "sources"] };
+apps/web/src/app/workspace/environments/flashcards.ts:export const flashcardsEnvironment: EnvironmentMetadata = { id: "flashcards", title: "Flashcards", description: "A deliberate recall environment.", locusPlaceholder: "Generate recall…", motionProfile: "focused", rhythm: "sequential", contextualPanels: ["review"] };
+apps/web/src/app/workspace/environments/graph.ts:export const graphEnvironment: EnvironmentMetadata = { id: "graph", title: "Knowledge Graph", description: "A relationship-first knowledge environment.", locusPlaceholder: "Explore connections…", motionProfile: "spatial", rhythm: "canvas", contextualPanels: ["entities", "relationships"] };
+apps/web/src/app/workspace/environments/knowledge.ts:  locusPlaceholder: "Explore connections...",
+apps/web/src/app/workspace/environments/notebook.ts:  locusPlaceholder: "│ Capture an idea...",
+apps/web/src/app/workspace/environments/quiz.ts:export const quizEnvironment: EnvironmentMetadata = { id: "quiz", title: "Quiz", description: "An environment for testing understanding.", locusPlaceholder: "Test understanding…", motionProfile: "focused", rhythm: "sequential", contextualPanels: ["attempt"] };
+apps/web/src/app/workspace/environments/search.ts:export const searchEnvironment: EnvironmentMetadata = { id: "search", title: "Search", description: "An evidence-first reasoning environment.", locusPlaceholder: "Search your knowledge...", motionProfile: "evidence", rhythm: "vertical", contextualPanels: ["evidence", "sources"] };
+apps/web/src/app/workspace/environments/studio.ts:export const studioEnvironment: EnvironmentMetadata = { id: "studio", title: "Studio", description: "A focused environment for developing thoughts.", locusPlaceholder: "Develop a thought…", motionProfile: "focused", rhythm: "editorial", contextualPanels: ["linked knowledge"] };
+apps/web/src/app/workspace/environments/study.ts:export const studyEnvironment: EnvironmentMetadata = { id: "study", title: "Study", description: "A calm, sequential learning environment.", locusPlaceholder: "│ Continue learning...", motionProfile: "focused", rhythm: "sequential", contextualPanels: ["session"] };
+apps/web/src/app/workspace/workspace-engine.test.tsx:    expect(registry.getEnvironment("documents")?.locusPlaceholder).toBe("Import knowledge…");
+apps/web/src/components/documents/DocumentEmptyState.tsx:        placeholder="│ Import knowledge..."
+apps/web/src/components/experience/experience-flow.tsx:  return <motion.section key="access" initial={false} exit={reduceMotion ? undefined : { opacity: 0.99 }} transition={transition} className="relative flex min-h-dvh flex-col bg-[hsl(var(--night))] px-6 py-7 text-[hsl(var(--night-ink))] sm:px-10 sm:py-9"><motion.div layoutId="kogniq-word" transition={transition} className="kogniq-word text-[clamp(1.9rem,4vw,3.25rem)]">Kogniq</motion.div><div className="mx-auto flex w-full max-w-6xl flex-1 items-center py-16 sm:py-20"><form onSubmit={handleSubmit(handleLogin)} className="w-full max-w-2xl tracking-[-0.035em]" aria-label="Begin a Kogniq session"><p className="text-[clamp(2rem,4.5vw,4.8rem)] font-medium leading-[.98]">Build knowledge.</p><p className="mt-3 text-[clamp(1.25rem,2.3vw,2rem)] text-[hsl(var(--night-ink)/.82)]">Connect ideas.</p><p className="mt-1 text-[clamp(1.25rem,2.3vw,2rem)] text-[hsl(var(--night-ink)/.82)]">Understand concepts.</p><div className="mt-14 max-w-md space-y-0 sm:mt-20"><label className="group block"><span className="sr-only">Email address</span><span aria-hidden className="mr-3 inline-block h-[1.05em] w-px translate-y-[.14em] bg-[hsl(var(--night-ink)/.64)] [animation:locus-idle_2.2s_cubic-bezier(.45,0,.55,1)_infinite] group-focus-within:bg-[hsl(var(--night-ink))]" /><input type="email" autoComplete="email" required placeholder="email" className="w-[calc(100%-1.25rem)] border-b border-transparent bg-transparent py-2 text-[clamp(1.15rem,2vw,1.45rem)] outline-none placeholder:text-[hsl(var(--night-muted))] focus:border-[hsl(var(--night-ink)/.7)] focus-visible:text-white" {...register("email")} onFocus={focusEmail} /></label><motion.div initial={false} animate={{ height: showPassword ? "auto" : 0, opacity: showPassword ? 1 : 0, marginTop: showPassword ? 12 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.22, 1, .36, 1] }} className="overflow-hidden"><label className="block"><span className="sr-only">Password</span><input type="password" autoComplete="current-password" required tabIndex={showPassword ? 0 : -1} aria-hidden={!showPassword} placeholder="password" className="w-full border-b border-transparent bg-transparent py-2 text-[clamp(1.15rem,2vw,1.45rem)] outline-none placeholder:text-[hsl(var(--night-muted))] focus:border-[hsl(var(--night-ink)/.7)] focus-visible:text-white" {...register("password")} /></label></motion.div><motion.div initial={false} animate={{ height: showPassword ? "auto" : 0, opacity: showPassword ? 1 : 0, marginTop: showPassword ? 22 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.22, 1, .36, 1] }} className="overflow-hidden"><button type="submit" className="text-[clamp(1rem,1.7vw,1.2rem)] text-[hsl(var(--night-ink)/.75)] outline-none transition-colors hover:text-white focus-visible:text-white">Continue.</button></motion.div></div><div className="mt-20 text-[clamp(1rem,1.55vw,1.2rem)] leading-8 text-[hsl(var(--night-muted))]"><p>Upload documents.</p><p>Generate learning.</p><p>Search meaning.</p></div></form></div><Footline night /></motion.section>;
+apps/web/src/components/locus/Locus.tsx:  placeholder: string;
+apps/web/src/components/locus/Locus.tsx:  placeholder,
+apps/web/src/components/locus/Locus.tsx:    <LocusContext.Provider value={{ placeholder, environmentTitle }}>
+apps/web/src/components/locus/Locus.tsx:            {`${environmentTitle}: ${placeholder}`}
+apps/web/src/components/locus/Locus.tsx:            placeholder={placeholder}
+apps/web/src/components/locus/LocusContext.tsx:export interface LocusContextValue { placeholder: string; environmentTitle: string; }
+apps/web/src/components/locus/LocusPlaceholder.tsx:export function LocusPlaceholder({ children }: { children: string }) { return <span className="pointer-events-none text-muted">{children}</span>; }
+apps/web/src/components/locus/index.ts:export * from "./LocusPlaceholder";
+apps/web/src/components/notebook/NotebookCanvas.tsx:            placeholder="│ Capture an idea..."
+apps/web/src/components/notebook/NotebookEmptyState.tsx:          placeholder="│ Capture an idea..."
+apps/web/src/components/search/SearchEmptyState.tsx:          placeholder="Search your knowledge..."
+apps/web/src/components/study/StudyEmptyState.tsx:          placeholder="│ Continue learning..."
+apps/web/src/components/ui/command-palette.tsx:  return <DialogPrimitive.Root open={open} onOpenChange={setOpen}><DialogPrimitive.Trigger asChild><button className="inline-flex h-8 items-center gap-2 rounded-sm border bg-surface px-2.5 text-xs text-muted hover:bg-raised"><Command className="size-3.5" />Command <kbd className="ml-2 font-mono text-[10px]">⌘K</kbd></button></DialogPrimitive.Trigger><DialogPrimitive.Portal><DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-ink/25" /><DialogPrimitive.Content aria-describedby={undefined} className="fixed left-1/2 top-[18%] z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 rounded-md border bg-surface shadow-overlay"><DialogPrimitive.Title className="sr-only">Command palette</DialogPrimitive.Title><div className="flex items-center gap-3 border-b px-4"><Search className="size-4 text-muted" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search commands" className="h-12 flex-1 bg-transparent text-sm outline-none placeholder:text-muted" /></div><div className="p-2">{visible.map((entry) => <button key={entry} onClick={() => setOpen(false)} className="flex w-full items-center justify-between rounded-xs px-3 py-2.5 text-left text-sm hover:bg-raised"><span>{entry}</span><CornerDownLeft className="size-3.5 text-muted" /></button>)}{visible.length === 0 && <p className="px-3 py-8 text-center text-sm text-muted">No commands match “{query}”.</p>}</div><div className="flex gap-3 border-t px-4 py-2 font-mono text-[10px] text-muted"><span><kbd className="rounded border px-1">↵</kbd> select</span><span><kbd className="rounded border px-1">esc</kbd> close</span></div></DialogPrimitive.Content></DialogPrimitive.Portal></DialogPrimitive.Root>;
+apps/web/src/components/ui/fields.tsx:const field = "w-full rounded-sm border bg-surface px-3 text-sm text-ink placeholder:text-muted transition-[border,box-shadow] duration-[var(--motion-fast)] hover:border-[hsl(var(--line-strong))] focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15 disabled:cursor-not-allowed disabled:bg-raised disabled:text-muted";
+apps/web/src/components/workspace/WorkspaceEmptyState.tsx:export function WorkspaceEmptyState({ environment }: { environment: EnvironmentMetadata }) { const { remember } = useWorkspace(); const suggestions: readonly LocusSuggestion[] = [{ label: environment.title, detail: environment.description }, { label: "Change perspective", detail: "choose another environment" }]; return <section aria-label={`${environment.title} starting point`} className="mx-auto flex w-full max-w-6xl flex-1 items-start pt-4"><Locus environmentTitle={environment.title} placeholder={environment.locusPlaceholder} suggestions={suggestions} autoFocus onSelect={(suggestion) => remember(environment.id, { selectedContext: suggestion.label, focusTarget: "locus" })} /></section>; }
+dev/check_key.py:        print("WARNING: Key is literally the placeholder text!")
+dev/demo_openrouter_provider.py:        print("Estimated Cost: $0.000 (Placeholder)")
+dev/demo_openrouter_provider.py:        print("Finish Reason: stop (Placeholder)\n")
+docs/README.md:The `architecture/` directory contains concise placeholders for future implementation-aligned architecture views. Authoritative plans and decisions remain in `.ai/`.
+docs/architecture/chunk-model.md:- It contains placeholder properties (`future_embedding_id`, `future_graph_node_id`) to ensure future integrations are accommodated natively without violating the core dependency rule.
+docs/architecture/explanation-generator.md:        E --> V1[Check for Empty/Placeholder]
+docs/architecture/notes-generator.md:2. **`NotesParser`**: Strict parsing logic that validates output, strips placeholder text, protects markdown structure (whitespace is selectively trimmed to avoid breaking code blocks and nested lists), and returns a verified `LearningContent` object of type `NOTES`.
+docs/architecture/summary-generation-pipeline.md:3. **Parser Independence**: `SummaryParser` converts raw strings into immutable domain models (`LearningContent`). It enforces structural requirements, rejects placeholders ("I cannot answer"), generates `LearningContentStatistics`, and constructs `LearningContentMetadata`.
+docs/architecture/summary-generator.md:4. **Parsing**: The `SummaryParser` ensures the response is non-empty, calculates heuristics (e.g., character count, estimated tokens), and assigns a neutral confidence placeholder (`0.5`) until full evaluation pipelines are introduced.
+docs/frontend/study-workspace.md:In the Study environment, the Locus is geared entirely toward resuming context rather than generating new queries. The placeholder reads `│ Continue learning...` and offers suggestions of recent study sessions.
+docs/frontend/workspace-engine.md:An environment describes only its title, description, contextual Locus placeholder, motion profile, reading rhythm, and optional contextual panel names. The registry intentionally contains no rendering logic, API clients, or capability-specific state.
+docs/frontend/workspace-engine.md:    A["Environment metadata"] --> B["Locus placeholder"]
+docs/frontend/workspace-engine.md:There is one Locus implementation in `apps/web/src/components/locus`. It owns the caret, semantic input, placeholder, suggestion lifecycle, and reduced-motion-compatible reveal. Environments supply language; they do not duplicate interaction behavior.
+packages/backend/src/backend/lifespan.py:    # Example placeholder: Initialize database connections, load models, etc.
+packages/backend/src/backend/lifespan.py:    # Example placeholder: Close connections, clean up resources, etc.
+packages/content/src/content/chunking/metadata.py:    # Future placeholder properties (no implementation logic allowed)
+packages/domain/analytics/README.md:Documentation placeholder only. Metric semantics, consent, retention, and access require approval before implementation. Ownership: Yash Mishra.
+packages/domain/assessment/README.md:Documentation placeholder only. Domain-specific assessment conventions must enter through plugins. Ownership: Yash Mishra.
+packages/domain/documents/README.md:Documentation placeholder only. No upload, storage, parser, or document model exists. Ownership: Yash Mishra.
+packages/domain/recommendation/README.md:Documentation placeholder only. No ranking, recommendation, or revision logic exists. Ownership: Yash Mishra.
+packages/domain/student/README.md:Documentation placeholder only. Privacy and correction behavior must be defined before data is stored. Ownership: Yash Mishra.
+packages/learning-content/README.md:- Active rejection of LLM placeholder responses and comprehensive token estimation utilities.
+packages/learning-content/src/learning_content/generators/explanation/parser.py:            raise InvalidExplanationError("Received placeholder or rejection response.")
+packages/learning-content/src/learning_content/generators/notes/parser.py:            ParsingError: If the raw text is empty, a placeholder, or invalid.
+packages/learning-content/src/learning_content/generators/notes/parser.py:        # Reject common placeholder responses
+packages/learning-content/src/learning_content/generators/notes/parser.py:        placeholders = {
+packages/learning-content/src/learning_content/generators/notes/parser.py:        for placeholder in placeholders:
+packages/learning-content/src/learning_content/generators/notes/parser.py:            if lower_text.startswith(placeholder) or lower_text == placeholder:
+packages/learning-content/src/learning_content/generators/notes/parser.py:                raise ParsingError(f"Provider returned a placeholder response: '{cleaned_text}'")
+packages/learning-content/src/learning_content/generators/notes/parser.py:            # Placeholder: 0.5 until evaluation metrics are introduced
+packages/learning-content/src/learning_content/generators/summary/parser.py:        # Reject common placeholder responses
+packages/learning-content/src/learning_content/generators/summary/parser.py:            raise ParsingError(f"Provider returned a placeholder response: '{cleaned_text}'")
+packages/learning-content/src/learning_content/generators/summary/parser.py:            # Placeholder: 0.5 until evaluation metrics are introduced
+packages/learning-content/tests/test_explanation_generator.py:def test_placeholder_rejection() -> None:
+packages/learning-content/tests/test_notes_generator.py:def test_placeholder_rejection() -> None:
+packages/learning-content/tests/test_notes_generator.py:    placeholders = ["I cannot answer", "As an AI language model", "N/A", "Unknown"]
+packages/learning-content/tests/test_notes_generator.py:    for p in placeholders:
+packages/learning-content/tests/test_notes_generator.py:        with pytest.raises(ParsingError, match="placeholder response"):
+packages/learning-content/tests/test_summary_generator.py:def test_generate_placeholder_response() -> None:
+packages/learning-content/tests/test_summary_generator.py:    with pytest.raises(ParsingError, match="placeholder response"):
+--- NotImplemented ---
+dev/demo_embedding_registry.py:        raise NotImplementedError
+dev/demo_embedding_registry.py:        raise NotImplementedError
+dev/demo_embedding_registry.py:        raise NotImplementedError
+dev/demo_embedding_registry.py:        raise NotImplementedError
+packages/embedding/tests/test_provider_registry.py:        raise NotImplementedError
+packages/embedding/tests/test_provider_registry.py:        raise NotImplementedError
+packages/learning-content/tests/test_registry.py:        raise NotImplementedError
+packages/learning-content/tests/test_registry.py:        raise NotImplementedError
+pyproject.toml:    "raise NotImplementedError",
+--- pass ---
+.ai/contributing.md:Describe the user or engineering outcome, constraints, validation, and architectural impact. Review AI-generated work as carefully as human-written work. Do not merge changes solely because automated checks pass.
+.ai/design.md:Own bounded agent workflows, tool contracts, planning policies, memory policies, and safeguards. Agents must not bypass domain services.
+.ai/glossary.md:- **Notes:** This role is planned only and may not bypass domain services or evidence requirements.
+.ai/package_contracts.md:- **Forbidden Dependencies:** Direct database access, private package internals, unapproved network/tool access, embedded domain behavior, or authority to bypass application policy.
+.ai/progress.md:- **Validation:** `npm run lint`, `npm run typecheck`, `npm run test` (4 tests), and `npm run build` pass in `apps/web`.
+.ai/progress.md:- Added and passed the requested startup, health, and version tests.
+.ai/progress.md:- **Validation:** 100% test pass on pytest, mypy, and ruff. Zero framework leakage.
+.ai/progress.md:- **Validation:** 100% test pass on pytest, mypy, and ruff. Zero framework leakage.
+.ai/progress.md:- **Validation:** 100% test pass on pytest, mypy, and ruff. Zero framework leakage.
+.ai/progress.md:- [x] Expose `PipelineResult` encompassing all stage outputs
+.ai/progress.md:- **Validation:** 100% pass on pytest, mypy, and ruff. No framework leakage (FastAPI, SQLAlchemy, Langchain).
+.ai/progress.md:- **Validation:** Workspace members updated, 100% pass on pytest, mypy, and ruff.
+.ai/progress.md:- **Validation:** 100% pass on pytest, mypy, and ruff.
+.ai/progress.md:- **Validation:** 100% pass on pytest, mypy, and ruff.
+.ai/progress.md:- **Validation:** 100% test pass on pytest, mypy, ruff.
+.ai/progress.md:- **Validation:** 100% test pass on pytest, mypy, and ruff.
+.ai/progress.md:- **Validation:** Ruff format and lint passed; strict MyPy passed for 43 source files; pytest passed all 3 requested tests.
+.ai/roadmap.md:- **Completion Criteria:** Agent workflows are constrained, auditable, recoverable, and pass safety evaluations.
+.ai/roadmap.md:- **Completion Criteria:** Release gates, SLOs, threat review, load tests, and rollback exercises pass.
+.ai/system_blueprint.md:The application plane owns workflow authority. Intelligence components propose or derive results; they do not bypass authorization or mutate another package's private storage.
+.env.example:# POSTGRES_PASSWORD
+.env.example:# What: Password for the PostgreSQL database. Replace this in production.
+.env.example:# Example: kogniq_dev_password
+.env.example:POSTGRES_PASSWORD=kogniq_dev_password
+.env.example:# PGADMIN_PASSWORD
+.env.example:# What: Default password for the pgAdmin web UI.
+.env.example:PGADMIN_PASSWORD=admin
+.env.example:# NEO4J_PASSWORD
+.env.example:# What: Password for the Neo4j database.
+.env.example:# Example: neo4j_dev_password
+.env.example:NEO4J_PASSWORD=neo4j_dev_password
+README.md:![Pytest](https://img.shields.io/badge/pytest-passing-success.svg)
+README.md:| Unit Tests | Hundreds of passing tests enforcing immutable invariants |
+README.md:- All tests must pass (`uv run python -m pytest`).
+README.md:Contributions are welcome! Please read our [Development Guide](docs/development.md) to get started. Ensure all code passes the quality gates before submitting a pull request.
+alembic.ini:# string value is passed to ZoneInfo()
+alembic.ini:sqlalchemy.url = driver://user:pass@localhost/dbname
+apps/api/src/apps/api/app/config/settings.py:    postgres_password: str = "kogniq_dev_password"
+apps/api/src/apps/api/app/config/settings.py:            password=self.postgres_password,
+apps/api/src/apps/api/app/db/migrations/script.py.mako:    ${upgrades if upgrades else "pass"}
+apps/api/src/apps/api/app/db/migrations/script.py.mako:    ${downgrades if downgrades else "pass"}
+apps/api/src/apps/api/app/routers/auth.py:            password=request_data.password,
+apps/api/src/apps/api/app/routers/auth.py:            password=request_data.password,
+apps/api/src/apps/api/app/schemas/auth.py:    password: str = Field(..., min_length=1)
+apps/api/src/apps/api/app/schemas/auth.py:    password: str = Field(..., min_length=8)
+apps/api/tests/test_auth.py:        "password": "secure_password",
+apps/api/tests/test_auth.py:        "password": "secure_password",
+apps/api/tests/test_auth.py:        "password": "wrong_password",
+apps/api/tests/test_auth.py:        "password": "wrong_password",
+apps/api/tests/test_db.py:        postgres_password="test-password",
+apps/api/tests/test_db.py:    assert url == "postgresql+asyncpg://test-user:test-password@test-host:5432/test-db"
+apps/web/src/components/experience/experience-flow.tsx:type AccessValues = { email: string; password: string };
+apps/web/src/components/experience/experience-flow.tsx:  const { handleSubmit, register, watch } = useForm<AccessValues>({ defaultValues: { email: "", password: "" } });
+apps/web/src/components/experience/experience-flow.tsx:  const [emailFocused, setEmailFocused] = useState(false); const email = watch("email"); const showPassword = emailFocused || email.length > 0;
+apps/web/src/components/experience/experience-flow.tsx:      await serviceProvider.getProvider().auth.login(data.email, data.password);
+apps/web/src/components/experience/experience-flow.tsx:  return <motion.section key="access" initial={false} exit={reduceMotion ? undefined : { opacity: 0.99 }} transition={transition} className="relative flex min-h-dvh flex-col bg-[hsl(var(--night))] px-6 py-7 text-[hsl(var(--night-ink))] sm:px-10 sm:py-9"><motion.div layoutId="kogniq-word" transition={transition} className="kogniq-word text-[clamp(1.9rem,4vw,3.25rem)]">Kogniq</motion.div><div className="mx-auto flex w-full max-w-6xl flex-1 items-center py-16 sm:py-20"><form onSubmit={handleSubmit(handleLogin)} className="w-full max-w-2xl tracking-[-0.035em]" aria-label="Begin a Kogniq session"><p className="text-[clamp(2rem,4.5vw,4.8rem)] font-medium leading-[.98]">Build knowledge.</p><p className="mt-3 text-[clamp(1.25rem,2.3vw,2rem)] text-[hsl(var(--night-ink)/.82)]">Connect ideas.</p><p className="mt-1 text-[clamp(1.25rem,2.3vw,2rem)] text-[hsl(var(--night-ink)/.82)]">Understand concepts.</p><div className="mt-14 max-w-md space-y-0 sm:mt-20"><label className="group block"><span className="sr-only">Email address</span><span aria-hidden className="mr-3 inline-block h-[1.05em] w-px translate-y-[.14em] bg-[hsl(var(--night-ink)/.64)] [animation:locus-idle_2.2s_cubic-bezier(.45,0,.55,1)_infinite] group-focus-within:bg-[hsl(var(--night-ink))]" /><input type="email" autoComplete="email" required placeholder="email" className="w-[calc(100%-1.25rem)] border-b border-transparent bg-transparent py-2 text-[clamp(1.15rem,2vw,1.45rem)] outline-none placeholder:text-[hsl(var(--night-muted))] focus:border-[hsl(var(--night-ink)/.7)] focus-visible:text-white" {...register("email")} onFocus={focusEmail} /></label><motion.div initial={false} animate={{ height: showPassword ? "auto" : 0, opacity: showPassword ? 1 : 0, marginTop: showPassword ? 12 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.22, 1, .36, 1] }} className="overflow-hidden"><label className="block"><span className="sr-only">Password</span><input type="password" autoComplete="current-password" required tabIndex={showPassword ? 0 : -1} aria-hidden={!showPassword} placeholder="password" className="w-full border-b border-transparent bg-transparent py-2 text-[clamp(1.15rem,2vw,1.45rem)] outline-none placeholder:text-[hsl(var(--night-muted))] focus:border-[hsl(var(--night-ink)/.7)] focus-visible:text-white" {...register("password")} /></label></motion.div><motion.div initial={false} animate={{ height: showPassword ? "auto" : 0, opacity: showPassword ? 1 : 0, marginTop: showPassword ? 22 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.22, 1, .36, 1] }} className="overflow-hidden"><button type="submit" className="text-[clamp(1rem,1.7vw,1.2rem)] text-[hsl(var(--night-ink)/.75)] outline-none transition-colors hover:text-white focus-visible:text-white">Continue.</button></motion.div></div><div className="mt-20 text-[clamp(1rem,1.55vw,1.2rem)] leading-8 text-[hsl(var(--night-muted))]"><p>Upload documents.</p><p>Generate learning.</p><p>Search meaning.</p></div></form></div><Footline night /></motion.section>;
+apps/web/src/components/search/SearchThinkingState.tsx:  "Found relevant passages.",
+apps/web/src/lib/services/interfaces/IAuthService.ts:  login(email: string, password: string): Promise<void>;
+apps/web/src/lib/services/live/LiveAuthService.ts:  async login(email: string, password: string): Promise<void> {
+apps/web/src/lib/services/live/LiveAuthService.ts:      body: JSON.stringify({ email, password })
+apps/web/src/lib/services/mock/MockAuthService.ts:  async login(_email: string, _password: string): Promise<void> {
+dev/demo_retrieval_api.py:            pass
+dev/demo_retriever.py:        pass
+dev/demo_retriever.py:        pass
+dev/demo_retriever.py:        pass
+dev/demo_vector_store_registry.py:        pass
+dev/demo_vector_store_registry.py:        pass
+dev/demo_vector_store_registry.py:        pass
+dev/demo_vector_store_registry.py:        pass
+dev/demo_vector_store_registry.py:        pass
+dev/demo_vector_store_registry.py:        pass
+docker-compose.yml:      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+docker-compose.yml:      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+docs/ARCHITECTURE.md:- **Immutable Domain Models**: All domain models (e.g., `NormalizedDocument`, `ChunkCollection`, `KnowledgeGraph`) are deeply immutable. They are instantiated once and passed down the pipeline without side effects.
+docs/architecture/chroma-vector-store.md:- **Persistent Mode:** Instantiated when a `persist_directory` is explicitly passed. Automatically saves SQLite metadata and HNSW index graphs to disk.
+docs/architecture/embedding-domain.md:    B -->|Passed to AI Strategy| C{AI Provider Strategy}
+docs/architecture/embedding-provider.md:    A[ChunkCollection] -->|Passed to| B(AbstractEmbeddingProvider)
+docs/architecture/embedding-provider.md:    F -->|Validated & Passed to| G[(Vector Store)]
+docs/architecture/knowledge-extractors.md:    A[ChunkCollection] -->|Passed to| B(AbstractKnowledgeExtractor)
+docs/architecture/local-embedding-provider.md:    A[ChunkCollection] -->|Passed to| B(LocalEmbeddingProvider)
+docs/architecture/plugin-system.md:When concrete parsing functionality is implemented (e.g., in `packages/plugins/pdf` or via standard package entry points), these external modules will instantiate classes inheriting from `AbstractContentProcessor`. During application startup, these instances will be passed to `ProcessorRegistry.register()`, gracefully binding the implementation to the domain.
+docs/development.md:- **Password:** `password`
+docs/development.md:4. Ensure the CI pipeline passes.
+docs/frontend/notebook-workspace.md:In the Notebook environment, the Locus is used to quickly record an idea with the prompt `│ Capture an idea...`. This interaction bypasses the heavy cognitive load of opening a document and formatting text. 
+docs/frontend/search-workspace.md:2. **Thinking State:** To build anticipation and reinforce the semantic nature of the search, the environment cycles through gentle typographic states ("Searching your knowledge...", "Connecting related concepts...", "Found relevant passages.") instead of showing a generic loading spinner.
+infrastructure/health_verification.md:4. Login using the credentials defined in your `.env` file (`PGADMIN_EMAIL` and `PGADMIN_PASSWORD`).
+packages/agents/README.md:Unbounded autonomy, direct storage access, duplicated business rules, implicit network access, embedded credentials, examination-specific core logic, or authority bypasses.
+packages/application/src/application/auth/register_user.py:    password: str
+packages/application/src/application/auth/register_user.py:                password=command.password,
+packages/application/src/application/document/process_document.py:        # We pass the command directly, duck-typed to avoid dependency on backend
+packages/application/src/application/interfaces.py:    async def register(self, email: str, password: str, display_name: str) -> Any: ...
+packages/application/tests/test_use_cases.py:        pass
+packages/auth/src/auth/memory.py:from pwdlib import PasswordHash
+packages/auth/src/auth/memory.py:        self._passwords: dict[str, str] = {}
+packages/auth/src/auth/memory.py:    async def set_password_hash(self, user_id: str, password_hash: str) -> None:
+packages/auth/src/auth/memory.py:            self._passwords[user_id] = password_hash
+packages/auth/src/auth/memory.py:    async def get_password_hash(self, user_id: str) -> str | None:
+packages/auth/src/auth/memory.py:            return self._passwords.get(user_id)
+packages/auth/src/auth/memory.py:        """Simulate authentication, checking actual passwords via pwdlib."""
+packages/auth/src/auth/memory.py:        password = request.payload.get("password")
+packages/auth/src/auth/memory.py:        # Check password hash if not registering (since register sets and immediately authenticates)
+packages/auth/src/auth/memory.py:        if not is_registration and password and hasattr(self._user_repo, "get_password_hash"):
+packages/auth/src/auth/memory.py:            stored_hash = await self._user_repo.get_password_hash(user.user_id)
+packages/auth/src/auth/memory.py:                password_hash = PasswordHash((Argon2Hasher(),))
+packages/auth/src/auth/memory.py:                if not password_hash.verify(password, stored_hash):
+packages/auth/src/auth/service.py:from pwdlib import PasswordHash
+packages/auth/src/auth/service.py:        self._password_hash = PasswordHash((Argon2Hasher(),))
+packages/auth/src/auth/service.py:    async def register(self, email: str, password: str, display_name: str) -> tuple[User, Session]:
+packages/auth/src/auth/service.py:        # Hash the password
+packages/auth/src/auth/service.py:        hashed_password = self._password_hash.hash(password)
+packages/auth/src/auth/service.py:        # The memory implementation is adapted to handle password setting
+packages/auth/src/auth/service.py:        if hasattr(self._user_repo, "set_password_hash"):
+packages/auth/src/auth/service.py:            await self._user_repo.set_password_hash(user.user_id, hashed_password)
+packages/auth/src/auth/service.py:            payload={"email": email, "password": password, "is_registration": True},
+packages/auth/src/auth/service.py:    async def login(self, email: str, password: str) -> tuple[User, Session]:
+packages/auth/src/auth/service.py:            payload={"email": email, "password": password},
+packages/auth/tests/test_authorization.py:    assert res_read.allowed  # Should pass since both have it
+packages/auth/tests/test_authorization.py:    assert res_write.allowed  # Passes because of WRITER
+packages/backend/src/backend/security/bootstrap.py:            password="password",
+packages/backend/src/backend/services/auth_service.py:    async def register(self, email: str, password: str, display_name: str) -> tuple[User, Session]:
+packages/backend/src/backend/services/auth_service.py:        from pwdlib import PasswordHash
+packages/backend/src/backend/services/auth_service.py:        # Hash the password
+packages/backend/src/backend/services/auth_service.py:        password_hash = PasswordHash((Argon2Hasher(),))
+packages/backend/src/backend/services/auth_service.py:        hashed_password = password_hash.hash(password)
+packages/backend/src/backend/services/auth_service.py:        # The memory implementation is adapted to handle password setting
+packages/backend/src/backend/services/auth_service.py:        if hasattr(self._user_repo, "set_password_hash"):
+packages/backend/src/backend/services/auth_service.py:            await self._user_repo.set_password_hash(user.user_id, hashed_password)
+packages/backend/src/backend/services/auth_service.py:            payload={"email": email, "password": password, "is_registration": True},
+packages/backend/src/backend/services/learning_service.py:            # We bypass the batching for the simple single-document case
+packages/backend/src/backend/services/pipeline_factory.py:            pass
+packages/backend/src/backend/services/pipeline_factory.py:            pass
+packages/backend/src/backend/services/retrieval_service.py:        # Since we use a single collection, we can pass document_id in filters
+packages/backend/src/backend/services/stubs.py:        pass
+packages/backend/tests/test_retrieval.py:        pass
+packages/content/src/content/domain/events.py:    pass
+packages/content/src/content/pipeline/interfaces.py:        pass
+packages/content/src/content/pipeline/interfaces.py:        pass
+packages/content/src/content/pipeline/interfaces.py:        pass
+packages/content/src/content/pipeline/interfaces.py:        pass
+packages/content/src/content/pipeline/interfaces.py:        pass
+packages/content/src/content/processors/markdown/blocks.py:                    pass
+packages/content/src/content/processors/pdf/exceptions.py:    """Raised when PDF is encrypted and requires a password."""
+packages/content/src/content/processors/pdf/parser.py:        if self.doc.is_encrypted or self.doc.needs_pass:
+packages/content/src/content/resource/handle.py:    Passed to content parsers in place of raw filenames or paths.
+packages/content/tests/test_html_processor.py:                pass
+packages/content/tests/test_pdf_processor.py:    # Needs valid PDF bytes to pass the open phase
+packages/embedding/src/embedding/vectorstores/qdrant/store.py:                # Make mypy happy by ensuring we pass a sequence of floats
+packages/jobs/src/jobs/memory.py:                pass
+packages/knowledge/README.md:- Multi-pass extraction strategies for extremely large documents.
+packages/learning-content/src/learning_content/generators/base/models.py:    Passes data across the PromptBuilder and Parser safely.
+packages/learning-content/tests/test_notes_generator.py:        "    pass\n"
+packages/learning/src/learning/domain/repositories/interfaces.py:        pass
+packages/learning/src/learning/domain/repositories/interfaces.py:        pass
+packages/learning/src/learning/domain/repositories/interfaces.py:        pass
+packages/learning/src/learning/domain/repositories/interfaces.py:        pass
+packages/learning/src/learning/domain/repositories/interfaces.py:        pass
+packages/learning/src/learning/domain/repositories/interfaces.py:        pass
+packages/learning/src/learning/domain/repositories/interfaces.py:        pass
+packages/learning/src/learning/domain/repositories/interfaces.py:        pass
+packages/learning/src/learning/domain/value_objects/identifiers.py:# Strongly typed identifiers to prevent passing a TopicId where a ConceptId is expected.
+packages/persistence/src/persistence/factory.py:        pass
+packages/persistence/src/persistence/factory.py:        pass
+packages/persistence/src/persistence/factory.py:        pass
+packages/persistence/src/persistence/factory.py:        pass
+packages/persistence/src/persistence/memory_uow.py:        pass
+packages/persistence/src/persistence/memory_uow.py:        pass
+packages/persistence/src/persistence/memory_uow.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/repositories/base.py:        pass
+packages/persistence/src/persistence/uow.py:        pass
+packages/persistence/src/persistence/uow.py:        pass
+packages/persistence/src/persistence/uow.py:        pass
+packages/persistence/src/persistence/uow_factory.py:        pass
+packages/pipeline/tests/test_pipeline.py:        pass
+packages/pipeline/tests/test_pipeline.py:        pass
+packages/pipeline/tests/test_pipeline.py:        pass
+packages/retrieval/tests/test_semantic_retriever.py:        pass
+packages/retrieval/tests/test_semantic_retriever.py:        pass
+packages/retrieval/tests/test_semantic_retriever.py:        pass
+scripts/deployment/README.md:Scripts must not replace declarative infrastructure, hide manual state, embed credentials, or bypass review and rollback controls. No deployment script exists.
+--- raise NotImplementedError ---
+dev/demo_embedding_registry.py:        raise NotImplementedError
+dev/demo_embedding_registry.py:        raise NotImplementedError
+dev/demo_embedding_registry.py:        raise NotImplementedError
+dev/demo_embedding_registry.py:        raise NotImplementedError
+packages/embedding/tests/test_provider_registry.py:        raise NotImplementedError
+packages/embedding/tests/test_provider_registry.py:        raise NotImplementedError
+packages/learning-content/tests/test_registry.py:        raise NotImplementedError
+packages/learning-content/tests/test_registry.py:        raise NotImplementedError
+pyproject.toml:    "raise NotImplementedError",

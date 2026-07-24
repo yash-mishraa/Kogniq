@@ -187,8 +187,9 @@ async def get_document_service() -> DocumentService:
     from backend.services.document_service import DocumentService
     from backend.services.pipeline_factory import PipelineFactory
 
-    pipeline = PipelineFactory.create()
+    job_manager = get_job_manager()
     uow_factory = get_uow_factory()
+    pipeline = PipelineFactory.create(job_manager=job_manager, uow_factory=uow_factory)
     return DocumentService(pipeline=pipeline, uow_factory=uow_factory)
 
 
@@ -295,8 +296,6 @@ async def get_job_status_use_case(
         authorization_service=authorization_service,  # type: ignore
         job_service=job_service,
     )
-
-
 
 
 async def get_register_user_use_case(

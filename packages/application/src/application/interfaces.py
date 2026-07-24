@@ -23,6 +23,7 @@ class AuthenticationServiceProtocol(Protocol):
     async def get_current_user(self, session_id: str) -> UserProtocol | None: ...
     async def register(self, email: str, password: str, display_name: str) -> Any: ...
 
+
 class AuthorizationResultProtocol(Protocol):
     allowed: bool
     reason: str

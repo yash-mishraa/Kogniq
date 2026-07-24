@@ -48,16 +48,17 @@ class JobService:
         try:
             await self._manager.update_progress(
                 job_id,
-                percentage=10,
+                current_stage="Initialization",
+                completed_stages=0,
+                total_stages=1,  # Or dynamic if known
+                stage_status="running",
                 message="Starting document processing",
-                milestone="Processing started",
             )
 
-            # Since PipelineService currently isn't natively instrumented with the job manager,
-            # we'll just run the whole processing and mark as complete when done.
-            # In the future, PipelineService itself could accept the job_id and report progress.
+            # Since PipelineService is now instrumented with the job manager,
+            # we just pass the job_id down.
 
-            result = await self._document_service.process_document(doc_input)
+            result = await self._document_service.process_document(doc_input, job_id=job_id)
 
             # Convert result to dict for JobResult
             result_dict = {

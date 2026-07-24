@@ -49,14 +49,23 @@ class PDFProcessor(AbstractContentProcessor):
                 def is_boilerplate(t: str) -> bool:
                     lower = t.lower()
                     boilerplate = [
-                        "copyright", "all rights reserved", "arxiv", "proper attribution",
-                        "grants permission", "reproduce", "license", "downloaded from",
-                        "published in", "received:", "accepted:", "scholarly works"
+                        "copyright",
+                        "all rights reserved",
+                        "arxiv",
+                        "proper attribution",
+                        "grants permission",
+                        "reproduce",
+                        "license",
+                        "downloaded from",
+                        "published in",
+                        "received:",
+                        "accepted:",
+                        "scholarly works",
                     ]
                     if any(b in lower for b in boilerplate):
                         return True
                     # Check if it's just a number (page number) or url
-                    if re.match(r'^[\d\s]+$', t):
+                    if re.match(r"^[\d\s]+$", t):
                         return True
                     if t.startswith(("http://", "https://")):
                         return True
@@ -64,12 +73,12 @@ class PDFProcessor(AbstractContentProcessor):
                     if len(t) > 150:
                         return True
                     # Reject lowercase sentence fragments
-                    return bool(t.islower() or (t.endswith('.') and len(t.split()) <= 4))
+                    return bool(t.islower() or (t.endswith(".") and len(t.split()) <= 4))
 
                 for block in pages[0].blocks:
                     text = block.text.strip()
                     if text and not is_boilerplate(text):
-                        title = text.replace('\n', ' ')
+                        title = text.replace("\n", " ")
                         break
 
             if not title:
