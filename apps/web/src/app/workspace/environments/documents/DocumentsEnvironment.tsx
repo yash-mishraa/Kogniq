@@ -71,6 +71,7 @@ function DocumentsEnvironmentBody() {
             layoutId={`title-${activeDocument.id}`}
             title={activeDocument.title}
             content={activeDocument.content} 
+            status={activeDocument.status}
           />
         )}
       </AnimatePresence>

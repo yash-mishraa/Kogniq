@@ -25,7 +25,7 @@ export class MockDocumentService implements IDocumentService {
           id: `doc-${Date.now()}`,
           title: params.file.name,
           source: params.file.name,
-          status: "ready",
+          status: "Ready",
           importDate: new Date().toISOString()
         };
         resolve(newItem);

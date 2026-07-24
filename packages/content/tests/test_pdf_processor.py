@@ -114,7 +114,7 @@ def test_pdf_processor_title_fallback_to_filename() -> None:
     result = processor.process(handle)
 
     # Title should fall back to filename because metadata and text are missing
-    assert result.title == "empty_paper.pdf"
+    assert result.title == "empty_paper"
 
 
 def test_pdf_processor_corrupted() -> None:

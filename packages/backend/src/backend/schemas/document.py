@@ -1,7 +1,18 @@
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
+
+
+class DocumentLifecycleState(StrEnum):
+    UPLOADED = "Uploaded"
+    EXTRACTING = "Extracting"
+    NORMALIZING = "Normalizing"
+    CHUNKING = "Chunking"
+    PERSISTED = "Persisted"
+    READY = "Ready"
+    FAILED = "Failed"
 
 
 @dataclass(frozen=True)
@@ -30,13 +41,12 @@ class DocumentProcessResult:
 
     document_id: str
     filename: str
+    title: str
+    source: str
     processor: str
     chunk_count: int
-    embedding_count: int
-    knowledge_concepts: int
-    knowledge_relationships: int
     processing_time_ms: float
-    status: str
+    status: DocumentLifecycleState
     warnings: list[str]
 
 
@@ -45,17 +55,26 @@ class DocumentProcessResponse(BaseModel):
     API Response Schema for document processing.
     """
 
-    status: str = Field(..., description="Status of the processing")
+    status: DocumentLifecycleState = Field(..., description="Lifecycle status of the processing")
     document_id: str = Field(..., description="Unique ID of the processed document")
     filename: str = Field(..., description="Original filename")
+    title: str = Field(..., description="Canonical title of the document")
+    source: str = Field(..., description="Source of the document")
     processor: str = Field(..., description="The name of the content processor used")
     chunk_count: int = Field(..., description="Total semantic chunks extracted")
-    embedding_count: int = Field(..., description="Total embeddings generated")
-    knowledge_concepts: int = Field(..., description="Total knowledge concepts extracted")
-    knowledge_relationships: int = Field(..., description="Total knowledge relationships extracted")
     processing_time_ms: float = Field(
         ..., description="Total pipeline execution time in milliseconds"
     )
     warnings: list[str] = Field(
         default_factory=list, description="Non-fatal warnings during processing"
     )
+
+class DocumentResponse(BaseModel):
+    """
+    API Response Schema for retrieving a document.
+    """
+    id: str
+    title: str
+    source: str
+    status: str
+    importDate: str  # noqa: N815

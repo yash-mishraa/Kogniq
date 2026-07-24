@@ -20,6 +20,16 @@ Kogniq uses a monorepo structure powered by `uv` workspaces.
 - `pipeline`: Orchestrators that route data across bounded contexts.
 - `learning-content`: Generators that create educational artifacts.
 
+## Local Development Credentials
+
+When the backend application starts in a `development` or `test` environment, it will automatically bootstrap a demo user account if it doesn't already exist. This is necessary because local memory-based repositories are cleared upon restart.
+
+You can log into the local frontend using:
+- **Email:** `admin@kogniq.ai`
+- **Password:** `password`
+
+*Note: This account is never created in production environments and is assigned the standard `ROLE_USER` for local testing.*
+
 ## Environment Setup
 
 1. Install [uv](https://github.com/astral-sh/uv).
@@ -27,6 +37,17 @@ Kogniq uses a monorepo structure powered by `uv` workspaces.
    ```bash
    uv sync
    ```
+
+## SQLite Persistence
+
+The active runtime SQLite database is located at:
+`data/kogniq.db`
+
+When developers inspect persistence (e.g. using a SQLite extension), they should always connect to `data/kogniq.db`.
+
+`data/demo_kogniq.db` is only a legacy/demo database and is not used by the live application.
+
+Automated tests are completely isolated. They use an in-memory SQLite database (`:memory:`) and will not populate or corrupt the runtime database.
 
 ## Running Tests & Quality Gates
 
@@ -70,9 +91,6 @@ To see Kogniq in action without booting up a web application, run the scripts in
 - `uv run python dev/demo_openrouter_provider.py`: Directly tests the provider-agnostic LLM interface.
 - `uv run python dev/demo_summary_generator.py`: Generates summaries using mock providers.
 - `uv run python dev/demo_summary_openrouter.py`: Full AI generation of a summary using OpenRouter.
-
-### Pipeline Orchestration
-- `uv run python dev/demo_pipeline.py`: Runs a mock end-to-end pipeline covering normalization, chunking, and knowledge extraction.
 
 ## Git Workflow & Release
 

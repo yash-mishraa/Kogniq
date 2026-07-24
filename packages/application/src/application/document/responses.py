@@ -7,10 +7,9 @@ class ProcessDocumentResult:
     status: str
     document_id: str
     filename: str
+    title: str
+    source: str
     processor: str
     chunk_count: int
-    embedding_count: int
-    knowledge_concepts: int
-    knowledge_relationships: int
     processing_time_ms: float
     warnings: Sequence[str]

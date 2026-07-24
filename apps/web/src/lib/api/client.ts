@@ -23,7 +23,7 @@ class ApiClient {
 
   async request<T>(endpoint: string, options: ApiRequestOptions = {}): Promise<ApiResponse<T>> {
     const { params, timeoutMs, retries = 0, ...customConfig } = options;
-    
+
     let url = `${this.baseUrl}${endpoint}`;
     if (params) {
       const searchParams = new URLSearchParams();
@@ -31,12 +31,20 @@ class ApiClient {
       url += `?${searchParams.toString()}`;
     }
 
+    const headers: Record<string, any> = {
+      "Content-Type": "application/json",
+      ...customConfig.headers,
+    };
+
+    // Some runtimes stringify undefined into "undefined" in Headers, so we must delete it entirely
+    const contentTypeKey = Object.keys(headers).find(k => k.toLowerCase() === "content-type");
+    if (contentTypeKey && headers[contentTypeKey] === undefined) {
+      delete headers[contentTypeKey];
+    }
+
     const config: RequestInit = {
       ...customConfig,
-      headers: {
-        "Content-Type": "application/json",
-        ...customConfig.headers,
-      },
+      headers,
     };
 
     let req = new Request(url, config);
@@ -49,7 +57,7 @@ class ApiClient {
       try {
         const controller = new AbortController();
         const id = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : null;
-        
+
         // If the caller provided a signal, link them
         if (config.signal) {
           config.signal.addEventListener("abort", () => controller.abort());
@@ -73,18 +81,18 @@ class ApiClient {
         if (error instanceof ApiError && error.status < 500) {
           throw error; // Don't retry client errors
         }
-        
+
         if (error instanceof DOMException && error.name === "AbortError") {
           // Determine if it was our timeout or the user's abort
           if (timeoutMs && attempt === retries) throw new TimeoutError();
           if (!timeoutMs) throw error; // Caller aborted
         }
-        
+
         if (attempt >= retries) {
           if (error instanceof TypeError) throw new NetworkError();
           throw error;
         }
-        
+
         attempt++;
         // Simple exponential backoff
         await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500));
@@ -99,10 +107,25 @@ class ApiClient {
   }
 
   post<T>(endpoint: string, data?: unknown, options?: ApiRequestOptions) {
+    const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+    const customHeaders = { ...options?.headers };
+
+    // If it's FormData, let the browser set the Content-Type with boundary
+    if (isFormData) {
+      // Clean up Content-Type if it exists so browser handles it natively
+      const headersKey = Object.keys(customHeaders).find(k => k.toLowerCase() === "content-type");
+      if (headersKey) {
+        delete (customHeaders as any)[headersKey];
+      }
+      // Set to undefined to override the default "application/json" in request()
+      (customHeaders as any)["Content-Type"] = undefined;
+    }
+
     return this.request<T>(endpoint, {
       ...options,
+      headers: customHeaders,
       method: "POST",
-      body: data ? JSON.stringify(data) : undefined,
+      body: data ? (isFormData ? (data as FormData) : JSON.stringify(data)) : undefined,
     });
   }
 }

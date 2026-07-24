@@ -21,7 +21,7 @@ class UserProtocol(Protocol):
 
 class AuthenticationServiceProtocol(Protocol):
     async def get_current_user(self, session_id: str) -> UserProtocol | None: ...
-
+    async def register(self, email: str, password: str, display_name: str) -> Any: ...
 
 class AuthorizationResultProtocol(Protocol):
     allowed: bool
@@ -32,6 +32,7 @@ class AuthorizationServiceProtocol(Protocol):
     async def require_permission(
         self, user_id: str, permission_id: str
     ) -> AuthorizationResultProtocol: ...
+    async def assign_role(self, user_id: str, role_id: str) -> None: ...
 
 
 class DocumentServiceProtocol(Protocol):

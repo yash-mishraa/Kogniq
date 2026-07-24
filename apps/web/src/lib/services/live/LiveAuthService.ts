@@ -17,16 +17,12 @@ export class LiveAuthService implements IAuthService {
   }
 
   async login(email: string, password: string): Promise<void> {
-    const params = new URLSearchParams();
-    params.append("username", email);
-    params.append("password", password);
-    
     const response = await fetch("/api/v1/auth/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/json"
       },
-      body: params
+      body: JSON.stringify({ email, password })
     });
 
     if (!response.ok) {

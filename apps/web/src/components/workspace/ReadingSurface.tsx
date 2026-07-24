@@ -7,9 +7,10 @@ export interface ReadingSurfaceProps {
   title: string;
   layoutId?: string;
   content?: ReactNode;
+  status?: string;
 }
 
-export function ReadingSurface({ title, layoutId, content }: ReadingSurfaceProps) {
+export function ReadingSurface({ title, layoutId, content, status }: ReadingSurfaceProps) {
   return (
     <motion.article
       layout
@@ -36,8 +37,17 @@ export function ReadingSurface({ title, layoutId, content }: ReadingSurfaceProps
               {content}
             </div>
           ) : (
-            <div className="flex items-center justify-center py-32 opacity-50">
-              <span className="font-serif italic text-lg tracking-wide">Extracting text...</span>
+            <div className="flex flex-col items-center justify-center py-32 opacity-50 space-y-2">
+              <span className="font-serif italic text-lg tracking-wide">
+                {status === "Ready" || status === "Persisted"
+                  ? "Document successfully processed and stored."
+                  : "Extracting text..."}
+              </span>
+              {(status === "Ready" || status === "Persisted") && (
+                <span className="text-sm">
+                  (Full document rendering will arrive in a future phase)
+                </span>
+              )}
             </div>
           )}
         </div>

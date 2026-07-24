@@ -15,7 +15,8 @@ export class MockAuthService implements IAuthService {
     return null;
   }
 
-  async login(email: string, _password: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async login(_email: string, _password: string): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 500));
     if (typeof window !== "undefined") {
       localStorage.setItem("mock_session", "true");

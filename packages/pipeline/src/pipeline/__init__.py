@@ -1,5 +1,5 @@
 from .exceptions import PipelineConfigurationError, PipelineError, PipelineExecutionError
-from .pipeline import DocumentIntelligencePipeline
+from .pipeline import DocumentIngestionPipeline
 from .result import (
     ContentPipelineResult,
     EmbeddingPipelineResult,
@@ -10,8 +10,9 @@ from .result import (
 
 __all__ = [
     "ContentPipelineResult",
-    "DocumentIntelligencePipeline",
+    "DocumentIngestionPipeline",
     "EmbeddingPipelineResult",
+    "IngestionPipelineResult",
     "KnowledgePipelineResult",
     "PipelineConfigurationError",
     "PipelineError",

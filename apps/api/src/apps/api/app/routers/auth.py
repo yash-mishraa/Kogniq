@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Response
+from backend.dependencies import get_register_user_use_case
+from fastapi import APIRouter, Depends, Response
 
+from application.auth.register_user import RegisterUserCommand, RegisterUserUseCase
 from apps.api.app.core.auth.cookie import SessionCookieHandler
 from apps.api.app.core.errors import APIError
 from apps.api.app.dependencies.auth import (
@@ -52,26 +54,30 @@ def _map_auth_error(e: AuthDomainError) -> APIError:
     )
 
 
+
+
+
 @router.post("/auth/register", response_model=UserResponse)
 async def register_user(
     request_data: RegisterRequest,
     response: Response,
-    auth_service: AuthServiceDependency,
     settings: SettingsDependency,
+    use_case: RegisterUserUseCase = Depends(get_register_user_use_case), # noqa: B008
 ) -> UserResponse:
-    """Create a new account and establish an authenticated session."""
+    """Create a new account, assign default roles, and establish an authenticated session."""
     try:
-        user, session = await auth_service.register(
+        command = RegisterUserCommand(
             email=request_data.email,
             password=request_data.password,
             display_name=request_data.display_name,
         )
+        result = await use_case.execute(command)
     except AuthDomainError as e:
         raise _map_auth_error(e) from e
 
     cookie_handler = SessionCookieHandler(settings)
-    cookie_handler.set_session_cookie(response, session.session_id)
-    return UserResponse.model_validate(user)
+    cookie_handler.set_session_cookie(response, result.session.session_id)
+    return UserResponse.model_validate(result.user)
 
 
 @router.post("/auth/login", response_model=UserResponse)

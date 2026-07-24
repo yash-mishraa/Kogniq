@@ -14,6 +14,7 @@ from persistence.sqlite.schema import init_db
 from persistence.uow import AbstractUnitOfWork, SQLiteUnitOfWork
 from persistence.uow_factory import AbstractUnitOfWorkFactory
 
+from application.auth.register_user import RegisterUserUseCase
 from application.document.process_document import ProcessDocumentUseCase
 from application.jobs.get_job_status import GetJobStatusUseCase
 from application.jobs.submit_job import SubmitJobUseCase
@@ -293,6 +294,18 @@ async def get_job_status_use_case(
         auth_service=auth_service,  # type: ignore
         authorization_service=authorization_service,  # type: ignore
         job_service=job_service,
+    )
+
+
+
+
+async def get_register_user_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+) -> RegisterUserUseCase:
+    return RegisterUserUseCase(
+        auth_service=auth_service,  # type: ignore
+        authorization_service=authorization_service,  # type: ignore
     )
 
 

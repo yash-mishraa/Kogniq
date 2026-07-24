@@ -2,10 +2,6 @@ import logging
 import time
 from datetime import UTC, datetime
 
-from embedding.providers.interfaces import AbstractEmbeddingProvider
-from embedding.vectorstores.interfaces import AbstractVectorStore
-from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
-
 from content.chunking.engine import HybridChunkEngine
 from content.plugins.registry import ProcessorRegistry
 from content.resource.handle import ResourceHandle
@@ -13,42 +9,37 @@ from content.resource.handle import ResourceHandle
 from .exceptions import PipelineExecutionError
 from .result import (
     ContentPipelineResult,
-    EmbeddingPipelineResult,
-    KnowledgePipelineResult,
+    IngestionPipelineResult,
     PipelineExecutionMetadata,
-    PipelineResult,
 )
 
 logger = logging.getLogger(__name__)
 
 
-class DocumentIntelligencePipeline:
+class DocumentIngestionPipeline:
     """
-    Orchestration layer that connects bounded contexts into an end-to-end pipeline.
+    Orchestration layer that handles the first half of the document intelligence pipeline:
+    Upload -> Parse -> Normalize -> Chunk -> Persist.
+    Future phases will extend this to include Embed -> Index ->
+    Extract Knowledge -> Generate Learning.
     """
 
     def __init__(
         self,
         processor_registry: ProcessorRegistry,
         chunk_engine: HybridChunkEngine,
-        embedding_provider: AbstractEmbeddingProvider,
-        vector_store: AbstractVectorStore,
-        knowledge_extractor: AbstractKnowledgeExtractor,
     ) -> None:
         self.processor_registry = processor_registry
         self.chunk_engine = chunk_engine
-        self.embedding_provider = embedding_provider
-        self.vector_store = vector_store
-        self.knowledge_extractor = knowledge_extractor
 
-    def run(self, handle: ResourceHandle) -> PipelineResult:
+    def run(self, handle: ResourceHandle) -> IngestionPipelineResult:
         """
-        Executes the end-to-end document intelligence pipeline for a given resource.
+        Executes the ingestion phase of the document intelligence pipeline.
         """
         start_time = time.perf_counter()
         started_at = datetime.now(UTC)
 
-        logger.info(f"Starting pipeline execution for resource: {handle.id}")
+        logger.info(f"Starting ingestion pipeline for resource: {handle.id}")
 
         try:
             # 1. Resolve processor and normalize document
@@ -67,33 +58,6 @@ class DocumentIntelligencePipeline:
                 chunks=chunks,
             )
 
-            # 3. Generate embeddings
-            logger.info("Generating embeddings...")
-            embeddings = self.embedding_provider.generate_batch(chunks)
-            logger.info(f"Generated {len(embeddings.embeddings)} embeddings.")
-
-            # 4. Store embeddings
-            logger.info("Storing embeddings in vector store...")
-            storage_result = self.vector_store.store_batch(embeddings)
-            logger.info(f"Stored {storage_result.stored_count} embeddings.")
-
-            embedding_result = EmbeddingPipelineResult(
-                collection=embeddings,
-                storage_result=storage_result,
-            )
-
-            # 5. Extract Knowledge Graph
-            logger.info("Extracting knowledge graph...")
-            knowledge = self.knowledge_extractor.extract(chunks)
-            logger.info(
-                f"Extracted {knowledge.graph.concept_count} concepts and "
-                f"{knowledge.graph.relationship_count} relationships."
-            )
-
-            knowledge_result = KnowledgePipelineResult(
-                extraction_result=knowledge,
-            )
-
             completed_at = datetime.now(UTC)
             end_time = time.perf_counter()
 
@@ -103,20 +67,18 @@ class DocumentIntelligencePipeline:
                 total_processing_time_ms=(end_time - start_time) * 1000,
                 processor_name=processor.processor_info.name,
                 chunk_engine_name="HybridChunkEngine",
-                embedding_provider_name=self.embedding_provider.info.provider_name,
-                vector_store_name=self.vector_store.info.store_name,
-                knowledge_extractor_name=self.knowledge_extractor.info.extractor_name,
+                embedding_provider_name=None,
+                vector_store_name=None,
+                knowledge_extractor_name=None,
             )
 
-            logger.info("Pipeline execution completed successfully.")
+            logger.info("Ingestion pipeline execution completed successfully.")
 
-            return PipelineResult(
+            return IngestionPipelineResult(
                 content=content_result,
-                embeddings=embedding_result,
-                knowledge=knowledge_result,
                 metadata=metadata,
             )
 
         except Exception as e:
-            logger.error(f"Pipeline execution failed: {e}")
-            raise PipelineExecutionError(f"Pipeline execution failed: {e}") from e
+            logger.error(f"Ingestion pipeline execution failed: {e}")
+            raise PipelineExecutionError(f"Ingestion pipeline execution failed: {e}") from e

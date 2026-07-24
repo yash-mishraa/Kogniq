@@ -1,4 +1,14 @@
-export type DocumentStatus = "imported" | "processing" | "chunking" | "embedding" | "knowledge-extraction" | "ready";
+export type DocumentStatus = "Uploaded" | "Extracting" | "Normalizing" | "Chunking" | "Persisted" | "Ready" | "Failed";
+
+export interface DocumentProcessingResult {
+  document_id: string;
+  filename: string;
+  processor: string;
+  chunk_count: number;
+  processing_time_ms: number;
+  status: DocumentStatus;
+  warnings: string[];
+}
 
 export interface DocumentItem {
   id: string;

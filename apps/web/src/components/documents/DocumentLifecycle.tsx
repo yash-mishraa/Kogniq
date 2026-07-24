@@ -3,12 +3,12 @@
 import type { DocumentStatus } from "@/app/workspace/environments/documents/DocumentsTypes";
 
 const LIFECYCLE_STAGES: { status: DocumentStatus; label: string }[] = [
-  { status: "imported", label: "Imported" },
-  { status: "processing", label: "Processing" },
-  { status: "chunking", label: "Chunking" },
-  { status: "embedding", label: "Embedding" },
-  { status: "knowledge-extraction", label: "Extraction" },
-  { status: "ready", label: "Ready" },
+  { status: "Uploaded", label: "Uploaded" },
+  { status: "Extracting", label: "Extracting" },
+  { status: "Normalizing", label: "Normalizing" },
+  { status: "Chunking", label: "Chunking" },
+  { status: "Persisted", label: "Persisted" },
+  { status: "Ready", label: "Ready" },
 ];
 
 export function DocumentLifecycle({ status }: { status: DocumentStatus }) {

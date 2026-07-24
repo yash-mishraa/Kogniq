@@ -29,6 +29,9 @@ class MockAuthorizationService:
     async def require_permission(self, _user_id: str, _permission_id: str) -> MockAuthResult:
         return MockAuthResult(allowed=True, reason="")
 
+    async def assign_role(self, user_id: str, role_id: str) -> None:
+        pass
+
 
 class MockRetriever(AbstractRetriever):
     def __init__(self, results: list[RetrievalResult], should_fail: bool = False) -> None:

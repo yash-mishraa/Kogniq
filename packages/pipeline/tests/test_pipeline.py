@@ -22,7 +22,7 @@ from knowledge.extractors.extraction_result import KnowledgeExtractionResult
 from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
 from knowledge.extractors.provider_info import KnowledgeExtractorInfo
 from knowledge.graph import KnowledgeGraph
-from pipeline.pipeline import DocumentIntelligencePipeline
+from pipeline.pipeline import DocumentIngestionPipeline
 
 from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
@@ -218,16 +218,13 @@ def test_document_intelligence_pipeline_success() -> None:
     registry.register(FakeProcessor())
 
     chunk_engine = FakeChunkEngine()
-    embedding_provider = FakeEmbeddingProvider()
-    vector_store = FakeVectorStore()
-    knowledge_extractor = FakeKnowledgeExtractor()
+    FakeEmbeddingProvider()
+    FakeVectorStore()
+    FakeKnowledgeExtractor()
 
-    pipeline = DocumentIntelligencePipeline(
+    pipeline = DocumentIngestionPipeline(
         processor_registry=registry,
         chunk_engine=chunk_engine,
-        embedding_provider=embedding_provider,
-        vector_store=vector_store,
-        knowledge_extractor=knowledge_extractor,
     )
 
     handle = MagicMock(spec=ResourceHandle)
@@ -241,17 +238,6 @@ def test_document_intelligence_pipeline_success() -> None:
     assert result.content.document.id == "res_1"
     assert result.content.chunks.total_chunks == 1
 
-    # Verify Embeddings
-    assert len(result.embeddings.collection.embeddings) == 1
-    assert result.embeddings.storage_result.stored_count == 1
-    assert vector_store.count() == 1
-
-    # Verify Knowledge
-    assert result.knowledge.extraction_result.graph.concept_count == 0
-
     # Verify Metadata
     assert result.metadata.processor_name == "Fake Processor"
-    assert result.metadata.embedding_provider_name == "Fake Provider"
-    assert result.metadata.vector_store_name == "Fake Store"
-    assert result.metadata.knowledge_extractor_name == "Fake Extractor"
     assert result.metadata.total_processing_time_ms > 0

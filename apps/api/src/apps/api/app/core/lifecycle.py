@@ -28,6 +28,27 @@ def create_lifespan(settings: APISettings) -> Lifespan:
         application.state.engine = engine
         application.state.session_factory = get_session_factory(engine)
 
+        from backend.dependencies import (
+            get_authentication_service,
+            get_authorization_service,
+            get_permission_repository,
+            get_role_repository,
+        )
+        from backend.security.bootstrap import bootstrap_authorization, bootstrap_development_demo
+
+        from application.auth.register_user import RegisterUserUseCase
+
+        await bootstrap_authorization(get_role_repository(), get_permission_repository())
+
+        if settings.environment.value in ("development", "test"):
+            auth_service = await get_authentication_service()
+            authorization_service = await get_authorization_service()
+            use_case = RegisterUserUseCase(
+                auth_service=auth_service, # type: ignore
+                authorization_service=authorization_service # type: ignore
+            )
+            await bootstrap_development_demo(use_case)
+
         logger.info(
             "application_started",
             extra={

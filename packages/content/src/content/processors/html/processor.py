@@ -49,7 +49,9 @@ class HTMLProcessor(AbstractContentProcessor):
             title=title_meta,
             pages=(page,),
             source=(
-                str(handle.source.value) if hasattr(handle.source, "value") else str(handle.source)
+                handle.source.name.lower()
+                if hasattr(handle.source, "name")
+                else str(handle.source)
             ),
             checksum=handle.checksum.value,
             version=self.processor_info.version,

@@ -1,24 +1,20 @@
 from typing import Annotated
 
+from backend.dependencies import get_auth_provider, get_user_repository
 from fastapi import Depends, Request
 
 from apps.api.app.core.errors import APIError
 from apps.api.app.dependencies.request import SettingsDependency
 from auth import (
     AuthenticationService,
-    MemoryAuthenticationProvider,
-    MemoryUserRepository,
     Session,
     User,
 )
 
-# Global singletons for memory provider during development
-_memory_user_repo = MemoryUserRepository()
-_memory_auth_provider = MemoryAuthenticationProvider(_memory_user_repo)
-
 
 def get_auth_service() -> AuthenticationService:
-    return AuthenticationService(_memory_user_repo, _memory_auth_provider)
+    # Use the same instances as the rest of the backend
+    return AuthenticationService(get_user_repository(), get_auth_provider())
 
 
 AuthServiceDependency = Annotated[AuthenticationService, Depends(get_auth_service)]

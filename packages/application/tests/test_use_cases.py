@@ -40,12 +40,17 @@ class MockAuthorizationService:
         _ = permission_id
         return MockAuthResult(allowed=self.allowed, reason="Mock reason")
 
+    async def assign_role(self, user_id: str, role_id: str) -> None:
+        pass
+
 
 class MockDocumentService:
     class MockResult:
         status = "completed"
         document_id = "doc1"
         filename = "test.txt"
+        title = "Test Title"
+        source = "test"
         processor = "mock"
         chunk_count = 1
         embedding_count = 1

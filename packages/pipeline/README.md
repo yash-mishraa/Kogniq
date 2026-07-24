@@ -37,7 +37,6 @@ The pipeline is a pure orchestrator. It receives fully constructed concrete depe
 - Integration with the `LearningContent` bounded context.
 
 ## Examples
-- `uv run python dev/demo_pipeline.py`
 
 ## Quality Gates
 - **Tests**: `uv run python -m pytest packages/pipeline/tests/`

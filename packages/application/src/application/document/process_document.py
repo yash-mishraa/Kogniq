@@ -38,11 +38,10 @@ class ProcessDocumentUseCase:
             status=result.status,
             document_id=result.document_id,
             filename=result.filename,
+            title=result.title,
+            source=result.source,
             processor=result.processor,
             chunk_count=result.chunk_count,
-            embedding_count=result.embedding_count,
-            knowledge_concepts=result.knowledge_concepts,
-            knowledge_relationships=result.knowledge_relationships,
             processing_time_ms=result.processing_time_ms,
             warnings=result.warnings,
         )

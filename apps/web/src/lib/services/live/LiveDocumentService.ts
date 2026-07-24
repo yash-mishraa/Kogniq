@@ -21,7 +21,7 @@ export class LiveDocumentService implements IDocumentService {
     // Note: apiClient defaults to JSON, so for FormData we would need to let fetch handle it,
     // or just use fetch directly, or extend apiClient to handle FormData.
     // For now we will rely on apiClient post but override headers to let browser set boundary.
-    const response = await apiClient.post<DocumentItem>(ENDPOINTS.documents.process, formData, {
+    const response = await apiClient.post<any>(ENDPOINTS.documents.process, formData, {
       signal: params.signal,
       headers: {
         // Remove Content-Type so browser can set multipart/form-data with boundary
@@ -30,6 +30,12 @@ export class LiveDocumentService implements IDocumentService {
       ...REQUEST_POLICIES.documentUpload
     });
     
-    return response.data;
+    return {
+      id: response.data.document_id,
+      title: response.data.title,
+      source: response.data.source,
+      status: response.data.status,
+      importDate: new Date().toISOString()
+    };
   }
 }
