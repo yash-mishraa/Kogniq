@@ -3,9 +3,10 @@ from typing import Any
 
 from persistence.repositories.base import (
     AbstractChunkRepository,
+    AbstractConceptRepository,
     AbstractDocumentRepository,
-    AbstractKnowledgeRepository,
     AbstractLearningRepository,
+    AbstractRelationshipRepository,
 )
 
 
@@ -14,7 +15,8 @@ class AbstractUnitOfWork(abc.ABC):
 
     documents: AbstractDocumentRepository
     chunks: AbstractChunkRepository
-    knowledge: AbstractKnowledgeRepository
+    concepts: AbstractConceptRepository
+    relationships: AbstractRelationshipRepository
     learning: AbstractLearningRepository
 
     def __enter__(self) -> "AbstractUnitOfWork":
@@ -60,7 +62,8 @@ class SQLiteUnitOfWork(AbstractUnitOfWork):
         # Initialize repositories with this shared connection
         self.documents = self._factory.create_document_repository(self._conn)
         self.chunks = self._factory.create_chunk_repository(self._conn)
-        self.knowledge = self._factory.create_knowledge_repository(self._conn)
+        self.concepts = self._factory.create_concept_repository(self._conn)
+        self.relationships = self._factory.create_relationship_repository(self._conn)
         self.learning = self._factory.create_learning_repository(self._conn)
 
     def commit(self) -> None:

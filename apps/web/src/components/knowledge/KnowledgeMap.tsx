@@ -8,26 +8,6 @@ import { motion } from "framer-motion";
 
 import type { KnowledgeConcept, KnowledgeRelationship as KnowledgeRelationshipType } from "@/app/workspace/environments/knowledge/KnowledgeTypes";
 
-// Hardcoded intentional, editorial positions for the canonical knowledge graph
-// In a real app, this would be computed via an intentional layout algorithm (e.g., hierarchical or semantic clustering) rather than force simulation.
-const KNOWLEDGE_LAYOUT: Record<string, { x: number; y: number }> = {
-  "transformer": { x: 50, y: 15 },
-  
-  "encoder": { x: 30, y: 35 },
-  "decoder": { x: 70, y: 35 },
-
-  "self-attention": { x: 50, y: 55 },
-  
-  "multi-head-attention": { x: 50, y: 70 },
-  "attention-weights": { x: 50, y: 85 },
-
-  "residual-connection": { x: 20, y: 65 },
-  "layer-normalization": { x: 30, y: 80 },
-  
-  "positional-encoding": { x: 80, y: 20 },
-  "feed-forward-network": { x: 80, y: 65 },
-};
-
 export function KnowledgeMap() {
   const { state } = useKnowledge();
   const { graph, activeConceptId } = state;
@@ -45,6 +25,26 @@ export function KnowledgeMap() {
     return ids;
   }, [graph, activeConceptId]);
 
+  const conceptLayout = useMemo(() => {
+    const layout: Record<string, { x: number; y: number }> = {};
+    if (!graph.data || !graph.data.concepts) return layout;
+
+    const count = graph.data.concepts.length;
+    const cols = Math.ceil(Math.sqrt(count));
+    const spacingX = 80 / (cols || 1);
+    const spacingY = 80 / (Math.ceil(count / (cols || 1)) || 1);
+
+    graph.data.concepts.forEach((concept, idx) => {
+      const col = idx % cols;
+      const row = Math.floor(idx / cols);
+      layout[concept.id] = {
+        x: 10 + col * spacingX,
+        y: 10 + row * spacingY,
+      };
+    });
+    return layout;
+  }, [graph]);
+
   if (!graph.data) return null;
 
   return (
@@ -54,8 +54,8 @@ export function KnowledgeMap() {
         {/* SVG layer for subtle relationship edges */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none">
           {graph.data.relationships.map((rel: KnowledgeRelationshipType, idx: number) => {
-            const sourcePos = KNOWLEDGE_LAYOUT[rel.sourceId];
-            const targetPos = KNOWLEDGE_LAYOUT[rel.targetId];
+            const sourcePos = conceptLayout[rel.sourceId];
+            const targetPos = conceptLayout[rel.targetId];
             if (!sourcePos || !targetPos) return null;
 
             const isFaded = activeConceptId && !activeRegionIds.has(rel.sourceId) && !activeRegionIds.has(rel.targetId);
@@ -75,7 +75,7 @@ export function KnowledgeMap() {
 
         {/* Nodes layer */}
         {graph.data.concepts.map((concept: KnowledgeConcept) => {
-          const pos = KNOWLEDGE_LAYOUT[concept.id];
+          const pos = conceptLayout[concept.id];
           if (!pos) return null;
 
           const isSelected = concept.id === activeConceptId;

@@ -1,6 +1,7 @@
 """Composition point for foundational API routes."""
 
 from backend.routers.jobs import jobs_router
+from backend.routers.knowledge import knowledge_router
 from backend.routers.learning import learning_router
 from fastapi import APIRouter
 
@@ -18,3 +19,4 @@ api_router.include_router(documents_router)
 api_router.include_router(learning_router)
 api_router.include_router(retrieval_router)
 api_router.include_router(jobs_router)
+api_router.include_router(knowledge_router)

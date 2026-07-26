@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import Depends
 from persistence.factory import (
@@ -13,6 +13,12 @@ from persistence.sqlite.connection import SQLiteConnectionManager
 from persistence.sqlite.schema import init_db
 from persistence.uow import AbstractUnitOfWork, SQLiteUnitOfWork
 from persistence.uow_factory import AbstractUnitOfWorkFactory
+
+if TYPE_CHECKING:
+    from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
+
+    from application.knowledge.get_knowledge import GetKnowledgeUseCase
+    from backend.services.knowledge_service import KnowledgeService
 
 from application.auth.register_user import RegisterUserUseCase
 from application.document.process_document import ProcessDocumentUseCase
@@ -152,6 +158,23 @@ def get_retrieval_factory() -> RetrievalFactory:
     return _retrieval_factory_instance
 
 
+_knowledge_extractor_instance: AbstractKnowledgeExtractor | None = None
+
+
+def get_knowledge_extractor() -> AbstractKnowledgeExtractor:
+    global _knowledge_extractor_instance
+    if _knowledge_extractor_instance is None:
+        if settings.knowledge_extraction_provider == "openrouter":
+            from knowledge.extractors.openrouter.extractor import OpenRouterKnowledgeExtractor
+
+            _knowledge_extractor_instance = OpenRouterKnowledgeExtractor()
+        else:
+            from knowledge.extractors.fake import FakeKnowledgeExtractor
+
+            _knowledge_extractor_instance = FakeKnowledgeExtractor()
+    return _knowledge_extractor_instance
+
+
 async def get_pipeline_service() -> PipelineService:
     return StubPipelineService()
 
@@ -190,12 +213,14 @@ async def get_document_service() -> DocumentService:
     job_manager = get_job_manager()
     uow_factory = get_uow_factory()
     retrieval_factory = get_retrieval_factory()
-    
+    knowledge_extractor = get_knowledge_extractor()
+
     pipeline = PipelineFactory.create(
         job_manager=job_manager,
         uow_factory=uow_factory,
         embedding_provider=retrieval_factory.get_provider(),
         vector_store=retrieval_factory.get_vector_store(),
+        knowledge_extractor=knowledge_extractor,
     )
     return DocumentService(pipeline=pipeline, uow_factory=uow_factory)
 
@@ -254,6 +279,27 @@ async def get_process_document_use_case(
         auth_service=auth_service,  # type: ignore
         authorization_service=authorization_service,  # type: ignore
         document_service=document_service,
+    )
+
+
+async def get_knowledge_service() -> KnowledgeService:
+    from backend.services.knowledge_service import KnowledgeService
+
+    uow_factory = get_uow_factory()
+    return KnowledgeService(uow_factory=uow_factory)
+
+
+async def get_knowledge_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    knowledge_service: KnowledgeService = Depends(get_knowledge_service),  # noqa: B008
+) -> GetKnowledgeUseCase:
+    from application.knowledge.get_knowledge import GetKnowledgeUseCase
+
+    return GetKnowledgeUseCase(
+        auth_service=auth_service,
+        authorization_service=authorization_service,
+        knowledge_service=knowledge_service,
     )
 
 

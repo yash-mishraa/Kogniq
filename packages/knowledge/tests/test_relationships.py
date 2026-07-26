@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 import pytest
 from knowledge.enums import RelationshipType
 from knowledge.exceptions import InvalidRelationshipError, KnowledgeDomainError
@@ -20,10 +22,12 @@ def valid_metadata() -> KnowledgeMetadata:
 def test_valid_relationship(valid_metadata: KnowledgeMetadata) -> None:
     relationship = KnowledgeRelationship(
         id="r1",
+        document_id="doc_1",
         source_concept="c1",
         target_concept="c2",
         relationship_type=RelationshipType.DEPENDS_ON,
         confidence=0.8,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
     assert relationship.id == "r1"
@@ -39,10 +43,12 @@ def test_self_referential_relationship_raises_error(valid_metadata: KnowledgeMet
     ):
         KnowledgeRelationship(
             id="r2",
+            document_id="doc_1",
             source_concept="c1",
             target_concept="c1",
             relationship_type=RelationshipType.RELATED_TO,
             confidence=0.9,
+            created_at=datetime.now(UTC),
             metadata=valid_metadata,
         )
 
@@ -51,10 +57,12 @@ def test_invalid_relationship_confidence(valid_metadata: KnowledgeMetadata) -> N
     with pytest.raises(InvalidRelationshipError, match=r"Confidence must be between 0\.0 and 1\.0"):
         KnowledgeRelationship(
             id="r3",
+            document_id="doc_1",
             source_concept="c1",
             target_concept="c2",
             relationship_type=RelationshipType.USES,
             confidence=1.5,
+            created_at=datetime.now(UTC),
             metadata=valid_metadata,
         )
 

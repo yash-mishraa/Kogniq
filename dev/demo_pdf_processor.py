@@ -70,7 +70,7 @@ def main() -> None:
 
     # 4. Print Document Level Info
     print("-" * 40)
-    print(f"Title       : {doc.title}")
+    print(f"Title       : {doc.name}")
     author_str = doc.metadata.author if doc.metadata and doc.metadata.author else "Unknown"
     print(f"Author      : {author_str}")
     print(f"Page count  : {len(doc.pages)}")

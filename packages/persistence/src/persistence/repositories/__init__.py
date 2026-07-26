@@ -1,13 +1,15 @@
 from persistence.repositories.base import (
     AbstractChunkRepository,
+    AbstractConceptRepository,
     AbstractDocumentRepository,
-    AbstractKnowledgeRepository,
     AbstractLearningRepository,
+    AbstractRelationshipRepository,
 )
 
 __all__ = [
     "AbstractChunkRepository",
+    "AbstractConceptRepository",
     "AbstractDocumentRepository",
-    "AbstractKnowledgeRepository",
     "AbstractLearningRepository",
+    "AbstractRelationshipRepository",
 ]

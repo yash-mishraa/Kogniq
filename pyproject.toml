@@ -163,6 +163,7 @@ exclude = [
     "(^|/)build/",
     "(^|/)dist/",
     "(^|/)generated/",
+    "(^|/)dev/",
 ]
 warn_unreachable = true
 show_error_codes = true

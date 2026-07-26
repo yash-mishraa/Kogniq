@@ -15,8 +15,9 @@ import { serviceProvider } from "@/lib/providers";
 
 function KnowledgeEnvironmentBody() {
   const { state, dispatch } = useKnowledge();
-  const { remember } = useWorkspace();
+  const { remember, memory } = useWorkspace();
   const { graph } = state;
+  const documentId = memory.documents?.openedDocument;
   
   useEffect(() => {
     remember("knowledge", {
@@ -31,8 +32,16 @@ function KnowledgeEnvironmentBody() {
     async function hydrate() {
       const currentRequestId = crypto.randomUUID();
       dispatch({ type: "START_HYDRATION", payload: { requestId: currentRequestId } });
+      
+      if (!documentId) {
+        if (isMounted) {
+          dispatch({ type: "SET_GRAPH", payload: { status: "ready", data: { concepts: [], relationships: [], evidence: [] }, error: null, requestId: currentRequestId } });
+        }
+        return;
+      }
+      
       try {
-        const data = await serviceProvider.getProvider().knowledge.getKnowledgeMap(controller.signal);
+        const data = await serviceProvider.getProvider().knowledge.getKnowledgeMap(documentId, controller.signal);
         if (isMounted) {
           dispatch({ type: "SET_GRAPH", payload: { status: "ready", data, error: null, requestId: currentRequestId } });
         }
@@ -50,7 +59,7 @@ function KnowledgeEnvironmentBody() {
       controller.abort();
     };
     
-  }, [dispatch]);
+  }, [dispatch, documentId]);
 
   if (graph.status === "loading") {
     return (

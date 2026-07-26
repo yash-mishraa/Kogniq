@@ -15,6 +15,7 @@ class BackendConfig(BaseSettings):
     qdrant_collection: str = "kogniq_documents"
     persistence_provider: Literal["memory", "sqlite"] = "sqlite"
     sqlite_database_path: str = "./data/kogniq.db"
+    knowledge_extraction_provider: Literal["fake", "openrouter"] = "fake"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

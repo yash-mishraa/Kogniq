@@ -60,7 +60,7 @@ def main() -> None:
     collection = ChunkCollection(chunks=(chunk,))
 
     print("\nStarting extraction...")
-    result = extractor.extract(collection)
+    result = await extractor.extract(collection)
 
     print(f"\nExtraction completed in {result.processing_time_ms:.2f} ms")
 

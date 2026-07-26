@@ -1,4 +1,6 @@
+import hashlib
 from dataclasses import dataclass
+from datetime import datetime
 
 from knowledge.enums import RelationshipType
 from knowledge.exceptions import InvalidRelationshipError
@@ -10,10 +12,12 @@ class KnowledgeRelationship:
     """An immutable relationship between two knowledge concepts."""
 
     id: str
+    document_id: str
     source_concept: str
     target_concept: str
     relationship_type: RelationshipType
     confidence: float
+    created_at: datetime
     metadata: KnowledgeMetadata
 
     def __post_init__(self) -> None:
@@ -23,3 +27,9 @@ class KnowledgeRelationship:
             raise InvalidRelationshipError(
                 f"Confidence must be between 0.0 and 1.0, got {self.confidence}"
             )
+
+    @staticmethod
+    def generate_id(document_id: str, source: str, target: str, rel_type: RelationshipType) -> str:
+        """Generates a stable, deterministic ID for a relationship."""
+        key = f"{document_id}:{source}:{target}:{rel_type.value}"
+        return hashlib.sha256(key.encode("utf-8")).hexdigest()

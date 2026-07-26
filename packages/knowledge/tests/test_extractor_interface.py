@@ -29,7 +29,7 @@ class FakeExtractor(AbstractKnowledgeExtractor):
     def info(self) -> KnowledgeExtractorInfo:
         return self._info
 
-    def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:  # noqa: ARG002
+    async def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:  # noqa: ARG002
         return KnowledgeExtractionResult(
             graph=KnowledgeGraph(concepts=(), relationships=()),
             extractor_id=self._info.extractor_id,
@@ -40,10 +40,10 @@ class FakeExtractor(AbstractKnowledgeExtractor):
             created_at=datetime.now(UTC),
         )
 
-    def extract_batch(
+    async def extract_batch(
         self, collections: tuple[ChunkCollection, ...]
     ) -> tuple[KnowledgeExtractionResult, ...]:
-        return tuple(self.extract(c) for c in collections)
+        return tuple([await self.extract(c) for c in collections])
 
 
 def test_extractor_info_validation() -> None:
@@ -76,7 +76,9 @@ def test_extractor_info_validation() -> None:
         )
 
 
-def test_fake_extractor_interface() -> None:
+@pytest.mark.asyncio
+async def test_fake_extractor_interface() -> None:
     extractor = FakeExtractor()
     assert extractor.info.extractor_id == "fake"
-    assert extractor.extract(ChunkCollection(chunks=())).graph.concept_count == 0
+    res = await extractor.extract(ChunkCollection(chunks=()))
+    assert res.graph.concept_count == 0

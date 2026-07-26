@@ -92,7 +92,7 @@ graph = KnowledgeGraph(
     concepts=(
         KnowledgeConcept(
             id="c1",
-            title="Framework",
+            name="Framework",
             description="The orchestration engine",
             concept_type=ConceptType.PRINCIPLE,
             aliases=(),
@@ -107,7 +107,7 @@ graph = KnowledgeGraph(
         ),
         KnowledgeConcept(
             id="c2",
-            title="Builder",
+            name="Builder",
             description="The prompt creator",
             concept_type=ConceptType.PRINCIPLE,
             aliases=(),
@@ -147,7 +147,7 @@ end = time.perf_counter()
 
 print(f"\n[4] Generation Complete in {end - start:.2f}s!")
 print(f"    Content Type: {content.content_type.name}")
-print(f"    Title: {content.title}")
+print(f"    Title: {content.name}")
 print(f"    Body: {content.body}")
 print(f"    Processing Time (ms): {content.statistics.processing_time_ms:.2f}")
 print(f"    Prompt Version: {content.metadata.prompt_version}")

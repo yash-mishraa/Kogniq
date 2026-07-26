@@ -70,10 +70,13 @@ def create_sample_context() -> GenerationContext:
         concepts=(
             KnowledgeConcept(
                 id="c1",
-                title="Concept1",
+                document_id="doc1",
+                name="Concept1",
                 description="Desc1",
                 concept_type=ConceptType.FACT,
                 aliases=(),
+                confidence=1.0,
+                created_at=datetime.now(UTC),
                 metadata=KnowledgeMetadata(
                     source_document="doc1",
                     source_chunk="chunk-1",

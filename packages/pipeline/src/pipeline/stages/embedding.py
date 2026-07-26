@@ -67,7 +67,7 @@ class EmbeddingStage:
         try:
             # 1. Generate embeddings using generate_batch (handles hashing and caching internally)
             embeddings = self.provider.generate_batch(chunk_collection)
-            
+
             # 2. Store in vector database
             storage_result = self.vector_store.store_batch(embeddings)
 

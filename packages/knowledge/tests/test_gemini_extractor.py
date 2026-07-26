@@ -22,7 +22,7 @@ def test_parser_successful_extraction() -> None:
     assert graph.relationship_count == 1
 
     c1 = next(c for c in graph.concepts if c.id == "c1")
-    assert c1.title == "Concept One"
+    assert c1.name == "Concept One"
     assert c1.aliases == ("one",)
 
 
@@ -45,8 +45,8 @@ def test_parser_ignores_duplicates() -> None:
 
     # Should keep only the first instance of c1, plus c2
     assert graph.concept_count == 2
-    assert graph.concepts[0].title == "Concept One"
-    assert graph.concepts[1].title == "Concept Two"
+    assert graph.concepts[0].name == "Concept One"
+    assert graph.concepts[1].name == "Concept Two"
 
     # Should keep only the first relationship
     assert graph.relationship_count == 1
@@ -88,7 +88,7 @@ def test_parser_strips_markdown() -> None:
 
     graph = parser.parse(json_response)
     assert graph.concept_count == 1
-    assert graph.concepts[0].id == "c1"
+    assert graph.concepts[0].name == "C1"
 
 
 def test_parser_ignores_invalid_relationships() -> None:

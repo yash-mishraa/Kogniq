@@ -32,7 +32,7 @@ async def main() -> None:
     factory = MemoryRepositoryFactory()
     doc_repo = factory.create_document_repository()
     chunk_repo = factory.create_chunk_repository()
-    know_repo = factory.create_knowledge_repository()
+    know_repo = factory.create_concept_repository()
     learn_repo = factory.create_learning_repository()
 
     # 1. Document Repository
@@ -53,7 +53,7 @@ async def main() -> None:
 
     print("Retrieving document...")
     retrieved_doc = await doc_repo.get("doc-demo-1")
-    print(f"Retrieved: {retrieved_doc.title if retrieved_doc else 'None'}")
+    print(f"Retrieved: {retrieved_doc.name if retrieved_doc else 'None'}")
 
     print("Updating document...")
     doc_updated = NormalizedDocument(

@@ -1,7 +1,8 @@
 import abc
 from collections.abc import Sequence
 
-from knowledge.graph import KnowledgeGraph
+from knowledge.concept import KnowledgeConcept
+from knowledge.relationship import KnowledgeRelationship
 
 from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
@@ -62,15 +63,37 @@ class AbstractChunkRepository(abc.ABC):
         pass
 
 
-class AbstractKnowledgeRepository(abc.ABC):
-    """Abstract repository for storing KnowledgeGraph entities."""
+
+
+class AbstractConceptRepository(abc.ABC):
+    """Abstract repository for storing KnowledgeConcept entities."""
 
     @abc.abstractmethod
-    async def save(self, document_id: str, graph: KnowledgeGraph) -> SaveResult:
+    async def save_all(self, concepts: Sequence[KnowledgeConcept]) -> SaveResult:
         pass
 
     @abc.abstractmethod
-    async def get(self, document_id: str) -> KnowledgeGraph | None:
+    async def get_by_document(self, document_id: str) -> Sequence[KnowledgeConcept]:
+        pass
+
+    @abc.abstractmethod
+    async def delete(self, document_id: str) -> DeleteResult:
+        pass
+
+    @abc.abstractmethod
+    async def statistics(self) -> RepositoryStatistics:
+        pass
+
+
+class AbstractRelationshipRepository(abc.ABC):
+    """Abstract repository for storing KnowledgeRelationship entities."""
+
+    @abc.abstractmethod
+    async def save_all(self, relationships: Sequence[KnowledgeRelationship]) -> SaveResult:
+        pass
+
+    @abc.abstractmethod
+    async def get_by_document(self, document_id: str) -> Sequence[KnowledgeRelationship]:
         pass
 
     @abc.abstractmethod

@@ -84,7 +84,7 @@ def run_demo() -> None:
 
     concept_1 = KnowledgeConcept(
         id="c1",
-        title="Recursion",
+        name="Recursion",
         description="A method of solving problems by breaking them down into smaller instances.",
         concept_type=ConceptType.FACT,
         aliases=(),
@@ -99,7 +99,7 @@ def run_demo() -> None:
     )
     concept_2 = KnowledgeConcept(
         id="c2",
-        title="Base Case",
+        name="Base Case",
         description="The condition that terminates a recursive function.",
         concept_type=ConceptType.FACT,
         aliases=(),

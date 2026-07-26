@@ -125,7 +125,7 @@ def main() -> None:
 
     print("-" * 40)
     print(f"Processor   : {doc.version}")
-    print(f"Title       : {doc.title}")
+    print(f"Title       : {doc.name}")
 
     total_blocks = sum(len(page.blocks) for page in doc.pages)
     print(f"Block count : {total_blocks}")

@@ -27,15 +27,13 @@ class MemoryChunkRepository(AbstractChunkRepository):
     async def get_by_ids(self, chunk_ids: Sequence[str]) -> Sequence[Chunk]:
         if not chunk_ids:
             return []
-        
+
         found_chunks: list[Chunk] = []
         chunk_id_set = set(chunk_ids)
-        
+
         for collection in self._store.values():
-            found_chunks.extend(
-                chunk for chunk in collection.chunks if chunk.id in chunk_id_set
-            )
-                    
+            found_chunks.extend(chunk for chunk in collection.chunks if chunk.id in chunk_id_set)
+
         return tuple(found_chunks)
 
     async def delete(self, document_id: str) -> DeleteResult:

@@ -87,7 +87,7 @@ class FixedSizeChunkStrategy(AbstractChunkStrategy):
 
         def split_sentences(text: str) -> list[str]:
             # Positive lookbehind for punctuation, positive lookahead for space + capital/number
-            sentences = re.split(r'(?<=[.!?])\s+(?=[A-Z0-9])', text)
+            sentences = re.split(r"(?<=[.!?])\s+(?=[A-Z0-9])", text)
             return [s.strip() for s in sentences if s.strip()]
 
         def traverse_blocks(blocks: tuple[NormalizedBlock, ...], page_num: int) -> None:
@@ -98,10 +98,10 @@ class FixedSizeChunkStrategy(AbstractChunkStrategy):
                     continue
 
                 new_section = text if block.block_type == BlockType.HEADING else current_section
-                
+
                 # Split block into sentences to avoid giant chunks
                 sentences = split_sentences(text)
-                
+
                 for sentence in sentences:
                     sentence_len = len(sentence)
                     additional_len = sentence_len if not current_blocks else sentence_len + 1

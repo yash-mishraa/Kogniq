@@ -3,7 +3,7 @@ import type { KnowledgeGraph } from "@/app/workspace/environments/knowledge/Know
 import { MOCK_TRANSFORMER_GRAPH } from "@/app/workspace/environments/knowledge/KnowledgeState";
 
 export class MockKnowledgeService implements IKnowledgeService {
-  async getKnowledgeMap(signal?: AbortSignal): Promise<KnowledgeGraph> {
+  async getKnowledgeMap(documentId: string, signal?: AbortSignal): Promise<KnowledgeGraph> {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         resolve(MOCK_TRANSFORMER_GRAPH);

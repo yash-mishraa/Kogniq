@@ -23,8 +23,9 @@ class PipelineFactory:
         cls,
         job_manager: AbstractJobManager | None = None,
         uow_factory: AbstractUnitOfWorkFactory | None = None,
-        embedding_provider: 'Any | None' = None,
-        vector_store: 'Any | None' = None,
+        embedding_provider: "Any | None" = None,
+        vector_store: "Any | None" = None,
+        knowledge_extractor: "Any | None" = None,
     ) -> DocumentIntelligencePipeline:
         registry = ProcessorRegistry()
         registry.register(PDFProcessor())
@@ -56,7 +57,15 @@ class PipelineFactory:
 
         if embedding_provider and vector_store:
             from pipeline.stages.embedding import EmbeddingStage
+
             stages.append(EmbeddingStage(provider=embedding_provider, vector_store=vector_store))
+
+        if knowledge_extractor and uow_factory:
+            from pipeline.stages.extraction import KnowledgeExtractionStage
+
+            stages.append(
+                KnowledgeExtractionStage(extractor=knowledge_extractor, uow_factory=uow_factory)
+            )
 
         return DocumentIntelligencePipeline(
             stages=stages,

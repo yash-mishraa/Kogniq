@@ -50,16 +50,47 @@ def init_db(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_chunks_document_id ON document_chunks(document_id)"
     )
 
-    # 4. Knowledge Graphs
+    # 4. Knowledge Concepts
     conn.execute("""
-        CREATE TABLE IF NOT EXISTS knowledge_graphs (
-            document_id TEXT PRIMARY KEY,
-            concepts_json TEXT NOT NULL,
-            relationships_json TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE
+        CREATE TABLE IF NOT EXISTS knowledge_concepts (
+            id TEXT PRIMARY KEY,
+            document_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            description TEXT NOT NULL,
+            concept_type TEXT NOT NULL,
+            aliases_json TEXT NOT NULL,
+            confidence REAL NOT NULL,
+            created_at TIMESTAMP NOT NULL,
+            metadata_json TEXT NOT NULL,
+            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE,
+            UNIQUE(document_id, name)
         )
     """)
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_concepts_document_id ON knowledge_concepts(document_id)"
+    )
+
+    # 5. Knowledge Relationships
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS knowledge_relationships (
+            id TEXT PRIMARY KEY,
+            document_id TEXT NOT NULL,
+            source_concept TEXT NOT NULL,
+            target_concept TEXT NOT NULL,
+            relationship_type TEXT NOT NULL,
+            confidence REAL NOT NULL,
+            created_at TIMESTAMP NOT NULL,
+            metadata_json TEXT NOT NULL,
+            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE,
+            FOREIGN KEY(source_concept) REFERENCES knowledge_concepts(id) ON DELETE CASCADE,
+            FOREIGN KEY(target_concept) REFERENCES knowledge_concepts(id) ON DELETE CASCADE,
+            UNIQUE(document_id, source_concept, target_concept, relationship_type)
+        )
+    """)
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_relationships_document_id "
+        "ON knowledge_relationships(document_id)"
+    )
 
     # 5. Learning Content
     conn.execute("""

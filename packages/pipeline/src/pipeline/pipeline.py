@@ -103,9 +103,7 @@ class DocumentIntelligencePipeline:
 
                 while retries <= max_retries:
                     try:
-                        logger.info(
-                            f"Stage {stage_name} Attempt {retries + 1}/{max_retries + 1}"
-                        )
+                        logger.info(f"Stage {stage_name} Attempt {retries + 1}/{max_retries + 1}")
                         result = await stage.execute(context)
 
                         if result.success:

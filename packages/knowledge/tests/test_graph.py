@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 import pytest
 from knowledge.concept import KnowledgeConcept
 from knowledge.enums import ConceptType, RelationshipType
@@ -22,26 +24,34 @@ def valid_metadata() -> KnowledgeMetadata:
 def test_valid_graph(valid_metadata: KnowledgeMetadata) -> None:
     c1 = KnowledgeConcept(
         id="c1",
-        title="Concept 1",
+        document_id="doc_1",
+        name="Concept 1",
         description="",
         concept_type=ConceptType.FACT,
         aliases=(),
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
     c2 = KnowledgeConcept(
         id="c2",
-        title="Concept 2",
+        document_id="doc_1",
+        name="Concept 2",
         description="",
         concept_type=ConceptType.FACT,
         aliases=(),
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
     r1 = KnowledgeRelationship(
         id="r1",
+        document_id="doc_1",
         source_concept="c1",
         target_concept="c2",
         relationship_type=RelationshipType.RELATED_TO,
-        confidence=0.8,
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
 
@@ -54,18 +64,24 @@ def test_valid_graph(valid_metadata: KnowledgeMetadata) -> None:
 def test_duplicate_concept_id_raises_error(valid_metadata: KnowledgeMetadata) -> None:
     c1 = KnowledgeConcept(
         id="c1",
-        title="Concept 1",
+        document_id="doc_1",
+        name="Concept 1",
         description="",
         concept_type=ConceptType.FACT,
         aliases=(),
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
     c2 = KnowledgeConcept(
         id="c1",
-        title="Concept 2 (Duplicate ID)",
+        document_id="doc_1",
+        name="Concept 2 (Duplicate ID)",
         description="",
         concept_type=ConceptType.FACT,
         aliases=(),
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
 
@@ -76,34 +92,44 @@ def test_duplicate_concept_id_raises_error(valid_metadata: KnowledgeMetadata) ->
 def test_duplicate_relationship_id_raises_error(valid_metadata: KnowledgeMetadata) -> None:
     c1 = KnowledgeConcept(
         id="c1",
-        title="Concept 1",
+        document_id="doc_1",
+        name="Concept 1",
         description="",
         concept_type=ConceptType.FACT,
         aliases=(),
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
     c2 = KnowledgeConcept(
         id="c2",
-        title="Concept 2",
+        document_id="doc_1",
+        name="Concept 2",
         description="",
         concept_type=ConceptType.FACT,
         aliases=(),
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
     r1 = KnowledgeRelationship(
         id="r1",
+        document_id="doc_1",
         source_concept="c1",
         target_concept="c2",
         relationship_type=RelationshipType.RELATED_TO,
-        confidence=0.8,
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
     r2 = KnowledgeRelationship(
         id="r1",
+        document_id="doc_1",
         source_concept="c2",
         target_concept="c1",
         relationship_type=RelationshipType.DEPENDS_ON,
-        confidence=0.7,
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
 

@@ -15,12 +15,12 @@ class AbstractKnowledgeExtractor(ABC):
         ...
 
     @abstractmethod
-    def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
+    async def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
         """Extract a KnowledgeGraph from a collection of chunks."""
         ...
 
     @abstractmethod
-    def extract_batch(
+    async def extract_batch(
         self, collections: tuple[ChunkCollection, ...]
     ) -> tuple[KnowledgeExtractionResult, ...]:
         """Extract multiple KnowledgeGraphs from a batch of chunk collections."""

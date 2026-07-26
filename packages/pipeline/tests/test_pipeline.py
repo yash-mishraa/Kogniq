@@ -199,7 +199,7 @@ class FakeKnowledgeExtractor(AbstractKnowledgeExtractor):
     def info(self) -> KnowledgeExtractorInfo:
         return self._info
 
-    def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
+    async def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
         return KnowledgeExtractionResult(
             graph=KnowledgeGraph(concepts=(), relationships=()),
             extractor_id=self.info.extractor_id,
@@ -210,12 +210,10 @@ class FakeKnowledgeExtractor(AbstractKnowledgeExtractor):
             created_at=datetime.now(UTC),
         )
 
-    def extract_batch(
+    async def extract_batch(
         self, collections: tuple[ChunkCollection, ...]
     ) -> tuple[KnowledgeExtractionResult, ...]:
-        return tuple(self.extract(c) for c in collections)
-
-
+        return tuple([await self.extract(c) for c in collections])
 
 
 @pytest.mark.asyncio

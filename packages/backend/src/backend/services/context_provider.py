@@ -33,12 +33,19 @@ class LearningContextProvider:
                     status_code=404,
                 )
 
-            graph = await uow.knowledge.get(document_id)
-            if not graph:
+            concepts = await uow.concepts.get_by_document(document_id)
+            relationships = await uow.relationships.get_by_document(document_id)
+
+            if not concepts and not relationships:
+                # We used to check if graph is None. We will assume missing if both are empty.
                 raise BackendError(
                     "graph_not_found",
                     f"No knowledge graph found for document {document_id}",
                     status_code=404,
                 )
+
+            from knowledge.graph import KnowledgeGraph
+
+            graph = KnowledgeGraph(concepts=tuple(concepts), relationships=tuple(relationships))
 
         return GenerationContext(chunks=chunks, graph=graph)

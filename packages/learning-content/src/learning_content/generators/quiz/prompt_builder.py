@@ -39,7 +39,7 @@ class QuizPromptBuilder(AbstractPromptBuilder):
         if not graph.concepts:
             return ""
         lines = ["KEY CONCEPTS:"]
-        lines.extend(f"- {c.title}: {c.description}" for c in graph.concepts)
+        lines.extend(f"- {c.name}: {c.description}" for c in graph.concepts)
         return "\n".join(lines)
 
     def _build_relationships(self, graph: KnowledgeGraph) -> str:

@@ -152,7 +152,7 @@ async def main() -> None:
         # Save operations
         doc_repo = uow.documents
         chunk_repo = uow.chunks
-        know_repo = uow.knowledge
+        know_repo = uow.concepts
         learn_repo = uow.learning
 
         await doc_repo.save(document)
@@ -173,13 +173,13 @@ async def main() -> None:
 
         loaded_doc = await uow.documents.get(doc_id)
         assert loaded_doc is not None
-        assert loaded_doc.title == "SQLite Demo Document"
+        assert loaded_doc.name == "SQLite Demo Document"
 
         loaded_chunks = await uow.chunks.get_by_document(doc_id)
         assert loaded_chunks is not None
         assert len(loaded_chunks.chunks) == 1
 
-        loaded_graph = await uow.knowledge.get(doc_id)
+        loaded_graph = await uow.concepts.get(doc_id)
         assert loaded_graph is not None
         assert "c1" in [c.id for c in loaded_graph.concepts]
 
@@ -195,7 +195,7 @@ async def main() -> None:
 
         await uow.documents.delete(doc_id)
         await uow.chunks.delete(doc_id)
-        await uow.knowledge.delete(doc_id)
+        await uow.concepts.delete(doc_id)
         await uow.learning.delete(doc_id)
 
         conn.commit()
@@ -208,7 +208,7 @@ async def main() -> None:
 
         assert await uow.documents.get(doc_id) is None
         assert await uow.chunks.get_by_document(doc_id) is None
-        assert await uow.knowledge.get(doc_id) is None
+        assert await uow.concepts.get(doc_id) is None
         assert len(await uow.learning.list_by_document(doc_id)) == 0
 
     print("[OK] No exceptions occur")

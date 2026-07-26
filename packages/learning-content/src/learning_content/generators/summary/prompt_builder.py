@@ -46,7 +46,7 @@ class SummaryPromptBuilder(AbstractPromptBuilder):
 
         lines = ["KEY CONCEPTS"]
         lines.extend(
-            f"- {concept.title}: {concept.description}"
+            f"- {concept.name}: {concept.description}"
             for concept in sorted(graph.concepts, key=lambda c: c.id)
         )
 

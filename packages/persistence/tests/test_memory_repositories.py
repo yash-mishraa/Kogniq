@@ -1,11 +1,15 @@
 from datetime import UTC, datetime
 
 import pytest
-from knowledge.graph import KnowledgeGraph
+from knowledge.concept import KnowledgeConcept
+from knowledge.enums import ConceptType, RelationshipType
+from knowledge.metadata import KnowledgeMetadata
+from knowledge.relationship import KnowledgeRelationship
 from persistence.memory.chunk_repo import MemoryChunkRepository
+from persistence.memory.concept_repo import MemoryConceptRepository
 from persistence.memory.document_repo import MemoryDocumentRepository
-from persistence.memory.knowledge_repo import MemoryKnowledgeRepository
 from persistence.memory.learning_repo import MemoryLearningRepository
+from persistence.memory.relationship_repo import MemoryRelationshipRepository
 
 from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
@@ -28,11 +32,6 @@ def doc_repo() -> MemoryDocumentRepository:
 @pytest.fixture
 def chunk_repo() -> MemoryChunkRepository:
     return MemoryChunkRepository()
-
-
-@pytest.fixture
-def know_repo() -> MemoryKnowledgeRepository:
-    return MemoryKnowledgeRepository()
 
 
 @pytest.fixture
@@ -143,28 +142,89 @@ async def test_chunk_repository_operations(chunk_repo: MemoryChunkRepository) ->
         await chunk_repo.save(ChunkCollection(chunks=()))
 
 
-# --- Test Knowledge Repository ---
-@pytest.mark.asyncio
-async def test_knowledge_repository_operations(know_repo: MemoryKnowledgeRepository) -> None:
-    graph = KnowledgeGraph(concepts=(), relationships=())
+@pytest.fixture
+def concept_repo() -> MemoryConceptRepository:
+    return MemoryConceptRepository()
 
-    res = await know_repo.save("doc-3", graph)
-    assert res.id == "doc-3"
+
+@pytest.fixture
+def relationship_repo() -> MemoryRelationshipRepository:
+    return MemoryRelationshipRepository()
+
+
+# --- Test Concept Repository ---
+@pytest.mark.asyncio
+async def test_concept_repository_operations(concept_repo: MemoryConceptRepository) -> None:
+    meta = KnowledgeMetadata(
+        source_document="doc-3",
+        source_chunk="c1",
+        language="en",
+        confidence=0.9,
+        extraction_version="1",
+        created_by="test",
+    )
+    c1 = KnowledgeConcept(
+        id="c1",
+        document_id="doc-3",
+        name="test",
+        description="",
+        concept_type=ConceptType.FACT,
+        aliases=(),
+        confidence=0.9,
+        created_at=datetime.now(UTC),
+        metadata=meta,
+    )
+
+    res = await concept_repo.save_all([c1])
     assert res.is_new is True
 
-    retrieved = await know_repo.get("doc-3")
-    assert retrieved is not None
+    retrieved = await concept_repo.get_by_document("doc-3")
+    assert len(retrieved) == 1
+    assert retrieved[0].id == "c1"
 
-    stats = await know_repo.statistics()
+    stats = await concept_repo.statistics()
     assert stats.total_items == 1
 
-    del_res = await know_repo.delete("doc-3")
+    del_res = await concept_repo.delete("doc-3")
     assert del_res.was_deleted is True
 
-    # Save without document id
-    bad_graph = KnowledgeGraph(concepts=(), relationships=())
-    with pytest.raises(ValueError):
-        await know_repo.save("", bad_graph)
+
+# --- Test Relationship Repository ---
+@pytest.mark.asyncio
+async def test_relationship_repository_operations(
+    relationship_repo: MemoryRelationshipRepository,
+) -> None:
+    meta = KnowledgeMetadata(
+        source_document="doc-3",
+        source_chunk="c1",
+        language="en",
+        confidence=0.9,
+        extraction_version="1",
+        created_by="test",
+    )
+    r1 = KnowledgeRelationship(
+        id="r1",
+        document_id="doc-3",
+        source_concept="c1",
+        target_concept="c2",
+        relationship_type=RelationshipType.RELATED_TO,
+        confidence=0.9,
+        created_at=datetime.now(UTC),
+        metadata=meta,
+    )
+
+    res = await relationship_repo.save_all([r1])
+    assert res.is_new is True
+
+    retrieved = await relationship_repo.get_by_document("doc-3")
+    assert len(retrieved) == 1
+    assert retrieved[0].id == "r1"
+
+    stats = await relationship_repo.statistics()
+    assert stats.total_items == 1
+
+    del_res = await relationship_repo.delete("doc-3")
+    assert del_res.was_deleted is True
 
 
 # --- Test Learning Repository ---

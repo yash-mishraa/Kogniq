@@ -9,7 +9,6 @@ from backend.dependencies import (
     get_uow_factory,
 )
 from fastapi.testclient import TestClient
-from knowledge.graph import KnowledgeGraph
 
 from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
@@ -81,7 +80,29 @@ def client() -> TestClient:
         with uow_factory.create() as uow:
             await uow.documents.save(doc)
             await uow.chunks.save(ChunkCollection(chunks=(chunk,)))
-            await uow.knowledge.save("test-doc-123", KnowledgeGraph(concepts=(), relationships=()))
+            from knowledge.concept import KnowledgeConcept
+            from knowledge.enums import ConceptType
+            from knowledge.metadata import KnowledgeMetadata
+
+            concept = KnowledgeConcept(
+                id="c1",
+                document_id="test-doc-123",
+                name="Test",
+                description="Test",
+                concept_type=ConceptType.ALGORITHM,
+                aliases=(),
+                confidence=1.0,
+                created_at=datetime.now(UTC),
+                metadata=KnowledgeMetadata(
+                    source_document="test-doc-123",
+                    source_chunk="chunk-test-1",
+                    language="en",
+                    confidence=1.0,
+                    extraction_version="1.0",
+                    created_by="test",
+                ),
+            )
+            await uow.concepts.save_all([concept])
 
     asyncio.run(seed())
 
@@ -95,7 +116,7 @@ def test_learning_generation_success(client: TestClient, generator_name: str) ->
     request_data = {"document_id": "test-doc-123", "generator": generator_name}
     response = client.post("/api/v1/learning/generate", json=request_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 200, response.json()
     data = response.json()
     assert data["status"] == "completed"
     assert data["generator"] == generator_name

@@ -7,7 +7,6 @@ import type { IStudyService } from "../services/interfaces/IStudyService";
 
 import { MockAuthService } from "../services/mock/MockAuthService";
 import { MockDocumentService } from "../services/mock/MockDocumentService";
-import { MockKnowledgeService } from "../services/mock/MockKnowledgeService";
 import { MockNotebookService } from "../services/mock/MockNotebookService";
 import { MockStudyService } from "../services/mock/MockStudyService";
 
@@ -35,7 +34,7 @@ class ServiceProviderFactory {
   private mockProvider: IServiceProvider = {
     auth: new MockAuthService(),
     documents: new MockDocumentService(),
-    knowledge: new MockKnowledgeService(),
+    knowledge: new LiveKnowledgeService(),
     notebooks: new MockNotebookService(),
     search: new LiveSearchService(),
     study: new MockStudyService(),

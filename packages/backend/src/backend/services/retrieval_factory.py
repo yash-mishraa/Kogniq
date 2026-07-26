@@ -21,14 +21,15 @@ class RetrievalFactory:
         self._retriever: AbstractRetriever | None = None
         from embedding.providers.interfaces import AbstractEmbeddingProvider
         from embedding.vectorstores.interfaces import AbstractVectorStore
+
         self._provider: AbstractEmbeddingProvider | None = None
         self._vector_store: AbstractVectorStore | None = None
 
-    def get_provider(self) -> 'Any | None':
+    def get_provider(self) -> "Any | None":
         self._initialize()
         return self._provider
-        
-    def get_vector_store(self) -> 'Any | None':
+
+    def get_vector_store(self) -> "Any | None":
         self._initialize()
         return self._vector_store
 
@@ -37,7 +38,7 @@ class RetrievalFactory:
         self._initialize()
         assert self._retriever is not None
         return self._retriever
-        
+
     def _initialize(self) -> None:
         if self._retriever is None:
             # We initialize a persistent ChromaDB store using the configured path.

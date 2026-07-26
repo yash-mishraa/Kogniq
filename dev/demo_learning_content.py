@@ -34,9 +34,9 @@ class DemoLearningGenerator(AbstractLearningGenerator):
     def info(self) -> GeneratorInfo:
         return GeneratorInfo(
             generator_id="demo-gen",
-            generator_name="Demo Generator",
+            generator_title="Demo Generator",
             generator_version="1.0",
-            provider_name="Demo Provider",
+            provider_title="Demo Provider",
             supported_content_types=(ContentType.SUMMARY, ContentType.NOTES),
             maximum_chunks=50,
             maximum_tokens=8192,

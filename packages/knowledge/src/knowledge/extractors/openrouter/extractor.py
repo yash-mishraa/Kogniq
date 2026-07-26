@@ -2,7 +2,7 @@ import os
 import time
 from datetime import UTC, datetime
 
-from openai import OpenAI
+from openai import AsyncOpenAI
 
 from content.chunking import ChunkCollection
 from knowledge.extractors.extraction_result import KnowledgeExtractionResult
@@ -30,7 +30,7 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
         self.temperature = temperature
         self.max_output_tokens = max_output_tokens
 
-        self._client = OpenAI(
+        self._client = AsyncOpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=self.api_key,
         )
@@ -55,7 +55,7 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
     def info(self) -> KnowledgeExtractorInfo:
         return self._info
 
-    def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
+    async def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
         """Extract a KnowledgeGraph from chunks using OpenRouter."""
         start_time = time.perf_counter()
 
@@ -75,7 +75,7 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
 
         for model in models_to_try:
             try:
-                response = self._client.chat.completions.create(
+                response = await self._client.chat.completions.create(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
                     temperature=self.temperature,
@@ -113,8 +113,8 @@ class OpenRouterKnowledgeExtractor(AbstractKnowledgeExtractor):
             created_at=datetime.now(UTC),
         )
 
-    def extract_batch(
+    async def extract_batch(
         self, collections: tuple[ChunkCollection, ...]
     ) -> tuple[KnowledgeExtractionResult, ...]:
-        """Extract sequentially. For a real production system, this would use asyncio."""
-        return tuple(self.extract(c) for c in collections)
+        """Extract sequentially. For a real production system, this would use asyncio.gather."""
+        return tuple([await self.extract(c) for c in collections])

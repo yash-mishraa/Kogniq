@@ -28,7 +28,7 @@ async def semantic_search(
         top_k=request.top_k,
         minimum_similarity=getattr(request, "minimum_similarity", None),
     )
-    
+
     try:
         result = await use_case.execute(command)
     except BackendError as e:

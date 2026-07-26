@@ -8,17 +8,17 @@ from ...normalized.enums import BlockType
 
 def _clean_block_text(text: str) -> str:
     # 1. Join hyphenated words across lines
-    text = re.sub(r'([a-zA-Z])-\n([a-zA-Z])', r'\1\2', text)
-    
+    text = re.sub(r"([a-zA-Z])-\n([a-zA-Z])", r"\1\2", text)
+
     # 2. Join lines inside paragraphs while preserving logical breaks
-    lines = text.split('\n')
+    lines = text.split("\n")
     cleaned_lines = []
-    
+
     for i, line in enumerate(lines):
         line = line.strip()
         if not line:
             continue
-            
+
         if i == 0:
             cleaned_lines.append(line)
         else:
@@ -26,16 +26,16 @@ def _clean_block_text(text: str) -> str:
             # Keep line breaks for end of sentences, bullet points,
             # or short lines (often headers/equations)
             if (
-                re.search(r'[.!?:]$', prev_line) 
-                or prev_line.startswith(('-', '*')) 
+                re.search(r"[.!?:]$", prev_line)
+                or prev_line.startswith(("-", "*"))
                 or len(prev_line) < 40
             ):
                 cleaned_lines.append(line)
             else:
                 # Append to previous line with a space
                 cleaned_lines[-1] = f"{prev_line} {line}"
-                
-    return '\n'.join(cleaned_lines)
+
+    return "\n".join(cleaned_lines)
 
 
 def extract_blocks(page: fitz.Page) -> tuple[NormalizedBlock, ...]:
@@ -50,11 +50,11 @@ def extract_blocks(page: fitz.Page) -> tuple[NormalizedBlock, ...]:
                 continue
 
             clean_text = _clean_block_text(raw_text)
-            
+
             # Discard blocks that are purely meaningless isolated numbers or symbols
             # (e.g., page numbers "12", "42", or stray punctuation)
             stripped = clean_text.strip()
-            if len(stripped) <= 4 and re.fullmatch(r'^[\W\d]+$', stripped):
+            if len(stripped) <= 4 and re.fullmatch(r"^[\W\d]+$", stripped):
                 continue
 
             normalized_blocks.append(

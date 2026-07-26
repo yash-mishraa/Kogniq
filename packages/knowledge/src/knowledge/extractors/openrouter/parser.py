@@ -55,12 +55,16 @@ class GeminiResponseParser:
 
                 # Prevent duplicates
                 if c_id not in concepts:
+                    from datetime import UTC, datetime
                     concepts[c_id] = KnowledgeConcept(
                         id=c_id,
-                        title=title,
+                        document_id=document_id,
+                        name=title,
                         description="",
                         concept_type=ConceptType.FACT,  # Default fallback
                         aliases=aliases,
+                        confidence=0.8,
+                        created_at=datetime.now(UTC),
                         metadata=metadata,
                     )
             except Exception as e:
@@ -87,12 +91,15 @@ class GeminiResponseParser:
                 r_id = f"{source}_{target}_{rel_type.value}"
 
                 if r_id not in relationships:
+                    from datetime import UTC, datetime
                     relationships[r_id] = KnowledgeRelationship(
                         id=r_id,
+                        document_id=document_id,
                         source_concept=source,
                         target_concept=target,
                         relationship_type=rel_type,
                         confidence=0.8,
+                        created_at=datetime.now(UTC),
                         metadata=metadata,
                     )
             except Exception as e:

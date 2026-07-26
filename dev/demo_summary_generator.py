@@ -122,7 +122,7 @@ def run_demo() -> None:
         concepts=(
             KnowledgeConcept(
                 id="c1",
-                title="Machine Learning",
+                name="Machine Learning",
                 description="Study of algorithms that learn from data",
                 concept_type=ConceptType.THEORY,
                 aliases=("ML",),
@@ -130,7 +130,7 @@ def run_demo() -> None:
             ),
             KnowledgeConcept(
                 id="c2",
-                title="Linear Regression",
+                name="Linear Regression",
                 description="Linear approach for modeling relationships",
                 concept_type=ConceptType.ALGORITHM,
                 aliases=(),
@@ -138,7 +138,7 @@ def run_demo() -> None:
             ),
             KnowledgeConcept(
                 id="c3",
-                title="Gradient Descent",
+                name="Gradient Descent",
                 description="Optimization algorithm for finding minimum",
                 concept_type=ConceptType.ALGORITHM,
                 aliases=("GD",),
@@ -175,7 +175,7 @@ def run_demo() -> None:
     print("\n" + "=" * 40)
     print("GENERATED SUMMARY CONTENT:")
     print("-" * 40)
-    print(f"Title: {content.title}")
+    print(f"Title: {content.name}")
     print(f"Type:  {content.content_type.name}")
     print(f"Body:\n{content.body}")
     print("-" * 40)

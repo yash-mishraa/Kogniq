@@ -8,7 +8,8 @@ class MemoryUnitOfWork(AbstractUnitOfWork):
     def __init__(self, factory: MemoryRepositoryFactory) -> None:
         self.documents = factory.create_document_repository()
         self.chunks = factory.create_chunk_repository()
-        self.knowledge = factory.create_knowledge_repository()
+        self.concepts = factory.create_concept_repository()
+        self.relationships = factory.create_relationship_repository()
         self.learning = factory.create_learning_repository()
 
     def commit(self) -> None:

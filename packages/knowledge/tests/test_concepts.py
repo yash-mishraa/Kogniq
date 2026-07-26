@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 import pytest
 from knowledge.concept import KnowledgeConcept
 from knowledge.enums import ConceptType
@@ -20,26 +22,30 @@ def valid_metadata() -> KnowledgeMetadata:
 def test_valid_concept(valid_metadata: KnowledgeMetadata) -> None:
     concept = KnowledgeConcept(
         id="c1",
-        title="Valid Concept",
-        description="A valid description.",
+        document_id="doc_1",
+        name="Concept 1",
+        description="A test concept",
         concept_type=ConceptType.FACT,
-        aliases=("Alias 1", "Alias 2"),
+        aliases=("C1", "First Concept"),
+        confidence=0.9,
+        created_at=datetime.now(UTC),
         metadata=valid_metadata,
     )
     assert concept.id == "c1"
-    assert concept.title == "Valid Concept"
-    assert concept.concept_type == ConceptType.FACT
-    assert len(concept.aliases) == 2
+    assert concept.name == "Concept 1"
 
 
-def test_empty_title_raises_error(valid_metadata: KnowledgeMetadata) -> None:
-    with pytest.raises(InvalidConceptError, match="Concept title cannot be empty"):
+def test_empty_name_raises_error(valid_metadata: KnowledgeMetadata) -> None:
+    with pytest.raises(InvalidConceptError, match="Concept name cannot be empty"):
         KnowledgeConcept(
             id="c2",
-            title="",
-            description="Empty title.",
-            concept_type=ConceptType.FACT,
+            document_id="doc_1",
+            name="",
+            description="desc",
+            concept_type=ConceptType.ALGORITHM,
             aliases=(),
+            confidence=0.9,
+            created_at=datetime.now(UTC),
             metadata=valid_metadata,
         )
 
@@ -48,9 +54,12 @@ def test_invalid_aliases_type(valid_metadata: KnowledgeMetadata) -> None:
     with pytest.raises(InvalidConceptError, match="Aliases must be an immutable tuple"):
         KnowledgeConcept(
             id="c3",
-            title="Valid Title",
-            description="Invalid aliases type.",
-            concept_type=ConceptType.FACT,
-            aliases=["List", "not", "allowed"],  # type: ignore[arg-type]
+            document_id="doc_1",
+            name="Concept 3",
+            description="desc",
+            concept_type=ConceptType.THEORY,
+            aliases=["C3"],  # type: ignore
+            confidence=0.9,
+            created_at=datetime.now(UTC),
             metadata=valid_metadata,
         )

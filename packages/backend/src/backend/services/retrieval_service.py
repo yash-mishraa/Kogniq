@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 def _extract_snippet(text: str, query: str) -> str:
     """Extracts 2-3 relevant sentences from the chunk text."""
     # Split text into sentences using basic punctuation logic
-    sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text) if s.strip()]
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
     if not sentences:
         return text
 
     query_terms = [t.lower() for t in query.split() if len(t) > 2]
-    
+
     # 1. Search for query tokens
     if query_terms:
         for i, sentence in enumerate(sentences):
@@ -30,7 +30,7 @@ def _extract_snippet(text: str, query: str) -> str:
                 start = max(0, i - 1)
                 end = min(len(sentences), i + 2)
                 return " ".join(sentences[start:end])
-                
+
     # 2. Otherwise return the beginning of the chunk (up to 3 sentences)
     return " ".join(sentences[:3])
 

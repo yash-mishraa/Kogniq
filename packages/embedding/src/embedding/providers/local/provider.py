@@ -123,23 +123,23 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
         info = self.info
 
         import hashlib
-        
+
         # Determine unique hashes and identify cache misses
         # To handle identical chunks inside the same batch, map hash to texts
         missing_texts: dict[str, str] = {}
         chunk_hashes: list[str] = []
-        
+
         for c in chunks.chunks:
             text = c.text.strip()
             if not text:
                 raise EmbeddingGenerationError("Cannot generate embedding for empty chunk")
-            
+
             chunk_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
             chunk_hashes.append(chunk_hash)
-            
+
             if chunk_hash not in self._cache:
                 missing_texts[chunk_hash] = text
-                
+
         # Generate missing vectors
         if missing_texts:
             start = time.perf_counter()
@@ -147,16 +147,16 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
                 # Keep deterministic order for ML batch processing
                 missing_hash_list = list(missing_texts.keys())
                 texts_to_encode = [missing_texts[h] for h in missing_hash_list]
-                
+
                 raw_embeddings = model.encode(texts_to_encode, normalize_embeddings=True)
-                
+
                 # Cache results
                 for i, h in enumerate(missing_hash_list):
                     self._cache[h] = tuple(float(x) for x in raw_embeddings[i])
-                    
+
             except Exception as e:
                 raise EmbeddingGenerationError(f"Failed to generate batch embeddings: {e}") from e
-                
+
             end = time.perf_counter()
             total_time_ms = (end - start) * 1000.0
             time_per_chunk = total_time_ms / len(missing_texts)

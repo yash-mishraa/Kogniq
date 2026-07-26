@@ -113,7 +113,7 @@ if __name__ == "__main__":
         concepts=(
             KnowledgeConcept(
                 id="c1",
-                title="Gradient Descent",
+                name="Gradient Descent",
                 description="Optimization algorithm",
                 concept_type=ConceptType.ALGORITHM,
                 aliases=(),
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     end = time.perf_counter()
 
     print(f"\n[2] Generation Complete in {end - start:.2f}s!")
-    print(f"Title: {content.title}")
+    print(f"Title: {content.name}")
 
     parsed_quiz = json.loads(content.body)
     print(f"Total Questions: {len(parsed_quiz)}")

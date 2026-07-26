@@ -63,7 +63,7 @@ class GeminiKnowledgeExtractor(AbstractKnowledgeExtractor):
     def info(self) -> KnowledgeExtractorInfo:
         return self._info
 
-    def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
+    async def extract(self, chunks: ChunkCollection) -> KnowledgeExtractionResult:
         """Extract a KnowledgeGraph from chunks using Gemini."""
         start_time = time.perf_counter()
 
@@ -71,7 +71,7 @@ class GeminiKnowledgeExtractor(AbstractKnowledgeExtractor):
         document_id = chunks.document_id if hasattr(chunks, "document_id") else "unknown"
 
         try:
-            response = self.client.models.generate_content(
+            response = await self.client.aio.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(
@@ -100,8 +100,8 @@ class GeminiKnowledgeExtractor(AbstractKnowledgeExtractor):
             created_at=datetime.now(UTC),
         )
 
-    def extract_batch(
+    async def extract_batch(
         self, collections: tuple[ChunkCollection, ...]
     ) -> tuple[KnowledgeExtractionResult, ...]:
         """Extract sequentially. For a real production system, this would use asyncio."""
-        return tuple(self.extract(c) for c in collections)
+        return tuple([await self.extract(c) for c in collections])

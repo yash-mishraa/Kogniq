@@ -26,9 +26,9 @@ def main() -> None:
         created_by="demo_script",
     )
 
-    c1 = KnowledgeConcept(
+    c1 = KnowledgeConcept(document_id="doc-1", confidence=0.9, created_at=datetime.now(UTC), 
         id="c_machine_learning",
-        title="Machine Learning",
+        name="Machine Learning",
         description=(
             "A field of study that gives computers the ability to learn "
             "without being explicitly programmed."
@@ -38,9 +38,9 @@ def main() -> None:
         metadata=metadata,
     )
 
-    c2 = KnowledgeConcept(
+    c2 = KnowledgeConcept(document_id="doc-1", confidence=0.9, created_at=datetime.now(UTC), 
         id="c_neural_network",
-        title="Neural Network",
+        name="Neural Network",
         description=(
             "A series of algorithms that endeavors to recognize underlying "
             "relationships in a set of data."
@@ -50,9 +50,9 @@ def main() -> None:
         metadata=metadata,
     )
 
-    c3 = KnowledgeConcept(
+    c3 = KnowledgeConcept(document_id="doc-1", confidence=0.9, created_at=datetime.now(UTC), 
         id="c_backpropagation",
-        title="Backpropagation",
+        name="Backpropagation",
         description="An algorithm used to calculate derivatives quickly.",
         concept_type=ConceptType.ALGORITHM,
         aliases=("Backprop",),
@@ -88,7 +88,7 @@ def main() -> None:
 
     print("Concepts:")
     for c in graph.concepts:
-        print(f"  - [{c.id}] {c.title} ({c.concept_type.name})")
+        print(f"  - [{c.id}] {c.name} ({c.concept_type.name})")
         print(f"    Aliases: {', '.join(c.aliases) if c.aliases else 'None'}")
         print(f"    Description: {c.description[:50]}...")
 

@@ -4,20 +4,23 @@ from typing import Any
 
 from persistence.memory import (
     MemoryChunkRepository,
+    MemoryConceptRepository,
     MemoryDocumentRepository,
-    MemoryKnowledgeRepository,
     MemoryLearningRepository,
+    MemoryRelationshipRepository,
 )
 from persistence.repositories.base import (
     AbstractChunkRepository,
+    AbstractConceptRepository,
     AbstractDocumentRepository,
-    AbstractKnowledgeRepository,
     AbstractLearningRepository,
+    AbstractRelationshipRepository,
 )
 from persistence.sqlite.chunk_repository import SQLiteChunkRepository
+from persistence.sqlite.concept_repository import SQLiteConceptRepository
 from persistence.sqlite.document_repository import SQLiteDocumentRepository
-from persistence.sqlite.knowledge_repository import SQLiteKnowledgeRepository
 from persistence.sqlite.learning_repository import SQLiteLearningRepository
+from persistence.sqlite.relationship_repository import SQLiteRelationshipRepository
 
 
 class AbstractRepositoryFactory(abc.ABC):
@@ -32,7 +35,11 @@ class AbstractRepositoryFactory(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def create_knowledge_repository(self, conn: Any = None) -> AbstractKnowledgeRepository:
+    def create_concept_repository(self, conn: Any = None) -> AbstractConceptRepository:
+        pass
+
+    @abc.abstractmethod
+    def create_relationship_repository(self, conn: Any = None) -> AbstractRelationshipRepository:
         pass
 
     @abc.abstractmethod
@@ -46,7 +53,8 @@ class MemoryRepositoryFactory(AbstractRepositoryFactory):
     def __init__(self) -> None:
         self._document_repo = MemoryDocumentRepository()
         self._chunk_repo = MemoryChunkRepository()
-        self._knowledge_repo = MemoryKnowledgeRepository()
+        self._concept_repo = MemoryConceptRepository()
+        self._relationship_repo = MemoryRelationshipRepository()
         self._learning_repo = MemoryLearningRepository()
 
     def create_document_repository(self, conn: Any = None) -> AbstractDocumentRepository:  # noqa: ARG002
@@ -55,8 +63,11 @@ class MemoryRepositoryFactory(AbstractRepositoryFactory):
     def create_chunk_repository(self, conn: Any = None) -> AbstractChunkRepository:  # noqa: ARG002
         return self._chunk_repo
 
-    def create_knowledge_repository(self, conn: Any = None) -> AbstractKnowledgeRepository:  # noqa: ARG002
-        return self._knowledge_repo
+    def create_concept_repository(self, conn: Any = None) -> AbstractConceptRepository:  # noqa: ARG002
+        return self._concept_repo
+
+    def create_relationship_repository(self, conn: Any = None) -> AbstractRelationshipRepository:  # noqa: ARG002
+        return self._relationship_repo
 
     def create_learning_repository(self, conn: Any = None) -> AbstractLearningRepository:  # noqa: ARG002
         return self._learning_repo
@@ -79,12 +90,19 @@ class SQLiteRepositoryFactory(AbstractRepositoryFactory):
             raise ValueError("SQLite repositories require a connection instance.")
         return SQLiteChunkRepository(conn)
 
-    def create_knowledge_repository(
+    def create_concept_repository(
         self, conn: sqlite3.Connection | None = None
-    ) -> AbstractKnowledgeRepository:
+    ) -> AbstractConceptRepository:
         if not conn:
             raise ValueError("SQLite repositories require a connection instance.")
-        return SQLiteKnowledgeRepository(conn)
+        return SQLiteConceptRepository(conn)
+
+    def create_relationship_repository(
+        self, conn: sqlite3.Connection | None = None
+    ) -> AbstractRelationshipRepository:
+        if not conn:
+            raise ValueError("SQLite repositories require a connection instance.")
+        return SQLiteRelationshipRepository(conn)
 
     def create_learning_repository(
         self, conn: sqlite3.Connection | None = None
