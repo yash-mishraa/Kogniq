@@ -14,5 +14,10 @@ class EmbeddingMetadata:
     dimensions: int
     normalized: bool
     language: str | None = None
+    document_id: str | None = None
+    chunk_hash: str | None = None
+    document_checksum: str | None = None
+    page_number: int | None = None
+    chunk_index: int | None = None
     future_index_name: str | None = None
     future_namespace: str | None = None

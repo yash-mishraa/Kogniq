@@ -9,12 +9,18 @@ interface SearchEvidenceProps {
 export function SearchEvidence({ evidence }: SearchEvidenceProps) {
   return (
     <div className="flex flex-col gap-2 mt-4">
-      <blockquote className="border-l-2 border-ink/10 pl-4 py-1 text-ink/70 font-serif leading-relaxed italic text-lg">
+      <blockquote className="border-l-2 border-ink/10 pl-4 py-1 text-ink/70 font-serif leading-relaxed italic text-lg line-clamp-4 text-ellipsis overflow-hidden">
         &quot;{evidence.snippet}&quot;
       </blockquote>
       <div className="flex items-center gap-2 text-xs font-mono text-muted pl-4">
         <span>Found in</span>
         <span className="text-ink/60">{evidence.location}</span>
+        {evidence.sectionTitle && (
+          <>
+            <span className="text-ink/30">•</span>
+            <span className="text-ink/60">{evidence.sectionTitle}</span>
+          </>
+        )}
       </div>
     </div>
   );

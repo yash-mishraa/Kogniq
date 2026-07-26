@@ -3,6 +3,7 @@ from collections.abc import Sequence
 
 from knowledge.graph import KnowledgeGraph
 
+from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
 from content.normalized.document import NormalizedDocument
 from learning_content.content import LearningContent
@@ -46,6 +47,10 @@ class AbstractChunkRepository(abc.ABC):
 
     @abc.abstractmethod
     async def get_by_document(self, document_id: str) -> ChunkCollection | None:
+        pass
+
+    @abc.abstractmethod
+    async def get_by_ids(self, chunk_ids: Sequence[str]) -> Sequence[Chunk]:
         pass
 
     @abc.abstractmethod

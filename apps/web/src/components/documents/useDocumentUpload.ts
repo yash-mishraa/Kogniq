@@ -33,14 +33,13 @@ export function useDocumentUpload() {
       formData.append("file", file);
 
       try {
-        const data = await serviceProvider.getProvider().documents.processDocument({ file });
+        await serviceProvider.getProvider().documents.processDocument({ file });
 
-        dispatch({
-          type: "UPDATE_STATUS",
-          payload: {
-            id: tempId, // Keep UI ID for now
-            status: data.status,
-          },
+        // Trigger immediate fetch to get the real document ID and latest status
+        const docs = await serviceProvider.getProvider().documents.getDocuments();
+        dispatch({ 
+          type: "SET_DOCUMENTS", 
+          payload: { status: "ready", data: docs, error: null, requestId: crypto.randomUUID() } 
         });
       } catch (error) {
         console.error("Upload failed", error);

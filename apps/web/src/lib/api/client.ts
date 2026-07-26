@@ -31,9 +31,9 @@ class ApiClient {
       url += `?${searchParams.toString()}`;
     }
 
-    const headers: Record<string, any> = {
+    const headers: Record<string, string | undefined> = {
       "Content-Type": "application/json",
-      ...customConfig.headers,
+      ...customConfig.headers as Record<string, string | undefined>,
     };
 
     // Some runtimes stringify undefined into "undefined" in Headers, so we must delete it entirely
@@ -44,7 +44,7 @@ class ApiClient {
 
     const config: RequestInit = {
       ...customConfig,
-      headers,
+      headers: headers as HeadersInit,
     };
 
     let req = new Request(url, config);
@@ -115,10 +115,10 @@ class ApiClient {
       // Clean up Content-Type if it exists so browser handles it natively
       const headersKey = Object.keys(customHeaders).find(k => k.toLowerCase() === "content-type");
       if (headersKey) {
-        delete (customHeaders as any)[headersKey];
+        delete (customHeaders as Record<string, unknown>)[headersKey];
       }
       // Set to undefined to override the default "application/json" in request()
-      (customHeaders as any)["Content-Type"] = undefined;
+      (customHeaders as Record<string, unknown>)["Content-Type"] = undefined;
     }
 
     return this.request<T>(endpoint, {

@@ -189,7 +189,14 @@ async def get_document_service() -> DocumentService:
 
     job_manager = get_job_manager()
     uow_factory = get_uow_factory()
-    pipeline = PipelineFactory.create(job_manager=job_manager, uow_factory=uow_factory)
+    retrieval_factory = get_retrieval_factory()
+    
+    pipeline = PipelineFactory.create(
+        job_manager=job_manager,
+        uow_factory=uow_factory,
+        embedding_provider=retrieval_factory.get_provider(),
+        vector_store=retrieval_factory.get_vector_store(),
+    )
     return DocumentService(pipeline=pipeline, uow_factory=uow_factory)
 
 

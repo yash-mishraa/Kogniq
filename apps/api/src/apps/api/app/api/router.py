@@ -2,12 +2,12 @@
 
 from backend.routers.jobs import jobs_router
 from backend.routers.learning import learning_router
-from backend.routers.retrieval import retrieval_router
 from fastapi import APIRouter
 
 from apps.api.app.routers.auth import router as auth_router
 from apps.api.app.routers.documents import router as documents_router
 from apps.api.app.routers.health import router as health_router
+from apps.api.app.routers.retrieval import router as retrieval_router
 from apps.api.app.routers.version import router as version_router
 
 api_router = APIRouter(prefix="/api/v1")

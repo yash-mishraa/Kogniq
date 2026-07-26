@@ -1,4 +1,5 @@
 import sqlite3
+from collections.abc import Sequence
 from datetime import datetime
 
 from content.chunking.chunk import Chunk
@@ -90,6 +91,44 @@ class SQLiteChunkRepository(AbstractChunkRepository):
             chunks.append(chunk)
 
         return ChunkCollection(chunks=tuple(chunks))
+
+    async def get_by_ids(self, chunk_ids: Sequence[str]) -> Sequence[Chunk]:
+        if not chunk_ids:
+            return []
+
+        placeholders = ",".join("?" for _ in chunk_ids)
+        rows = self._conn.execute(
+            f"SELECT * FROM document_chunks WHERE id IN ({placeholders})",
+            tuple(chunk_ids),
+        ).fetchall()
+
+        chunks = []
+        for row in rows:
+            meta_raw = deserialize(row["metadata_json"])
+            stats_raw = deserialize(row["statistics_json"])
+
+            if "processing_timestamp" in stats_raw and isinstance(
+                stats_raw["processing_timestamp"], str
+            ):
+                stats_raw["processing_timestamp"] = datetime.fromisoformat(
+                    stats_raw["processing_timestamp"]
+                )
+
+            chunk = Chunk(
+                id=row["id"],
+                document_id=row["document_id"],
+                chunk_index=row["chunk_index"],
+                text=row["text"],
+                title=row["title"],
+                page_number=row["page_number"],
+                section_title=row["section_title"],
+                created_at=datetime.fromisoformat(row["created_at"]),
+                metadata=ChunkMetadata(**meta_raw),
+                statistics=ChunkStatistics(**stats_raw),
+            )
+            chunks.append(chunk)
+
+        return tuple(chunks)
 
     async def delete(self, document_id: str) -> DeleteResult:
         cursor = self._conn.execute(

@@ -1,3 +1,6 @@
+from collections.abc import Sequence
+
+from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
 from persistence.models import DeleteResult, RepositoryStatistics, SaveResult
 from persistence.repositories.base import AbstractChunkRepository
@@ -20,6 +23,20 @@ class MemoryChunkRepository(AbstractChunkRepository):
 
     async def get_by_document(self, document_id: str) -> ChunkCollection | None:
         return self._store.get(document_id)
+
+    async def get_by_ids(self, chunk_ids: Sequence[str]) -> Sequence[Chunk]:
+        if not chunk_ids:
+            return []
+        
+        found_chunks: list[Chunk] = []
+        chunk_id_set = set(chunk_ids)
+        
+        for collection in self._store.values():
+            found_chunks.extend(
+                chunk for chunk in collection.chunks if chunk.id in chunk_id_set
+            )
+                    
+        return tuple(found_chunks)
 
     async def delete(self, document_id: str) -> DeleteResult:
         was_deleted = False

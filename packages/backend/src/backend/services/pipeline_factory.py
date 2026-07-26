@@ -1,3 +1,5 @@
+from typing import Any
+
 from persistence.uow_factory import AbstractUnitOfWorkFactory
 from pipeline.interfaces import PipelineStage
 from pipeline.pipeline import DocumentIntelligencePipeline
@@ -21,6 +23,8 @@ class PipelineFactory:
         cls,
         job_manager: AbstractJobManager | None = None,
         uow_factory: AbstractUnitOfWorkFactory | None = None,
+        embedding_provider: 'Any | None' = None,
+        vector_store: 'Any | None' = None,
     ) -> DocumentIntelligencePipeline:
         registry = ProcessorRegistry()
         registry.register(PDFProcessor())
@@ -49,6 +53,10 @@ class PipelineFactory:
                     processor_registry=registry, chunk_engine=chunk_engine, uow_factory=uow_factory
                 )
             )
+
+        if embedding_provider and vector_store:
+            from pipeline.stages.embedding import EmbeddingStage
+            stages.append(EmbeddingStage(provider=embedding_provider, vector_store=vector_store))
 
         return DocumentIntelligencePipeline(
             stages=stages,

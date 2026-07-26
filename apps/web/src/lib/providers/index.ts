@@ -9,7 +9,6 @@ import { MockAuthService } from "../services/mock/MockAuthService";
 import { MockDocumentService } from "../services/mock/MockDocumentService";
 import { MockKnowledgeService } from "../services/mock/MockKnowledgeService";
 import { MockNotebookService } from "../services/mock/MockNotebookService";
-import { MockSearchService } from "../services/mock/MockSearchService";
 import { MockStudyService } from "../services/mock/MockStudyService";
 
 import { LiveAuthService } from "../services/live/LiveAuthService";
@@ -38,7 +37,7 @@ class ServiceProviderFactory {
     documents: new MockDocumentService(),
     knowledge: new MockKnowledgeService(),
     notebooks: new MockNotebookService(),
-    search: new MockSearchService(),
+    search: new LiveSearchService(),
     study: new MockStudyService(),
   };
 

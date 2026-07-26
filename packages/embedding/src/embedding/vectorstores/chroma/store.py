@@ -51,7 +51,7 @@ class ChromaVectorStore(AbstractVectorStore):
             return self._collection
 
         try:
-            if self._persist_directory is not None:
+            if self._persist_directory is not None and self._persist_directory != ":memory:":
                 logger.info(f"Initializing persistent ChromaDB at {self._persist_directory}")
                 self._client = chromadb.PersistentClient(path=self._persist_directory)
             else:
@@ -79,6 +79,19 @@ class ChromaVectorStore(AbstractVectorStore):
 
         if embedding.metadata.language is not None:
             meta["language"] = embedding.metadata.language
+        if embedding.metadata.document_id is not None:
+            meta["document_id"] = embedding.metadata.document_id
+        if embedding.metadata.chunk_hash is not None:
+            meta["chunk_hash"] = embedding.metadata.chunk_hash
+        if embedding.metadata.document_checksum is not None:
+            meta["document_checksum"] = embedding.metadata.document_checksum
+        if embedding.metadata.page_number is not None:
+            meta["page_number"] = embedding.metadata.page_number
+        if embedding.metadata.chunk_index is not None:
+            meta["chunk_index"] = embedding.metadata.chunk_index
+        # Serialize created_at as ISO string if available
+        if embedding.metadata.created_at is not None:
+            meta["created_at"] = embedding.metadata.created_at.isoformat()
 
         return meta
 
@@ -161,6 +174,13 @@ class ChromaVectorStore(AbstractVectorStore):
                 from embedding.metadata import EmbeddingMetadata
                 from embedding.statistics import EmbeddingStatistics
 
+                # Parse created_at if available
+                created_at_str = meta_dict.get("created_at")
+                if created_at_str:
+                    created_at_dt = datetime.fromisoformat(created_at_str)
+                else:
+                    created_at_dt = datetime.now(UTC)
+
                 # Recover standard domain models
                 metadata = EmbeddingMetadata(
                     provider=meta_dict["provider"],
@@ -170,7 +190,12 @@ class ChromaVectorStore(AbstractVectorStore):
                     dimensions=meta_dict["dimensions"],
                     normalized=meta_dict.get("normalized", False),
                     language=meta_dict.get("language"),
-                    created_at=datetime.now(UTC),  # Fallback since we don't serialize this yet
+                    document_id=meta_dict.get("document_id"),
+                    chunk_hash=meta_dict.get("chunk_hash"),
+                    document_checksum=meta_dict.get("document_checksum"),
+                    page_number=meta_dict.get("page_number"),
+                    chunk_index=meta_dict.get("chunk_index"),
+                    created_at=created_at_dt,
                 )
 
                 # We need a dummy stats because we don't persist it.
@@ -186,7 +211,7 @@ class ChromaVectorStore(AbstractVectorStore):
                     ),
                     metadata=metadata,
                     statistics=stats,
-                    created_at=datetime.now(UTC),
+                    created_at=created_at_dt,
                 )
 
                 search_results.append(

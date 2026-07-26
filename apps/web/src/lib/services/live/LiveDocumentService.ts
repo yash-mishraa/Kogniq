@@ -1,5 +1,5 @@
 import type { IDocumentService, ProcessDocumentParams } from "../interfaces/IDocumentService";
-import type { DocumentItem } from "@/app/workspace/environments/documents/DocumentsTypes";
+import type { DocumentItem, DocumentStatus } from "@/app/workspace/environments/documents/DocumentsTypes";
 import { apiClient } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import { REQUEST_POLICIES } from "@/lib/api/policies";
@@ -21,7 +21,7 @@ export class LiveDocumentService implements IDocumentService {
     // Note: apiClient defaults to JSON, so for FormData we would need to let fetch handle it,
     // or just use fetch directly, or extend apiClient to handle FormData.
     // For now we will rely on apiClient post but override headers to let browser set boundary.
-    const response = await apiClient.post<any>(ENDPOINTS.documents.process, formData, {
+    const response = await apiClient.post<{ document_id: string; title: string; source: string; status: string }>(ENDPOINTS.documents.process, formData, {
       signal: params.signal,
       headers: {
         // Remove Content-Type so browser can set multipart/form-data with boundary
@@ -30,11 +30,18 @@ export class LiveDocumentService implements IDocumentService {
       ...REQUEST_POLICIES.documentUpload
     });
     
+    // Map backend job status string to frontend DocumentStatus
+    let frontendStatus: DocumentStatus = "Ready";
+    if (response.data.status === "queued") frontendStatus = "Uploaded";
+    if (response.data.status === "processing") frontendStatus = "Extracting";
+    if (response.data.status === "completed") frontendStatus = "Ready";
+    if (response.data.status === "failed") frontendStatus = "Failed";
+
     return {
       id: response.data.document_id,
       title: response.data.title,
       source: response.data.source,
-      status: response.data.status,
+      status: frontendStatus,
       importDate: new Date().toISOString()
     };
   }

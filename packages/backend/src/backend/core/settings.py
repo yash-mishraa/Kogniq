@@ -25,6 +25,7 @@ class BackendConfig(BaseSettings):
     host: str = "127.0.0.1"
     port: int = 8000
     cors_origins: list[str] = ["*"]
+    similarity_threshold: float = 0.35
 
 
 # Expose a default instance for easy access

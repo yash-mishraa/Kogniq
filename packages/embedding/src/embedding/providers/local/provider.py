@@ -27,6 +27,7 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
         self._model_name = model_name
         self._model: Any = None
         self._info: ProviderInfo | None = None
+        self._cache: dict[str, tuple[float, ...]] = {}
 
     def _load_model(self) -> Any:
         if self._model is None:
@@ -121,23 +122,51 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
         model = self._load_model()
         info = self.info
 
-        texts = [c.text for c in chunks.chunks]
-        if any(not t.strip() for t in texts):
-            raise EmbeddingGenerationError("Cannot generate embedding for empty chunk")
-
-        start = time.perf_counter()
-        try:
-            raw_embeddings = model.encode(texts, normalize_embeddings=True)
-        except Exception as e:
-            raise EmbeddingGenerationError(f"Failed to generate batch embeddings: {e}") from e
-
-        end = time.perf_counter()
-        total_time_ms = (end - start) * 1000.0
-        time_per_chunk = total_time_ms / len(chunks.chunks)
+        import hashlib
+        
+        # Determine unique hashes and identify cache misses
+        # To handle identical chunks inside the same batch, map hash to texts
+        missing_texts: dict[str, str] = {}
+        chunk_hashes: list[str] = []
+        
+        for c in chunks.chunks:
+            text = c.text.strip()
+            if not text:
+                raise EmbeddingGenerationError("Cannot generate embedding for empty chunk")
+            
+            chunk_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            chunk_hashes.append(chunk_hash)
+            
+            if chunk_hash not in self._cache:
+                missing_texts[chunk_hash] = text
+                
+        # Generate missing vectors
+        if missing_texts:
+            start = time.perf_counter()
+            try:
+                # Keep deterministic order for ML batch processing
+                missing_hash_list = list(missing_texts.keys())
+                texts_to_encode = [missing_texts[h] for h in missing_hash_list]
+                
+                raw_embeddings = model.encode(texts_to_encode, normalize_embeddings=True)
+                
+                # Cache results
+                for i, h in enumerate(missing_hash_list):
+                    self._cache[h] = tuple(float(x) for x in raw_embeddings[i])
+                    
+            except Exception as e:
+                raise EmbeddingGenerationError(f"Failed to generate batch embeddings: {e}") from e
+                
+            end = time.perf_counter()
+            total_time_ms = (end - start) * 1000.0
+            time_per_chunk = total_time_ms / len(missing_texts)
+        else:
+            time_per_chunk = 0.0
 
         embeddings = []
         for i, chunk in enumerate(chunks.chunks):
-            values = tuple(float(x) for x in raw_embeddings[i])
+            h = chunk_hashes[i]
+            values = self._cache[h]
             vec = EmbeddingVector(values=values, dimension=info.dimensions)
 
             meta = EmbeddingMetadata(
@@ -148,10 +177,15 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
                 created_at=datetime.now(UTC),
                 dimensions=info.dimensions,
                 normalized=info.normalized_output,
+                document_id=chunk.document_id,
+                chunk_hash=h,
+                document_checksum=chunk.metadata.checksum if chunk.metadata else None,
+                page_number=chunk.page_number,
+                chunk_index=chunk.chunk_index,
             )
 
             stats = EmbeddingStatistics(
-                processing_time_ms=time_per_chunk,
+                processing_time_ms=time_per_chunk if h in missing_texts else 0.0,
                 token_count=None,
             )
 

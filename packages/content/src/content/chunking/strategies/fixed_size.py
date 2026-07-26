@@ -83,6 +83,13 @@ class FixedSizeChunkStrategy(AbstractChunkStrategy):
             current_char_count = 0
             current_page_number = None
 
+        import re
+
+        def split_sentences(text: str) -> list[str]:
+            # Positive lookbehind for punctuation, positive lookahead for space + capital/number
+            sentences = re.split(r'(?<=[.!?])\s+(?=[A-Z0-9])', text)
+            return [s.strip() for s in sentences if s.strip()]
+
         def traverse_blocks(blocks: tuple[NormalizedBlock, ...], page_num: int) -> None:
             nonlocal current_section, current_page_number, current_char_count
             for block in blocks:
@@ -91,26 +98,28 @@ class FixedSizeChunkStrategy(AbstractChunkStrategy):
                     continue
 
                 new_section = text if block.block_type == BlockType.HEADING else current_section
+                
+                # Split block into sentences to avoid giant chunks
+                sentences = split_sentences(text)
+                
+                for sentence in sentences:
+                    sentence_len = len(sentence)
+                    additional_len = sentence_len if not current_blocks else sentence_len + 1
 
-                block_len = len(text)
-
-                # Check if appending this block exceeds the max_characters
-                # (account for newline if there are already blocks in buffer)
-                additional_len = block_len if not current_blocks else block_len + 1
-
-                if current_blocks and (current_char_count + additional_len > self.max_characters):
-                    finalize_chunk()
-                    # Re-initialize for new chunk
-                    current_section = new_section
-                    current_blocks.append(text)
-                    current_char_count = block_len
-                    current_page_number = page_num
-                else:
-                    current_section = new_section
-                    current_blocks.append(text)
-                    current_char_count += additional_len
-                    if current_page_number is None:
+                    if current_blocks and (
+                        current_char_count + additional_len > self.max_characters
+                    ):
+                        finalize_chunk()
+                        current_section = new_section
+                        current_blocks.append(sentence)
+                        current_char_count = sentence_len
                         current_page_number = page_num
+                    else:
+                        current_section = new_section
+                        current_blocks.append(sentence)
+                        current_char_count += additional_len
+                        if current_page_number is None:
+                            current_page_number = page_num
 
                 if block.children:
                     traverse_blocks(block.children, page_num)

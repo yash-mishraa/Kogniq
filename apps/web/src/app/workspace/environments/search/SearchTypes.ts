@@ -5,6 +5,7 @@ export type RetrievalState = "idle" | "connecting" | "found" | "empty";
 export interface SearchEvidence {
   snippet: string;
   location: string;
+  sectionTitle?: string;
 }
 
 export interface SearchFinding {

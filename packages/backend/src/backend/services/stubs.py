@@ -34,9 +34,3 @@ class StubLearningService:
     async def generate_study_guide(self, document_id: str) -> dict[str, str]:
         _ = document_id
         return {"status": "stubbed"}
-
-
-class StubRetrievalService:
-    async def search(self, query: str) -> list[str]:
-        _ = query
-        return []

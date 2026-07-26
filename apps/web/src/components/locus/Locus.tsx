@@ -47,7 +47,6 @@ export function Locus({
     event.preventDefault();
     if (mode === "free-text" && onSubmitQuery && value.trim()) {
       onSubmitQuery(value.trim());
-      setValue(""); // Clear the input after free-text submit
     } else if (mode === "suggestion" && visible[0]) {
       onSelect?.(visible[0]);
     }

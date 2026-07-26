@@ -38,8 +38,32 @@ function DocumentsEnvironmentBody() {
       isMounted = false;
       controller.abort();
     };
-    
   }, [dispatch]);
+
+  // Polling for pending documents
+  useEffect(() => {
+    const terminalStates = ["Ready", "Failed", "Persisted"];
+    const hasPendingDocs = documents.data?.some(doc => !terminalStates.includes(doc.status));
+    
+    if (!hasPendingDocs) return;
+
+    let isMounted = true;
+    const interval = setInterval(async () => {
+      try {
+        const data = await serviceProvider.getProvider().documents.getDocuments();
+        if (isMounted) {
+          dispatch({ type: "SET_DOCUMENTS", payload: { status: "ready", data, error: null, requestId: crypto.randomUUID() } });
+        }
+      } catch {
+        // Silently fail polling
+      }
+    }, 2000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [documents.data, dispatch]);
 
   if (documents.status === "loading") {
     return (

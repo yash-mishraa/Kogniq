@@ -2,11 +2,18 @@
 
 import { useEffect } from "react";
 import { useSearch, SearchProvider } from "./SearchContext";
-import { SearchSurface, SearchEmptyState, SearchFindings, SearchThinkingState } from "@/components/search";
+import { SearchSurface, SearchFindings, SearchThinkingState } from "@/components/search";
 import { serviceProvider } from "@/lib/providers";
+
+import { Locus } from "@/components/locus";
+import { SearchFilters } from "@/components/search/SearchFilters";
 
 function SearchEnvironmentBody() {
   const { state, dispatch } = useSearch();
+
+  const handleQuery = (query: string) => {
+    dispatch({ type: "SET_QUERY", payload: query });
+  };
 
   useEffect(() => {
     if (state.query) {
@@ -49,9 +56,24 @@ function SearchEnvironmentBody() {
 
   return (
     <SearchSurface>
-      {state.retrievalState === "idle" && !state.query && <SearchEmptyState />}
+      <div className="flex flex-col flex-shrink-0 w-full mb-12 gap-6">
+        <Locus 
+          environmentTitle="Search" 
+          placeholder="Search your knowledge..."
+          mode="free-text"
+          onSubmitQuery={handleQuery}
+          autoFocus={true} 
+        />
+        <SearchFilters activeFilter={state.activeFilter} onFilterChange={(f) => dispatch({ type: "SET_FILTER", payload: f })} />
+      </div>
+
+      {state.retrievalState === "idle" && !state.query && (
+         <div className="pt-12 text-ink/40 font-serif text-lg tracking-tight">
+           Enter a query above to search your knowledge base.
+         </div>
+      )}
       {state.retrievalState === "connecting" && <SearchThinkingState />}
-      {state.retrievalState === "found" && <SearchFindings />}
+      {(state.retrievalState === "found" || state.retrievalState === "empty") && <SearchFindings />}
     </SearchSurface>
   );
 }

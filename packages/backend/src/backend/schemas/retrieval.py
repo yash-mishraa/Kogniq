@@ -6,7 +6,10 @@ from pydantic import BaseModel, Field, model_validator
 class RetrievalRequest(BaseModel):
     """Request payload for semantic retrieval."""
 
-    document_id: str = Field(..., description="The ID of the document to search within.")
+    document_id: str | None = Field(
+        None,
+        description="Optional ID of the document to search within. If omitted, searches globally.",
+    )
     query: str = Field(..., min_length=1, description="The semantic search query.")
     top_k: int = Field(5, ge=1, le=50, description="Maximum number of chunks to return.")
     minimum_similarity: float | None = Field(
