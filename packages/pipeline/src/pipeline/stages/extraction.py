@@ -90,6 +90,9 @@ class KnowledgeExtractionStage:
                 if relationships:
                     await uow.relationships.save_all(relationships)
 
+            # 3. Add to context
+            context.set("knowledge_graph", extraction_result.graph)
+
             return ExtractionStageResult(
                 success=True,
                 data={

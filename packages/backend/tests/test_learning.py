@@ -14,6 +14,8 @@ from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
 from content.chunking.metadata import ChunkMetadata
 from content.chunking.statistics import ChunkStatistics
+from backend.core.settings import settings
+import backend.dependencies as deps
 
 
 class MockAuthResult:
@@ -30,6 +32,18 @@ class MockAuthorizationService:
 # Apply globally to the module
 app = create_app()
 app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
+
+
+from typing import Iterator
+
+@pytest.fixture(autouse=True)
+def mock_learning_generation_provider() -> Iterator[None]:
+    original_provider = settings.learning_generation_provider
+    settings.learning_generation_provider = "mock"
+    deps._generator_factory_instance = None
+    yield
+    settings.learning_generation_provider = original_provider
+    deps._generator_factory_instance = None
 
 
 @pytest.fixture

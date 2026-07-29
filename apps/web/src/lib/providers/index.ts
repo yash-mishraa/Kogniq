@@ -7,8 +7,6 @@ import type { IStudyService } from "../services/interfaces/IStudyService";
 
 import { MockAuthService } from "../services/mock/MockAuthService";
 import { MockDocumentService } from "../services/mock/MockDocumentService";
-import { MockNotebookService } from "../services/mock/MockNotebookService";
-import { MockStudyService } from "../services/mock/MockStudyService";
 
 import { LiveAuthService } from "../services/live/LiveAuthService";
 import { LiveDocumentService } from "../services/live/LiveDocumentService";
@@ -35,9 +33,9 @@ class ServiceProviderFactory {
     auth: new MockAuthService(),
     documents: new MockDocumentService(),
     knowledge: new LiveKnowledgeService(),
-    notebooks: new MockNotebookService(),
+    notebooks: new LiveNotebookService(),
     search: new LiveSearchService(),
-    study: new MockStudyService(),
+    study: new LiveStudyService(),
   };
 
   private liveProvider: IServiceProvider = {

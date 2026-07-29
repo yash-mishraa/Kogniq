@@ -1,4 +1,3 @@
-import json
 from datetime import UTC, datetime
 
 import pytest
@@ -10,17 +9,8 @@ from knowledge.metadata import KnowledgeMetadata
 from content.chunking import Chunk, ChunkCollection, ChunkMetadata, ChunkStatistics
 from learning_content.enums import ContentType
 from learning_content.generators.base import GenerationContext
-from learning_content.generators.explanation.generator import ExplanationGenerator
-from learning_content.generators.flashcards.generator import FlashcardsGenerator
-from learning_content.generators.notes.generator import NotesGenerator
-from learning_content.generators.quiz.generator import QuizGenerator
-from learning_content.generators.study_guide.composer import StudyGuideComposer
-from learning_content.generators.study_guide.exceptions import (
-    CompositionError,
-    StudyGuideGenerationError,
-)
+from learning_content.generators.base.exceptions import LearningGenerationError
 from learning_content.generators.study_guide.generator import StudyGuideGenerator
-from learning_content.generators.summary.generator import SummaryGenerator
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
     TextGenerationProviderInfo,
@@ -99,41 +89,12 @@ def create_sample_context() -> GenerationContext:
 
 @pytest.fixture
 def study_guide_generator() -> StudyGuideGenerator:
-    summary_provider = MockProvider("This is a summary.")
-    notes_provider = MockProvider("# Note 1\nNote text.")
-
-    flashcards_json = json.dumps([{"question": "Q1", "answer": "A1", "difficulty": "easy"}])
-    flashcards_provider = MockProvider(flashcards_json)
-
-    quiz_json = json.dumps(
-        [
-            {
-                "question": "Q1",
-                "options": ["A", "B", "C", "D"],
-                "correct_answer": "A",
-                "explanation": "Exp",
-                "difficulty": "medium",
-            }
-        ]
-    )
-    quiz_provider = MockProvider(quiz_json)
-
-    explanation_markdown = (
-        "# Concept\n## Why It Matters\n## Intuition\n## Detailed Explanation\n"
-        "## Example\n## Common Mistakes\n## Related Concepts\n## Key Takeaways\n"
-    )
-    explanation_provider = MockProvider(explanation_markdown)
-
-    return StudyGuideGenerator(
-        summary_generator=SummaryGenerator(summary_provider),
-        notes_generator=NotesGenerator(notes_provider),
-        flashcards_generator=FlashcardsGenerator(flashcards_provider),
-        quiz_generator=QuizGenerator(quiz_provider),
-        explanation_generator=ExplanationGenerator(explanation_provider),
-    )
+    sg_markdown = "# Comprehensive Study Guide\n## Introduction\nTesting study guide."
+    provider = MockProvider(sg_markdown)
+    return StudyGuideGenerator(provider)
 
 
-def test_study_guide_orchestration(study_guide_generator: StudyGuideGenerator) -> None:
+def test_study_guide_generation(study_guide_generator: StudyGuideGenerator) -> None:
     context = create_sample_context()
     content = study_guide_generator.generate(context.chunks, context.graph)
 
@@ -141,68 +102,16 @@ def test_study_guide_orchestration(study_guide_generator: StudyGuideGenerator) -
     assert "Comprehensive Study Guide" in content.title
 
     body = content.body
-    # Ensure correct deterministic rendering order
-    assert "# Summary" in body
-    assert "# Notes" in body
-    assert "# Explanation" in body
-    assert "# Flashcards" in body
-    assert "# Quiz" in body
-
-    # Check flashcard rendering
-    assert "**Question:**\nQ1" in body
-    assert "**Answer:**\nA1" in body
-
-    # Check quiz rendering
-    assert "**Question 1:**\nQ1" in body
-    assert "A. A" in body
-
-    # Check aggregated metadata
+    assert "Testing study guide" in body
     assert content.metadata.provider == "mock"
-    assert "summary-v1" in content.metadata.prompt_version
-    assert "quiz-v1" in content.metadata.prompt_version
+    assert "study-guide-v1" in content.metadata.prompt_version
 
 
 def test_study_guide_failure() -> None:
-    summary_provider = MockProvider("This is a summary.", fail=True)
-    notes_provider = MockProvider("# Note 1\nNote text.")
-
-    flashcards_json = json.dumps([{"question": "Q1", "answer": "A1", "difficulty": "easy"}])
-    flashcards_provider = MockProvider(flashcards_json)
-
-    quiz_json = json.dumps(
-        [
-            {
-                "question": "Q1",
-                "options": ["A", "B", "C", "D"],
-                "correct_answer": "A",
-                "explanation": "Exp",
-                "difficulty": "medium",
-            }
-        ]
-    )
-    quiz_provider = MockProvider(quiz_json)
-
-    explanation_markdown = (
-        "# Concept\n## Why It Matters\n## Intuition\n## Detailed Explanation\n"
-        "## Example\n## Common Mistakes\n## Related Concepts\n## Key Takeaways\n"
-    )
-    explanation_provider = MockProvider(explanation_markdown)
-
-    sg_generator = StudyGuideGenerator(
-        summary_generator=SummaryGenerator(summary_provider),
-        notes_generator=NotesGenerator(notes_provider),
-        flashcards_generator=FlashcardsGenerator(flashcards_provider),
-        quiz_generator=QuizGenerator(quiz_provider),
-        explanation_generator=ExplanationGenerator(explanation_provider),
-    )
+    provider = MockProvider("Empty", fail=True)
+    sg_generator = StudyGuideGenerator(provider)
 
     context = create_sample_context()
 
-    with pytest.raises(StudyGuideGenerationError, match="Failed to generate study guide"):
+    with pytest.raises(LearningGenerationError, match="Failed to generate learning content"):
         sg_generator.generate(context.chunks, context.graph)
-
-
-def test_composer_empty_rejection() -> None:
-    composer = StudyGuideComposer()
-    with pytest.raises(CompositionError, match="empty sequence"):
-        composer.compose("Title", [])

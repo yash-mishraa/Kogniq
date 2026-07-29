@@ -45,4 +45,8 @@ export class LiveDocumentService implements IDocumentService {
       importDate: new Date().toISOString()
     };
   }
+
+  async deleteDocument(documentId: string): Promise<void> {
+    await apiClient.delete(ENDPOINTS.documents.delete(documentId));
+  }
 }

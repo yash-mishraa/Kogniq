@@ -22,8 +22,24 @@ export function WorkspaceProvider({
   children: ReactNode; 
 }) {
   const [activeEnvironmentId, setActiveEnvironmentId] = useState(initialEnvironmentId);
-  const [history, setHistory] = useState<readonly EnvironmentId[]>(initialHistory || [initialEnvironmentId]);
-  const [memory, setMemory] = useState<Partial<Record<EnvironmentId, WorkspaceMemory>>>(initialMemory || {});
+  const [history, setHistory] = useState<readonly EnvironmentId[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("kogniq_workspace_state");
+        if (saved) return JSON.parse(saved).history || initialHistory || [initialEnvironmentId];
+      } catch {}
+    }
+    return initialHistory || [initialEnvironmentId];
+  });
+  const [memory, setMemory] = useState<Partial<Record<EnvironmentId, WorkspaceMemory>>>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("kogniq_workspace_state");
+        if (saved) return JSON.parse(saved).memory || initialMemory || {};
+      } catch {}
+    }
+    return initialMemory || {};
+  });
   
   useEffect(() => {
     const state: SerializedWorkspaceState = { activeEnvironmentId, history, memory };

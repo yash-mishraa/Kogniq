@@ -26,7 +26,7 @@ const config: Config = {
       boxShadow: { panel: "var(--shadow-panel)", overlay: "var(--shadow-overlay)" },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };
 
 export default config;

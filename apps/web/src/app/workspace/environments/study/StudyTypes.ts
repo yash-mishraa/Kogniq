@@ -11,10 +11,12 @@ export interface UnderstandContent {
   intuition: string;
   whyItMatters: string;
   keyTakeaways: string[];
+  markdown?: string;
 }
 
 export interface ReviewContent {
   notes: { section: string; points: string[] }[];
+  markdown?: string;
 }
 
 export interface RecallContent {

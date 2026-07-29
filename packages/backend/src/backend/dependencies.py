@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
 
     from application.knowledge.get_knowledge import GetKnowledgeUseCase
+    from application.learning.get_learning_materials import GetLearningMaterialsUseCase
     from backend.services.knowledge_service import KnowledgeService
 
 from application.auth.register_user import RegisterUserUseCase
@@ -179,10 +180,45 @@ async def get_pipeline_service() -> PipelineService:
     return StubPipelineService()
 
 
+_generator_factory_instance: GeneratorFactory | None = None
+
+
+def get_generator_factory() -> GeneratorFactory:
+    global _generator_factory_instance
+    if _generator_factory_instance is None:
+        from backend.services.generator_factory import GeneratorFactory
+        from learning_content.providers.base import AbstractTextGenerationProvider
+        
+        provider: AbstractTextGenerationProvider
+        if settings.learning_generation_provider == "openrouter":
+            if not settings.openrouter_api_key:
+                raise RuntimeError(
+                    "LEARNING_GENERATION_PROVIDER is set to 'openrouter' but OPENROUTER_API_KEY is missing. "
+                    "Cannot start the learning generator."
+                )
+            from learning_content.providers.openrouter.provider import OpenRouterTextGenerationProvider
+            
+            api_key = settings.openrouter_api_key
+            if hasattr(api_key, "get_secret_value"):
+                api_key = api_key.get_secret_value()
+                
+            provider = OpenRouterTextGenerationProvider(
+                api_key=api_key,
+                model_name=settings.openrouter_model,
+            )
+        else:
+            from learning_content.providers.mock.provider import MockTextGenerationProvider
+            
+            provider = MockTextGenerationProvider()
+
+        _generator_factory_instance = GeneratorFactory(provider)
+    return _generator_factory_instance
+
+
 async def get_learning_service() -> LearningService:
     uow_factory = get_uow_factory()
     context_provider = LearningContextProvider(uow_factory=uow_factory)
-    factory = GeneratorFactory()
+    factory = get_generator_factory()
 
     return LearningService(
         context_provider=context_provider,
@@ -214,6 +250,7 @@ async def get_document_service() -> DocumentService:
     uow_factory = get_uow_factory()
     retrieval_factory = get_retrieval_factory()
     knowledge_extractor = get_knowledge_extractor()
+    generator_factory = get_generator_factory()
 
     pipeline = PipelineFactory.create(
         job_manager=job_manager,
@@ -221,6 +258,7 @@ async def get_document_service() -> DocumentService:
         embedding_provider=retrieval_factory.get_provider(),
         vector_store=retrieval_factory.get_vector_store(),
         knowledge_extractor=knowledge_extractor,
+        generator_factory=generator_factory,
     )
     return DocumentService(pipeline=pipeline, uow_factory=uow_factory)
 
@@ -313,6 +351,21 @@ async def get_generate_learning_use_case(
         authorization_service=authorization_service,  # type: ignore
         learning_service=learning_service,
     )
+
+
+async def get_get_learning_materials_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> GetLearningMaterialsUseCase:
+    from application.learning.get_learning_materials import GetLearningMaterialsUseCase
+
+    return GetLearningMaterialsUseCase(
+        auth_service=auth_service,
+        authorization_service=authorization_service,
+        uow_factory=uow_factory,
+    )
+
 
 
 async def get_retrieve_use_case(

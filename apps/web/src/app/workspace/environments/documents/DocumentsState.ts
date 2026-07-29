@@ -44,6 +44,16 @@ export function documentsReducer(state: DocumentsState, action: DocumentsAction)
           ),
         }
       };
+    case "DELETE_DOCUMENT":
+      if (!state.documents.data) return state;
+      return {
+        ...state,
+        documents: {
+          ...state.documents,
+          data: state.documents.data.filter((doc) => doc.id !== action.payload),
+        },
+        activeDocumentId: state.activeDocumentId === action.payload ? null : state.activeDocumentId,
+      };
     case "START_HYDRATION":
       return {
         ...state,

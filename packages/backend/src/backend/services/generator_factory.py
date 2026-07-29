@@ -18,47 +18,8 @@ class GeneratorFactory:
     Injects providers natively.
     """
 
-    def __init__(self) -> None:
-        # Tomorrow this will be injected or resolved via app settings.
-        # Today we construct a mock provider to satisfy the tests and demo.
-        self._provider = self._create_mock_provider()
-
-    def _create_mock_provider(self) -> AbstractTextGenerationProvider:
-        provider = MagicMock(spec=AbstractTextGenerationProvider)
-
-        from learning_content.providers.base import TextGenerationProviderInfo
-
-        provider.info = TextGenerationProviderInfo(
-            provider_id="mock-provider",
-            provider_name="Mock Provider",
-            default_model="mock-model-v1",
-            model_version="1.0",
-            context_window=16000,
-            supports_streaming=False,
-        )
-
-        def mock_generate(prompt: str) -> str:
-            lower = prompt.lower()
-            if "flashcard" in lower:
-                return '[{"question": "Q", "answer": "A"}]'
-            elif "multiple-choice" in lower or "quiz" in lower:
-                return (
-                    '[{"question": "Q", "options": ["A", "B", "C", "D"], '
-                    '"correct_answer": "A", "explanation": "E"}]'
-                )
-            elif "concept" in lower or "intuition" in lower or "explanation" in lower:
-                return """# Concept
-## Why It Matters
-## Intuition
-## Detailed Explanation
-## Example
-## Common Mistakes
-## Related Concepts
-## Key Takeaways"""
-            return '{"title": "Fake Title", "content": "Fake content"}'
-
-        provider.generate.side_effect = mock_generate
-        return provider
+    def __init__(self, provider: AbstractTextGenerationProvider) -> None:
+        self._provider = provider
 
     def get_generator(self, generator_name: str) -> AbstractLearningGenerator:
         """
@@ -77,14 +38,7 @@ class GeneratorFactory:
         elif name == "explanation":
             return ExplanationGenerator(self._provider)
         elif name == "study_guide":
-            # Composition engine requires all other generators
-            return StudyGuideGenerator(
-                summary_generator=SummaryGenerator(self._provider),
-                notes_generator=NotesGenerator(self._provider),
-                flashcards_generator=FlashcardsGenerator(self._provider),
-                quiz_generator=QuizGenerator(self._provider),
-                explanation_generator=ExplanationGenerator(self._provider),
-            )
+            return StudyGuideGenerator(self._provider)
 
         raise BackendError(
             "unsupported_generator",

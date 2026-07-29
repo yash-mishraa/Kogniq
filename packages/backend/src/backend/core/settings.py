@@ -16,6 +16,10 @@ class BackendConfig(BaseSettings):
     persistence_provider: Literal["memory", "sqlite"] = "sqlite"
     sqlite_database_path: str = "./data/kogniq.db"
     knowledge_extraction_provider: Literal["fake", "openrouter"] = "fake"
+    learning_generation_provider: Literal["fake", "openrouter", "mock"] = "fake"
+    
+    openrouter_api_key: str | None = None
+    openrouter_model: str = "google/gemini-2.5-flash"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

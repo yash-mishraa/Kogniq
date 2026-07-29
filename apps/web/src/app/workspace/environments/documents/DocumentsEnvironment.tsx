@@ -7,6 +7,7 @@ import { AnimatePresence } from "framer-motion";
 
 import { useEffect } from "react";
 import { serviceProvider } from "@/lib/providers";
+import { useWorkspace } from "../../WorkspaceContext";
 
 function DocumentsEnvironmentBody() {
   const { state, dispatch } = useDocuments();
@@ -64,6 +65,17 @@ function DocumentsEnvironmentBody() {
       clearInterval(interval);
     };
   }, [documents.data, dispatch]);
+
+  const { remember } = useWorkspace();
+
+  // Automatically select the first document if none is selected
+  useEffect(() => {
+    if (documents.data && documents.data.length > 0 && !activeDocumentId) {
+      const firstDoc = documents.data[0];
+      dispatch({ type: "SELECT_DOCUMENT", payload: firstDoc.id });
+      remember("documents", { openedDocument: firstDoc.id });
+    }
+  }, [documents.data, activeDocumentId, dispatch, remember]);
 
   if (documents.status === "loading") {
     return (

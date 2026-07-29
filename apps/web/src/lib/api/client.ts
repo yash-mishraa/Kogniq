@@ -128,6 +128,10 @@ class ApiClient {
       body: data ? (isFormData ? (data as FormData) : JSON.stringify(data)) : undefined,
     });
   }
+
+  delete<T>(endpoint: string, options?: ApiRequestOptions) {
+    return this.request<T>(endpoint, { ...options, method: "DELETE" });
+  }
 }
 
 export const apiClient = new ApiClient(process.env.NEXT_PUBLIC_API_URL || "");

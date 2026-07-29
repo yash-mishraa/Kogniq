@@ -26,6 +26,7 @@ class PipelineFactory:
         embedding_provider: "Any | None" = None,
         vector_store: "Any | None" = None,
         knowledge_extractor: "Any | None" = None,
+        generator_factory: "Any | None" = None,
     ) -> DocumentIntelligencePipeline:
         registry = ProcessorRegistry()
         registry.register(PDFProcessor())
@@ -66,6 +67,15 @@ class PipelineFactory:
             stages.append(
                 KnowledgeExtractionStage(extractor=knowledge_extractor, uow_factory=uow_factory)
             )
+
+        if generator_factory and uow_factory:
+            from pipeline.stages.learning import LearningGenerationStage
+
+            generators = [
+                generator_factory.get_generator(name)
+                for name in ["notes", "summary", "explanation", "flashcards", "quiz", "study_guide"]
+            ]
+            stages.append(LearningGenerationStage(generators=generators, uow_factory=uow_factory))
 
         return DocumentIntelligencePipeline(
             stages=stages,

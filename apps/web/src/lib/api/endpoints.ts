@@ -6,6 +6,8 @@ export const ENDPOINTS = {
   documents: {
     process: "/api/v1/documents/process",
     get: (id: string) => `/api/v1/documents/${id}`,
+    getAll: "/api/v1/documents",
+    delete: (id: string) => `/api/v1/documents/${id}`,
   },
   retrieval: {
     search: "/api/v1/retrieval/search",

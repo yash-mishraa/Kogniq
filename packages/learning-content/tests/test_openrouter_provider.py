@@ -187,4 +187,5 @@ def test_long_unicode_markdown_prompt(
     mock_client.chat.completions.create.assert_called_once_with(
         model="test-model",
         messages=[{"role": "user", "content": long_prompt.strip()}],
+        max_tokens=8000,
     )

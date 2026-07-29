@@ -73,3 +73,31 @@ async def process_document(
         processing_time_ms=result.processing_time_ms,
         warnings=list(result.warnings),
     )
+
+
+@router.delete("/documents/{document_id}")
+async def delete_document(
+    document_id: str,
+    _current_user: CurrentUserDependency,
+    document_service: DocumentService = Depends(get_document_service),  # noqa: B008
+) -> dict[str, str]:
+    """
+    Delete a document and all its associated materials.
+    """
+    # Use the uow_factory directly or via document_service
+    # Let's import get_uow_factory
+    from backend.dependencies import get_uow_factory
+    
+    uow_factory = get_uow_factory()
+    with uow_factory.create() as uow:
+        # Check if document exists
+        from fastapi import HTTPException
+        doc = await uow.documents.get(document_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail="Document not found")
+            
+        # Delete document. Since SQLite has ON DELETE CASCADE,
+        # this will automatically delete chunks, concepts, relationships, and learning content.
+        await uow.documents.delete(document_id)
+        
+    return {"status": "success", "message": f"Document {document_id} deleted"}

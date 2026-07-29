@@ -1,5 +1,5 @@
 import type { Notebook } from "@/app/workspace/environments/notebook/NotebookTypes";
 
 export interface INotebookService {
-  getNotebooks(signal?: AbortSignal): Promise<Notebook[]>;
+  getNotebooks(signal?: AbortSignal, documentId?: string): Promise<Notebook[]>;
 }

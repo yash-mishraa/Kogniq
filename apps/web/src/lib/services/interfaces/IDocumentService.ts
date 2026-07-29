@@ -8,4 +8,5 @@ export interface ProcessDocumentParams {
 export interface IDocumentService {
   processDocument(params: ProcessDocumentParams): Promise<DocumentItem>;
   getDocuments(signal?: AbortSignal): Promise<DocumentItem[]>;
+  deleteDocument(documentId: string): Promise<void>;
 }

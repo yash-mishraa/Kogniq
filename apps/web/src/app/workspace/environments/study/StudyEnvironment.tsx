@@ -6,11 +6,26 @@ import { StudySurface, StudyEmptyState, StudyPerspective, StudyTimeline, StudyNa
 import { useEffect } from "react";
 import { serviceProvider } from "@/lib/providers";
 
+import { useWorkspace } from "../../WorkspaceContext";
+
 function StudyEnvironmentBody() {
   const { state, dispatch } = useStudy();
+  const { memory } = useWorkspace();
+  const documentId = memory.documents?.openedDocument;
+
+  // Automatically transition the Study state machine when the active document changes
+  useEffect(() => {
+    if (documentId) {
+      if (!state.isStudying || (state.material.data && state.material.data.concept.id !== documentId)) {
+        dispatch({ type: "START_STUDY", payload: { status: "idle", data: null, error: null } });
+      }
+    } else if (state.isStudying) {
+      dispatch({ type: "END_STUDY" });
+    }
+  }, [documentId, state.isStudying, state.material.data, dispatch]);
 
   useEffect(() => {
-    if (state.isStudying) {
+    if (state.isStudying && documentId) {
       let isMounted = true;
       const controller = new AbortController();
       
@@ -19,7 +34,7 @@ function StudyEnvironmentBody() {
         dispatch({ type: "START_HYDRATION", payload: { requestId: currentRequestId } });
         try {
           const data = await serviceProvider.getProvider().study.generateMaterial({
-            topicId: "transformer-architecture", // Mock ID for now
+            topicId: documentId as string,
             signal: controller.signal
           });
           if (isMounted) {
@@ -40,7 +55,7 @@ function StudyEnvironmentBody() {
       };
     }
     
-  }, [state.isStudying, dispatch]);
+  }, [state.isStudying, dispatch, documentId]);
 
   if (!state.isStudying) {
     return (

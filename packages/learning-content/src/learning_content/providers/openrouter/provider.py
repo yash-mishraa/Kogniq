@@ -66,5 +66,5 @@ class OpenRouterTextGenerationProvider(AbstractTextGenerationProvider):
             prompt=cleaned_prompt,
             model=self._model_name,
             temperature=temperature,
-            max_tokens=max_tokens,
+            max_tokens=max_tokens if max_tokens is not None else 8000,
         )

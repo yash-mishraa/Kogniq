@@ -6,9 +6,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDocumentUpload } from "./useDocumentUpload";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useWorkspace } from "@/app/workspace/WorkspaceContext";
 
 export function DocumentCollection() {
   const { state, dispatch } = useDocuments();
+  const { remember } = useWorkspace();
   const { documents, activeDocumentId } = state;
   const hasActiveDocument = activeDocumentId !== null;
   const { fileInputRef, triggerUpload, handleFileChange } = useDocumentUpload();
@@ -63,8 +65,18 @@ export function DocumentCollection() {
                 onClick={() => {
                   if (isActive) {
                     dispatch({ type: "SELECT_DOCUMENT", payload: null });
+                    remember("documents", { openedDocument: undefined });
                   } else {
                     dispatch({ type: "SELECT_DOCUMENT", payload: doc.id });
+                    remember("documents", { openedDocument: doc.id });
+                  }
+                }}
+                onDelete={async (id) => {
+                  dispatch({ type: "DELETE_DOCUMENT", payload: id });
+                  try {
+                    import("@/lib/providers").then(m => m.serviceProvider.getProvider().documents.deleteDocument(id));
+                  } catch (e) {
+                    console.error("Failed to delete document", e);
                   }
                 }}
               />

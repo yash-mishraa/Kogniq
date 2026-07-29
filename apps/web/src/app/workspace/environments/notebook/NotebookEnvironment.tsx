@@ -5,12 +5,17 @@ import { NotebookSurface, NotebookCanvas, NotebookEmptyState, NotebookCollection
 
 import { useEffect } from "react";
 import { serviceProvider } from "@/lib/providers";
+import { useWorkspace } from "../../WorkspaceContext";
 
 function NotebookEnvironmentBody() {
   const { state, dispatch } = useNotebook();
   const { notebooks } = state;
+  const { memory } = useWorkspace();
+  const documentId = memory.documents?.openedDocument;
 
   useEffect(() => {
+    if (!documentId) return;
+
     let isMounted = true;
     const controller = new AbortController();
     
@@ -18,9 +23,12 @@ function NotebookEnvironmentBody() {
       const currentRequestId = crypto.randomUUID();
       dispatch({ type: "START_HYDRATION", payload: { requestId: currentRequestId } });
       try {
-        const data = await serviceProvider.getProvider().notebooks.getNotebooks(controller.signal);
+        const data = await serviceProvider.getProvider().notebooks.getNotebooks(controller.signal, documentId);
         if (isMounted) {
           dispatch({ type: "SET_NOTEBOOKS", payload: { status: "ready", data, error: null, requestId: currentRequestId } });
+          if (data && data.length > 0) {
+            dispatch({ type: "SET_ACTIVE_NOTEBOOK", payload: data[0].id });
+          }
         }
       } catch (err: unknown) {
         if (isMounted) {
@@ -36,7 +44,7 @@ function NotebookEnvironmentBody() {
       controller.abort();
     };
     
-  }, [dispatch]);
+  }, [dispatch, documentId]);
 
   if (notebooks.status === "loading") {
     return (

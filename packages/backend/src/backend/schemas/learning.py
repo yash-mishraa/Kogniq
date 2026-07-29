@@ -38,3 +38,27 @@ class LearningGenerationResponse(BaseModel):
     warnings: list[str] = Field(
         default_factory=list, description="Non-fatal warnings during generation"
     )
+
+
+class LearningMaterialItem(BaseModel):
+    """
+    Individual generated learning material.
+    """
+
+    title: str = Field(..., description="Title of the material")
+    body: Any = Field(..., description="Content of the material, can be string or parsed JSON")
+
+
+class LearningMaterialsResponse(BaseModel):
+    """
+    API Response Schema for fetching all generated learning materials for a document.
+    """
+
+    status: str = Field(
+        ..., description="Status of the generation pipeline ('processing' or 'completed')"
+    )
+    materials: dict[str, LearningMaterialItem] | None = Field(
+        ...,
+        description="Dictionary mapping generator types (e.g. 'notes') to the material content"
+    )
+

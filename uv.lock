@@ -1276,6 +1276,7 @@ dependencies = [
     { name = "kogniq-content" },
     { name = "kogniq-embedding" },
     { name = "kogniq-knowledge" },
+    { name = "kogniq-learning-content" },
 ]
 
 [package.metadata]
@@ -1283,6 +1284,7 @@ requires-dist = [
     { name = "kogniq-content", editable = "packages/content" },
     { name = "kogniq-embedding", editable = "packages/embedding" },
     { name = "kogniq-knowledge", editable = "packages/knowledge" },
+    { name = "kogniq-learning-content", editable = "packages/learning-content" },
 ]
 
 [[package]]

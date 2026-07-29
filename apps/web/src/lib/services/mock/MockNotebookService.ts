@@ -101,7 +101,8 @@ export const MOCK_NOTEBOOKS: Notebook[] = [
 ];
 
 export class MockNotebookService implements INotebookService {
-  async getNotebooks(signal?: AbortSignal): Promise<Notebook[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getNotebooks(signal?: AbortSignal, _documentId?: string): Promise<Notebook[]> {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         resolve(MOCK_NOTEBOOKS);
