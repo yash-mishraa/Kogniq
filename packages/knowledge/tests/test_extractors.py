@@ -1,9 +1,7 @@
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from knowledge.extractors.fake import FakeKnowledgeExtractor
-from knowledge.extractors.openrouter.extractor import OpenRouterKnowledgeExtractor
 
 from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
@@ -51,23 +49,3 @@ async def test_fake_knowledge_extractor(chunk_collection: ChunkCollection) -> No
     assert "Attention" in names
 
 
-@pytest.mark.asyncio
-async def test_openrouter_knowledge_extractor(chunk_collection: ChunkCollection) -> None:
-    extractor = OpenRouterKnowledgeExtractor(api_key="test_key", model_name="test_model")
-
-    mock_response = MagicMock()
-    mock_response.choices = [
-        MagicMock(message=MagicMock(content='{"concepts": [], "relationships": []}'))
-    ]
-
-    with patch.object(
-        extractor._client.chat.completions, "create", new_callable=AsyncMock
-    ) as mock_create:
-        mock_create.return_value = mock_response
-
-        result = await extractor.extract(chunk_collection)
-
-        assert result.extractor_id == "openrouter_test_model"
-        assert len(result.graph.concepts) == 0
-        assert len(result.graph.relationships) == 0
-        mock_create.assert_called_once()

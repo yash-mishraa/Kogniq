@@ -84,13 +84,10 @@ To see Kogniq in action without booting up a web application, run the scripts in
 
 ### Knowledge Extraction
 - `uv run python dev/demo_knowledge_registry.py`: Tests the dynamic registry of knowledge extractors.
-- `uv run python dev/demo_openrouter_extractor.py`: Connects to OpenRouter (LLM) to extract a `KnowledgeGraph`.
 
 ### Learning Generation
 - `uv run python dev/demo_learning_content.py`: Explores the raw `LearningContent` models.
-- `uv run python dev/demo_openrouter_provider.py`: Directly tests the provider-agnostic LLM interface.
 - `uv run python dev/demo_summary_generator.py`: Generates summaries using mock providers.
-- `uv run python dev/demo_summary_openrouter.py`: Full AI generation of a summary using OpenRouter.
 
 ## Git Workflow & Release
 

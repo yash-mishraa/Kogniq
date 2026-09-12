@@ -79,7 +79,6 @@ async def process_document(
 async def delete_document(
     document_id: str,
     _current_user: CurrentUserDependency,
-    document_service: DocumentService = Depends(get_document_service),  # noqa: B008
 ) -> dict[str, str]:
     """
     Delete a document and all its associated materials.

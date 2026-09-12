@@ -1,8 +1,11 @@
 import asyncio
+from collections.abc import Iterator
 from datetime import UTC, datetime
 
+import backend.dependencies as deps
 import pytest
 from backend.app import create_app
+from backend.core.settings import settings
 from backend.dependencies import (
     get_authorization_service,
     get_generate_learning_use_case,
@@ -14,8 +17,6 @@ from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
 from content.chunking.metadata import ChunkMetadata
 from content.chunking.statistics import ChunkStatistics
-from backend.core.settings import settings
-import backend.dependencies as deps
 
 
 class MockAuthResult:
@@ -34,7 +35,6 @@ app = create_app()
 app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
 
 
-from typing import Iterator
 
 @pytest.fixture(autouse=True)
 def mock_learning_generation_provider() -> Iterator[None]:

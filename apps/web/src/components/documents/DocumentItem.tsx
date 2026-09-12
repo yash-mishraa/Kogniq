@@ -7,12 +7,13 @@ import { DocumentLifecycle } from "./DocumentLifecycle";
 
 interface DocumentItemProps {
   document: DocumentItemType;
+  isActive: boolean;
   isCondensed: boolean;
   onClick: () => void;
   onDelete?: (id: string) => void;
 }
 
-export function DocumentItem({ document, isCondensed, onClick, onDelete }: DocumentItemProps) {
+export function DocumentItem({ document, isActive, isCondensed, onClick, onDelete }: DocumentItemProps) {
   return (
     <motion.li
       layout
@@ -20,12 +21,12 @@ export function DocumentItem({ document, isCondensed, onClick, onDelete }: Docum
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3 }}
-      className={`relative ${isCondensed ? "opacity-40 hover:opacity-100" : "opacity-100"}`} // quiet index when one is selected
+      className={`relative px-4 -mx-4 rounded-lg transition-colors ${isActive ? "bg-black/5" : "hover:bg-black/[0.02]"} ${isCondensed ? "opacity-40 hover:opacity-100" : "opacity-100"}`}
     >
       <div className="flex justify-between items-start">
         <button
           onClick={onClick}
-          className="flex-1 text-left flex flex-col gap-2 py-5 outline-none transition-opacity duration-300 cursor-pointer hover:opacity-70"
+          className={`flex-1 text-left flex flex-col gap-2 py-5 outline-none transition-opacity duration-300 ${document.status === "Ready" ? "cursor-pointer hover:opacity-70" : "cursor-not-allowed opacity-60"}`}
         >
           <div className="flex flex-col gap-2">
             <motion.h3 

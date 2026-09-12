@@ -39,4 +39,13 @@ export class MockDocumentService implements IDocumentService {
       }
     });
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async deleteDocument(_documentId: string): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 500);
+    });
+  }
 }

@@ -9,7 +9,7 @@ Our architecture is built on the following core principles:
 - **Bounded Contexts**: The system is fractured into strict domain boundaries. Concepts in one domain do not leak into another.
 - **Dependency Injection**: We use abstractions and inject concrete dependencies, ensuring testability and modularity.
 - **Immutable Domain Models**: All domain models (e.g., `NormalizedDocument`, `ChunkCollection`, `KnowledgeGraph`) are deeply immutable. They are instantiated once and passed down the pipeline without side effects.
-- **Provider-Agnostic Interfaces**: We never tightly couple to a specific AI vendor or database. Providers like OpenRouter, Gemini, or ChromaDB are abstracted behind interfaces.
+- **Provider-Agnostic Interfaces**: We never tightly couple to a specific AI vendor or database. Providers like Gemini, or ChromaDB are abstracted behind interfaces.
 - **Registry Pattern**: We dynamically route tasks using registries (e.g., `ProcessorRegistry`, `GeneratorRegistry`).
 - **Composition over Inheritance**: We favor small, composable functions and classes over deep inheritance hierarchies.
 - **Infrastructure Isolation**: Core domain logic has no dependencies on external frameworks, databases, or AI APIs. The domain is pure.

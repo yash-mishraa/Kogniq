@@ -10,6 +10,7 @@ import { KnowledgeEnvironment } from "./environments/knowledge/KnowledgeEnvironm
 import { SearchEnvironment } from "./environments/search/SearchEnvironment";
 import { StudyEnvironment } from "./environments/study/StudyEnvironment";
 import { NotebookEnvironment } from "./environments/notebook/NotebookEnvironment";
+import { FlashcardsEnvironment } from "./environments/flashcards/FlashcardsEnvironment";
 import { WorkspaceContent, WorkspaceEmptyState, WorkspaceFooter, WorkspaceHeader, WorkspaceSurface, WorkspaceTransitionBoundary } from "@/components/workspace";
 
 export function WorkspaceEngine({ 
@@ -45,6 +46,8 @@ function WorkspaceEngineBody({ onLeave }: { onLeave?: () => void }) {
     environmentContent = <StudyEnvironment />;
   } else if (activeEnvironmentId === "notebook") {
     environmentContent = <NotebookEnvironment />;
+  } else if (activeEnvironmentId === "flashcards") {
+    environmentContent = <FlashcardsEnvironment />;
   } else {
     environmentContent = <WorkspaceEmptyState environment={environment} />;
   }

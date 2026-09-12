@@ -33,7 +33,7 @@ To understand our scope, it helps to understand what we are not building today:
 | Architecture Documents | Deep dives for every completed pipeline stage |
 | Unit Tests | Hundreds of passing tests enforcing immutable invariants |
 | Bounded Contexts | 8 distinct implemented contexts |
-| Implemented AI Providers | SentenceTransformers, OpenRouter, Gemini |
+| Implemented AI Providers | SentenceTransformers, Gemini |
 
 ## Current Capabilities
 
@@ -43,7 +43,7 @@ Kogniq currently provides a complete, end-to-end foundation for AI educational c
 - **Hybrid Chunk Engine**: Dynamically orchestrates structural and fixed-size strategies to generate AI-ready `ChunkCollection`s.
 - **Local Embeddings**: Provider-agnostic generation of `EmbeddingCollection` using local transformers.
 - **Vector Storage**: Provider-agnostic indexing using ChromaDB.
-- **Knowledge Extraction**: Transforms raw chunks into a synthesized `KnowledgeGraph` using providers like OpenRouter and Gemini.
+- **Knowledge Extraction**: Transforms raw chunks into a synthesized `KnowledgeGraph` using providers like Gemini.
 - **Learning Content Generation**: Produces AI-generated artifacts (like Summaries) directly from knowledge graphs.
 - **100% Type Coverage**: Enforced by MyPy strict mode across all packages.
 
@@ -83,7 +83,7 @@ The following bounded contexts and concrete implementations are fully complete a
 
 *Knowledge Extraction*
 - ✔ Gemini
-- ✔ OpenRouter
+
 
 *Learning Generators*
 - ✔ Summary Generator

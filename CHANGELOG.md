@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Stage 12 - Learning Content Generation (Current)
 - **Summary Generator**: First concrete Learning Generator transforming knowledge into pedagogical summaries.
-- **OpenRouter Integration**: Fully decoupled `OpenRouterTextGenerationProvider`.
+
 - **Validation**: Strict schema enforcement and placeholder rejection for LLM responses.
 - **Metadata Flow**: Exhaustive generation tracking (`prompt_version`, `model_version`, etc.).
 
@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Stage 10 - Knowledge Domain
 - **Knowledge Graph**: Implemented immutable `KnowledgeConcept` and `KnowledgeRelationship`.
-- **Knowledge Extraction**: AI-powered synthesis turning raw chunks into interconnected prerequisite graphs using Gemini and OpenRouter.
+- **Knowledge Extraction**: AI-powered synthesis turning raw chunks into interconnected prerequisite graphs using Gemini.
 
 ### Stage 9 - Retrieval
 - **Search Capabilities**: Vector-based semantic search querying the Vector Store.

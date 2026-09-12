@@ -21,11 +21,11 @@ The following bounded contexts, infrastructure elements, and capabilities are fu
 - **ChromaDB**: Implementation of the Vector Store using `chromadb`.
 - **Retrieval**: Search and ranking across vectorized chunks.
 - **Knowledge Graph**: Domain modeling for Concepts and Relationships.
-- **Knowledge Extraction**: AI-powered synthesis of text into knowledge graphs via OpenRouter and Gemini.
+- **Knowledge Extraction**: AI-powered synthesis of text into knowledge graphs via Gemini.
 - **Pipeline**: End-to-end orchestration of content, embedding, and knowledge workflows.
 - **Learning Content**: Core entities representing educational material.
 - **Summary Generator**: Synthesis of knowledge into comprehensive summaries.
-- **OpenRouter Provider**: Reference LLM provider integration.
+
 
 ## 🟡 Current
 

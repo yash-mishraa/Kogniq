@@ -32,6 +32,9 @@ export class LiveStudyService implements IStudyService {
       );
 
       const data = response.data;
+      if (data.status === "failed" || data.status === "error") {
+        throw new Error("Failed to generate learning material");
+      }
       if (data.status === "completed" || data.status === "COMPLETED_WITH_WARNINGS" || (data.status === "COMPLETED" && data.materials)) {
         if (!data.materials) {
            throw new Error("Materials were empty but status was completed");

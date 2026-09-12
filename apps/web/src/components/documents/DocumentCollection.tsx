@@ -53,16 +53,14 @@ export function DocumentCollection() {
           {documents.data && documents.data.map((doc) => {
             const isActive = activeDocumentId === doc.id;
 
-            // When a document is active, we might still show other documents but subdued,
-            // or we might hide them. Let's show them as a condensed list.
-            if (isActive) return null;
-
             return (
               <DocumentItem
                 key={doc.id}
                 document={doc}
-                isCondensed={hasActiveDocument}
+                isActive={isActive}
+                isCondensed={hasActiveDocument && !isActive}
                 onClick={() => {
+                  if (doc.status !== "Ready") return;
                   if (isActive) {
                     dispatch({ type: "SELECT_DOCUMENT", payload: null });
                     remember("documents", { openedDocument: undefined });

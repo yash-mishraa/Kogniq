@@ -165,14 +165,9 @@ _knowledge_extractor_instance: AbstractKnowledgeExtractor | None = None
 def get_knowledge_extractor() -> AbstractKnowledgeExtractor:
     global _knowledge_extractor_instance
     if _knowledge_extractor_instance is None:
-        if settings.knowledge_extraction_provider == "openrouter":
-            from knowledge.extractors.openrouter.extractor import OpenRouterKnowledgeExtractor
+        from knowledge.extractors.fake import FakeKnowledgeExtractor
 
-            _knowledge_extractor_instance = OpenRouterKnowledgeExtractor()
-        else:
-            from knowledge.extractors.fake import FakeKnowledgeExtractor
-
-            _knowledge_extractor_instance = FakeKnowledgeExtractor()
+        _knowledge_extractor_instance = FakeKnowledgeExtractor()
     return _knowledge_extractor_instance
 
 
@@ -188,28 +183,9 @@ def get_generator_factory() -> GeneratorFactory:
     if _generator_factory_instance is None:
         from backend.services.generator_factory import GeneratorFactory
         from learning_content.providers.base import AbstractTextGenerationProvider
+        from learning_content.providers.mock.provider import MockTextGenerationProvider
         
-        provider: AbstractTextGenerationProvider
-        if settings.learning_generation_provider == "openrouter":
-            if not settings.openrouter_api_key:
-                raise RuntimeError(
-                    "LEARNING_GENERATION_PROVIDER is set to 'openrouter' but OPENROUTER_API_KEY is missing. "
-                    "Cannot start the learning generator."
-                )
-            from learning_content.providers.openrouter.provider import OpenRouterTextGenerationProvider
-            
-            api_key = settings.openrouter_api_key
-            if hasattr(api_key, "get_secret_value"):
-                api_key = api_key.get_secret_value()
-                
-            provider = OpenRouterTextGenerationProvider(
-                api_key=api_key,
-                model_name=settings.openrouter_model,
-            )
-        else:
-            from learning_content.providers.mock.provider import MockTextGenerationProvider
-            
-            provider = MockTextGenerationProvider()
+        provider: AbstractTextGenerationProvider = MockTextGenerationProvider()
 
         _generator_factory_instance = GeneratorFactory(provider)
     return _generator_factory_instance

@@ -1,4 +1,3 @@
-from typing import Any
 
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
@@ -8,7 +7,8 @@ from learning_content.providers.base import (
 
 class MockTextGenerationProvider(AbstractTextGenerationProvider):
     """
-    Mock implementation of a text generation provider for testing and deterministic offline development.
+    Mock implementation of a text generation provider for testing and deterministic
+    offline development.
     """
 
     def __init__(self) -> None:
@@ -32,8 +32,8 @@ class MockTextGenerationProvider(AbstractTextGenerationProvider):
         self,
         prompt: str,
         *,
-        temperature: float | None = None,
-        max_tokens: int | None = None,
+        temperature: float | None = None,  # noqa: ARG002
+        max_tokens: int | None = None,  # noqa: ARG002
     ) -> str:
         lower = prompt.lower()
         if "flashcard" in lower:
@@ -47,7 +47,8 @@ class MockTextGenerationProvider(AbstractTextGenerationProvider):
                 '"options": ["To process images", "To replace RNNs and CNNs with self-attention", '
                 '"To act as a database", "To compress audio"], '
                 '"correct_answer": "To replace RNNs and CNNs with self-attention", '
-                '"explanation": "The Transformer relies entirely on an attention mechanism to draw global dependencies between input and output.", '
+                '"explanation": "The Transformer relies entirely on an attention mechanism to draw '
+                'global dependencies between input and output.", '
                 '"difficulty": "medium"}]'
             )
         elif "concept" in lower or "intuition" in lower or "explanation" in lower:

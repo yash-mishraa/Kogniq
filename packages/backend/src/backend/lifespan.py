@@ -16,9 +16,9 @@ async def app_lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Starting Kogniq Backend")
     
     from backend.core.settings import settings
-    logger.info(f"Learning Generation Provider: {settings.learning_generation_provider.capitalize()}")
-    if settings.learning_generation_provider == "openrouter":
-        logger.info(f"Model: {settings.openrouter_model}")
+    provider_name = settings.learning_generation_provider.capitalize()
+    logger.info(f"Learning Generation Provider: {provider_name}")
+
 
     # Example placeholder: Initialize database connections, load models, etc.
     logger.info("Backend Ready")
