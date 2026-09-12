@@ -14,5 +14,6 @@ export const ENDPOINTS = {
   },
   learning: {
     generate: "/api/v1/learning/generate",
+    get: (documentId: string) => `/api/v1/learning/${documentId}`,
   },
 } as const;

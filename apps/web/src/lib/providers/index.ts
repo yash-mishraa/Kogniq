@@ -5,9 +5,11 @@ import type { INotebookService } from "../services/interfaces/INotebookService";
 import type { ISearchService } from "../services/interfaces/ISearchService";
 import type { IStudyService } from "../services/interfaces/IStudyService";
 import type { IFlashcardsService } from "../services/interfaces/IFlashcardsService";
+import type { IQuizService } from "../services/interfaces/IQuizService";
 
 import { MockAuthService } from "../services/mock/MockAuthService";
 import { MockDocumentService } from "../services/mock/MockDocumentService";
+import { MockQuizService } from "../services/mock/MockQuizService";
 
 import { LiveAuthService } from "../services/live/LiveAuthService";
 import { LiveDocumentService } from "../services/live/LiveDocumentService";
@@ -16,6 +18,7 @@ import { LiveNotebookService } from "../services/live/LiveNotebookService";
 import { LiveSearchService } from "../services/live/LiveSearchService";
 import { LiveStudyService } from "../services/live/LiveStudyService";
 import { LiveFlashcardsService } from "../services/live/LiveFlashcardsService";
+import { LiveQuizService } from "../services/live/LiveQuizService";
 import { MockFlashcardsService } from "../services/mock/MockFlashcardsService";
 
 export type ProviderMode = "mock" | "live";
@@ -28,6 +31,7 @@ export interface IServiceProvider {
   search: ISearchService;
   study: IStudyService;
   flashcards: IFlashcardsService;
+  quiz: IQuizService;
 }
 
 class ServiceProviderFactory {
@@ -41,6 +45,7 @@ class ServiceProviderFactory {
     search: new LiveSearchService(),
     study: new LiveStudyService(),
     flashcards: new MockFlashcardsService(),
+    quiz: new MockQuizService(),
   };
 
   private liveProvider: IServiceProvider = {
@@ -51,6 +56,7 @@ class ServiceProviderFactory {
     search: new LiveSearchService(),
     study: new LiveStudyService(),
     flashcards: new LiveFlashcardsService(),
+    quiz: new LiveQuizService(),
   };
 
   getProvider(): IServiceProvider {

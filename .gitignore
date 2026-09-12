@@ -38,6 +38,7 @@ node_modules/
 .nuxt/
 .svelte-kit/
 coverage/
+*.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

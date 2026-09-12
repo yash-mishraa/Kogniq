@@ -5,3 +5,4 @@ export * from "./ISearchService";
 export * from "./IStudyService";
 export type { IAuthService, SessionData, SessionUser } from "./IAuthService";
 export * from "./IFlashcardsService";
+export * from "./IQuizService";
