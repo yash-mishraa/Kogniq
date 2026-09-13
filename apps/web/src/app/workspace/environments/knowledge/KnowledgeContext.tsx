@@ -5,7 +5,7 @@ import type { KnowledgeState, KnowledgeAction } from "./KnowledgeState";
 
 import { abortResourceHydration, startResourceHydration } from "@/lib/core/ResourceState";
 
-const initialState: KnowledgeState = {
+export const initialState: KnowledgeState = {
   graph: {
     status: "idle",
     data: null,
@@ -16,7 +16,7 @@ const initialState: KnowledgeState = {
   trail: [],
 };
 
-function knowledgeReducer(state: KnowledgeState, action: KnowledgeAction): KnowledgeState {
+export function knowledgeReducer(state: KnowledgeState, action: KnowledgeAction): KnowledgeState {
   switch (action.type) {
     case "SET_GRAPH":
       return { ...state, graph: action.payload, activeConceptId: null, trail: [] };
