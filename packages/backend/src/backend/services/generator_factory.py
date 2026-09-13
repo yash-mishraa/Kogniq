@@ -1,4 +1,3 @@
-
 from backend.core.exceptions import BackendError
 
 from learning_content.generators.explanation.generator import ExplanationGenerator

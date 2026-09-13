@@ -58,7 +58,5 @@ class LearningMaterialsResponse(BaseModel):
         ..., description="Status of the generation pipeline ('processing' or 'completed')"
     )
     materials: dict[str, LearningMaterialItem] | None = Field(
-        ...,
-        description="Dictionary mapping generator types (e.g. 'notes') to the material content"
+        ..., description="Dictionary mapping generator types (e.g. 'notes') to the material content"
     )
-

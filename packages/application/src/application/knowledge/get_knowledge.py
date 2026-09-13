@@ -32,9 +32,11 @@ class GetKnowledgeUseCase:
         session = await self.auth_service.validate_session(request.token)
         if not session:
             from auth.exceptions import SessionExpiredError
+
             raise SessionExpiredError("Invalid session")
         # Authorization can be added here
-
-        graph = await self.knowledge_service.get_knowledge_graph(request.document_id)
+        graph = await self.knowledge_service.get_knowledge_graph(
+            request.document_id, user_id=session.user_id
+        )
 
         return GetKnowledgeResponse(graph=graph)

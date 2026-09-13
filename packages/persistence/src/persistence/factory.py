@@ -16,6 +16,7 @@ from persistence.repositories.base import (
     AbstractLearningRepository,
     AbstractRelationshipRepository,
 )
+from persistence.sqlite.analytics_repository import SQLiteAnalyticsRepository
 from persistence.sqlite.chunk_repository import SQLiteChunkRepository
 from persistence.sqlite.concept_repository import SQLiteConceptRepository
 from persistence.sqlite.document_repository import SQLiteDocumentRepository
@@ -61,6 +62,7 @@ class MemoryRepositoryFactory(AbstractRepositoryFactory):
         self._relationship_repo = MemoryRelationshipRepository()
         self._learning_repo = MemoryLearningRepository()
         from persistence.memory.analytics_repo import MemoryAnalyticsRepository
+
         self._analytics_repo = MemoryAnalyticsRepository()
 
     def create_document_repository(self, conn: Any = None) -> AbstractDocumentRepository:  # noqa: ARG002
@@ -80,9 +82,6 @@ class MemoryRepositoryFactory(AbstractRepositoryFactory):
 
     def create_analytics_repository(self, conn: Any = None) -> Any:  # noqa: ARG002
         return self._analytics_repo
-
-
-from persistence.sqlite.analytics_repository import SQLiteAnalyticsRepository
 
 
 class SQLiteRepositoryFactory(AbstractRepositoryFactory):
@@ -123,9 +122,7 @@ class SQLiteRepositoryFactory(AbstractRepositoryFactory):
             raise ValueError("SQLite repositories require a connection instance.")
         return SQLiteLearningRepository(conn)
 
-    def create_analytics_repository(
-        self, conn: sqlite3.Connection | None = None
-    ) -> Any:
+    def create_analytics_repository(self, conn: sqlite3.Connection | None = None) -> Any:
         if not conn:
             raise ValueError("SQLite repositories require a connection instance.")
         return SQLiteAnalyticsRepository(conn)

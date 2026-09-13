@@ -20,14 +20,16 @@ export function WorkspaceEngine({
   initialEnvironmentId, 
   initialHistory,
   initialMemory,
+  sessionUserId,
   onLeave 
 }: { 
   initialEnvironmentId: EnvironmentId; 
   initialHistory?: readonly EnvironmentId[];
   initialMemory?: Partial<Record<EnvironmentId, WorkspaceMemory>>;
+  sessionUserId?: string | null;
   onLeave?: () => void;
 }) { 
-  return <WorkspaceProvider initialEnvironmentId={initialEnvironmentId} initialHistory={initialHistory} initialMemory={initialMemory}><WorkspaceEngineBody onLeave={onLeave} /></WorkspaceProvider>; 
+  return <WorkspaceProvider initialEnvironmentId={initialEnvironmentId} initialHistory={initialHistory} initialMemory={initialMemory} sessionUserId={sessionUserId}><WorkspaceEngineBody onLeave={onLeave} /></WorkspaceProvider>; 
 }
 
 function WorkspaceEngineBody({ onLeave }: { onLeave?: () => void }) {

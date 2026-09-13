@@ -21,7 +21,6 @@ class AbstractUnitOfWork(abc.ABC):
     learning: AbstractLearningRepository
     analytics: AbstractAnalyticsRepository
 
-
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
 

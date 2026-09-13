@@ -70,6 +70,7 @@ class KnowledgeExtractionStage:
 
             # Replace document_id in concepts and relationships
             import dataclasses
+
             concepts = [
                 dataclasses.replace(c, document_id=document_id)
                 for c in extraction_result.graph.concepts
@@ -105,6 +106,7 @@ class KnowledgeExtractionStage:
         except Exception as e:
             # We return True but include the error in the data or as an error string,
             import logging
+
             logging.getLogger(__name__).error(
                 "Knowledge extraction failed with exception: %r", e, exc_info=True
             )

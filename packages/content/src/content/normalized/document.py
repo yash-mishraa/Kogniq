@@ -21,6 +21,7 @@ class NormalizedDocument:
     metadata: DocumentMetadata | None = None
     statistics: dict[str, Any] | None = None
     language: str | None = None
+    user_id: str | None = None
 
     def __post_init__(self) -> None:
         validate_not_empty(self.title, "title", InvalidDocumentError)

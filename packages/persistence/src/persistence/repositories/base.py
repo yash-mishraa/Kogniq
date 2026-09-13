@@ -1,6 +1,7 @@
 import abc
 from collections.abc import Sequence
 
+from domain.analytics.models import AnalyticsMetrics, LearnerEvent
 from knowledge.concept import KnowledgeConcept
 from knowledge.relationship import KnowledgeRelationship
 
@@ -31,7 +32,7 @@ class AbstractDocumentRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def list(self) -> Sequence[NormalizedDocument]:
+    async def list(self, user_id: str | None = None) -> Sequence[NormalizedDocument]:
         pass
 
     @abc.abstractmethod
@@ -61,8 +62,6 @@ class AbstractChunkRepository(abc.ABC):
     @abc.abstractmethod
     async def statistics(self) -> RepositoryStatistics:
         pass
-
-
 
 
 class AbstractConceptRepository(abc.ABC):
@@ -128,8 +127,6 @@ class AbstractLearningRepository(abc.ABC):
     async def statistics(self) -> RepositoryStatistics:
         pass
 
-from domain.analytics.models import AnalyticsMetrics, LearnerEvent
-
 
 class AbstractAnalyticsRepository(abc.ABC):
     """Abstract repository for tracking learning analytics."""
@@ -141,4 +138,3 @@ class AbstractAnalyticsRepository(abc.ABC):
     @abc.abstractmethod
     async def get_metrics(self, user_id: str, days: int | None = None) -> AnalyticsMetrics:
         pass
-

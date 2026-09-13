@@ -16,7 +16,7 @@ class BackendConfig(BaseSettings):
     persistence_provider: Literal["memory", "sqlite"] = "sqlite"
     sqlite_database_path: str = "./data/kogniq.db"
     knowledge_extraction_provider: Literal["fake"] = "fake"
-    learning_generation_provider: Literal["fake", "mock"] = "mock"
+    learning_generation_provider: Literal["fake", "mock", "gemini"] = "gemini"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

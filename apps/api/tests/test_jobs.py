@@ -1,6 +1,7 @@
-from backend.app import create_app
 from backend.dependencies import get_authorization_service
 from fastapi.testclient import TestClient
+
+from apps.api.app.main import create_app
 
 
 class MockAuthResult:

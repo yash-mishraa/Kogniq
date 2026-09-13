@@ -1,7 +1,7 @@
-from backend.app import create_app
-from backend.core.exceptions import BackendError
 from backend.dependencies import get_authorization_service
 from fastapi.testclient import TestClient
+
+from apps.api.app.main import create_app
 
 
 class MockAuthResult:
@@ -53,10 +53,12 @@ def test_global_exception_handler() -> None:
 
     @app.get("/test-error")
     async def trigger_error() -> None:
-        raise BackendError(code="test_error", message="Test message", status_code=400)
+        from apps.api.app.core.errors import APIError
+
+        raise APIError(code="test_error", message="Test message", status_code=400)
 
     client = TestClient(app)
     response = client.get("/test-error")
 
     assert response.status_code == 400
-    assert response.json() == {"error": {"code": "test_error", "message": "Test message"}}
+    assert response.json()["error"] == {"code": "test_error", "message": "Test message"}

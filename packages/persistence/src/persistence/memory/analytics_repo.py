@@ -15,23 +15,21 @@ class MemoryAnalyticsRepository(AbstractAnalyticsRepository):
 
     async def get_metrics(self, user_id: str, days: int | None = None) -> AnalyticsMetrics:
         from datetime import UTC, datetime, timedelta
-        
+
         user_events = [e for e in self.events.values() if e.user_id == user_id]
         if days is not None:
             cutoff = datetime.now(UTC) - timedelta(days=days)
             user_events = [e for e in user_events if e.created_at >= cutoff]
-            
+
         fc = len([e for e in user_events if e.event_type == "flashcard_reviewed"])
         qz = [e for e in user_events if e.event_type == "quiz_completed"]
-        
+
         qc = len(qz)
         ts = sum(e.event_data.get("score", 0) for e in qz)
         tq = sum(e.event_data.get("total_questions", 0) for e in qz)
-        
+
         acc = ts / tq if tq > 0 else 0.0
-        
+
         return AnalyticsMetrics(
-            quizzes_completed=qc,
-            average_quiz_accuracy=acc,
-            flashcards_reviewed=fc
+            quizzes_completed=qc, average_quiz_accuracy=acc, flashcards_reviewed=fc
         )

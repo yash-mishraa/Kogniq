@@ -10,9 +10,11 @@ class GetAnalyticsRequest:
     time_range: str
     token: str
 
+
 @dataclass(frozen=True)
 class GetAnalyticsResponse:
     metrics: AnalyticsMetrics
+
 
 class GetAnalyticsUseCase:
     def __init__(
@@ -27,6 +29,7 @@ class GetAnalyticsUseCase:
         session = await self.auth_service.validate_session(request.token)
         if not session:
             from auth.exceptions import SessionExpiredError
+
             raise SessionExpiredError("Invalid session")
 
         user_id = session.user_id

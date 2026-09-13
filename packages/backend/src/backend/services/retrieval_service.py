@@ -63,6 +63,12 @@ class RetrievalService:
                         message=f"Document '{request.document_id}' not found.",
                         status_code=404,
                     )
+                if doc.user_id and doc.user_id != getattr(request, "user_id", None):
+                    raise BackendError(
+                        code="unauthorized",
+                        message="Not authorized to access this document",
+                        status_code=403,
+                    )
 
         # 2. Build semantic query
         # Since we use a single collection, we can pass document_id in filters

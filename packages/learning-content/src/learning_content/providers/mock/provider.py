@@ -1,4 +1,3 @@
-
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
     TextGenerationProviderInfo,

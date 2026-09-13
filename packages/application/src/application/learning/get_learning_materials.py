@@ -41,6 +41,7 @@ class GetLearningMaterialsUseCase:
         session = await self.auth_service.validate_session(request.token)
         if not session:
             from backend.core.exceptions import BackendError
+
             raise BackendError("unauthorized", "Invalid session", status_code=401)
 
         # Check document status and fetch materials
@@ -54,11 +55,17 @@ class GetLearningMaterialsUseCase:
                 )
 
             # Authorization can be added here (check if user owns document)
+            if doc.user_id and doc.user_id != session.user_id:
+                from backend.core.exceptions import BackendError
+
+                raise BackendError(
+                    "unauthorized", "Not authorized to access this document", status_code=403
+                )
 
             # The document exists, so we proceed to fetch materials.
 
             materials_list = await uow.learning.list_by_document(request.document_id)
-            
+
             if not materials_list:
                 return GetLearningMaterialsResponse(status="failed", materials=None)
 

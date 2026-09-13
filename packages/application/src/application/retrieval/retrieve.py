@@ -29,15 +29,27 @@ class RetrieveUseCase:
             raise ApplicationError(f"Permission denied: {auth_result.reason}")
 
         class _RequestProxy:
-            def __init__(self, doc_id: str, query: str, top_k: int, min_sim: float | None) -> None:
+            def __init__(
+                self,
+                doc_id: str,
+                query: str,
+                top_k: int,
+                min_sim: float | None,
+                user_id: str | None,
+            ) -> None:
                 self.document_id = doc_id
                 self.query = query
                 self.top_k = top_k
                 self.minimum_similarity = min_sim
+                self.user_id = user_id
 
         results = await self._retrieval_service.search(
             _RequestProxy(
-                command.document_id or "", command.query, command.top_k, command.minimum_similarity
+                command.document_id or "",
+                command.query,
+                command.top_k,
+                command.minimum_similarity,
+                command.user_id,
             )
         )
         # Normally result should have these properties or it's a domain object.

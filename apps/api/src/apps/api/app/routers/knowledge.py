@@ -1,15 +1,12 @@
-
+from backend.dependencies import get_knowledge_use_case
 from fastapi import APIRouter, Depends, Header
 from knowledge.concept import KnowledgeConcept
 from knowledge.graph import KnowledgeGraph
 from knowledge.relationship import KnowledgeRelationship
 
 from application.knowledge.get_knowledge import GetKnowledgeRequest, GetKnowledgeUseCase
-from backend.dependencies import get_knowledge_use_case
 
 knowledge_router = APIRouter(prefix="/knowledge", tags=["Knowledge"])
-
-
 
 
 @knowledge_router.get("/{document_id}", response_model=KnowledgeGraph)

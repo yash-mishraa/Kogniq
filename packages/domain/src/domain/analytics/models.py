@@ -12,6 +12,7 @@ class LearnerEvent:
     event_data: dict[str, Any]
     created_at: datetime
 
+
 @dataclass(frozen=True)
 class QuizCompletedEvent(LearnerEvent):
     @property
@@ -32,6 +33,7 @@ class FlashcardReviewedEvent(LearnerEvent):
     @property
     def difficulty(self) -> str:
         return str(self.event_data.get("difficulty", ""))
+
 
 @dataclass(frozen=True)
 class AnalyticsMetrics:

@@ -29,7 +29,9 @@ class MemoryDocumentRepository(AbstractDocumentRepository):
             was_deleted = True
         return DeleteResult(id=document_id, was_deleted=was_deleted)
 
-    async def list(self) -> Sequence[NormalizedDocument]:
+    async def list(self, user_id: str | None = None) -> Sequence[NormalizedDocument]:
+        if user_id:
+            return [doc for doc in self._store.values() if doc.user_id == user_id]
         return list(self._store.values())
 
     async def statistics(self) -> RepositoryStatistics:

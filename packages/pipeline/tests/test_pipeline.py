@@ -54,11 +54,18 @@ class FakeProcessor(AbstractContentProcessor):
         return self._info
 
     def process(self, handle: ResourceHandle) -> NormalizedDocument:
-        doc = MagicMock(spec=NormalizedDocument)
-        doc.id = handle.id
-        doc.title = "Fake Title"
-        doc.content = "Fake content"
-        return cast(NormalizedDocument, doc)
+        from content.normalized.page import NormalizedPage
+
+        doc = NormalizedDocument(
+            id=handle.id,
+            title="Fake Title",
+            source="mock",
+            checksum="123",
+            version="1.0",
+            created_at=datetime.now(UTC),
+            pages=(NormalizedPage(page_number=1, blocks=()),),
+        )
+        return doc
 
 
 class FakeChunkEngine(HybridChunkEngine):

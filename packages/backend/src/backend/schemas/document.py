@@ -26,6 +26,7 @@ class DocumentInput:
     content_type: str
     size_bytes: int
     content: bytes
+    user_id: str | None = None
 
     def open_stream(self) -> Any:
         import io

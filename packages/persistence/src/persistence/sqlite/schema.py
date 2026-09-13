@@ -29,6 +29,12 @@ def init_db(conn: sqlite3.Connection) -> None:
             pages_json TEXT NOT NULL
         )
     """)
+    # Migration for Phase III: user_id for ownership
+    try:
+        conn.execute("ALTER TABLE documents ADD COLUMN user_id TEXT")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_documents_user_id ON documents(user_id)")
+    except sqlite3.OperationalError:
+        pass
 
     # 3. Document Chunks
     conn.execute("""
@@ -125,14 +131,11 @@ def init_db(conn: sqlite3.Connection) -> None:
         )
     """)
     conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_learner_activity_user_id "
-        "ON learner_activity(user_id)"
+        "CREATE INDEX IF NOT EXISTS idx_learner_activity_user_id ON learner_activity(user_id)"
     )
     conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_learner_activity_event_type "
-        "ON learner_activity(event_type)"
+        "CREATE INDEX IF NOT EXISTS idx_learner_activity_event_type ON learner_activity(event_type)"
     )
     conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_learner_activity_created_at "
-        "ON learner_activity(created_at)"
+        "CREATE INDEX IF NOT EXISTS idx_learner_activity_created_at ON learner_activity(created_at)"
     )

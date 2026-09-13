@@ -15,6 +15,7 @@ class RecordEventRequest:
     data: dict[str, Any]
     token: str
 
+
 class RecordEventUseCase:
     def __init__(
         self,
@@ -28,12 +29,15 @@ class RecordEventUseCase:
         session = await self.auth_service.validate_session(request.token)
         if not session:
             from auth.exceptions import SessionExpiredError
+
             raise SessionExpiredError("Invalid session")
 
         user_id = session.user_id
         created_at = datetime.now(UTC)
 
-        event = None
+        from domain.analytics.models import LearnerEvent
+
+        event: LearnerEvent | None = None
         if request.event_type == "quiz_completed":
             event = QuizCompletedEvent(
                 event_id=request.event_id,
@@ -56,4 +60,18 @@ class RecordEventUseCase:
             raise ValueError(f"Unsupported event type: {request.event_type}")
 
         with self.uow_factory.create() as uow:
+            doc = await uow.documents.get(request.document_id)
+            if not doc:
+                from backend.core.exceptions import BackendError
+
+                raise BackendError(
+                    "not_found", f"Document {request.document_id} not found", status_code=404
+                )
+            if doc.user_id and doc.user_id != user_id:
+                from backend.core.exceptions import BackendError
+
+                raise BackendError(
+                    "unauthorized", "Not authorized to access this document", status_code=403
+                )
+
             await uow.analytics.save_event(event)

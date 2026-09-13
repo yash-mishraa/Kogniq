@@ -1,7 +1,6 @@
 from datetime import UTC, datetime
 
 import pytest
-from backend.app import create_app
 from backend.dependencies import (
     get_authorization_service,
     get_retrieve_use_case,
@@ -13,6 +12,7 @@ from retrieval.exceptions import RetrievalError
 from retrieval.interfaces import AbstractRetriever
 from retrieval.models import RetrievalQuery, RetrievalResult
 
+from apps.api.app.main import create_app
 from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
 from content.chunking.metadata import ChunkMetadata
@@ -133,12 +133,17 @@ def client_with_mocks(
     from unittest.mock import MagicMock
 
     from application.retrieval.retrieve import RetrieveUseCase
+    from apps.api.app.dependencies.auth import get_current_user
 
     authz_svc = MockAuthorizationService()
     use_case = RetrieveUseCase(
         auth_service=MagicMock(), authorization_service=authz_svc, retrieval_service=mock_service
     )
 
+    class MockUser:
+        user_id = "user-123"
+
+    app.dependency_overrides[get_current_user] = lambda: MockUser()
     app.dependency_overrides[get_retrieve_use_case] = lambda: use_case
 
     return TestClient(app)
@@ -281,6 +286,12 @@ def test_retrieval_chunk_repository_miss() -> None:
     use_case = RetrieveUseCase(
         auth_service=auth_svc, authorization_service=authz_svc, retrieval_service=mock_service
     )
+    from apps.api.app.dependencies.auth import get_current_user
+
+    class MockUser:
+        user_id = "user-123"
+
+    app.dependency_overrides[get_current_user] = lambda: MockUser()
     app.dependency_overrides[get_retrieve_use_case] = lambda: use_case
 
     client = TestClient(app)
@@ -358,12 +369,18 @@ def test_retriever_exception_translation() -> None:
     from unittest.mock import MagicMock
 
     from application.retrieval.retrieve import RetrieveUseCase
+    from apps.api.app.dependencies.auth import get_current_user
 
     auth_svc = MagicMock()
     authz_svc = MockAuthorizationService()
     use_case = RetrieveUseCase(
         auth_service=auth_svc, authorization_service=authz_svc, retrieval_service=mock_service
     )
+
+    class MockUser:
+        user_id = "user-123"
+
+    app.dependency_overrides[get_current_user] = lambda: MockUser()
     app.dependency_overrides[get_retrieve_use_case] = lambda: use_case
 
     client = TestClient(app)

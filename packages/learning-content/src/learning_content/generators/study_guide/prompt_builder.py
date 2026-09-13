@@ -1,4 +1,3 @@
-
 from learning_content.generators.base.interfaces import AbstractPromptBuilder
 from learning_content.generators.base.models import GenerationContext
 

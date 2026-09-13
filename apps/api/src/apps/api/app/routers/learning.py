@@ -1,3 +1,9 @@
+from backend.dependencies import get_generate_learning_use_case, get_get_learning_materials_use_case
+from backend.schemas.learning import (
+    LearningGenerationRequest,
+    LearningGenerationResponse,
+    LearningMaterialsResponse,
+)
 from fastapi import APIRouter, Depends, Header, Request
 
 from application.learning.commands import GenerateLearningCommand
@@ -5,12 +11,6 @@ from application.learning.generate_learning import GenerateLearningUseCase
 from application.learning.get_learning_materials import (
     GetLearningMaterialsRequest,
     GetLearningMaterialsUseCase,
-)
-from backend.dependencies import get_generate_learning_use_case, get_get_learning_materials_use_case
-from backend.schemas.learning import (
-    LearningGenerationRequest,
-    LearningGenerationResponse,
-    LearningMaterialsResponse,
 )
 
 learning_router = APIRouter(prefix="/learning", tags=["Learning"])
@@ -65,6 +65,7 @@ async def get_learning_materials(
         # If it's a BackendError (like unauthorized), raise it as HTTPException
         if type(e).__name__ == "BackendError":
             from fastapi import HTTPException
+
             raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
         raise
 
@@ -72,12 +73,10 @@ async def get_learning_materials(
     materials_dict = None
     if response.materials is not None:
         from backend.schemas.learning import LearningMaterialItem
+
         materials_dict = {
             k: LearningMaterialItem(title=v.title, body=v.body)
             for k, v in response.materials.items()
         }
 
-    return LearningMaterialsResponse(
-        status=response.status,
-        materials=materials_dict
-    )
+    return LearningMaterialsResponse(status=response.status, materials=materials_dict)

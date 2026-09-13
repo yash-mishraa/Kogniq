@@ -47,5 +47,3 @@ async def test_fake_knowledge_extractor(chunk_collection: ChunkCollection) -> No
     names = [c.name for c in result.graph.concepts]
     assert "Transformer" in names
     assert "Attention" in names
-
-

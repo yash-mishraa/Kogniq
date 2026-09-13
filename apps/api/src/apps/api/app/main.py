@@ -34,6 +34,10 @@ def create_app(settings: APISettings | None = None) -> FastAPI:
     register_middleware(application, effective_settings)
     application.include_router(api_router)
 
+    @application.get("/", tags=["system"])
+    async def root() -> dict[str, str]:
+        return {"name": application.title, "status": "running"}
+
     return application
 
 

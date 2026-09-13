@@ -1,5 +1,6 @@
 from typing import Annotated
 
+from backend.dependencies import get_job_status_use_case, get_submit_job_use_case
 from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile
 from pydantic import BaseModel
 
@@ -7,7 +8,6 @@ from application.exceptions import ApplicationError
 from application.jobs.commands import GetJobStatusCommand, JobCommand
 from application.jobs.get_job_status import GetJobStatusUseCase
 from application.jobs.submit_job import SubmitJobUseCase
-from backend.dependencies import get_job_status_use_case, get_submit_job_use_case
 
 jobs_router = APIRouter(prefix="/jobs", tags=["Jobs"])
 

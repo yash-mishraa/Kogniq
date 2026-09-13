@@ -10,6 +10,10 @@ class RetrievalRequest(BaseModel):
         None,
         description="Optional ID of the document to search within. If omitted, searches globally.",
     )
+    user_id: str | None = Field(
+        None,
+        description="ID of the authenticated user making the request.",
+    )
     query: str = Field(..., min_length=1, description="The semantic search query.")
     top_k: int = Field(5, ge=1, le=50, description="Maximum number of chunks to return.")
     minimum_similarity: float | None = Field(

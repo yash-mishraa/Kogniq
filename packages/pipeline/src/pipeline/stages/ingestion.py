@@ -64,6 +64,16 @@ class IngestionStage:
         try:
             processor = self.processor_registry.processor_for_resource(handle)
             document = processor.process(handle)
+
+            user_id = (
+                handle.metadata.attributes.get("user_id")
+                if hasattr(handle, "metadata") and handle.metadata
+                else None
+            )
+            import dataclasses
+
+            document = dataclasses.replace(document, user_id=user_id)
+
             chunks = self.chunk_engine.chunk(document)
 
             uow = self.uow_factory.create()

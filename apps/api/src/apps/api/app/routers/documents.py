@@ -19,14 +19,13 @@ router = APIRouter(tags=["Documents"])
 
 @router.get("/documents", response_model=list[DocumentResponse])
 async def list_documents(
-    _current_user: CurrentUserDependency,
+    current_user: CurrentUserDependency,
     document_service: DocumentService = Depends(get_document_service),  # noqa: B008
 ) -> list[DocumentResponse]:
     """
     List all documents in the workspace.
     """
-    # Later: Filter by current_user.user_id if document_service is updated to support it
-    docs = await document_service.list_documents()
+    docs = await document_service.list_documents(user_id=current_user.user_id)
     return [DocumentResponse(**doc) for doc in docs]
 
 
@@ -78,7 +77,7 @@ async def process_document(
 @router.delete("/documents/{document_id}")
 async def delete_document(
     document_id: str,
-    _current_user: CurrentUserDependency,
+    current_user: CurrentUserDependency,
 ) -> dict[str, str]:
     """
     Delete a document and all its associated materials.
@@ -86,17 +85,21 @@ async def delete_document(
     # Use the uow_factory directly or via document_service
     # Let's import get_uow_factory
     from backend.dependencies import get_uow_factory
-    
+
     uow_factory = get_uow_factory()
     with uow_factory.create() as uow:
         # Check if document exists
         from fastapi import HTTPException
+
         doc = await uow.documents.get(document_id)
         if not doc:
             raise HTTPException(status_code=404, detail="Document not found")
-            
+
+        if doc.user_id and doc.user_id != current_user.user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to delete this document")
+
         # Delete document. Since SQLite has ON DELETE CASCADE,
         # this will automatically delete chunks, concepts, relationships, and learning content.
         await uow.documents.delete(document_id)
-        
+
     return {"status": "success", "message": f"Document {document_id} deleted"}

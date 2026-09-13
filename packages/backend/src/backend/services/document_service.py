@@ -52,6 +52,14 @@ class DocumentService:
 
         checksum_value = hashlib.sha256(doc_input.content).hexdigest()
 
+        attrs: dict[str, str] = {
+            "original_path": doc_input.filename,
+            "content_type": doc_input.content_type,
+            "language": "en",
+        }
+        if doc_input.user_id:
+            attrs["user_id"] = doc_input.user_id
+
         handle = ResourceHandle(
             id=doc_id,
             filename=doc_input.filename,
@@ -61,13 +69,7 @@ class DocumentService:
             checksum=Checksum(algorithm=ChecksumAlgorithm.SHA256, value=checksum_value),
             size_bytes=doc_input.size_bytes,
             created_at=datetime.now(UTC),
-            metadata=ResourceMetadata(
-                attributes={
-                    "original_path": doc_input.filename,
-                    "content_type": doc_input.content_type,
-                    "language": "en",
-                }
-            ),
+            metadata=ResourceMetadata(attributes=attrs),
             stream_reference=BackendStreamReference(doc_input),
             lifecycle_state=LifecycleState.REGISTERED,
         )
@@ -114,9 +116,9 @@ class DocumentService:
             warnings=[],
         )
 
-    async def list_documents(self) -> list[dict[str, typing.Any]]:
+    async def list_documents(self, user_id: str | None = None) -> list[dict[str, typing.Any]]:
         with self.uow_factory.create() as uow:
-            docs = await uow.documents.list()
+            docs = await uow.documents.list(user_id=user_id)
             return [
                 {
                     "id": doc.id,

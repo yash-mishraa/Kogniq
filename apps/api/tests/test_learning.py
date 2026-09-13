@@ -4,7 +4,6 @@ from datetime import UTC, datetime
 
 import backend.dependencies as deps
 import pytest
-from backend.app import create_app
 from backend.core.settings import settings
 from backend.dependencies import (
     get_authorization_service,
@@ -13,6 +12,7 @@ from backend.dependencies import (
 )
 from fastapi.testclient import TestClient
 
+from apps.api.app.main import create_app
 from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
 from content.chunking.metadata import ChunkMetadata
@@ -33,7 +33,6 @@ class MockAuthorizationService:
 # Apply globally to the module
 app = create_app()
 app.dependency_overrides[get_authorization_service] = lambda: MockAuthorizationService()
-
 
 
 @pytest.fixture(autouse=True)

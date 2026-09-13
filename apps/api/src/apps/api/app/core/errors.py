@@ -32,6 +32,9 @@ class APIError(KogniqError):
 def register_exception_handlers(application: FastAPI) -> None:
     """Register standardized handlers for expected framework and API errors."""
     application.add_exception_handler(APIError, api_error_handler)
+    from backend.core.exceptions import BackendError
+
+    application.add_exception_handler(BackendError, backend_error_handler)
     application.add_exception_handler(RequestValidationError, validation_error_handler)
     application.add_exception_handler(StarletteHTTPException, http_error_handler)
 
@@ -46,6 +49,19 @@ async def api_error_handler(request: Request, error: Exception) -> JSONResponse:
         code=error.code,
         message=error.message,
         headers=error.headers,
+    )
+
+
+async def backend_error_handler(request: Request, error: Exception) -> JSONResponse:
+    from backend.core.exceptions import BackendError
+
+    if not isinstance(error, BackendError):
+        raise error
+    return _error_response(
+        request=request,
+        status_code=error.status_code,
+        code=error.code,
+        message=error.message,
     )
 
 

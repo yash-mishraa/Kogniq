@@ -32,6 +32,7 @@ class SQLiteDocumentRepository(AbstractDocumentRepository):
             metadata=metadata,
             statistics=deserialize(row["statistics_json"]),
             pages=pages,
+            user_id=row["user_id"] if "user_id" in row.keys() else None,  # noqa: SIM118
         )
 
     async def save(self, document: NormalizedDocument) -> SaveResult:
@@ -46,8 +47,8 @@ class SQLiteDocumentRepository(AbstractDocumentRepository):
             """
             INSERT INTO documents (
                 id, title, source, checksum, version, created_at, language,
-                metadata_json, statistics_json, pages_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                metadata_json, statistics_json, pages_json, user_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                 title=excluded.title,
                 source=excluded.source,
@@ -57,7 +58,8 @@ class SQLiteDocumentRepository(AbstractDocumentRepository):
                 language=excluded.language,
                 metadata_json=excluded.metadata_json,
                 statistics_json=excluded.statistics_json,
-                pages_json=excluded.pages_json
+                pages_json=excluded.pages_json,
+                user_id=excluded.user_id
             """,
             (
                 document.id,
@@ -70,6 +72,7 @@ class SQLiteDocumentRepository(AbstractDocumentRepository):
                 metadata_json,
                 statistics_json,
                 pages_json,
+                document.user_id,
             ),
         )
         return SaveResult(id=document.id, is_new=is_new)
@@ -88,8 +91,13 @@ class SQLiteDocumentRepository(AbstractDocumentRepository):
         cursor = self._conn.execute("DELETE FROM documents WHERE id = ?", (document_id,))
         return DeleteResult(id=document_id, was_deleted=cursor.rowcount > 0)
 
-    async def list(self) -> Sequence[NormalizedDocument]:
-        rows = self._conn.execute("SELECT * FROM documents").fetchall()
+    async def list(self, user_id: str | None = None) -> Sequence[NormalizedDocument]:
+        if user_id:
+            rows = self._conn.execute(
+                "SELECT * FROM documents WHERE user_id = ?", (user_id,)
+            ).fetchall()
+        else:
+            rows = self._conn.execute("SELECT * FROM documents").fetchall()
         return [self._row_to_document(row) for row in rows]
 
     async def statistics(self) -> RepositoryStatistics:
