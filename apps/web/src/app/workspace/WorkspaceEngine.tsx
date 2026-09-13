@@ -13,6 +13,7 @@ import { NotebookEnvironment } from "./environments/notebook/NotebookEnvironment
 import { FlashcardsEnvironment } from "./environments/flashcards/FlashcardsEnvironment";
 import { QuizEnvironment } from "./environments/quiz/QuizEnvironment";
 import { AnalyticsEnvironment } from "./environments/analytics/AnalyticsEnvironment";
+import { StudioEnvironment } from "./environments/studio/StudioEnvironment";
 import { WorkspaceContent, WorkspaceEmptyState, WorkspaceFooter, WorkspaceHeader, WorkspaceSurface, WorkspaceTransitionBoundary } from "@/components/workspace";
 
 export function WorkspaceEngine({ 
@@ -54,6 +55,8 @@ function WorkspaceEngineBody({ onLeave }: { onLeave?: () => void }) {
     environmentContent = <QuizEnvironment />;
   } else if (activeEnvironmentId === "analytics") {
     environmentContent = <AnalyticsEnvironment />;
+  } else if (activeEnvironmentId === "studio") {
+    environmentContent = <StudioEnvironment />;
   } else {
     environmentContent = <WorkspaceEmptyState environment={environment} />;
   }

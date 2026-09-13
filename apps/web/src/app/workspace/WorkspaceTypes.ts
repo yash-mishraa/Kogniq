@@ -19,6 +19,7 @@ export interface WorkspaceMemory {
   selectedContext?: string;
   openedDocument?: string;
   readingPosition?: number;
+  studioDrafts?: Record<string, string>;
 }
 
 export interface WorkspaceState {
