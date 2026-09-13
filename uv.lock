@@ -10,6 +10,7 @@ members = [
     "kogniq-auth",
     "kogniq-backend",
     "kogniq-content",
+    "kogniq-domain",
     "kogniq-education",
     "kogniq-embedding",
     "kogniq-jobs",
@@ -1057,6 +1058,7 @@ version = "0.1.0"
 source = { editable = "packages/application" }
 dependencies = [
     { name = "kogniq-auth" },
+    { name = "kogniq-domain" },
     { name = "kogniq-jobs" },
     { name = "kogniq-knowledge" },
     { name = "kogniq-pipeline" },
@@ -1065,6 +1067,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "kogniq-auth", editable = "packages/auth" },
+    { name = "kogniq-domain", editable = "packages/domain" },
     { name = "kogniq-jobs", editable = "packages/jobs" },
     { name = "kogniq-knowledge", editable = "packages/knowledge" },
     { name = "kogniq-pipeline", editable = "packages/pipeline" },
@@ -1091,7 +1094,9 @@ version = "0.1.0"
 source = { editable = "packages/backend" }
 dependencies = [
     { name = "fastapi" },
+    { name = "kogniq-application" },
     { name = "kogniq-auth" },
+    { name = "kogniq-domain" },
     { name = "kogniq-jobs" },
     { name = "kogniq-knowledge" },
     { name = "kogniq-learning-content" },
@@ -1104,7 +1109,9 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.111.0" },
+    { name = "kogniq-application", editable = "packages/application" },
     { name = "kogniq-auth", editable = "packages/auth" },
+    { name = "kogniq-domain", editable = "packages/domain" },
     { name = "kogniq-jobs", editable = "packages/jobs" },
     { name = "kogniq-knowledge", editable = "packages/knowledge" },
     { name = "kogniq-learning-content", editable = "packages/learning-content" },
@@ -1134,6 +1141,11 @@ requires-dist = [
     { name = "pymupdf", specifier = ">=1.28.0" },
     { name = "python-docx", specifier = ">=1.2.0" },
 ]
+
+[[package]]
+name = "kogniq-domain"
+version = "0.1.0"
+source = { editable = "packages/domain" }
 
 [[package]]
 name = "kogniq-education"
@@ -1231,6 +1243,7 @@ version = "0.1.0"
 source = { editable = "packages/persistence" }
 dependencies = [
     { name = "kogniq-content" },
+    { name = "kogniq-domain" },
     { name = "kogniq-knowledge" },
     { name = "kogniq-learning-content" },
     { name = "kogniq-shared" },
@@ -1239,6 +1252,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "kogniq-content", editable = "packages/content" },
+    { name = "kogniq-domain", editable = "packages/domain" },
     { name = "kogniq-knowledge", editable = "packages/knowledge" },
     { name = "kogniq-learning-content", editable = "packages/learning-content" },
     { name = "kogniq-shared", editable = "packages/shared" },

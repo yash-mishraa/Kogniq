@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useWorkspace } from "../../WorkspaceContext";
 import { QuizProvider, useQuiz } from "./QuizContext";
+import { quizScore } from "./QuizState";
 import { QuizEmptyState, QuizErrorState, QuizLoadingState, QuizNavigator, QuizQuestion, QuizResults, QuizSurface } from "@/components/quiz";
 import { serviceProvider } from "@/lib/providers";
 
@@ -28,6 +29,25 @@ function QuizEnvironmentBody() {
     });
     return () => controller.abort();
   }, [documentId, dispatch]);
+
+  const isSynced = useRef(false);
+  useEffect(() => {
+    if (state.status === "completed" && state.documentId && state.requestId && !isSynced.current) {
+      isSynced.current = true;
+      const score = quizScore(state);
+      const total_questions = state.questions.length;
+      
+      serviceProvider.getProvider().analytics.recordEvent({
+        event_id: state.requestId,
+        event_type: "quiz_completed",
+        document_id: state.documentId,
+        data: { score, total_questions }
+      }).catch(err => console.error("Failed to record analytics", err));
+    }
+    if (state.status !== "completed") {
+        isSynced.current = false;
+    }
+  }, [state.status, state.documentId, state.requestId, state.questions.length, state]);
 
   return <QuizSurface>{state.status === "loading" ? <QuizLoadingState /> : state.status === "error" ? <QuizErrorState error={state.error} /> : state.status === "empty" || state.status === "idle" ? <QuizEmptyState hasDocument={Boolean(documentId)} /> : state.status === "completed" ? <QuizResults /> : <><QuizQuestion /><QuizNavigator /></>}</QuizSurface>;
 }

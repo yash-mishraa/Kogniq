@@ -2,6 +2,7 @@ import abc
 from typing import Any
 
 from persistence.repositories.base import (
+    AbstractAnalyticsRepository,
     AbstractChunkRepository,
     AbstractConceptRepository,
     AbstractDocumentRepository,
@@ -18,6 +19,8 @@ class AbstractUnitOfWork(abc.ABC):
     concepts: AbstractConceptRepository
     relationships: AbstractRelationshipRepository
     learning: AbstractLearningRepository
+    analytics: AbstractAnalyticsRepository
+
 
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
@@ -65,6 +68,7 @@ class SQLiteUnitOfWork(AbstractUnitOfWork):
         self.concepts = self._factory.create_concept_repository(self._conn)
         self.relationships = self._factory.create_relationship_repository(self._conn)
         self.learning = self._factory.create_learning_repository(self._conn)
+        self.analytics = self._factory.create_analytics_repository(self._conn)
 
     def commit(self) -> None:
         self._conn.execute("COMMIT")

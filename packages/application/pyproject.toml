@@ -8,6 +8,7 @@ dependencies = [
     "kogniq-jobs",
     "kogniq-knowledge",
     "kogniq-pipeline",
+    "kogniq-domain",
 ]
 
 [build-system]

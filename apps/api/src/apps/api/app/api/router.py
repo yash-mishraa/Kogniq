@@ -20,3 +20,5 @@ api_router.include_router(learning_router)
 api_router.include_router(retrieval_router)
 api_router.include_router(jobs_router)
 api_router.include_router(knowledge_router)
+from backend.routers.analytics import analytics_router
+api_router.include_router(analytics_router)

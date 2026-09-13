@@ -9,6 +9,7 @@ dependencies = [
     "kogniq-content",
     "kogniq-knowledge",
     "kogniq-learning-content",
+    "kogniq-domain",
 ]
 
 [build-system]

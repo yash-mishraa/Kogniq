@@ -111,3 +111,28 @@ def init_db(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_learning_document_id "
         "ON learning_content(source_document_id)"
     )
+
+    # 6. Learner Activity
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS learner_activity (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            document_id TEXT NOT NULL,
+            event_type TEXT NOT NULL,
+            event_data_json TEXT NOT NULL,
+            created_at TIMESTAMP NOT NULL,
+            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE
+        )
+    """)
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_learner_activity_user_id "
+        "ON learner_activity(user_id)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_learner_activity_event_type "
+        "ON learner_activity(event_type)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_learner_activity_created_at "
+        "ON learner_activity(created_at)"
+    )

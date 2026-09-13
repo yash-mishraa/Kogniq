@@ -69,6 +69,23 @@ function FlashcardsEnvironmentBody() {
     
   }, [state.status, state.requestId, dispatch, documentId]);
 
+  const syncedResponses = useRef<Record<string, string>>({});
+  useEffect(() => {
+    if (!state.requestId || !documentId) return;
+    
+    for (const [cardId, difficulty] of Object.entries(state.responses)) {
+      if (syncedResponses.current[cardId] !== difficulty) {
+        syncedResponses.current[cardId] = difficulty;
+        serviceProvider.getProvider().analytics.recordEvent({
+          event_id: `${state.requestId}-${cardId}`,
+          event_type: "flashcard_reviewed",
+          document_id: documentId,
+          data: { card_id: cardId, difficulty }
+        }).catch(err => console.error("Failed to record analytics", err));
+      }
+    }
+  }, [state.responses, state.requestId, documentId]);
+
   if (state.status === "idle" || state.status === "empty") {
     return (
       <FlashcardsSurface>

@@ -14,6 +14,8 @@ dependencies = [
     "kogniq-persistence",
     "kogniq-jobs",
     "kogniq-auth",
+    "kogniq-application",
+    "kogniq-domain",
 ]
 
 [build-system]

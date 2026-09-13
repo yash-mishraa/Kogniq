@@ -64,6 +64,7 @@ kogniq-content = { workspace = true }
 kogniq-jobs = { workspace = true }
 kogniq-auth = { workspace = true }
 kogniq-application = { workspace = true }
+kogniq-domain = { workspace = true }
 
 # Workspace members are added when a directory becomes an installable Python
 # project. Documentation-only package directories are intentionally excluded.
@@ -84,6 +85,7 @@ members = [
     "packages/jobs",
     "packages/auth",
     "packages/application",
+    "packages/domain",
 ]
 
 [tool.ruff]

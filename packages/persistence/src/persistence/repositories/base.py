@@ -127,3 +127,18 @@ class AbstractLearningRepository(abc.ABC):
     @abc.abstractmethod
     async def statistics(self) -> RepositoryStatistics:
         pass
+
+from domain.analytics.models import AnalyticsMetrics, LearnerEvent
+
+
+class AbstractAnalyticsRepository(abc.ABC):
+    """Abstract repository for tracking learning analytics."""
+
+    @abc.abstractmethod
+    async def save_event(self, event: LearnerEvent) -> SaveResult:
+        pass
+
+    @abc.abstractmethod
+    async def get_metrics(self, user_id: str, days: int | None = None) -> AnalyticsMetrics:
+        pass
+

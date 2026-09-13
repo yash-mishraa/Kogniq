@@ -19,6 +19,7 @@ import { LiveSearchService } from "../services/live/LiveSearchService";
 import { LiveStudyService } from "../services/live/LiveStudyService";
 import { LiveFlashcardsService } from "../services/live/LiveFlashcardsService";
 import { LiveQuizService } from "../services/live/LiveQuizService";
+import { LiveAnalyticsService } from "../services/live/LiveAnalyticsService";
 import { MockFlashcardsService } from "../services/mock/MockFlashcardsService";
 
 export type ProviderMode = "mock" | "live";
@@ -32,6 +33,7 @@ export interface IServiceProvider {
   study: IStudyService;
   flashcards: IFlashcardsService;
   quiz: IQuizService;
+  analytics: LiveAnalyticsService;
 }
 
 class ServiceProviderFactory {
@@ -46,6 +48,7 @@ class ServiceProviderFactory {
     study: new LiveStudyService(),
     flashcards: new MockFlashcardsService(),
     quiz: new MockQuizService(),
+    analytics: new LiveAnalyticsService(),
   };
 
   private liveProvider: IServiceProvider = {
@@ -57,6 +60,7 @@ class ServiceProviderFactory {
     study: new LiveStudyService(),
     flashcards: new LiveFlashcardsService(),
     quiz: new LiveQuizService(),
+    analytics: new LiveAnalyticsService(),
   };
 
   getProvider(): IServiceProvider {

@@ -390,6 +390,27 @@ async def get_register_user_use_case(
     )
 
 
+async def get_record_event_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> "RecordEventUseCase":
+    from application.analytics.record_event import RecordEventUseCase
+    return RecordEventUseCase(
+        auth_service=auth_service,
+        uow_factory=uow_factory,
+    )
+
+
+async def get_analytics_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> "GetAnalyticsUseCase":
+    from application.analytics.get_analytics import GetAnalyticsUseCase
+    return GetAnalyticsUseCase(
+        auth_service=auth_service,  # type: ignore
+        uow_factory=uow_factory,
+    )
+
 # Typed dependencies for clean injection in route handlers
 PipelineDependency = Annotated[PipelineService, Depends(get_pipeline_service)]
 LearningDependency = Annotated[LearningService, Depends(get_learning_service)]
