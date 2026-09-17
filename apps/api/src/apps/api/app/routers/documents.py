@@ -7,7 +7,7 @@ from backend.schemas.document import (
     DocumentResponse,
 )
 from backend.services.document_service import DocumentService
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 
 from application.document.commands import ProcessDocumentCommand
 from application.document.process_document import ProcessDocumentUseCase
@@ -32,6 +32,7 @@ async def list_documents(
 @router.post("/documents/process", response_model=DocumentProcessResponse)
 async def process_document(
     current_user: CurrentUserDependency,
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),  # noqa: B008
     use_case: ProcessDocumentUseCase = Depends(get_process_document_use_case),  # noqa: B008
 ) -> DocumentProcessResponse:
@@ -56,13 +57,19 @@ async def process_document(
 
     # 3. Process via Use Case
     try:
-        result = await use_case.execute(command)
+        result = await use_case.prepare(command)
+
+        # Add actual processing to background tasks
+        async def run_in_background() -> None:
+            await use_case.run_pipeline(command, result.document_id)
+
+        background_tasks.add_task(run_in_background)
     except BackendError as e:
         raise APIError(status_code=e.status_code, code=e.code, message=e.message) from e
 
     # 4. Map to Response Schema
     return DocumentProcessResponse(
-        status=DocumentLifecycleState(result.status),
+        status=DocumentLifecycleState.UPLOADED,
         document_id=result.document_id,
         filename=result.filename,
         title=result.title,

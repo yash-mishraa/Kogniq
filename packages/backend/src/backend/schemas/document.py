@@ -81,3 +81,4 @@ class DocumentResponse(BaseModel):
     source: str
     status: str
     importDate: str  # noqa: N815
+    error: str | None = None

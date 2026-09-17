@@ -1,10 +1,12 @@
 "use client";
 
 import { useStudy } from "@/app/workspace/environments/study/StudyContext";
-
+import { useWorkspace } from "@/app/workspace/WorkspaceContext";
 
 export function StudyNavigator() {
   const { state, dispatch } = useStudy();
+  const { memory, switchEnvironment } = useWorkspace();
+  const documentId = memory.documents?.openedDocument;
 
   if (!state.isStudying || !state.material || !state.material.data) return null;
 
@@ -39,12 +41,47 @@ export function StudyNavigator() {
         label: "Next Question →",
         onClick: () => dispatch({ type: "NEXT_TEST" }),
       };
-    } else {
+    } else if (!state.completed) {
       nextAction = {
         label: "Finish Study Session",
-        onClick: () => dispatch({ type: "END_STUDY" }),
+        onClick: () => {
+          dispatch({ type: "MARK_COMPLETED" });
+          // Fire event
+          const eventId = crypto.randomUUID();
+          fetch("/api/v1/analytics/events", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              event_id: eventId,
+              event_type: "study_session_completed",
+              document_id: documentId,
+              data: {
+                completed_at: new Date().toISOString()
+              }
+            })
+          }).catch(console.error);
+        },
       };
     }
+  }
+
+  if (state.completed) {
+    return (
+      <div className="flex items-center gap-4 bg-canvas/80 backdrop-blur-md px-6 py-4 rounded-full border border-ink/10 shadow-lg">
+        <p className="font-medium text-ink tracking-tight pr-2">Session Complete</p>
+        <button
+          type="button"
+          onClick={() => {
+            switchEnvironment("documents");
+          }}
+          className="px-6 py-2 bg-ink text-canvas rounded-full font-medium tracking-tight hover:bg-accent transition-colors"
+        >
+          Return to Workspace
+        </button>
+      </div>
+    );
   }
 
   return (

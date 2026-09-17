@@ -32,10 +32,10 @@ export function WorkspaceEngine({
   return <WorkspaceProvider initialEnvironmentId={initialEnvironmentId} initialHistory={initialHistory} initialMemory={initialMemory} sessionUserId={sessionUserId}><WorkspaceEngineBody onLeave={onLeave} /></WorkspaceProvider>; 
 }
 
-function WorkspaceEngineBody({ onLeave }: { onLeave?: () => void }) {
-  const { activeEnvironmentId, memory } = useWorkspace();
-  const environment = environmentRegistry.getEnvironment(activeEnvironmentId);
-  const memoryRef = useRef(memory);
+  function WorkspaceEngineBody({ onLeave }: { onLeave?: () => void }) {
+    const { activeEnvironmentId, memory } = useWorkspace();
+    const environment = environmentRegistry.getEnvironment(activeEnvironmentId);
+    const memoryRef = useRef(memory);
   useEffect(() => { memoryRef.current = memory; }, [memory]);
   useEffect(() => { const remembered = memoryRef.current[activeEnvironmentId]; const selector = remembered?.focusTarget ? `[data-workspace-focus="${remembered.focusTarget}"] input` : "[data-workspace-focus=\"locus\"] input"; const target = document.querySelector<HTMLInputElement>(selector); target?.focus(); }, [activeEnvironmentId]);
   if (!environment) return null;

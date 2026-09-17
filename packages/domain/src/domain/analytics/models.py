@@ -25,6 +25,13 @@ class QuizCompletedEvent(LearnerEvent):
 
 
 @dataclass(frozen=True)
+class StudySessionCompletedEvent(LearnerEvent):
+    @property
+    def completed_at(self) -> str:
+        return str(self.event_data.get("completed_at", ""))
+
+
+@dataclass(frozen=True)
 class FlashcardReviewedEvent(LearnerEvent):
     @property
     def card_id(self) -> str:

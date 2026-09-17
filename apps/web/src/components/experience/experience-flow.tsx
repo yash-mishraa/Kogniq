@@ -60,7 +60,11 @@ export function ExperienceFlow() {
     return () => { isMounted = false; };
   }, []);
 
-  const selectEnvironment = (index: number) => { setActiveIndex(index); setChosenEnvironmentId(environments[index].id); setPhase("workspace"); };
+  const selectEnvironment = (index: number) => {
+    setActiveIndex(index);
+    setChosenEnvironmentId(environments[index].id);
+    setPhase("workspace");
+  };
   
   if (phase === "restoring") {
     // Return nothing while restoring to avoid flashing the arrival screen

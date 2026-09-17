@@ -5,6 +5,7 @@ from persistence.repositories.base import (
     AbstractAnalyticsRepository,
     AbstractChunkRepository,
     AbstractConceptRepository,
+    AbstractDocumentJobRepository,
     AbstractDocumentRepository,
     AbstractLearningRepository,
     AbstractRelationshipRepository,
@@ -20,6 +21,7 @@ class AbstractUnitOfWork(abc.ABC):
     relationships: AbstractRelationshipRepository
     learning: AbstractLearningRepository
     analytics: AbstractAnalyticsRepository
+    document_jobs: AbstractDocumentJobRepository
 
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
@@ -68,6 +70,7 @@ class SQLiteUnitOfWork(AbstractUnitOfWork):
         self.relationships = self._factory.create_relationship_repository(self._conn)
         self.learning = self._factory.create_learning_repository(self._conn)
         self.analytics = self._factory.create_analytics_repository(self._conn)
+        self.document_jobs = self._factory.create_document_job_repository(self._conn)
 
     def commit(self) -> None:
         self._conn.execute("COMMIT")

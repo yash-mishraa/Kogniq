@@ -55,12 +55,13 @@ export const MOCK_STUDY_MATERIAL: StudyMaterial = {
   ],
   test: [
     {
+      id: "q1",
       question: "Which component allows the Transformer to focus on different parts of the input sequence simultaneously for a single output token?",
       options: [
-        "Positional Encoding",
-        "Multi-Head Attention",
-        "Layer Normalization",
-        "Feed-Forward Network"
+        { id: "o1", text: "Positional Encoding" },
+        { id: "o2", text: "Multi-Head Attention" },
+        { id: "o3", text: "Layer Normalization" },
+        { id: "o4", text: "Feed-Forward Network" }
       ],
       correctOptionIndex: 1,
       explanation: "Multi-Head Attention runs multiple self-attention operations in parallel, allowing the model to attend to different representation subspaces (e.g., one head might focus on grammar, another on semantic relationships)."
@@ -78,6 +79,7 @@ export const initialStudyState: StudyState = {
   },
   recallIndex: 0,
   testIndex: 0,
+  completed: false,
 };
 
 export function studyReducer(state: StudyState, action: StudyAction): StudyState {
@@ -90,6 +92,7 @@ export function studyReducer(state: StudyState, action: StudyAction): StudyState
         material: action.payload,
         recallIndex: 0,
         testIndex: 0,
+        completed: false,
       };
     case "SET_MODE":
       return { ...state, activeMode: action.payload };
@@ -101,6 +104,8 @@ export function studyReducer(state: StudyState, action: StudyAction): StudyState
       return { ...state, material: startResourceHydration(state.material, action.payload.requestId) };
     case "ABORT_HYDRATION":
       return { ...state, material: abortResourceHydration(state.material, action.payload.requestId) };
+    case "MARK_COMPLETED":
+      return { ...state, completed: true };
     case "END_STUDY":
       return initialStudyState;
     default:

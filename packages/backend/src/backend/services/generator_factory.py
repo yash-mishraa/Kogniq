@@ -19,6 +19,9 @@ class GeneratorFactory:
     def __init__(self, provider: AbstractTextGenerationProvider) -> None:
         self._provider = provider
 
+    def get_provider(self) -> AbstractTextGenerationProvider:
+        return self._provider
+
     def get_generator(self, generator_name: str) -> AbstractLearningGenerator:
         """
         Resolves the generator by name, constructing it with its dependencies.

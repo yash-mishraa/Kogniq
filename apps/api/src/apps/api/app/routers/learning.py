@@ -1,10 +1,18 @@
-from backend.dependencies import get_generate_learning_use_case, get_get_learning_materials_use_case
+from typing import Any
+
+from backend.dependencies import (
+    get_explain_mistake_use_case,
+    get_generate_learning_use_case,
+    get_get_learning_materials_use_case,
+    get_next_action_use_case,
+)
 from backend.schemas.learning import (
     LearningGenerationRequest,
     LearningGenerationResponse,
     LearningMaterialsResponse,
 )
 from fastapi import APIRouter, Depends, Header, Request
+from pydantic import BaseModel
 
 from application.learning.commands import GenerateLearningCommand
 from application.learning.generate_learning import GenerateLearningUseCase
@@ -80,3 +88,72 @@ async def get_learning_materials(
         }
 
     return LearningMaterialsResponse(status=response.status, materials=materials_dict)
+
+
+class NextActionResponse(BaseModel):
+    action: str
+
+
+@learning_router.get("/{document_id}/next-action", response_model=NextActionResponse)
+async def get_next_action(
+    document_id: str,
+    authorization: str = Header(..., description="Bearer token"),
+    use_case: Any = Depends(get_next_action_use_case),  # noqa: B008
+) -> NextActionResponse:
+    from application.learning.get_next_action import GetNextActionRequest
+
+    token = (
+        authorization.replace("Bearer ", "")
+        if authorization.startswith("Bearer ")
+        else authorization
+    )
+    request_dto = GetNextActionRequest(document_id=document_id, token=token)
+    try:
+        response = await use_case.execute(request_dto)
+        return NextActionResponse(action=response.action.value)
+    except Exception as e:
+        if type(e).__name__ == "BackendError":
+            from fastapi import HTTPException
+
+            raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
+        raise
+
+
+class ExplainMistakeRequestDto(BaseModel):
+    document_id: str
+    question_id: str
+    selected_option_id: str
+
+
+class ExplainMistakeResponseDto(BaseModel):
+    explanation: str
+
+
+@learning_router.post("/explain-mistake", response_model=ExplainMistakeResponseDto)
+async def explain_mistake(
+    request: ExplainMistakeRequestDto,
+    authorization: str = Header(..., description="Bearer token"),
+    use_case: Any = Depends(get_explain_mistake_use_case),  # noqa: B008
+) -> ExplainMistakeResponseDto:
+    from application.learning.explain_mistake import ExplainMistakeRequest
+
+    token = (
+        authorization.replace("Bearer ", "")
+        if authorization.startswith("Bearer ")
+        else authorization
+    )
+    request_dto = ExplainMistakeRequest(
+        document_id=request.document_id,
+        question_id=request.question_id,
+        selected_option_id=request.selected_option_id,
+        token=token,
+    )
+    try:
+        response = await use_case.execute(request_dto)
+        return ExplainMistakeResponseDto(explanation=response.explanation)
+    except Exception as e:
+        if type(e).__name__ == "BackendError":
+            from fastapi import HTTPException
+
+            raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
+        raise

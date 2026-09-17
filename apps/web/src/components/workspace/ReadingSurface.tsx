@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { type ReactNode } from "react";
 
+import { LearningHub } from "./LearningHub";
+
 export interface ReadingSurfaceProps {
   title: string;
   layoutId?: string;
@@ -11,6 +13,9 @@ export interface ReadingSurfaceProps {
 }
 
 export function ReadingSurface({ title, layoutId, content, status }: ReadingSurfaceProps) {
+  // Extract document ID from layoutId (title-uuid)
+  const documentId = layoutId?.replace("title-", "");
+
   return (
     <motion.article
       layout
@@ -51,6 +56,10 @@ export function ReadingSurface({ title, layoutId, content, status }: ReadingSurf
             </div>
           )}
         </div>
+        
+        {documentId && (
+          <LearningHub documentId={documentId} status={status} />
+        )}
       </div>
     </motion.article>
   );

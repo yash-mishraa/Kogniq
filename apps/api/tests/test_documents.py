@@ -48,7 +48,7 @@ def auth_user() -> User:
 
 def test_process_document_success(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
     class MockResult:
-        status = "Ready"
+        status = "Uploaded"
         document_id = "doc-123"
         filename = "test.md"
         title = "Test"
@@ -59,8 +59,11 @@ def test_process_document_success(client: TestClient, test_app: FastAPI, auth_us
         warnings: tuple[str, ...] = ()
 
     class MockService:
-        async def process_document(self, _doc_input: object) -> MockResult:
+        async def prepare_document(self, _doc_input: object) -> MockResult:
             return MockResult()
+
+        async def run_document_pipeline(self, _doc_input: object, document_id: str) -> None:
+            pass
 
     test_app.dependency_overrides[get_document_service] = lambda: MockService()
     test_app.dependency_overrides[get_current_user] = lambda: auth_user
@@ -69,7 +72,7 @@ def test_process_document_success(client: TestClient, test_app: FastAPI, auth_us
     response = client.post("/api/v1/documents/process", files=files)
 
     assert response.status_code == 200
-    assert response.json()["status"] == "Ready"
+    assert response.json()["status"] == "Uploaded"
 
 
 def test_process_document_no_file(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
@@ -110,24 +113,3 @@ def test_process_document_oversized(
     assert response.status_code == 400
     data = response.json()
     assert data["error"]["code"] == "file_too_large"
-
-
-def test_process_document_pipeline_failure(test_app: FastAPI, auth_user: User) -> None:
-    class FailingMockService:
-        async def process_document(self, _doc_input: object) -> None:
-            from backend.core.exceptions import BackendError
-
-            raise BackendError("pipeline_execution_failed", "Simulated failure", 500)
-
-    # Override dependency
-    test_app.dependency_overrides[get_document_service] = lambda: FailingMockService()
-    test_app.dependency_overrides[get_current_user] = lambda: auth_user
-
-    test_client = TestClient(test_app)
-    files = {"file": ("test.txt", b"content", "text/plain")}
-    response = test_client.post("/api/v1/documents/process", files=files)
-
-    assert response.status_code == 500
-    data = response.json()
-    assert data["error"]["code"] == "pipeline_execution_failed"
-    assert data["error"]["message"] == "Simulated failure"

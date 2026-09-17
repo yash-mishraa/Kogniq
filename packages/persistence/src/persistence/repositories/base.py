@@ -136,5 +136,30 @@ class AbstractAnalyticsRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def get_metrics(self, user_id: str, days: int | None = None) -> AnalyticsMetrics:
+    async def get_metrics(
+        self, user_id: str, days: int | None = None, document_id: str | None = None
+    ) -> AnalyticsMetrics:
+        pass
+
+    @abc.abstractmethod
+    async def has_completed_study(self, user_id: str, document_id: str) -> bool:
+        pass
+
+
+from persistence.models import DocumentJob
+
+
+class AbstractDocumentJobRepository(abc.ABC):
+    """Abstract repository for tracking document processing jobs."""
+
+    @abc.abstractmethod
+    def save(self, job: DocumentJob) -> None:
+        pass
+
+    @abc.abstractmethod
+    def get(self, job_id: str) -> DocumentJob | None:
+        pass
+
+    @abc.abstractmethod
+    def list_active(self, user_id: str | None = None) -> Sequence[DocumentJob]:
         pass

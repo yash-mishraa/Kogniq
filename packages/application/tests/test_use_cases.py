@@ -61,14 +61,25 @@ class MockDocumentService:
         def __init__(self) -> None:
             self.warnings: list[str] = []
 
-    async def process_document(self, command: object) -> MockResult:
-        _ = command
+    async def prepare_document(self, command: object) -> MockResult:
         return self.MockResult()
+
+    async def run_document_pipeline(self, command: object, document_id: str) -> None:
+        pass
+
+    async def process_document(self, command: object) -> str:
+        return "doc1"
 
 
 class FailingDocumentService:
-    async def process_document(self, command: object) -> None:
+    async def prepare_document(self, command: object) -> MockDocumentService.MockResult:
         _ = command
+        raise ValueError("Downstream failure")
+
+    async def run_document_pipeline(self, command: object, document_id: str) -> None:
+        pass
+
+    async def process_document(self, command: object) -> str:
         raise ValueError("Downstream failure")
 
 
@@ -86,11 +97,16 @@ async def test_process_document_success() -> None:
         size_bytes=10,
         content=b"test",
     )
-    result = await use_case.execute(cmd)
+    result = await use_case.prepare(cmd)
 
     assert result.status == "completed"
     assert result.document_id == "doc1"
     assert result.filename == "test.txt"
+    assert result.title == "Test Title"
+
+    # We can't easily assert the background run here without mocking,
+    # but we can verify it doesn't crash
+    await use_case.run_pipeline(cmd, result.document_id)
 
 
 @pytest.mark.asyncio
@@ -109,7 +125,7 @@ async def test_process_document_unauthorized() -> None:
     )
 
     with pytest.raises(ApplicationError) as exc:
-        await use_case.execute(cmd)
+        await use_case.prepare(cmd)
     assert "Permission denied" in str(exc.value)
 
 
@@ -129,5 +145,5 @@ async def test_process_document_downstream_failure() -> None:
     )
 
     with pytest.raises(ValueError) as exc:
-        await use_case.execute(cmd)
+        await use_case.prepare(cmd)
     assert "Downstream failure" in str(exc.value)

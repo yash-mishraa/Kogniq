@@ -47,7 +47,6 @@ export function WorkspaceProvider({
     return initialMemory || {};
   });
   
-  // Re-initialize state if sessionUserId changes (e.g. logging out and logging in as someone else)
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
@@ -56,7 +55,7 @@ export function WorkspaceProvider({
           const saved = JSON.parse(savedStr);
           if (saved.history) setHistory(saved.history);
           if (saved.memory) setMemory(saved.memory);
-          if (saved.activeEnvironmentId) setActiveEnvironmentId(saved.activeEnvironmentId);
+          setActiveEnvironmentId(initialEnvironmentId);
           return;
         }
       } catch {}

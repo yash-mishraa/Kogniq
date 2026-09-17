@@ -5,7 +5,13 @@ export class LiveAuthService implements IAuthService {
     try {
       const response = await fetch("/api/v1/auth/session", { signal });
       if (response.ok) {
-        return await response.json() as SessionData;
+        const data = await response.json();
+        return {
+          user: {
+            id: data.id,
+            email: data.email
+          }
+        };
       }
       return null;
     } catch (error) {

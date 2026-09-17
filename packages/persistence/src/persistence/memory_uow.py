@@ -12,6 +12,7 @@ class MemoryUnitOfWork(AbstractUnitOfWork):
         self.relationships = factory.create_relationship_repository()
         self.learning = factory.create_learning_repository()
         self.analytics = factory.create_analytics_repository()
+        self.document_jobs = factory.create_document_job_repository()
 
     def commit(self) -> None:
         # In-memory repositories just save instantly, so commit is a no-op.

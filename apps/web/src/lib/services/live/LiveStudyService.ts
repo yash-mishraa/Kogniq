@@ -65,11 +65,12 @@ export class LiveStudyService implements IStudyService {
       explanation: f.answer,
     }));
 
-    const test = quizArray.map((q) => {
+    const test = quizArray.map((q, i) => {
       const correctOptionIndex = q.options.findIndex((o) => o.id === q.correct_answer);
       return {
+        id: "id" in q ? String(q.id) : `q${i}`,
         question: q.question,
-        options: q.options.map((o) => o.text),
+        options: q.options,
         correctOptionIndex: correctOptionIndex >= 0 ? correctOptionIndex : 0,
         explanation: q.explanation,
       };

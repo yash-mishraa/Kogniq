@@ -48,6 +48,7 @@ async def record_event(
 @analytics_router.get("", response_model=AnalyticsMetricsResponse)
 async def get_analytics(
     time_range: str = "7d",
+    document_id: str | None = None,
     authorization: str = Header(..., description="Bearer token"),
     use_case: GetAnalyticsUseCase = Depends(get_analytics_use_case),  # noqa: B008
 ) -> AnalyticsMetricsResponse:
@@ -56,7 +57,7 @@ async def get_analytics(
         if authorization.startswith("Bearer ")
         else authorization
     )
-    request = GetAnalyticsRequest(time_range=time_range, token=token)
+    request = GetAnalyticsRequest(time_range=time_range, token=token, document_id=document_id)
     response = await use_case.execute(request)
     return AnalyticsMetricsResponse(
         quizzes_completed=response.metrics.quizzes_completed,

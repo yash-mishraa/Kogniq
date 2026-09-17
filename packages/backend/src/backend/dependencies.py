@@ -20,7 +20,9 @@ if TYPE_CHECKING:
     from application.analytics.get_analytics import GetAnalyticsUseCase
     from application.analytics.record_event import RecordEventUseCase
     from application.knowledge.get_knowledge import GetKnowledgeUseCase
+    from application.learning.explain_mistake import ExplainMistakeUseCase
     from application.learning.get_learning_materials import GetLearningMaterialsUseCase
+    from application.learning.get_next_action import GetNextActionUseCase
     from backend.services.knowledge_service import KnowledgeService
 
 from application.auth.register_user import RegisterUserUseCase
@@ -184,21 +186,9 @@ def get_generator_factory() -> GeneratorFactory:
     global _generator_factory_instance
     if _generator_factory_instance is None:
         from backend.services.generator_factory import GeneratorFactory
-        from learning_content.providers.base import AbstractTextGenerationProvider
+        from learning_content.providers.mock.provider import MockTextGenerationProvider
 
-        provider: AbstractTextGenerationProvider
-        if settings.learning_generation_provider == "gemini":
-            import os
-
-            from learning_content.providers.gemini.provider import GeminiTextGenerationProvider
-
-            api_key = os.environ.get("GEMINI_API_KEY")
-            provider = GeminiTextGenerationProvider(api_key=api_key)
-        else:
-            from learning_content.providers.mock.provider import MockTextGenerationProvider
-
-            provider = MockTextGenerationProvider()
-
+        provider = MockTextGenerationProvider()
         _generator_factory_instance = GeneratorFactory(provider)
     return _generator_factory_instance
 
@@ -422,6 +412,33 @@ async def get_analytics_use_case(
     return GetAnalyticsUseCase(
         auth_service=auth_service,
         uow_factory=uow_factory,
+    )
+
+
+async def get_next_action_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> GetNextActionUseCase:
+    from application.learning.get_next_action import GetNextActionUseCase
+
+    return GetNextActionUseCase(
+        auth_service=auth_service,
+        uow_factory=uow_factory,
+    )
+
+
+async def get_explain_mistake_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> ExplainMistakeUseCase:
+    from application.learning.explain_mistake import ExplainMistakeUseCase
+
+    provider = get_generator_factory().get_provider()
+
+    return ExplainMistakeUseCase(
+        auth_service=auth_service,
+        uow_factory=uow_factory,
+        provider=provider,
     )
 
 

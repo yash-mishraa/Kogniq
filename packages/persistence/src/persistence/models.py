@@ -24,3 +24,16 @@ class RepositoryStatistics:
 
     total_items: int
     storage_size_bytes: int | None = None
+
+
+from datetime import datetime
+
+
+@dataclass(frozen=True)
+class DocumentJob:
+    id: str
+    user_id: str
+    filename: str
+    status: str
+    created_at: datetime
+    error_message: str | None = None

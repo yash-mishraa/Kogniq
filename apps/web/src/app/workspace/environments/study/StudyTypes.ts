@@ -25,8 +25,9 @@ export interface RecallContent {
 }
 
 export interface TestContent {
+  id: string;
   question: string;
-  options: string[];
+  options: { id: string; text: string }[];
   correctOptionIndex: number;
   explanation: string;
 }
@@ -47,6 +48,7 @@ export interface StudyState {
   material: ResourceState<StudyMaterial>;
   recallIndex: number;
   testIndex: number;
+  completed: boolean;
 }
 
 export type StudyAction =
@@ -55,5 +57,6 @@ export type StudyAction =
   | { type: "NEXT_RECALL" }
   | { type: "NEXT_TEST" }
   | { type: "END_STUDY" }
+  | { type: "MARK_COMPLETED" }
   | { type: "START_HYDRATION"; payload: { requestId: string } }
   | { type: "ABORT_HYDRATION"; payload: { requestId: string } };

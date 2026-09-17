@@ -20,7 +20,7 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
     def __init__(
         self,
         api_key: str | None = None,
-        model_name: str = "gemini-2.0-flash",
+        model_name: str = "gemini-3.1-flash-lite",
     ) -> None:
         if genai is None:
             raise ImportError("google-genai is not installed. Please install it to use Gemini.")
@@ -33,7 +33,7 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
             provider_id="gemini",
             provider_name="Google Gemini",
             default_model=model_name,
-            model_version="2.0",
+            model_version="3.1",
             context_window=2_000_000,
             supports_streaming=True,
             supports_json=True,

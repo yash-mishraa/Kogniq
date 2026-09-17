@@ -136,6 +136,15 @@ def init_db(conn: sqlite3.Connection) -> None:
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_learner_activity_event_type ON learner_activity(event_type)"
     )
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_learner_activity_created_at ON learner_activity(created_at)"
-    )
+    # 7. Document Jobs
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS document_jobs (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            filename TEXT NOT NULL,
+            status TEXT NOT NULL,
+            created_at TIMESTAMP NOT NULL,
+            error_message TEXT
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_document_jobs_user_id ON document_jobs(user_id)")

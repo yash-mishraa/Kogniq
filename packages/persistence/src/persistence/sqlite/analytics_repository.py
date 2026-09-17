@@ -12,6 +12,13 @@ class SQLiteAnalyticsRepository(AbstractAnalyticsRepository):
     def __init__(self, conn: sqlite3.Connection) -> None:
         self._conn = conn
 
+    async def has_completed_study(self, user_id: str, document_id: str) -> bool:
+        row = self._conn.execute(
+            "SELECT 1 FROM learner_activity WHERE user_id = ? AND document_id = ? AND event_type = 'study_session_completed' LIMIT 1",
+            (user_id, document_id),
+        ).fetchone()
+        return row is not None
+
     async def save_event(self, event: LearnerEvent) -> SaveResult:
         row = self._conn.execute(
             "SELECT 1 FROM learner_activity WHERE id = ?", (event.event_id,)
@@ -38,7 +45,9 @@ class SQLiteAnalyticsRepository(AbstractAnalyticsRepository):
         )
         return SaveResult(id=event.event_id, is_new=is_new)
 
-    async def get_metrics(self, user_id: str, days: int | None = None) -> AnalyticsMetrics:
+    async def get_metrics(
+        self, user_id: str, days: int | None = None, document_id: str | None = None
+    ) -> AnalyticsMetrics:
         query_conditions = ["user_id = ?"]
         params = [user_id]
 
@@ -46,6 +55,10 @@ class SQLiteAnalyticsRepository(AbstractAnalyticsRepository):
             cutoff = datetime.now(UTC) - timedelta(days=days)
             query_conditions.append("created_at >= ?")
             params.append(cutoff.isoformat())
+
+        if document_id is not None:
+            query_conditions.append("document_id = ?")
+            params.append(document_id)
 
         where_clause = " AND ".join(query_conditions)
 

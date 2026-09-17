@@ -3,7 +3,11 @@ from datetime import UTC, datetime
 from typing import Any
 
 from backend.services.auth_service import AuthenticationService
-from domain.analytics.models import FlashcardReviewedEvent, QuizCompletedEvent
+from domain.analytics.models import (
+    FlashcardReviewedEvent,
+    QuizCompletedEvent,
+    StudySessionCompletedEvent,
+)
 from persistence.uow_factory import AbstractUnitOfWorkFactory
 
 
@@ -49,6 +53,15 @@ class RecordEventUseCase:
             )
         elif request.event_type == "flashcard_reviewed":
             event = FlashcardReviewedEvent(
+                event_id=request.event_id,
+                user_id=user_id,
+                document_id=request.document_id,
+                event_type=request.event_type,
+                event_data=request.data,
+                created_at=created_at,
+            )
+        elif request.event_type == "study_session_completed":
+            event = StudySessionCompletedEvent(
                 event_id=request.event_id,
                 user_id=user_id,
                 document_id=request.document_id,

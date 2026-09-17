@@ -47,7 +47,6 @@ class LearningService:
         try:
             with self.uow_factory.create() as uow:
                 await uow.learning.save(content)
-                uow.commit()
         except Exception as e:
             raise BackendError(
                 "persistence_failed", f"Failed to persist learning artifact: {e}", status_code=500
