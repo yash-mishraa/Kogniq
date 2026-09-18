@@ -9,38 +9,32 @@ The following bounded contexts, infrastructure elements, and capabilities are fu
 - **Shared Infrastructure**: Base entities, exceptions, metadata models.
 - **Content Processing**: Deterministic document normalization.
 - **Processor Registry**: Pluggable architecture for parsing formats.
-- **HTML Processor**: Advanced BeautifulSoup integration.
+- **HTML, PDF, DOCX, TXT, Markdown Processors**: Advanced content integration.
 - **Universal Chunk Engine**: Core models for chunking.
-- **Structural Chunking**: Semantic, layout-aware text splitting.
-- **Fixed Size Chunking**: Deterministic fallback chunking by character limits.
-- **Hybrid Chunk Engine**: Dynamic orchestration based on document structure.
+- **Structural, Fixed Size, and Hybrid Chunking**: Dynamic orchestration based on document structure.
 - **Embedding Domain**: Immutable models for semantic vectors.
-- **Embedding Providers**: Pluggable provider abstraction.
-- **Local Embedding Provider**: Implementation using `sentence-transformers`.
-- **Vector Store**: Provider-agnostic vector database abstraction.
-- **ChromaDB**: Implementation of the Vector Store using `chromadb`.
+- **Embedding Providers & Vector Stores**: Local, Qdrant, ChromaDB integrations.
 - **Retrieval**: Search and ranking across vectorized chunks.
-- **Knowledge Graph**: Domain modeling for Concepts and Relationships.
-- **Knowledge Extraction**: AI-powered synthesis of text into knowledge graphs via Gemini.
-- **Pipeline**: End-to-end orchestration of content, embedding, and knowledge workflows.
-- **Learning Content**: Core entities representing educational material.
-- **Summary Generator**: Synthesis of knowledge into comprehensive summaries.
-
+- **Knowledge Graph & Extraction**: AI-powered synthesis of text into knowledge graphs via Gemini.
+- **Pipeline Orchestration**: End-to-end orchestration of content workflows.
+- **Learning Content Generators**: Complete suite including Summary, Notes, Flashcards, Quiz, Study Guide, and Explanation generators.
+- **Core API Layer**: Fastapi/REST endpoints exposing pipelines, workspaces, and analytics.
+- **Authentication & Authorization**: Multi-user isolation, memory and database providers.
+- **Frontend Workspaces**: React-based interactive dashboards with Workspace Engine, Studio, and specialized views.
+- **Intelligent Learning Loop**: End-to-end user experience with AI Tutor, "Explain my mistake", Analytics, and deterministic next-action recommendations.
+- **Content Intelligence Foundation**: Framework-independent Domain models for Learning Resources, Sections, and Chunks.
+- **Content Intelligence Persistence**: Incremental integration adapters and SQLite persistence with full ownership isolation.
 
 ## 🟡 Current
 
-- **Learning Content Generation**: Completing the suite of specialized educational artifact generators using the established `AbstractLearningGenerator` pattern.
+- **Content Intelligence Expansion**: Enhancing the intelligence models to completely replace legacy chunks across all downstream consumers.
+- **Deployment & Infrastructure**: Refining Dockerization, production guides, and CI/CD.
 
 ## 🔴 Upcoming
 
 The following milestones are planned for future development:
 
-- **Notes Generator**: Expanding generators to produce detailed study notes.
-- **Flashcards**: Automated generation of spaced-repetition flashcards from chunks.
-- **Quiz Generator**: Automated creation of multiple-choice and short-answer questions.
-- **Study Guide Generator**: Synthesis of large knowledge graphs into structured syllabi.
-- **API Layer**: Fastapi/REST endpoints exposing the core Kogniq pipelines.
-- **Authentication**: User management and access control.
-- **Frontend**: A React-based web dashboard for interacting with Kogniq.
-- **Evaluation**: Quantitative metrics for measuring the quality of AI-generated content.
-- **Deployment**: Dockerization and production infrastructure guides.
+- **Multi-Agent Systems**: Introducing complex tutoring behaviors through collaborative AI subagents.
+- **Advanced Evaluation**: Expanding quantitative metrics for measuring the pedagogical quality of AI-generated content.
+- **Spaced Repetition Engine**: Integrating flashcards with an algorithmic SRS scheduling backend.
+- **Social Learning**: Enabling shared workspaces and peer-to-peer knowledge graph collaboration.

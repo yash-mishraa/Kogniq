@@ -76,10 +76,22 @@ class IngestionStage:
 
             chunks = self.chunk_engine.chunk(document)
 
+            # Map to Content Intelligence models
+            from content.pipeline.adapter import LegacyIngestionAdapter
+
+            resource = LegacyIngestionAdapter.map_document(document)
+            sections = LegacyIngestionAdapter.map_sections(resource, document)
+            resource_chunks = LegacyIngestionAdapter.map_chunks(resource, sections, chunks)
+
             uow = self.uow_factory.create()
             with uow:
                 await uow.documents.save(document)
                 await uow.chunks.save(chunks)
+
+                # Persist Content Intelligence models incrementally
+                await uow.learning_resources.save(resource)
+                await uow.resource_sections.save_all(sections)
+                await uow.resource_chunks.save_all(resource_chunks)
 
             context.set("document_id", document.id)
             context.set("chunk_collection", chunks)

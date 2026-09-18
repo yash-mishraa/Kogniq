@@ -9,7 +9,7 @@ from content.chunking.chunk import Chunk
 from content.chunking.collection import ChunkCollection
 from content.normalized.document import NormalizedDocument
 from learning_content.content import LearningContent
-from persistence.models import DeleteResult, RepositoryStatistics, SaveResult
+from persistence.models import DeleteResult, DocumentJob, RepositoryStatistics, SaveResult
 
 
 class AbstractDocumentRepository(abc.ABC):
@@ -61,6 +61,45 @@ class AbstractChunkRepository(abc.ABC):
 
     @abc.abstractmethod
     async def statistics(self) -> RepositoryStatistics:
+        pass
+
+
+from content.domain.entities import LearningResource, ResourceChunk, ResourceSection
+
+
+class AbstractLearningResourceRepository(abc.ABC):
+    @abc.abstractmethod
+    async def save(self, resource: LearningResource) -> SaveResult:
+        pass
+
+    @abc.abstractmethod
+    async def get(self, resource_id: str, user_id: str) -> LearningResource | None:
+        pass
+
+    @abc.abstractmethod
+    async def list(
+        self, user_id: str, limit: int = 50, offset: int = 0
+    ) -> Sequence[LearningResource]:
+        pass
+
+
+class AbstractResourceSectionRepository(abc.ABC):
+    @abc.abstractmethod
+    async def save_all(self, sections: Sequence[ResourceSection]) -> SaveResult:
+        pass
+
+    @abc.abstractmethod
+    async def get_by_resource(self, resource_id: str, user_id: str) -> Sequence[ResourceSection]:
+        pass
+
+
+class AbstractResourceChunkRepository(abc.ABC):
+    @abc.abstractmethod
+    async def save_all(self, chunks: Sequence[ResourceChunk]) -> SaveResult:
+        pass
+
+    @abc.abstractmethod
+    async def get_by_resource(self, resource_id: str, user_id: str) -> Sequence[ResourceChunk]:
         pass
 
 
@@ -144,9 +183,6 @@ class AbstractAnalyticsRepository(abc.ABC):
     @abc.abstractmethod
     async def has_completed_study(self, user_id: str, document_id: str) -> bool:
         pass
-
-
-from persistence.models import DocumentJob
 
 
 class AbstractDocumentJobRepository(abc.ABC):

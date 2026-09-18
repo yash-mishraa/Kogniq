@@ -36,6 +36,37 @@ def init_db(conn: sqlite3.Connection) -> None:
     except sqlite3.OperationalError:
         pass
 
+    # Migration for Stage 4: Content Intelligence
+    def add_column(table: str, column_def: str) -> None:
+        try:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {column_def}")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" in str(e).lower():
+                pass
+            else:
+                raise e
+
+    add_column("documents", "resource_type TEXT")
+    add_column("documents", "status TEXT")
+    add_column("documents", "updated_at TIMESTAMP")
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS resource_sections (
+            id TEXT PRIMARY KEY,
+            document_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            order_index INTEGER NOT NULL,
+            page_start INTEGER,
+            page_end INTEGER,
+            char_start INTEGER,
+            char_end INTEGER,
+            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE
+        )
+    """)
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_sections_document_id ON resource_sections(document_id)"
+    )
+
     # 3. Document Chunks
     conn.execute("""
         CREATE TABLE IF NOT EXISTS document_chunks (
@@ -49,12 +80,22 @@ def init_db(conn: sqlite3.Connection) -> None:
             created_at TIMESTAMP NOT NULL,
             metadata_json TEXT NOT NULL,
             statistics_json TEXT NOT NULL,
-            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE
+            section_id TEXT,
+            checksum TEXT,
+            token_estimate INTEGER,
+            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE,
+            FOREIGN KEY(section_id) REFERENCES resource_sections(id) ON DELETE CASCADE
         )
     """)
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_chunks_document_id ON document_chunks(document_id)"
     )
+
+    add_column(
+        "document_chunks", "section_id TEXT REFERENCES resource_sections(id) ON DELETE CASCADE"
+    )
+    add_column("document_chunks", "checksum TEXT")
+    add_column("document_chunks", "token_estimate INTEGER")
 
     # 4. Knowledge Concepts
     conn.execute("""

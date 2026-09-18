@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass(frozen=True)
@@ -24,9 +25,6 @@ class RepositoryStatistics:
 
     total_items: int
     storage_size_bytes: int | None = None
-
-
-from datetime import datetime
 
 
 @dataclass(frozen=True)

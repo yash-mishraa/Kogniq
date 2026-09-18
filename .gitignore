@@ -91,3 +91,4 @@ dev/sample_documents/*
 
 # Development Scripts
 dev/*.py
+apps/api/src/data/

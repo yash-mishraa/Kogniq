@@ -7,7 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Stage 12 - Learning Content Generation (Current)
+### Stage 16 - Content Intelligence (Current)
+- **Domain Models**: Framework-independent Domain models for `LearningResource`, `ResourceSection`, and `ResourceChunk`.
+- **Persistence & Integration**: Safe `SQLite` migrations, Incremental Integration Adapters, and fully isolated `AbstractLearningResourceRepository` implementation mapping legacy chunks to new intelligence layers without data duplication.
+
+### Stage 15 - Intelligent Learning Loop
+- **Learning Hub**: Integrated Learning Hub into the Documents Workspace.
+- **Analytics & Recommendations**: Deterministic next-action recommendation engine and Study Completion analytics events.
+- **AI Tutor**: "Explain my mistake" feature powered by the Gemini Provider.
+- **Playwright E2E**: Comprehensive UI automation matching the new ExperienceFlow Locus UI.
+
+### Stage 14 - Frontend Workspaces
+- **React Dashboard**: Modern, scalable dashboard architecture.
+- **Workspace Engine**: Contextual workspaces for Study, Notebook, Flashcards, Quiz, Knowledge Graph, Analytics, and Studio views.
+- **UX & Interactivity**: Rich document rendering and seamless interaction loops.
+
+### Stage 13 - API & Authentication
+- **FastAPI Layer**: Complete RESTful interface over Kogniq's bounded contexts.
+- **Security**: Robust multi-user isolation, memory and database Auth providers, and role-based access control.
+- **Document Jobs**: Async background tasks for processing pipelines with status polling.
+
+### Stage 12 - Learning Content Generation
 - **Summary Generator**: First concrete Learning Generator transforming knowledge into pedagogical summaries.
 
 - **Validation**: Strict schema enforcement and placeholder rejection for LLM responses.

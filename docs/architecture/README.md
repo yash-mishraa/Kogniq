@@ -4,7 +4,6 @@ This directory contains deep dives into the architectural design of the Kogniq p
 Documents are organized by their respective bounded context and operational domain.
 
 ## Core Domains
-- [System Overview](system_overview.md) ✅ Implemented
 - [Content Domain](content-domain.md) ✅ Implemented
 - [Embedding Domain](embedding-domain.md) ✅ Implemented
 - [Retrieval Domain](retrieval-domain.md) ✅ Implemented
@@ -44,18 +43,33 @@ Documents are organized by their respective bounded context and operational doma
 - [Knowledge Extractors](knowledge-extractors.md) ✅ Implemented
 - [Gemini Knowledge Extractor](gemini-knowledge-extractor.md) ✅ Implemented
 
-## Pipeline
+## Pipeline & Application
 - [Document Intelligence Pipeline](document-intelligence-pipeline.md) ✅ Implemented
+- [Application Layer](application-layer.md) ✅ Implemented
+- [Background Processing](background-processing.md) ✅ Implemented
 
 ## Learning Generation
+- [Learning Generation Framework](learning-generation-framework.md) ✅ Implemented
 - [Summary Generation Pipeline](summary-generation-pipeline.md) ✅ Implemented
 - [Summary Generator](summary-generator.md) ✅ Implemented
-- [OpenRouter Provider](openrouter-provider.md) ✅ Implemented
+- [Notes Generator](notes-generator.md) ✅ Implemented
+- [Flashcards Generator](flashcards-generator.md) ✅ Implemented
+- [Quiz Generator](quiz-generator.md) ✅ Implemented
+- [Study Guide Generator](study-guide-generator.md) ✅ Implemented
+- [Explanation Generator](explanation-generator.md) ✅ Implemented
+
+## Backend & Interfaces
+- [Backend Foundation](backend-foundation.md) ✅ Implemented
+- [Auth Domain](auth-domain.md) ✅ Implemented
+- [Authorization](authorization.md) ✅ Implemented
+- [Document Processing API](document-processing-api.md) ✅ Implemented
+- [Learning Generation API](learning-generation-api.md) ✅ Implemented
+- [Retrieval API](retrieval-api.md) ✅ Implemented
+- [Frontend UI](frontend.md) ✅ Implemented
 
 ## Future & Planned Infrastructure
+- [System Overview](system_overview.md) ⏳ Planned
 - [Agents](agents.md) ⏳ Planned
-- [Backend APIs](backend.md) ⏳ Planned
-- [Frontend UI](frontend.md) ⏳ Planned
 - [Machine Learning Pipelines](ml.md) ⏳ Planned
 - [Evaluation Metrics](evaluation.md) ⏳ Planned
 - [Deployment](deployment.md) ⏳ Planned

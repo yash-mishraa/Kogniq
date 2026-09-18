@@ -77,7 +77,7 @@ class GetNextActionUseCase:
             # If the user completed a quiz, they must have completed the study session.
             # Wait, the frontend explicitly fires "study_session_completed" which we need to track.
             # The raw SQL was:
-            # uow.connection.execute("SELECT 1 FROM learner_activity WHERE document_id = ? 
+            # uow.connection.execute("SELECT 1 FROM learner_activity WHERE document_id = ?
             # AND event_type = 'study_session_completed' LIMIT 1")
             # This is also a Clean Architecture violation.
             study_completed = await uow.analytics.has_completed_study(user_id, request.document_id)

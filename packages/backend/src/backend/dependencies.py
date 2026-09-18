@@ -448,3 +448,39 @@ LearningDependency = Annotated[LearningService, Depends(get_learning_service)]
 RetrievalDependency = Annotated[RetrievalService, Depends(get_retrieval_service)]
 JobDependency = Annotated[JobService, Depends(get_job_service)]
 AuthorizationDependency = Annotated[AuthorizationService, Depends(get_authorization_service)]
+
+
+async def get_get_learning_resource_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> Any:
+    from application.resources.use_cases import GetLearningResourceUseCase
+    return GetLearningResourceUseCase(auth_service=auth_service, uow_factory=uow_factory) # type: ignore
+
+async def get_list_learning_resources_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> Any:
+    from application.resources.use_cases import ListLearningResourcesUseCase
+    return ListLearningResourcesUseCase(auth_service=auth_service, uow_factory=uow_factory) # type: ignore
+
+async def get_resource_sections_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> Any:
+    from application.resources.use_cases import GetResourceSectionsUseCase
+    return GetResourceSectionsUseCase(auth_service=auth_service, uow_factory=uow_factory) # type: ignore
+
+async def get_resource_chunks_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> Any:
+    from application.resources.use_cases import GetResourceChunksUseCase
+    return GetResourceChunksUseCase(auth_service=auth_service, uow_factory=uow_factory) # type: ignore
+
+async def get_resource_statistics_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> Any:
+    from application.resources.use_cases import GetResourceStatisticsUseCase
+    return GetResourceStatisticsUseCase(auth_service=auth_service, uow_factory=uow_factory) # type: ignore

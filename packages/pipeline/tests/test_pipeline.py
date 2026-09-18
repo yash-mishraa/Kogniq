@@ -239,6 +239,9 @@ async def test_document_intelligence_pipeline_success() -> None:
 
     mock_uow.documents = AsyncMock()
     mock_uow.chunks = AsyncMock()
+    mock_uow.learning_resources = AsyncMock()
+    mock_uow.resource_sections = AsyncMock()
+    mock_uow.resource_chunks = AsyncMock()
 
     mock_uow_factory.create.return_value = mock_uow
 

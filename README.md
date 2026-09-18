@@ -40,11 +40,13 @@ To understand our scope, it helps to understand what we are not building today:
 Kogniq currently provides a complete, end-to-end foundation for AI educational content generation.
 - **Robust Content Pipeline**: Ingests Markdown, PDF, DOCX, HTML, and TXT files.
 - **Deterministic Normalization**: Converts diverse formats into a unified `NormalizedDocument` structure.
-- **Hybrid Chunk Engine**: Dynamically orchestrates structural and fixed-size strategies to generate AI-ready `ChunkCollection`s.
-- **Local Embeddings**: Provider-agnostic generation of `EmbeddingCollection` using local transformers.
-- **Vector Storage**: Provider-agnostic indexing using ChromaDB.
-- **Knowledge Extraction**: Transforms raw chunks into a synthesized `KnowledgeGraph` using providers like Gemini.
-- **Learning Content Generation**: Produces AI-generated artifacts (like Summaries) directly from knowledge graphs.
+- **Hybrid Chunk Engine**: Dynamically orchestrates structural and fixed-size strategies.
+- **Local Embeddings**: Provider-agnostic generation using local transformers.
+- **Vector Storage**: Provider-agnostic indexing using ChromaDB and Qdrant.
+- **Knowledge Extraction**: Transforms chunks into a synthesized `KnowledgeGraph`.
+- **Learning Content Generation**: Produces AI-generated artifacts (Summaries, Notes, Flashcards, Quizzes, Study Guides).
+- **Intelligent Learning Loop**: AI Tutor integrations ("Explain my mistake"), deterministic next-action recommendations, and analytics.
+- **Modern React Frontend**: Immersive Workspace Engine handling Notebooks, Flashcards, Studio, and Document parsing.
 - **100% Type Coverage**: Enforced by MyPy strict mode across all packages.
 
 ## Implemented Architecture
@@ -60,6 +62,9 @@ The following bounded contexts and concrete implementations are fully complete a
 - ✔ Knowledge
 - ✔ Pipeline
 - ✔ Learning Content
+- ✔ API & Authentication
+- ✔ Frontend Workspaces
+- ✔ Content Intelligence
 
 **Current Concrete Implementations**
 
@@ -87,6 +92,11 @@ The following bounded contexts and concrete implementations are fully complete a
 
 *Learning Generators*
 - ✔ Summary Generator
+- ✔ Notes Generator
+- ✔ Flashcards Generator
+- ✔ Quiz Generator
+- ✔ Study Guide Generator
+- ✔ Explanation Generator
 
 ## Current AI Pipeline
 
@@ -137,12 +147,16 @@ We use `uv` workspaces to manage multiple independent Python packages in a singl
 
 ### Workspace Packages
 - `packages/shared/`: Core abstractions and domain primitives.
-- `packages/content/`: File processing, normalization, and chunking.
+- `packages/content/`: File processing, normalization, intelligence, and chunking.
 - `packages/embedding/`: Provider-agnostic vector generation.
 - `packages/retrieval/`: Semantic search and ranking.
 - `packages/knowledge/`: Extraction of concepts and prerequisite graphs.
 - `packages/pipeline/`: Orchestration of the intelligence pipeline.
 - `packages/learning-content/`: Generation of educational artifacts (Summaries, Flashcards, etc.).
+- `packages/auth/`: Security and user isolation.
+- `packages/application/`: Learning loop use cases and orchestrators.
+- `apps/api/`: FastAPI endpoints.
+- `apps/web/`: React frontend workspaces.
 
 ## Development Setup
 
@@ -178,9 +192,10 @@ We enforce strict quality gates before any code is merged:
 | Vector Store | ✅ Complete |
 | Retrieval | ✅ Complete |
 | Knowledge Extraction | ✅ Complete |
-| Learning Content | 🚧 In Progress |
-| API | ⏳ Planned |
-| Frontend | ⏳ Planned |
+| Learning Content | ✅ Complete |
+| API | ✅ Complete |
+| Frontend | ✅ Complete |
+| Content Intelligence | ✅ Complete |
 
 ## Future Milestones
 
