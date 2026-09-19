@@ -477,6 +477,59 @@ def test_idempotency_normalization_and_nulls(client: TestClient, sqlite_uow_fact
         ).fetchone()[0]
         assert spoof_count == 1
 
+def test_transactional_rollback_on_commit_failure(client: TestClient, sqlite_uow_factory: AbstractUnitOfWorkFactory) -> None:
+    headers = {"Authorization": "Bearer session-123"}
+    import asyncio
+    from unittest import mock
+    import sqlite3
+    from datetime import UTC, datetime
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+
+    uow_factory = sqlite_uow_factory
+
+    async def seed() -> None:
+        doc = NormalizedDocument(
+            id="doc-rollback",
+            title="test",
+            source="test",
+            checksum="3",
+            version="1",
+            created_at=datetime.now(UTC),
+            user_id="user-123",
+            pages=(NormalizedPage(page_number=1, blocks=()),),
+        )
+        with uow_factory.create() as uow:
+            await uow.documents.save(doc)
+
+    asyncio.run(seed())
+
+    # We mock SQLiteUnitOfWork.commit to raise an error, proving that if commit fails, the transaction is not persisted.
+    with mock.patch("persistence.uow.SQLiteUnitOfWork.commit", side_effect=sqlite3.OperationalError("Disk full")):
+        resp = client.post(
+            "/api/v1/analytics/events/batch",
+            headers=headers,
+            json={
+                "events": [
+                    {
+                        "event_id": "rb-1",
+                        "event_type": "resource_viewed",
+                        "resource_id": "doc-rollback",
+                        "data": {},
+                        "idempotency_key": "rb-1",
+                    }
+                ]
+            },
+        )
+    assert resp.status_code == 500
+
+    # Verify nothing was committed
+    with uow_factory.create() as uow:
+        count = uow.analytics._conn.execute(  # type: ignore
+            "SELECT count(*) FROM learner_activity WHERE id = 'rb-1'"
+        ).fetchone()[0]
+        assert count == 0
+
 def test_cross_user_isolation(client: TestClient, sqlite_uow_factory: AbstractUnitOfWorkFactory) -> None:
     headers = {"Authorization": "Bearer session-123"}
     import asyncio

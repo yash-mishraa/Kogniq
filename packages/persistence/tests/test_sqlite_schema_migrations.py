@@ -112,3 +112,28 @@ def test_partial_upgrade() -> None:
 
     init_db(conn)  # Should not fail even if partially upgraded
     conn.close()
+
+def test_learner_activity_index_initialization() -> None:
+    conn = sqlite3.connect(":memory:")
+    init_db(conn)
+    
+    # Verify the partial unique index was created
+    cursor = conn.cursor()
+    cursor.execute("SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_learner_activity_idempotency'")
+    row = cursor.fetchone()
+    assert row is not None
+    assert "WHERE idempotency_key IS NOT NULL" in row[0]
+    
+    # Repeated init should be safe
+    init_db(conn)
+    conn.close()
+
+def test_learner_activity_index_operational_error() -> None:
+    from unittest.mock import MagicMock
+    import sqlite3
+    
+    mock_conn = MagicMock()
+    mock_conn.execute.side_effect = sqlite3.OperationalError("disk I/O error")
+    
+    with pytest.raises(sqlite3.OperationalError, match="disk I/O error"):
+        init_db(mock_conn)

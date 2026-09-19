@@ -34,7 +34,11 @@ export class AnalyticsDeliveryQueue {
     this.clearFlushTimer();
     if (this.abortController) {
       this.abortController.abort("disposed");
+      this.abortController = null;
     }
+    this.pending = [];
+    this.inFlight = null;
+    this.activeUserId = null;
   }
 
   private handleVisibilityChange = () => {

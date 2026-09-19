@@ -2,71 +2,56 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { FlashcardsEnvironment } from "./FlashcardsEnvironment";
 import { serviceProvider } from "@/lib/providers";
+import { WorkspaceProvider } from "../../WorkspaceProvider";
 
-vi.mock("@/lib/providers", () => ({
-  serviceProvider: {
-    getProvider: vi.fn(),
-  },
-}));
-
-vi.mock("react-markdown", () => ({ default: (props: any) => <span>{props.children}</span> }));
-
-// Mock the environment context
-vi.mock("./FlashcardsContext", () => ({
-  useFlashcards: () => ({
-    state: {
-      type: "flashcards",
-      currentIndex: 0,
-      responses: { "c1": "easy" },
-      isFlipped: true,
-      requestId: "test-req-123",
-        cards: [
-          { id: "c1", question: "Front 1", answer: "Back 1" }
-        ],
-      order: [0]
-    },
-    dispatch: vi.fn()
-  }),
-  FlashcardsProvider: ({ children }: any) => <div>{children}</div>
-}));
-
-vi.mock("@/app/workspace/WorkspaceContext", () => ({
-  useWorkspace: () => ({ 
-    activeDocumentId: "doc-1",
-    memory: {
-      documents: {
-        openedDocument: "doc-1"
-      }
-    }
-  })
-}));
+vi.mock("react-markdown", () => ({ default: (props: any) => <div data-testid="markdown-mock">{props.children}</div> }));
 
 describe("FlashcardsEnvironment", () => {
   let mockEnqueueBatchEvent: any;
+  let mockGetFlashcards: any;
   
   beforeEach(() => {
     vi.resetAllMocks();
     mockEnqueueBatchEvent = vi.fn();
+    mockGetFlashcards = vi.fn().mockResolvedValue([
+      { id: "c1", question: "Front 1", answer: "Back 1" }
+    ]);
     
-    const mockProvider = {
+    (serviceProvider.getProvider as any) = vi.fn().mockReturnValue({
       analytics: {
         enqueueBatchEvent: mockEnqueueBatchEvent,
+        initializeDeliveryQueue: vi.fn()
       },
-    };
-    
-    (serviceProvider.getProvider as any).mockReturnValue(mockProvider);
+      flashcards: {
+        getFlashcards: mockGetFlashcards
+      }
+    });
   });
   
-  it("enqueues flashcard_reviewed event when a card is reviewed", () => {
-    render(<FlashcardsEnvironment />);
+  it("enqueues flashcard_reviewed event when a card is realistically reviewed", async () => {
+    render(
+      <WorkspaceProvider initialEnvironmentId="flashcards" initialMemory={{ documents: { openedDocument: "doc-1" } }}>
+        <FlashcardsEnvironment />
+      </WorkspaceProvider>
+    );
     
+    // Wait for card to load
+    await screen.findByText("Front 1");
     
-    expect(mockEnqueueBatchEvent).toHaveBeenCalledWith({
-      event_id: "test-req-123-c1",
+    // Click the card to flip it
+    fireEvent.click(screen.getByText("Front 1"));
+    
+    // The answer "Back 1" should appear
+    await screen.findByText("Back 1");
+    
+    // The "Easy" button should now be visible, click it
+    fireEvent.click(screen.getByText("Easy"));
+    
+    // Assert the analytics event
+    expect(mockEnqueueBatchEvent).toHaveBeenCalledWith(expect.objectContaining({
       event_type: "flashcard_reviewed",
       resource_id: "doc-1",
-      data: { card_id: "c1", difficulty: "easy" },
-      idempotency_key: "test-req-123-c1"
-    });
+      data: { card_id: "c1", difficulty: "easy" }
+    }));
   });
 });

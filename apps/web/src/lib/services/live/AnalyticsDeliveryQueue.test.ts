@@ -148,4 +148,30 @@ describe('AnalyticsDeliveryQueue', () => {
     // Generation guard prevented it from touching state or rescheduling flush for user1's event
     expect(queue.getPendingEvents().length).toBe(0);
   });
+
+  it('safely handles logout to null user and clears all pending events', async () => {
+    queue.initialize('user1');
+    queue.enqueueEvent(createEvent('ev-logout'));
+    
+    // Logout
+    queue.dispose(); // In actual implementation WorkspaceProvider calls dispose on logout, or initialize(null)
+    
+    // Queue should be empty and not process
+    expect(queue.getPendingEvents().length).toBe(0);
+    expect(queue.getInFlightEvents()).toBeNull();
+    
+    // Triggering timers should not send the event
+    await vi.runAllTimersAsync();
+    expect(transport).not.toHaveBeenCalled();
+  });
+  
+  it('safely handles duplicate initialization', () => {
+    queue.initialize('user1');
+    queue.enqueueEvent(createEvent('ev-1'));
+    
+    // Duplicate initialization with the same user should retain events
+    queue.initialize('user1');
+    
+    expect(queue.getPendingEvents().length).toBe(1);
+  });
 });

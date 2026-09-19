@@ -42,4 +42,30 @@ describe("QuizEnvironment", () => {
     fireEvent.click(screen.getByText("Switch document"));
     await waitFor(() => expect(getQuiz).toHaveBeenLastCalledWith(expect.objectContaining({ documentId: "doc-b" })));
   });
+
+  it("enqueues a quiz_completed event upon completing the last question", async () => {
+    const getQuiz = vi.fn().mockResolvedValue(questions);
+    const enqueueBatchEvent = vi.fn();
+    vi.spyOn(serviceProvider, "getProvider").mockReturnValue({ quiz: { getQuiz }, analytics: { enqueueBatchEvent, initializeDeliveryQueue: vi.fn() } } as unknown as IServiceProvider);
+    
+    // Mount the component
+    render(<WorkspaceProvider initialEnvironmentId="quiz" initialMemory={{ documents: { openedDocument: "doc-a" } }}><QuizEnvironment /></WorkspaceProvider>);
+    
+    // Wait for quiz to load
+    await screen.findByText("Question?");
+    
+    // Click the correct answer
+    fireEvent.click(screen.getByLabelText(/Right/));
+    fireEvent.click(screen.getByRole("button", { name: "Check answer" }));
+    
+    // The button text is "Finish" for the last question.
+    fireEvent.click(await screen.findByRole("button", { name: "Finish" }));
+    
+    // Assert the analytics event
+    expect(enqueueBatchEvent).toHaveBeenCalledWith(expect.objectContaining({
+      event_type: "quiz_completed",
+      resource_id: "doc-a",
+      data: { score: 1, total_questions: 1 }
+    }));
+  });
 });
