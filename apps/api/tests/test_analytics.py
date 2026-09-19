@@ -477,11 +477,9 @@ def test_idempotency_normalization_and_nulls(client: TestClient, sqlite_uow_fact
         ).fetchone()[0]
         assert spoof_count == 1
 
-def test_transactional_rollback_on_commit_failure(client: TestClient, sqlite_uow_factory: AbstractUnitOfWorkFactory) -> None:
+def test_transactional_rollback_on_mid_batch_failure(client: TestClient, sqlite_uow_factory: AbstractUnitOfWorkFactory) -> None:
     headers = {"Authorization": "Bearer session-123"}
     import asyncio
-    from unittest import mock
-    import sqlite3
     from datetime import UTC, datetime
     from content.normalized.document import NormalizedDocument
     from content.normalized.page import NormalizedPage
@@ -501,32 +499,58 @@ def test_transactional_rollback_on_commit_failure(client: TestClient, sqlite_uow
         )
         with uow_factory.create() as uow:
             await uow.documents.save(doc)
+            # Add a native SQLite trigger to fail exactly when a specific event ID is inserted
+            # This simulates a native mid-batch failure inside executemany, without any Python mocks.
+            uow.analytics._conn.execute(  # type: ignore
+                """
+                CREATE TRIGGER fail_mid_batch BEFORE INSERT ON learner_activity
+                FOR EACH ROW
+                WHEN NEW.id = 'trigger-fail'
+                BEGIN
+                    SELECT RAISE(FAIL, 'Simulated mid-batch failure');
+                END;
+                """
+            )
 
     asyncio.run(seed())
 
-    # We mock SQLiteUnitOfWork.commit to raise an error, proving that if commit fails, the transaction is not persisted.
-    with mock.patch("persistence.uow.SQLiteUnitOfWork.commit", side_effect=sqlite3.OperationalError("Disk full")):
-        resp = client.post(
-            "/api/v1/analytics/events/batch",
-            headers=headers,
-            json={
-                "events": [
-                    {
-                        "event_id": "rb-1",
-                        "event_type": "resource_viewed",
-                        "resource_id": "doc-rollback",
-                        "data": {},
-                        "idempotency_key": "rb-1",
-                    }
-                ]
-            },
-        )
-    assert resp.status_code == 500
+    # Send a batch: valid event, failing event, valid event
+    resp = client.post(
+        "/api/v1/analytics/events/batch",
+        headers=headers,
+        json={
+            "events": [
+                {
+                    "event_id": "valid-1",
+                    "event_type": "resource_viewed",
+                    "resource_id": "doc-rollback",
+                    "data": {},
+                    "idempotency_key": "valid-1",
+                },
+                {
+                    "event_id": "trigger-fail",
+                    "event_type": "resource_viewed",
+                    "resource_id": "doc-rollback",
+                    "data": {},
+                    "idempotency_key": "trigger-fail",
+                },
+                {
+                    "event_id": "valid-2",
+                    "event_type": "resource_viewed",
+                    "resource_id": "doc-rollback",
+                    "data": {},
+                    "idempotency_key": "valid-2",
+                }
+            ]
+        },
+    )
+    # Fastapi will catch the sqlite3.IntegrityError or OperationalError as a 500
+    assert resp.status_code == 500, f"Expected 500 but got {resp.status_code} - {resp.text}"
 
-    # Verify nothing was committed
+    # Because of atomicity, neither valid-1 nor valid-2 should be in the database
     with uow_factory.create() as uow:
         count = uow.analytics._conn.execute(  # type: ignore
-            "SELECT count(*) FROM learner_activity WHERE id = 'rb-1'"
+            "SELECT count(*) FROM learner_activity WHERE id IN ('valid-1', 'valid-2')"
         ).fetchone()[0]
         assert count == 0
 
@@ -724,3 +748,50 @@ def test_record_event_study_session_idempotency(client: TestClient, sqlite_uow_f
             "SELECT count(*) FROM learner_activity WHERE event_type = 'study_session_completed' AND document_id = 'doc-study-idem'"
         ).fetchone()[0]
         assert count == 1
+
+def test_analytics_payload_exhaustive_validation(client, auth_headers) -> None:
+    # helper to assert 422 or 400
+    def assert_invalid(event_type: str, data: dict, expected_msg_fragment: str, top_level: dict = None):
+        if top_level is None:
+            top_level = {}
+        payload = {
+            "event_id": "test-id",
+            "event_type": event_type,
+            "resource_id": "doc-1",
+            "idempotency_key": "test-id",
+            "data": data,
+        }
+        payload.update(top_level)
+        resp = client.post(
+            "/api/v1/analytics/events/batch",
+            headers=auth_headers,
+            json={"events": [payload]}
+        )
+        assert resp.status_code in (400, 422), f"Expected 400/422 for {event_type} {data}, got {resp.status_code} - {resp.text}"
+        assert expected_msg_fragment.lower() in resp.text.lower(), f"Expected {expected_msg_fragment} in {resp.text}"
+
+    # chunk_viewed validation
+    assert_invalid("chunk_viewed", {}, "missing ids", top_level={})
+    assert_invalid("chunk_viewed", {}, "missing ids", top_level={"section_id": None, "chunk_id": "c1"})
+    assert_invalid("chunk_viewed", {}, "missing ids", top_level={"section_id": "s1", "chunk_id": None})
+    assert_invalid("chunk_viewed", {}, "string", top_level={"section_id": 123, "chunk_id": 123})
+
+    # quiz_completed validation
+    assert_invalid("quiz_completed", {}, "quiz_completed requires score")
+    assert_invalid("quiz_completed", {"score": 5}, "quiz_completed requires score")
+    assert_invalid("quiz_completed", {"score": None, "total_questions": 5}, "quiz numeric score required")
+    assert_invalid("quiz_completed", {"score": -1, "total_questions": 5}, "score cannot be negative")
+    assert_invalid("quiz_completed", {"score": 5, "total_questions": -1}, "positive int total_questions required")
+    assert_invalid("quiz_completed", {"score": 6, "total_questions": 5}, "score cannot exceed total_questions")
+
+    # flashcard_reviewed validation
+    assert_invalid("flashcard_reviewed", {}, "missing card")
+    assert_invalid("flashcard_reviewed", {"card_id": "c1"}, "missing card")
+    assert_invalid("flashcard_reviewed", {"card_id": None, "difficulty": "easy"}, "card_id invalid")
+    assert_invalid("flashcard_reviewed", {"card_id": "c1", "difficulty": None}, "invalid difficulty")
+    assert_invalid("flashcard_reviewed", {"card_id": "c1", "difficulty": "invalid_diff"}, "invalid difficulty")
+
+    # study_session_completed validation
+    assert_invalid("study_session_completed", {}, "missing completed_at")
+    assert_invalid("study_session_completed", {"completed_at": None}, "completed_at invalid")
+    assert_invalid("study_session_completed", {"completed_at": "not-a-timestamp"}, "must be iso-8601")
