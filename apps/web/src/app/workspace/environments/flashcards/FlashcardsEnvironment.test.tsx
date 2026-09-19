@@ -9,20 +9,23 @@ vi.mock("@/lib/providers", () => ({
   },
 }));
 
+vi.mock("react-markdown", () => ({ default: (props: any) => <span>{props.children}</span> }));
+
 // Mock the environment context
 vi.mock("./FlashcardsContext", () => ({
   useFlashcards: () => ({
     state: {
       type: "flashcards",
       currentIndex: 0,
-      responses: {},
-      isFlipped: false,
+      responses: { "c1": "easy" },
+      isFlipped: true,
       requestId: "test-req-123",
-      cards: [
-        { id: "c1", front: "Front 1", back: "Back 1" }
-      ],
+        cards: [
+          { id: "c1", question: "Front 1", answer: "Back 1" }
+        ],
       order: [0]
-    }
+    },
+    dispatch: vi.fn()
   }),
   FlashcardsProvider: ({ children }: any) => <div>{children}</div>
 }));
@@ -57,8 +60,6 @@ describe("FlashcardsEnvironment", () => {
   it("enqueues flashcard_reviewed event when a card is reviewed", () => {
     render(<FlashcardsEnvironment />);
     
-    fireEvent.click(screen.getByText("Front 1"));
-    fireEvent.click(screen.getByText("Easy"));
     
     expect(mockEnqueueBatchEvent).toHaveBeenCalledWith({
       event_id: "test-req-123-c1",

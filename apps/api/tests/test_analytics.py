@@ -195,22 +195,44 @@ def test_analytics_comprehensive(client: TestClient) -> None:
     assert resp.status_code == 404
 
     # 1. valid resource_viewed
+    # 1. valid resource_viewed
     resp = client.post(
         "/api/v1/analytics/events/batch",
         headers=headers,
         json={
             "events": [
                 {
-                    "event_id": "ev-1",
-                    "event_type": "resource_viewed",
-                    "resource_id": "doc-1",
-                    "data": {},
-                    "idempotency_key": "idem-1",
+                    "event_id": "cross-1",
+                    "resource_id": "doc-other-user",
+                    "event_type": "chunk_viewed",
+                    "data": {"section_id": "s1", "chunk_id": "c1"},
+                    "idempotency_key": "cross-1"
+                },
+                {
+                    "event_id": "cross-2",
+                    "resource_id": "doc-other-user",
+                    "event_type": "quiz_completed",
+                    "data": {"score": 5, "total_questions": 10},
+                    "idempotency_key": "cross-2"
+                },
+                {
+                    "event_id": "cross-3",
+                    "resource_id": "doc-other-user",
+                    "event_type": "flashcard_reviewed",
+                    "data": {"card_id": "c1", "difficulty": "hard"},
+                    "idempotency_key": "cross-3"
+                },
+                {
+                    "event_id": "cross-4",
+                    "resource_id": "doc-other-user",
+                    "event_type": "study_session_completed",
+                    "data": {"completed_at": "2026-09-19T00:00:00Z"},
+                    "idempotency_key": "cross-4"
                 }
             ]
         },
     )
-    assert resp.status_code == 204
+    assert resp.status_code == 404
 
     # Duplicate idempotency
     resp = client.post(

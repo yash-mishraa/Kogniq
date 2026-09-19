@@ -52,10 +52,15 @@ describe("StudyNavigator", () => {
       state: {
         isStudying: true,
         completed: false,
+        activeMode: "test",
         material: {
           requestId: "study-req-123",
           documentId: "doc-1",
-          data: {},
+          data: {
+            test: [
+              { question: "Q1", options: ["A", "B", "C", "D"], answer: "A", explanation: "" }
+            ]
+          },
           chunks: [{ id: "c1", text: "chunk 1", token_estimate: 5 }],
           currentIndex: 0,
         },
@@ -66,7 +71,7 @@ describe("StudyNavigator", () => {
     
     render(<StudyNavigator />);
     
-    fireEvent.click(screen.getByText("Finish"));
+    fireEvent.click(screen.getByText("Finish Study Session"));
     
     expect(mockDispatch).toHaveBeenCalledWith({ type: "MARK_COMPLETED" });
     

@@ -164,8 +164,8 @@ class RecordEventsBatchUseCase:
                         raise BackendError('bad_request', 'completed_at invalid', status_code=400)
                     try:
                         datetime.fromisoformat(comp_at.replace("Z", "+00:00"))
-                    except ValueError:
-                        raise BackendError('bad_request', 'completed_at must be ISO-8601', status_code=400)
+                    except ValueError as e:
+                        raise BackendError('bad_request', 'completed_at must be ISO-8601', status_code=400) from e
                     
                     evt = StudySessionCompletedEvent(
                         event_id=payload.event_id,
