@@ -19,9 +19,11 @@ vi.mock("@/app/workspace/WorkspaceContext", () => ({
   useWorkspace: vi.fn(),
 }));
 
+import { Mock, vi } from "vitest";
+
 describe("StudyNavigator", () => {
-  let mockEnqueueBatchEvent: any;
-  let mockDispatch: any;
+  let mockEnqueueBatchEvent: Mock;
+  let mockDispatch: Mock;
   
   beforeEach(() => {
     vi.resetAllMocks();
@@ -34,9 +36,9 @@ describe("StudyNavigator", () => {
       },
     };
     
-    (serviceProvider.getProvider as any).mockReturnValue(mockProvider);
+    (serviceProvider.getProvider as unknown as Mock).mockReturnValue(mockProvider);
     
-    (useWorkspace as any).mockReturnValue({
+    (useWorkspace as unknown as Mock).mockReturnValue({
       activeEnvironmentId: "study",
       switchEnvironment: vi.fn(),
       memory: {
@@ -48,7 +50,7 @@ describe("StudyNavigator", () => {
   });
   
   it("enqueues study_session_completed when Finish is clicked", () => {
-    (useStudy as any).mockReturnValue({
+    (useStudy as unknown as Mock).mockReturnValue({
       state: {
         isStudying: true,
         completed: false,

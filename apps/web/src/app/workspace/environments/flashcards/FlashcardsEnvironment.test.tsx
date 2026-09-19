@@ -2,13 +2,14 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { FlashcardsEnvironment } from "./FlashcardsEnvironment";
 import { serviceProvider } from "@/lib/providers";
+import { Mock, vi } from "vitest";
 import { WorkspaceProvider } from "../../WorkspaceProvider";
 
-vi.mock("react-markdown", () => ({ default: (props: any) => <div data-testid="markdown-mock">{props.children}</div> }));
+vi.mock("react-markdown", () => ({ default: (props: { children: React.ReactNode }) => <div data-testid="markdown-mock">{props.children}</div> }));
 
 describe("FlashcardsEnvironment", () => {
-  let mockEnqueueBatchEvent: any;
-  let mockGetFlashcards: any;
+  let mockEnqueueBatchEvent: Mock;
+  let mockGetFlashcards: Mock;
   
   beforeEach(() => {
     vi.resetAllMocks();
@@ -17,7 +18,7 @@ describe("FlashcardsEnvironment", () => {
       { id: "c1", question: "Front 1", answer: "Back 1" }
     ]);
     
-    (serviceProvider.getProvider as any) = vi.fn().mockReturnValue({
+    (serviceProvider.getProvider as unknown as Mock) = vi.fn().mockReturnValue({
       analytics: {
         enqueueBatchEvent: mockEnqueueBatchEvent,
         initializeDeliveryQueue: vi.fn()

@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect, type ReactNode } from "react";
-import { serviceProvider } from "@/lib/providers";
+import { type ReactNode } from "react";
 
 import { LearningHub } from "./LearningHub";
 

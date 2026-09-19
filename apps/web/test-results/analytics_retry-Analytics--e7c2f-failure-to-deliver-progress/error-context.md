@@ -12,10 +12,16 @@
 # Error details
 
 ```
-Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
+TimeoutError: locator.click: Timeout 120000ms exceeded.
 Call log:
-  - navigating to "http://localhost:3000/", waiting until "load"
+  - waiting for getByRole('button', { name: 'Enter Kogniq' })
 
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]: Internal Server Error
 ```
 
 # Test source
@@ -47,9 +53,9 @@ Call log:
   24 |     });
   25 | 
   26 |     // Login
-> 27 |     await page.goto('/');
-     |                ^ Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-  28 |     await page.getByRole('button', { name: 'Enter Kogniq' }).click();
+  27 |     await page.goto('/');
+> 28 |     await page.getByRole('button', { name: 'Enter Kogniq' }).click();
+     |                                                              ^ TimeoutError: locator.click: Timeout 120000ms exceeded.
   29 |     await page.getByPlaceholder('email').fill('admin@kogniq.ai');
   30 |     await page.getByPlaceholder('password').fill('password');
   31 |     await page.getByRole('button', { name: 'Continue.' }).click();

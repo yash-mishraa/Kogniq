@@ -122,7 +122,9 @@ describe('AnalyticsDeliveryQueue', () => {
     queue.initialize('user1');
     
     let resolveTransport: (v?: unknown) => void;
-    transport.mockImplementationOnce(() => {
+    let signal: AbortSignal | undefined;
+    transport.mockImplementationOnce((_events, options) => {
+      signal = options?.signal;
       return new Promise(resolve => {
         resolveTransport = resolve;
       });
@@ -133,13 +135,15 @@ describe('AnalyticsDeliveryQueue', () => {
     
     expect(transport).toHaveBeenCalledTimes(1);
     expect(queue.getInFlightEvents()?.length).toBe(1);
+    expect(signal).toBeDefined();
     
     // User switches mid-flight!
     queue.initialize('user2');
     
-    // The queue should immediately clear pending/inFlight
+    // The queue should immediately clear pending/inFlight and abort the controller
     expect(queue.getPendingEvents().length).toBe(0);
     expect(queue.getInFlightEvents()).toBeNull();
+    expect(signal?.aborted).toBe(true);
     
     // The previous request finishes
     resolveTransport!();

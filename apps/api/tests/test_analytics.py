@@ -1,6 +1,7 @@
+import json
 import typing
-
 import pytest
+from typing import Any
 from fastapi.testclient import TestClient
 from persistence.uow_factory import AbstractUnitOfWorkFactory
 
@@ -37,12 +38,15 @@ def client(sqlite_uow_factory: AbstractUnitOfWorkFactory) -> TestClient:
     app = create_app()
 
     class MockSession:
-        user_id = "user-123"
+        def __init__(self, user_id="user-123"):
+            self.user_id = user_id
 
     class MockAuthService:
         async def validate_session(self, token: str) -> MockSession | None:
             if token == "session-123":
-                return MockSession()
+                return MockSession("user-123")
+            if token == "session-456":
+                return MockSession("user-456")
             return None
 
     from backend.dependencies import get_authentication_service, get_uow_factory
@@ -597,10 +601,215 @@ def test_cross_user_isolation(client: TestClient, sqlite_uow_factory: AbstractUn
     assert resp.status_code == 403
 
     with uow_factory.create() as uow:
-        count = uow.analytics._conn.execute(  # type: ignore
+        count = uow.analytics._conn.execute(
             "SELECT count(*) FROM learner_activity WHERE id = 'ev-spoof'"
         ).fetchone()[0]
         assert count == 0
+
+def test_comprehensive_cross_user_isolation(client: TestClient, sqlite_uow_factory: AbstractUnitOfWorkFactory) -> None:
+    headers = {"Authorization": "Bearer session-123"}
+    import asyncio
+    from datetime import UTC, datetime
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    uow_factory = sqlite_uow_factory
+
+    async def seed() -> None:
+        doc = NormalizedDocument(
+            id="doc-other-user",
+            title="test",
+            source="test",
+            checksum="4",
+            version="1",
+            created_at=datetime.now(UTC),
+            user_id="user-999",
+            pages=(NormalizedPage(page_number=1, blocks=()),),
+        )
+        with uow_factory.create() as uow:
+            await uow.documents.save(doc)
+
+    asyncio.run(seed())
+
+    # Submit a batch containing all 5 event types referencing another user's document
+    resp = client.post(
+        "/api/v1/analytics/events/batch",
+        headers=headers,
+        json={
+            "events": [
+                {
+                    "event_id": "idor-1",
+                    "event_type": "resource_viewed",
+                    "resource_id": "doc-other-user",
+                    "data": {},
+                    "idempotency_key": "idor-key-1",
+                },
+                {
+                    "event_id": "idor-2",
+                    "event_type": "chunk_viewed",
+                    "resource_id": "doc-other-user",
+                    "section_id": "sec-1",
+                    "chunk_id": "chk-1",
+                    "data": {},
+                    "idempotency_key": "idor-key-2",
+                },
+                {
+                    "event_id": "idor-3",
+                    "event_type": "quiz_completed",
+                    "resource_id": "doc-other-user",
+                    "data": {"score": 5, "total_questions": 10},
+                    "idempotency_key": "idor-key-3",
+                },
+                {
+                    "event_id": "idor-4",
+                    "event_type": "flashcard_reviewed",
+                    "resource_id": "doc-other-user",
+                    "data": {"card_id": "c1", "difficulty": "hard"},
+                    "idempotency_key": "idor-key-4",
+                },
+                {
+                    "event_id": "idor-5",
+                    "event_type": "study_session_completed",
+                    "resource_id": "doc-other-user",
+                    "data": {"completed_at": "2026-09-19T00:00:00Z"},
+                    "idempotency_key": "idor-key-5",
+                }
+            ]
+        },
+    )
+    assert resp.status_code == 403
+
+    # Mixed batch: one valid document, one invalid document
+    async def seed_valid() -> None:
+        doc = NormalizedDocument(
+            id="doc-valid-user",
+            title="test",
+            source="test",
+            checksum="4",
+            version="1",
+            created_at=datetime.now(UTC),
+            user_id="user-123",
+            pages=(NormalizedPage(page_number=1, blocks=()),),
+        )
+        with uow_factory.create() as uow:
+            await uow.documents.save(doc)
+    asyncio.run(seed_valid())
+
+    resp = client.post(
+        "/api/v1/analytics/events/batch",
+        headers=headers,
+        json={
+            "events": [
+                {
+                    "event_id": "idor-valid",
+                    "event_type": "resource_viewed",
+                    "resource_id": "doc-valid-user",
+                    "data": {},
+                    "idempotency_key": "idor-valid",
+                },
+                {
+                    "event_id": "idor-invalid",
+                    "event_type": "resource_viewed",
+                    "resource_id": "doc-other-user",
+                    "data": {},
+                    "idempotency_key": "idor-invalid",
+                }
+            ]
+        },
+    )
+    # The entire batch should be rejected because one resource is unauthorized
+    assert resp.status_code == 403
+    
+    with uow_factory.create() as uow:
+        count = uow.analytics._conn.execute(  # type: ignore
+            "SELECT count(*) FROM learner_activity WHERE id = 'idor-valid'"
+        ).fetchone()[0]
+        assert count == 0
+
+
+def test_comprehensive_idempotency(client: TestClient, sqlite_uow_factory: AbstractUnitOfWorkFactory) -> None:
+    headers_1 = {"Authorization": "Bearer session-123"}
+    headers_2 = {"Authorization": "Bearer session-456"}
+    import asyncio
+    from datetime import UTC, datetime
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    uow_factory = sqlite_uow_factory
+
+    async def seed() -> None:
+        doc1 = NormalizedDocument(
+            id="doc-idem-1",
+            title="test",
+            source="test",
+            checksum="4",
+            version="1",
+            created_at=datetime.now(UTC),
+            user_id="user-123",
+            pages=(NormalizedPage(page_number=1, blocks=()),),
+        )
+        doc2 = NormalizedDocument(
+            id="doc-idem-2",
+            title="test",
+            source="test",
+            checksum="4",
+            version="1",
+            created_at=datetime.now(UTC),
+            user_id="user-456",
+            pages=(NormalizedPage(page_number=1, blocks=()),),
+        )
+        with uow_factory.create() as uow:
+            await uow.documents.save(doc1)
+            await uow.documents.save(doc2)
+
+    asyncio.run(seed())
+
+    # 1. Same user + same key + same payload
+    payload_1 = {
+        "event_id": "idem-1",
+        "event_type": "resource_viewed",
+        "resource_id": "doc-idem-1",
+        "data": {},
+        "idempotency_key": "idem-key",
+    }
+    resp1 = client.post("/api/v1/analytics/events/batch", headers=headers_1, json={"events": [payload_1]})
+    resp2 = client.post("/api/v1/analytics/events/batch", headers=headers_1, json={"events": [payload_1]})
+    assert resp1.status_code == 204
+    assert resp2.status_code == 204
+
+    # 2. Same user + same key + different payload
+    payload_2 = {
+        "event_id": "idem-2",
+        "event_type": "quiz_completed",
+        "resource_id": "doc-idem-1",
+        "data": {"score": 10, "total_questions": 10},
+        "idempotency_key": "idem-key",
+    }
+    resp3 = client.post("/api/v1/analytics/events/batch", headers=headers_1, json={"events": [payload_2]})
+    assert resp3.status_code == 204
+
+    # 3. Different user + same key
+    payload_3 = {
+        "event_id": "idem-3",
+        "event_type": "resource_viewed",
+        "resource_id": "doc-idem-2",
+        "data": {},
+        "idempotency_key": "idem-key",
+    }
+    resp4 = client.post("/api/v1/analytics/events/batch", headers=headers_2, json={"events": [payload_3]})
+    assert resp4.status_code == 204
+
+    # Verify actual row counts
+    with uow_factory.create() as uow:
+        # Only one row for user-123 idem-key
+        count_user1 = uow.analytics._conn.execute(  # type: ignore
+            "SELECT count(*) FROM learner_activity WHERE user_id = 'user-123' AND idempotency_key = 'user-123::idem-key'"
+        ).fetchone()[0]
+        assert count_user1 == 1
+
+        # One row for user-456 idem-key
+        count_user2 = uow.analytics._conn.execute(  # type: ignore
+            "SELECT count(*) FROM learner_activity WHERE user_id = 'user-456' AND idempotency_key = 'user-456::idem-key'"
+        ).fetchone()[0]
+        assert count_user2 == 1
 def test_record_events_batch_invalid_event_type(client: TestClient, auth_headers: dict[str, str]) -> None:
     response = client.post(
         "/api/v1/analytics/events/batch",
@@ -749,9 +958,9 @@ def test_record_event_study_session_idempotency(client: TestClient, sqlite_uow_f
         ).fetchone()[0]
         assert count == 1
 
-def test_analytics_payload_exhaustive_validation(client, auth_headers) -> None:
-    # helper to assert 422 or 400
-    def assert_invalid(event_type: str, data: dict, expected_msg_fragment: str, top_level: dict = None):
+def test_analytics_payload_exhaustive_validation(client: TestClient, auth_headers: dict[str, str]) -> None:
+    
+    def assert_invalid(event_type: str, data: dict[str, Any], expected_msg_fragment: str, top_level: dict[str, Any] | None = None) -> None:
         if top_level is None:
             top_level = {}
         payload = {
