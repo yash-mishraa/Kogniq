@@ -1,7 +1,8 @@
-import json
+# ruff: noqa: E501
 import typing
-import pytest
 from typing import Any
+
+import pytest
 from fastapi.testclient import TestClient
 from persistence.uow_factory import AbstractUnitOfWorkFactory
 
@@ -10,7 +11,6 @@ from apps.api.app.main import create_app
 
 @pytest.fixture
 def sqlite_uow_factory() -> typing.Generator[AbstractUnitOfWorkFactory, None, None]:
-    import os
     import sqlite3
     import tempfile
 
@@ -27,10 +27,10 @@ def sqlite_uow_factory() -> typing.Generator[AbstractUnitOfWorkFactory, None, No
     factory = DefaultUnitOfWorkFactory(provider="sqlite", sqlite_path=db_path)
     yield factory
     
-    try:
-        os.remove(db_path)
-    except Exception:
-        pass
+    import contextlib
+    from pathlib import Path
+    with contextlib.suppress(Exception):
+        Path(db_path).unlink()
 
 
 @pytest.fixture
@@ -38,7 +38,7 @@ def client(sqlite_uow_factory: AbstractUnitOfWorkFactory) -> TestClient:
     app = create_app()
 
     class MockSession:
-        def __init__(self, user_id="user-123"):
+        def __init__(self, user_id: str = "user-123") -> None:
             self.user_id = user_id
 
     class MockAuthService:
@@ -485,6 +485,7 @@ def test_transactional_rollback_on_mid_batch_failure(client: TestClient, sqlite_
     headers = {"Authorization": "Bearer session-123"}
     import asyncio
     from datetime import UTC, datetime
+
     from content.normalized.document import NormalizedDocument
     from content.normalized.page import NormalizedPage
 
@@ -601,7 +602,7 @@ def test_cross_user_isolation(client: TestClient, sqlite_uow_factory: AbstractUn
     assert resp.status_code == 403
 
     with uow_factory.create() as uow:
-        count = uow.analytics._conn.execute(
+        count = uow.analytics._conn.execute(  # type: ignore
             "SELECT count(*) FROM learner_activity WHERE id = 'ev-spoof'"
         ).fetchone()[0]
         assert count == 0
@@ -610,6 +611,7 @@ def test_comprehensive_cross_user_isolation(client: TestClient, sqlite_uow_facto
     headers = {"Authorization": "Bearer session-123"}
     import asyncio
     from datetime import UTC, datetime
+
     from content.normalized.document import NormalizedDocument
     from content.normalized.page import NormalizedPage
     uow_factory = sqlite_uow_factory
@@ -630,53 +632,52 @@ def test_comprehensive_cross_user_isolation(client: TestClient, sqlite_uow_facto
 
     asyncio.run(seed())
 
-    # Submit a batch containing all 5 event types referencing another user's document
-    resp = client.post(
-        "/api/v1/analytics/events/batch",
-        headers=headers,
-        json={
-            "events": [
-                {
-                    "event_id": "idor-1",
-                    "event_type": "resource_viewed",
-                    "resource_id": "doc-other-user",
-                    "data": {},
-                    "idempotency_key": "idor-key-1",
-                },
-                {
-                    "event_id": "idor-2",
-                    "event_type": "chunk_viewed",
-                    "resource_id": "doc-other-user",
-                    "section_id": "sec-1",
-                    "chunk_id": "chk-1",
-                    "data": {},
-                    "idempotency_key": "idor-key-2",
-                },
-                {
-                    "event_id": "idor-3",
-                    "event_type": "quiz_completed",
-                    "resource_id": "doc-other-user",
-                    "data": {"score": 5, "total_questions": 10},
-                    "idempotency_key": "idor-key-3",
-                },
-                {
-                    "event_id": "idor-4",
-                    "event_type": "flashcard_reviewed",
-                    "resource_id": "doc-other-user",
-                    "data": {"card_id": "c1", "difficulty": "hard"},
-                    "idempotency_key": "idor-key-4",
-                },
-                {
-                    "event_id": "idor-5",
-                    "event_type": "study_session_completed",
-                    "resource_id": "doc-other-user",
-                    "data": {"completed_at": "2026-09-19T00:00:00Z"},
-                    "idempotency_key": "idor-key-5",
-                }
-            ]
+    # Submit separate batches for each event type to prove they ALL validate ownership independently
+    events_to_test = [
+        {
+            "event_id": "idor-1",
+            "event_type": "resource_viewed",
+            "resource_id": "doc-other-user",
+            "data": {},
+            "idempotency_key": "idor-key-1",
         },
-    )
-    assert resp.status_code == 403
+        {
+            "event_id": "idor-2",
+            "event_type": "chunk_viewed",
+            "resource_id": "doc-other-user",
+            "data": {"section_id": "sec-1", "chunk_id": "chk-1"},
+            "idempotency_key": "idor-key-2",
+        },
+        {
+            "event_id": "idor-3",
+            "event_type": "quiz_completed",
+            "resource_id": "doc-other-user",
+            "data": {"score": 5, "total_questions": 10},
+            "idempotency_key": "idor-key-3",
+        },
+        {
+            "event_id": "idor-4",
+            "event_type": "flashcard_reviewed",
+            "resource_id": "doc-other-user",
+            "data": {"card_id": "c1", "difficulty": "hard"},
+            "idempotency_key": "idor-key-4",
+        },
+        {
+            "event_id": "idor-5",
+            "event_type": "study_session_completed",
+            "resource_id": "doc-other-user",
+            "data": {"completed_at": "2026-09-19T00:00:00Z"},
+            "idempotency_key": "idor-key-5",
+        }
+    ]
+
+    for ev in events_to_test:
+        resp = client.post(
+            "/api/v1/analytics/events/batch",
+            headers=headers,
+            json={"events": [ev]},
+        )
+        assert resp.status_code == 403, f"Expected 403 for {ev['event_type']}"
 
     # Mixed batch: one valid document, one invalid document
     async def seed_valid() -> None:
@@ -731,6 +732,7 @@ def test_comprehensive_idempotency(client: TestClient, sqlite_uow_factory: Abstr
     headers_2 = {"Authorization": "Bearer session-456"}
     import asyncio
     from datetime import UTC, datetime
+
     from content.normalized.document import NormalizedDocument
     from content.normalized.page import NormalizedPage
     uow_factory = sqlite_uow_factory
@@ -797,6 +799,24 @@ def test_comprehensive_idempotency(client: TestClient, sqlite_uow_factory: Abstr
     resp4 = client.post("/api/v1/analytics/events/batch", headers=headers_2, json={"events": [payload_3]})
     assert resp4.status_code == 204
 
+    # 4. Duplicate events within ONE batch
+    payload_4a = {
+        "event_id": "idem-4",
+        "event_type": "resource_viewed",
+        "resource_id": "doc-idem-1",
+        "data": {},
+        "idempotency_key": "idem-batch-dup",
+    }
+    payload_4b = {
+        "event_id": "idem-5",
+        "event_type": "resource_viewed",
+        "resource_id": "doc-idem-1",
+        "data": {},
+        "idempotency_key": "idem-batch-dup",
+    }
+    resp5 = client.post("/api/v1/analytics/events/batch", headers=headers_1, json={"events": [payload_4a, payload_4b]})
+    assert resp5.status_code == 204
+
     # Verify actual row counts
     with uow_factory.create() as uow:
         # Only one row for user-123 idem-key
@@ -810,6 +830,12 @@ def test_comprehensive_idempotency(client: TestClient, sqlite_uow_factory: Abstr
             "SELECT count(*) FROM learner_activity WHERE user_id = 'user-456' AND idempotency_key = 'user-456::idem-key'"
         ).fetchone()[0]
         assert count_user2 == 1
+
+        # One row for user-123 idem-batch-dup
+        count_batch = uow.analytics._conn.execute(  # type: ignore
+            "SELECT count(*) FROM learner_activity WHERE user_id = 'user-123' AND idempotency_key = 'user-123::idem-batch-dup'"
+        ).fetchone()[0]
+        assert count_batch == 1
 def test_record_events_batch_invalid_event_type(client: TestClient, auth_headers: dict[str, str]) -> None:
     response = client.post(
         "/api/v1/analytics/events/batch",
@@ -1004,3 +1030,4 @@ def test_analytics_payload_exhaustive_validation(client: TestClient, auth_header
     assert_invalid("study_session_completed", {}, "missing completed_at")
     assert_invalid("study_session_completed", {"completed_at": None}, "completed_at invalid")
     assert_invalid("study_session_completed", {"completed_at": "not-a-timestamp"}, "must be iso-8601")
+# ruff: noqa: E501
