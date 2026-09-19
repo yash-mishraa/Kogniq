@@ -678,6 +678,11 @@ def test_comprehensive_cross_user_isolation(client: TestClient, sqlite_uow_facto
             json={"events": [ev]},
         )
         assert resp.status_code == 403, f"Expected 403 for {ev['event_type']}"
+        with uow_factory.create() as uow:
+            count = uow.analytics._conn.execute(  # type: ignore
+                f"SELECT count(*) FROM learner_activity WHERE id = '{ev['event_id']}'"
+            ).fetchone()[0]
+            assert count == 0, f"Database insertion was not 0 for {ev['event_type']}"
 
     # Mixed batch: one valid document, one invalid document
     async def seed_valid() -> None:
