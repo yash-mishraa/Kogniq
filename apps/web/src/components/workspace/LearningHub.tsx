@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useWorkspace } from "@/app/workspace/WorkspaceContext";
+import { serviceProvider } from "@/lib/providers";
 
 interface Metrics {
   quizzes_completed: number;
@@ -18,15 +19,17 @@ export function LearningHub({ documentId, status }: { documentId: string, status
     
     async function fetchData() {
       try {
-        const [metricsRes, nextActionRes] = await Promise.all([
-          fetch(`/api/v1/analytics?document_id=${documentId}`),
+        const [metricsData, nextActionRes] = await Promise.all([
+          serviceProvider.getProvider().analytics.getMetrics("all", { documentId }),
           fetch(`/api/v1/learning/${documentId}/next-action`)
         ]);
         
-        if (metricsRes.ok && isMounted) setMetrics(await metricsRes.json());
-        if (nextActionRes.ok && isMounted) {
-          const actionData = await nextActionRes.json();
-          setNextAction(actionData.action);
+        if (isMounted) {
+          setMetrics(metricsData);
+          if (nextActionRes.ok) {
+            const actionData = await nextActionRes.json();
+            setNextAction(actionData.action);
+          }
         }
       } catch (e) {
         console.error("Failed to fetch learning hub data", e);

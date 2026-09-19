@@ -176,7 +176,9 @@ class SQLiteResourceChunkRepository(AbstractResourceChunkRepository):
 
         return SaveResult(id=resource_id, is_new=False)
 
-    async def get_by_resource(self, resource_id: str, user_id: str) -> Sequence[ResourceChunk]:
+    async def get_by_resource(
+        self, resource_id: str, user_id: str, limit: int = 100, offset: int = 0
+    ) -> Sequence[ResourceChunk]:
         # Validate ownership
         doc_row = self._conn.execute(
             "SELECT 1 FROM documents WHERE id = ? AND user_id = ?", (resource_id, user_id)
@@ -185,9 +187,35 @@ class SQLiteResourceChunkRepository(AbstractResourceChunkRepository):
             return []
 
         rows = self._conn.execute(
-            "SELECT * FROM document_chunks WHERE document_id = ? ORDER BY chunk_index",
-            (resource_id,),
+            """
+            SELECT * FROM document_chunks 
+            WHERE document_id = ? 
+              AND checksum IS NOT NULL
+            ORDER BY chunk_index
+            LIMIT ? OFFSET ?
+            """,
+            (resource_id, limit, offset),
         ).fetchall()
 
-        # Only return chunks that have been mapped (i.e. have a checksum)
-        return [self._row_to_chunk(r) for r in rows if r["checksum"] is not None]
+        return [self._row_to_chunk(r) for r in rows]
+
+    async def statistics_by_resource(self, resource_id: str, user_id: str) -> dict[str, int]:
+        doc_row = self._conn.execute(
+            "SELECT 1 FROM documents WHERE id = ? AND user_id = ?", (resource_id, user_id)
+        ).fetchone()
+        if not doc_row:
+            return {"chunk_count": 0, "total_tokens": 0}
+
+        row = self._conn.execute(
+            """
+            SELECT COUNT(*) as chunk_count, SUM(token_estimate) as total_tokens 
+            FROM document_chunks 
+            WHERE document_id = ? AND checksum IS NOT NULL
+            """,
+            (resource_id,)
+        ).fetchone()
+
+        return {
+            "chunk_count": row["chunk_count"] or 0,
+            "total_tokens": row["total_tokens"] or 0,
+        }

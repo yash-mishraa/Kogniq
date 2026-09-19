@@ -2,6 +2,7 @@
 
 import { useStudy } from "@/app/workspace/environments/study/StudyContext";
 import { useWorkspace } from "@/app/workspace/WorkspaceContext";
+import { serviceProvider } from "@/lib/providers";
 
 export function StudyNavigator() {
   const { state, dispatch } = useStudy();
@@ -46,22 +47,18 @@ export function StudyNavigator() {
         label: "Finish Study Session",
         onClick: () => {
           dispatch({ type: "MARK_COMPLETED" });
-          // Fire event
-          const eventId = crypto.randomUUID();
-          fetch("/api/v1/analytics/events", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+          
+          const eventId = state.material.requestId || crypto.randomUUID();
+          
+          serviceProvider.getProvider().analytics.enqueueBatchEvent({
+            event_id: eventId,
+            event_type: "study_session_completed",
+            resource_id: documentId!,
+            data: {
+              completed_at: new Date().toISOString()
             },
-            body: JSON.stringify({
-              event_id: eventId,
-              event_type: "study_session_completed",
-              document_id: documentId,
-              data: {
-                completed_at: new Date().toISOString()
-              }
-            })
-          }).catch(console.error);
+            idempotency_key: eventId
+          });
         },
       };
     }

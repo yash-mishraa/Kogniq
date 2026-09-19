@@ -21,7 +21,7 @@ function AnalyticsEnvironmentBody() {
     const controller = new AbortController();
 
     dispatch({ type: "START_LOAD" });
-    serviceProvider.getProvider().analytics.getMetrics(state.timeRange, controller.signal)
+    serviceProvider.getProvider().analytics.getMetrics(state.timeRange, { signal: controller.signal })
       .then((metrics) => {
         if (isMounted) dispatch({ type: "LOAD_SUCCESS", payload: metrics });
       })

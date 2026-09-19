@@ -76,12 +76,13 @@ function FlashcardsEnvironmentBody() {
     for (const [cardId, difficulty] of Object.entries(state.responses)) {
       if (syncedResponses.current[cardId] !== difficulty) {
         syncedResponses.current[cardId] = difficulty;
-        serviceProvider.getProvider().analytics.recordEvent({
+        serviceProvider.getProvider().analytics.enqueueBatchEvent({
           event_id: `${state.requestId}-${cardId}`,
           event_type: "flashcard_reviewed",
-          document_id: documentId,
-          data: { card_id: cardId, difficulty }
-        }).catch(err => console.error("Failed to record analytics", err));
+          resource_id: documentId,
+          data: { card_id: cardId, difficulty },
+          idempotency_key: `${state.requestId}-${cardId}`
+        });
       }
     }
   }, [state.responses, state.requestId, documentId]);

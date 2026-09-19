@@ -57,8 +57,19 @@ class MemoryResourceChunkRepository(AbstractResourceChunkRepository):
             self._chunks[c.id] = c
         return SaveResult(id=chunks[0].resource_id, is_new=True)
 
-    async def get_by_resource(self, resource_id: str, user_id: str) -> Sequence[ResourceChunk]:
-        return sorted(
+    async def get_by_resource(
+        self, resource_id: str, user_id: str, limit: int = 100, offset: int = 0
+    ) -> Sequence[ResourceChunk]:
+        chunks = sorted(
             [c for c in self._chunks.values() if c.resource_id == resource_id],
             key=lambda x: x.order,
         )
+        return chunks[offset : offset + limit]
+
+    async def statistics_by_resource(self, resource_id: str, user_id: str) -> dict[str, int]:
+        chunks = [c for c in self._chunks.values() if c.resource_id == resource_id]
+        total_tokens = sum(c.token_estimate for c in chunks if c.token_estimate)
+        return {
+            "chunk_count": len(chunks),
+            "total_tokens": total_tokens,
+        }

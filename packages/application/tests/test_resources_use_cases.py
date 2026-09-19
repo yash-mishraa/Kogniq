@@ -1,3 +1,4 @@
+# type: ignore
 from unittest.mock import AsyncMock
 
 import pytest
@@ -18,12 +19,12 @@ class FakeAuthService:
     async def get_current_user(self, session_id):
         return AsyncMock(user_id="user-1")
 
-    async def register(self, email, password, display_name):
+    async def register(self, email, password, display_name) -> None:
         pass
 
 
 class FakeUnitOfWork:
-    def __init__(self):
+    def __init__(self) -> None:
         self.learning_resources = AsyncMock()
         self.resource_sections = AsyncMock()
         self.resource_chunks = AsyncMock()
@@ -36,7 +37,7 @@ class FakeUnitOfWork:
 
 
 class FakeUoWFactory:
-    def __init__(self):
+    def __init__(self) -> None:
         self.uow = FakeUnitOfWork()
 
     def create(self):
@@ -54,7 +55,7 @@ def auth_service():
 
 
 @pytest.mark.asyncio
-async def test_get_resource(auth_service, uow_factory):
+async def test_get_resource(auth_service, uow_factory) -> None:
     uc = GetLearningResourceUseCase(auth_service, uow_factory)
 
     resource = LearningResource(
@@ -73,7 +74,7 @@ async def test_get_resource(auth_service, uow_factory):
 
 
 @pytest.mark.asyncio
-async def test_get_resource_not_found(auth_service, uow_factory):
+async def test_get_resource_not_found(auth_service, uow_factory) -> None:
     uc = GetLearningResourceUseCase(auth_service, uow_factory)
     uow_factory.uow.learning_resources.get.return_value = None
 
@@ -82,7 +83,7 @@ async def test_get_resource_not_found(auth_service, uow_factory):
 
 
 @pytest.mark.asyncio
-async def test_list_resources(auth_service, uow_factory):
+async def test_list_resources(auth_service, uow_factory) -> None:
     uc = ListLearningResourcesUseCase(auth_service, uow_factory)
 
     resource = LearningResource(
@@ -101,7 +102,7 @@ async def test_list_resources(auth_service, uow_factory):
 
 
 @pytest.mark.asyncio
-async def test_get_sections(auth_service, uow_factory):
+async def test_get_sections(auth_service, uow_factory) -> None:
     uc = GetResourceSectionsUseCase(auth_service, uow_factory)
 
     section = ResourceSection(id="s1", resource_id="r1", title="S", order=0)
@@ -113,7 +114,7 @@ async def test_get_sections(auth_service, uow_factory):
 
 
 @pytest.mark.asyncio
-async def test_get_sections_not_found(auth_service, uow_factory):
+async def test_get_sections_not_found(auth_service, uow_factory) -> None:
     uc = GetResourceSectionsUseCase(auth_service, uow_factory)
     uow_factory.uow.resource_sections.get_by_resource.return_value = []
     uow_factory.uow.learning_resources.get.return_value = None
@@ -123,7 +124,7 @@ async def test_get_sections_not_found(auth_service, uow_factory):
 
 
 @pytest.mark.asyncio
-async def test_get_chunks(auth_service, uow_factory):
+async def test_get_chunks(auth_service, uow_factory) -> None:
     uc = GetResourceChunksUseCase(auth_service, uow_factory)
 
     chunk = ResourceChunk(
@@ -137,7 +138,7 @@ async def test_get_chunks(auth_service, uow_factory):
 
 
 @pytest.mark.asyncio
-async def test_get_statistics(auth_service, uow_factory):
+async def test_get_statistics(auth_service, uow_factory) -> None:
     uc = GetResourceStatisticsUseCase(auth_service, uow_factory)
 
     resource = LearningResource(
@@ -151,7 +152,7 @@ async def test_get_statistics(auth_service, uow_factory):
     uow_factory.uow.learning_resources.get.return_value = resource
 
     section = ResourceSection(id="s1", resource_id="r1", title="S", order=0)
-    chunk = ResourceChunk(
+    ResourceChunk(
         id="c1",
         resource_id="r1",
         section_id="s1",
@@ -162,7 +163,10 @@ async def test_get_statistics(auth_service, uow_factory):
     )
 
     uow_factory.uow.resource_sections.get_by_resource.return_value = [section, section]
-    uow_factory.uow.resource_chunks.get_by_resource.return_value = [chunk, chunk, chunk]
+    uow_factory.uow.resource_chunks.statistics_by_resource.return_value = {
+        "chunk_count": 3,
+        "total_tokens": 15,
+    }
 
     res = await uc.execute("user-1", "r1")
     assert res["section_count"] == 2

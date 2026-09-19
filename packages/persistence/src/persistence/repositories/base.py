@@ -1,5 +1,6 @@
 import abc
 from collections.abc import Sequence
+from typing import Any
 
 from domain.analytics.models import AnalyticsMetrics, LearnerEvent
 from knowledge.concept import KnowledgeConcept
@@ -99,7 +100,13 @@ class AbstractResourceChunkRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def get_by_resource(self, resource_id: str, user_id: str) -> Sequence[ResourceChunk]:
+    async def get_by_resource(
+        self, resource_id: str, user_id: str, limit: int = 100, offset: int = 0
+    ) -> Sequence[ResourceChunk]:
+        pass
+
+    @abc.abstractmethod
+    async def statistics_by_resource(self, resource_id: str, user_id: str) -> dict[str, int]:
         pass
 
 
@@ -175,6 +182,14 @@ class AbstractAnalyticsRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
+    async def save_events(self, events: Sequence[LearnerEvent]) -> Sequence[SaveResult]:
+        pass
+
+    @abc.abstractmethod
+    async def validate_event_relationships(self, events: Sequence[LearnerEvent]) -> None:
+        pass
+
+    @abc.abstractmethod
     async def get_metrics(
         self, user_id: str, days: int | None = None, document_id: str | None = None
     ) -> AnalyticsMetrics:
@@ -182,6 +197,10 @@ class AbstractAnalyticsRepository(abc.ABC):
 
     @abc.abstractmethod
     async def has_completed_study(self, user_id: str, document_id: str) -> bool:
+        pass
+
+    @abc.abstractmethod
+    async def get_resource_progress(self, user_id: str, resource_id: str) -> dict[str, Any]:
         pass
 
 

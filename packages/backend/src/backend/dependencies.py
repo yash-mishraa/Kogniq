@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, Any
 
 from fastapi import Depends
 from persistence.factory import (
@@ -18,7 +18,6 @@ if TYPE_CHECKING:
     from knowledge.extractors.interfaces import AbstractKnowledgeExtractor
 
     from application.analytics.get_analytics import GetAnalyticsUseCase
-    from application.analytics.record_event import RecordEventUseCase
     from application.knowledge.get_knowledge import GetKnowledgeUseCase
     from application.learning.explain_mistake import ExplainMistakeUseCase
     from application.learning.get_learning_materials import GetLearningMaterialsUseCase
@@ -391,18 +390,6 @@ async def get_register_user_use_case(
     )
 
 
-async def get_record_event_use_case(
-    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
-    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
-) -> RecordEventUseCase:
-    from application.analytics.record_event import RecordEventUseCase
-
-    return RecordEventUseCase(
-        auth_service=auth_service,
-        uow_factory=uow_factory,
-    )
-
-
 async def get_analytics_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
@@ -410,6 +397,28 @@ async def get_analytics_use_case(
     from application.analytics.get_analytics import GetAnalyticsUseCase
 
     return GetAnalyticsUseCase(
+        auth_service=auth_service,
+        uow_factory=uow_factory,
+    )
+
+async def get_resource_progress_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> Any:
+    from application.analytics.get_resource_progress import GetResourceProgressUseCase
+
+    return GetResourceProgressUseCase(
+        auth_service=auth_service,
+        uow_factory=uow_factory,
+    )
+
+async def get_record_events_batch_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> Any:
+    from application.analytics.record_events_batch import RecordEventsBatchUseCase
+
+    return RecordEventsBatchUseCase(
         auth_service=auth_service,
         uow_factory=uow_factory,
     )

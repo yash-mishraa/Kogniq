@@ -74,12 +74,14 @@ class GetResourceChunksUseCase:
         self._auth_service = auth_service
         self._uow_factory = uow_factory
 
-    async def execute(self, user_id: str, resource_id: str) -> Sequence[ResourceChunk]:
+    async def execute(
+        self, user_id: str, resource_id: str, limit: int = 100, offset: int = 0
+    ) -> Sequence[ResourceChunk]:
         with self._uow_factory.create() as uow:
             chunks = await uow.resource_chunks.get_by_resource(
-                resource_id=resource_id, user_id=user_id
+                resource_id=resource_id, user_id=user_id, limit=limit, offset=offset
             )
-            if not chunks:
+            if not chunks and offset == 0:
                 resource = await uow.learning_resources.get(
                     resource_id=resource_id, user_id=user_id
                 )
@@ -107,14 +109,13 @@ class GetResourceStatisticsUseCase:
             sections = await uow.resource_sections.get_by_resource(
                 resource_id=resource_id, user_id=user_id
             )
-            chunks = await uow.resource_chunks.get_by_resource(
+            
+            chunk_stats = await uow.resource_chunks.statistics_by_resource(
                 resource_id=resource_id, user_id=user_id
             )
 
-            total_tokens = sum(c.token_estimate for c in chunks if c.token_estimate)
-
             return {
                 "section_count": len(sections),
-                "chunk_count": len(chunks),
-                "total_tokens": total_tokens,
+                "chunk_count": chunk_stats["chunk_count"],
+                "total_tokens": chunk_stats["total_tokens"],
             }

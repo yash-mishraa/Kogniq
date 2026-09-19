@@ -36,13 +36,13 @@ function QuizEnvironmentBody() {
       isSynced.current = true;
       const score = quizScore(state);
       const total_questions = state.questions.length;
-      
-      serviceProvider.getProvider().analytics.recordEvent({
+      serviceProvider.getProvider().analytics.enqueueBatchEvent({
         event_id: state.requestId,
         event_type: "quiz_completed",
-        document_id: state.documentId,
-        data: { score, total_questions }
-      }).catch(err => console.error("Failed to record analytics", err));
+        resource_id: state.documentId,
+        data: { score, total_questions },
+        idempotency_key: state.requestId
+      });
     }
     if (state.status !== "completed") {
         isSynced.current = false;

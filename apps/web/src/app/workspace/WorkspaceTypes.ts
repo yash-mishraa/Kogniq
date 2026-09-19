@@ -1,4 +1,4 @@
-export type EnvironmentId = "documents" | "graph" | "knowledge" | "search" | "studio" | "study" | "notebook" | "flashcards" | "quiz" | "analytics";
+export type EnvironmentId = "documents" | "graph" | "knowledge" | "search" | "studio" | "study" | "notebook" | "flashcards" | "quiz" | "analytics" | "learningHub";
 
 export type WorkspaceMotionProfile = "reading" | "spatial" | "evidence" | "focused" | "measured";
 export type WorkspaceRhythm = "editorial" | "canvas" | "vertical" | "sequential" | "structured";

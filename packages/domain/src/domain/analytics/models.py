@@ -7,10 +7,18 @@ from typing import Any
 class LearnerEvent:
     event_id: str
     user_id: str
-    document_id: str
+    document_id: str  # alias for resource_id
     event_type: str
     event_data: dict[str, Any]
     created_at: datetime
+    section_id: str | None = None
+    chunk_id: str | None = None
+    occurred_at: datetime | None = None
+    idempotency_key: str | None = None
+
+    @property
+    def resource_id(self) -> str:
+        return self.document_id
 
 
 @dataclass(frozen=True)
@@ -47,3 +55,11 @@ class AnalyticsMetrics:
     quizzes_completed: int
     average_quiz_accuracy: float
     flashcards_reviewed: int
+
+@dataclass(frozen=True)
+class ResourceViewedEvent(LearnerEvent):
+    pass
+
+@dataclass(frozen=True)
+class ChunkViewedEvent(LearnerEvent):
+    pass

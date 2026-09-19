@@ -1,18 +1,20 @@
-import pytest
 from unittest.mock import AsyncMock
-from fastapi.testclient import TestClient
-from apps.api.app.dependencies.auth import get_current_user
+
+import pytest
 from backend.dependencies import (
     get_get_learning_resource_use_case,
     get_list_learning_resources_use_case,
-    get_resource_sections_use_case,
     get_resource_chunks_use_case,
+    get_resource_sections_use_case,
     get_resource_statistics_use_case,
 )
+from fastapi.testclient import TestClient
+
+from apps.api.app.dependencies.auth import get_current_user
 from auth.models import User
-from content.domain.entities import LearningResource, ResourceSection, ResourceChunk
+from content.domain.entities import LearningResource, ResourceChunk, ResourceSection
 from content.domain.enums import ProcessingStatus, ResourceType
-from fastapi import FastAPI
+
 
 @pytest.fixture
 def auth_user() -> User:

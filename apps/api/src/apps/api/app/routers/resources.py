@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from backend.dependencies import (
     get_get_learning_resource_use_case,
@@ -44,7 +44,7 @@ async def list_resources(
 async def get_resource(
     resource_id: str,
     current_user: CurrentUserDependency,
-    use_case=Depends(get_get_learning_resource_use_case),
+    use_case: Any = Depends(get_get_learning_resource_use_case),
 ) -> LearningResourceResponse:
     """Get a specific learning resource."""
     try:
@@ -62,7 +62,7 @@ async def get_resource(
 async def get_resource_sections(
     resource_id: str,
     current_user: CurrentUserDependency,
-    use_case=Depends(get_resource_sections_use_case),
+    use_case: Any = Depends(get_resource_sections_use_case),
 ) -> list[ResourceSectionResponse]:
     """Get sections for a learning resource."""
     try:
@@ -80,11 +80,13 @@ async def get_resource_sections(
 async def get_resource_chunks(
     resource_id: str,
     current_user: CurrentUserDependency,
-    use_case=Depends(get_resource_chunks_use_case),
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+    offset: Annotated[int, Query(ge=0)] = 0,
+    use_case: Any = Depends(get_resource_chunks_use_case),
 ) -> list[ResourceChunkResponse]:
     """Get chunks for a learning resource."""
     try:
-        chunks = await use_case.execute(user_id=current_user.user_id, resource_id=resource_id)
+        chunks = await use_case.execute(user_id=current_user.user_id, resource_id=resource_id, limit=limit, offset=offset)
         return [ResourceChunkResponse.model_validate(c) for c in chunks]
     except ApplicationError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -98,7 +100,7 @@ async def get_resource_chunks(
 async def get_resource_statistics(
     resource_id: str,
     current_user: CurrentUserDependency,
-    use_case=Depends(get_resource_statistics_use_case),
+    use_case: Any = Depends(get_resource_statistics_use_case),
 ) -> ResourceStatisticsResponse:
     """Get statistics for a learning resource."""
     try:

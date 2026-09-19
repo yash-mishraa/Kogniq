@@ -14,6 +14,7 @@ import { FlashcardsEnvironment } from "./environments/flashcards/FlashcardsEnvir
 import { QuizEnvironment } from "./environments/quiz/QuizEnvironment";
 import { AnalyticsEnvironment } from "./environments/analytics/AnalyticsEnvironment";
 import { StudioEnvironment } from "./environments/studio/StudioEnvironment";
+import { LearningHubEnvironment } from "./environments/learningHub/LearningHubEnvironment";
 import { WorkspaceContent, WorkspaceEmptyState, WorkspaceFooter, WorkspaceHeader, WorkspaceSurface, WorkspaceTransitionBoundary } from "@/components/workspace";
 
 export function WorkspaceEngine({ 
@@ -59,6 +60,8 @@ export function WorkspaceEngine({
     environmentContent = <AnalyticsEnvironment />;
   } else if (activeEnvironmentId === "studio") {
     environmentContent = <StudioEnvironment />;
+  } else if (activeEnvironmentId === "learningHub") {
+    environmentContent = <LearningHubEnvironment />;
   } else {
     environmentContent = <WorkspaceEmptyState environment={environment} />;
   }

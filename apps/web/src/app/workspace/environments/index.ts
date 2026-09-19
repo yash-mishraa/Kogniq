@@ -10,6 +10,8 @@ import { searchEnvironment } from "./search";
 import { studioEnvironment } from "./studio";
 import { studyEnvironment } from "./study";
 
+import { learningHubEnvironment } from "./learningHub";
+
 export class EnvironmentRegistry {
   private readonly entries = new Map<EnvironmentId, EnvironmentMetadata>();
 
@@ -19,5 +21,5 @@ export class EnvironmentRegistry {
   listEnvironments() { return [...this.entries.values()]; }
 }
 
-export const environmentRegistry = new EnvironmentRegistry([documentsEnvironment, graphEnvironment, knowledgeEnvironment, searchEnvironment, studioEnvironment, studyEnvironment, notebookEnvironment, flashcardsEnvironment, quizEnvironment, analyticsEnvironment]);
+export const environmentRegistry = new EnvironmentRegistry([documentsEnvironment, graphEnvironment, knowledgeEnvironment, searchEnvironment, studioEnvironment, studyEnvironment, notebookEnvironment, flashcardsEnvironment, quizEnvironment, analyticsEnvironment, learningHubEnvironment]);
 export const environments = environmentRegistry.listEnvironments();

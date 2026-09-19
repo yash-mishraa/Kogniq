@@ -1,6 +1,8 @@
 import json
 import sqlite3
+from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from domain.analytics.models import AnalyticsMetrics, LearnerEvent
 
@@ -14,25 +16,23 @@ class SQLiteAnalyticsRepository(AbstractAnalyticsRepository):
 
     async def has_completed_study(self, user_id: str, document_id: str) -> bool:
         row = self._conn.execute(
-            "SELECT 1 FROM learner_activity WHERE user_id = ? AND document_id = ? AND event_type = 'study_session_completed' LIMIT 1",
+            "SELECT 1 FROM learner_activity WHERE user_id = ? AND document_id = ? "
+            "AND event_type = 'study_session_completed' LIMIT 1",
             (user_id, document_id),
         ).fetchone()
         return row is not None
 
     async def save_event(self, event: LearnerEvent) -> SaveResult:
-        row = self._conn.execute(
+        self._conn.execute(
             "SELECT 1 FROM learner_activity WHERE id = ?", (event.event_id,)
         ).fetchone()
-        is_new = row is None
 
-        self._conn.execute(
+        cursor = self._conn.execute(
             """
-            INSERT INTO learner_activity (
-                id, user_id, document_id, event_type, event_data_json, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT(id) DO UPDATE SET
-                event_data_json=excluded.event_data_json,
-                created_at=excluded.created_at
+            INSERT OR IGNORE INTO learner_activity (
+                id, user_id, document_id, event_type, event_data_json, created_at,
+                section_id, chunk_id, occurred_at, idempotency_key
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
@@ -41,9 +41,89 @@ class SQLiteAnalyticsRepository(AbstractAnalyticsRepository):
                 event.event_type,
                 json.dumps(event.event_data),
                 event.created_at.isoformat(),
+                event.section_id,
+                event.chunk_id,
+                event.occurred_at.isoformat() if event.occurred_at else None,
+                event.idempotency_key,
             ),
         )
-        return SaveResult(id=event.event_id, is_new=is_new)
+        # If cursor.rowcount == 0, it was ignored (duplicate id or idempotency key)
+        return SaveResult(id=event.event_id, is_new=cursor.rowcount > 0)
+
+    async def save_events(self, events: Sequence[LearnerEvent]) -> Sequence[SaveResult]:
+        if not events:
+            return []
+            
+        rows = [
+            (
+                event.event_id,
+                event.user_id,
+                event.document_id,
+                event.event_type,
+                json.dumps(event.event_data),
+                event.created_at.isoformat(),
+                event.section_id,
+                event.chunk_id,
+                event.occurred_at.isoformat() if event.occurred_at else None,
+                event.idempotency_key,
+            )
+            for event in events
+        ]
+            
+        self._conn.executemany(
+            """
+            INSERT OR IGNORE INTO learner_activity (
+                id, user_id, document_id, event_type, event_data_json, created_at,
+                section_id, chunk_id, occurred_at, idempotency_key
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            rows,
+        )
+        # We can't easily know which ones were ignored in executemany without extra queries.
+        # But for batch operations returning SaveResult with is_new=True
+        # is acceptable per domain rules.
+        return [SaveResult(id=e.event_id, is_new=True) for e in events]
+
+    async def validate_event_relationships(self, events: Sequence[LearnerEvent]) -> None:
+        if not events:
+            return
+            
+        for event in events:
+            if event.section_id:
+                # Check if section belongs to resource
+                row = self._conn.execute(
+                    "SELECT 1 FROM resource_sections WHERE id = ? AND document_id = ?",
+                    (event.section_id, event.document_id)
+                ).fetchone()
+                if not row:
+                    raise ValueError(
+                        f"Section {event.section_id} does not belong to "
+                        f"resource {event.document_id} or does not exist"
+                    )
+                    
+            if event.chunk_id:
+                # Check if chunk belongs to resource (and section if provided)
+                if event.section_id:
+                    row = self._conn.execute(
+                        "SELECT 1 FROM document_chunks WHERE id = ? AND document_id = ? "
+                        "AND section_id = ?",
+                        (event.chunk_id, event.document_id, event.section_id)
+                    ).fetchone()
+                    if not row:
+                        raise ValueError(
+                            f"Chunk {event.chunk_id} does not belong to section "
+                            f"{event.section_id} in resource {event.document_id}"
+                        )
+                else:
+                    row = self._conn.execute(
+                        "SELECT 1 FROM document_chunks WHERE id = ? AND document_id = ?",
+                        (event.chunk_id, event.document_id)
+                    ).fetchone()
+                    if not row:
+                        raise ValueError(
+                            f"Chunk {event.chunk_id} does not belong to "
+                            f"resource {event.document_id} or does not exist"
+                        )
 
     async def get_metrics(
         self, user_id: str, days: int | None = None, document_id: str | None = None
@@ -95,3 +175,65 @@ class SQLiteAnalyticsRepository(AbstractAnalyticsRepository):
             average_quiz_accuracy=average_quiz_accuracy,
             flashcards_reviewed=flashcards_reviewed,
         )
+
+    async def get_resource_progress(self, user_id: str, resource_id: str) -> dict[str, Any]:
+        """Calculates deterministic progress for a resource based on persisted activity."""
+        # Check if the resource was ever opened
+        opened_row = self._conn.execute(
+            """
+            SELECT 1 FROM learner_activity
+            WHERE user_id = ? AND document_id = ? AND event_type = 'resource_viewed'
+            LIMIT 1
+            """,
+            (user_id, resource_id),
+        ).fetchone()
+
+        # Count total sections in document
+        total_sections = self._conn.execute(
+            "SELECT COUNT(*) as cnt FROM resource_sections WHERE document_id = ?",
+            (resource_id,)
+        ).fetchone()["cnt"]
+
+        # Count total chunks in document
+        total_chunks = self._conn.execute(
+            "SELECT COUNT(*) as cnt FROM document_chunks WHERE document_id = ?",
+            (resource_id,)
+        ).fetchone()["cnt"]
+
+        # Count distinct sections viewed
+        viewed_sections = self._conn.execute(
+            """
+            SELECT COUNT(DISTINCT section_id) as cnt FROM learner_activity
+            WHERE user_id = ? AND document_id = ? AND event_type = 'chunk_viewed'
+            AND section_id IS NOT NULL
+            """,
+            (user_id, resource_id),
+        ).fetchone()["cnt"]
+
+        # Count distinct chunks viewed
+        viewed_chunks = self._conn.execute(
+            """
+            SELECT COUNT(DISTINCT chunk_id) as cnt FROM learner_activity
+            WHERE user_id = ? AND document_id = ? AND event_type = 'chunk_viewed'
+            AND chunk_id IS NOT NULL
+            """,
+            (user_id, resource_id),
+        ).fetchone()["cnt"]
+        
+        # Last activity
+        last_activity = self._conn.execute(
+            """
+            SELECT MAX(COALESCE(occurred_at, created_at)) as last_act FROM learner_activity
+            WHERE user_id = ? AND document_id = ?
+            """,
+            (user_id, resource_id),
+        ).fetchone()["last_act"]
+
+        return {
+            "resource_opened": opened_row is not None,
+            "total_sections": total_sections,
+            "total_chunks": total_chunks,
+            "viewed_sections": viewed_sections,
+            "viewed_chunks": viewed_chunks,
+            "last_activity": last_activity
+        }

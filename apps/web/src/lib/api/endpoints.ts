@@ -9,6 +9,13 @@ export const ENDPOINTS = {
     getAll: "/api/v1/documents",
     delete: (id: string) => `/api/v1/documents/${id}`,
   },
+  resources: {
+    list: "/api/v1/resources",
+    get: (id: string) => `/api/v1/resources/${id}`,
+    sections: (id: string) => `/api/v1/resources/${id}/sections`,
+    chunks: (id: string) => `/api/v1/resources/${id}/chunks`,
+    statistics: (id: string) => `/api/v1/resources/${id}/statistics`,
+  },
   retrieval: {
     search: "/api/v1/retrieval/search",
   },

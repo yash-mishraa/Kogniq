@@ -23,7 +23,7 @@ describe("QuizEnvironment", () => {
 
   it("loads the active document, locks an answer, and resets when the document clears", async () => {
     const getQuiz = vi.fn().mockResolvedValue(questions);
-    vi.spyOn(serviceProvider, "getProvider").mockReturnValue({ quiz: { getQuiz } } as unknown as IServiceProvider);
+    vi.spyOn(serviceProvider, "getProvider").mockReturnValue({ quiz: { getQuiz }, analytics: { enqueueBatchEvent: vi.fn(), initializeDeliveryQueue: vi.fn() } } as unknown as IServiceProvider);
     render(<WorkspaceProvider initialEnvironmentId="quiz" initialMemory={{ documents: { openedDocument: "doc-a" } }}><Harness /></WorkspaceProvider>);
     await screen.findByText("Question?");
     expect(getQuiz).toHaveBeenCalledWith(expect.objectContaining({ documentId: "doc-a" }));
@@ -36,7 +36,7 @@ describe("QuizEnvironment", () => {
 
   it("loads a new quiz when the selected document changes", async () => {
     const getQuiz = vi.fn().mockResolvedValue(questions);
-    vi.spyOn(serviceProvider, "getProvider").mockReturnValue({ quiz: { getQuiz } } as unknown as IServiceProvider);
+    vi.spyOn(serviceProvider, "getProvider").mockReturnValue({ quiz: { getQuiz }, analytics: { enqueueBatchEvent: vi.fn(), initializeDeliveryQueue: vi.fn() } } as unknown as IServiceProvider);
     render(<WorkspaceProvider initialEnvironmentId="quiz" initialMemory={{ documents: { openedDocument: "doc-a" } }}><Harness /></WorkspaceProvider>);
     await screen.findByText("Question?");
     fireEvent.click(screen.getByText("Switch document"));

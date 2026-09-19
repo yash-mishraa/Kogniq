@@ -3,6 +3,7 @@
 import { type ReactNode, useCallback, useMemo, useState, useEffect } from "react";
 import { WorkspaceContext } from "./WorkspaceContext";
 import type { EnvironmentId, WorkspaceMemory } from "./WorkspaceTypes";
+import { serviceProvider } from "@/lib/providers";
 
 export interface SerializedWorkspaceState {
   activeEnvironmentId: EnvironmentId;
@@ -23,6 +24,12 @@ export function WorkspaceProvider({
   sessionUserId?: string | null;
   children: ReactNode; 
 }) {
+  useEffect(() => {
+    // Initialize analytics delivery queue for the current session user
+    // If sessionUserId changes, this correctly resets generation logic inside the queue.
+    serviceProvider.getProvider().analytics.initializeDeliveryQueue(sessionUserId ?? null);
+  }, [sessionUserId]);
+
   const getStorageKey = useCallback(() => {
     return sessionUserId ? `kogniq_workspace_state_${sessionUserId}` : "kogniq_workspace_state";
   }, [sessionUserId]);

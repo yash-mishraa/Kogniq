@@ -177,6 +177,27 @@ def init_db(conn: sqlite3.Connection) -> None:
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_learner_activity_event_type ON learner_activity(event_type)"
     )
+    
+    # Milestone 5.1 extensions for learning events
+    add_column(
+        "learner_activity", "section_id TEXT REFERENCES resource_sections(id) ON DELETE CASCADE"
+    )
+    add_column(
+        "learner_activity", "chunk_id TEXT REFERENCES document_chunks(id) ON DELETE CASCADE"
+    )
+    add_column("learner_activity", "occurred_at TIMESTAMP")
+    add_column("learner_activity", "idempotency_key TEXT")
+
+    # Add constraints
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_learner_activity_idempotency "
+        "ON learner_activity(idempotency_key) WHERE idempotency_key IS NOT NULL"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_learner_activity_occurred_at "
+        "ON learner_activity(occurred_at)"
+    )
+    
     # 7. Document Jobs
     conn.execute("""
         CREATE TABLE IF NOT EXISTS document_jobs (

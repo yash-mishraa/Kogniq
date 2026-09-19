@@ -6,10 +6,13 @@ import type { ISearchService } from "../services/interfaces/ISearchService";
 import type { IStudyService } from "../services/interfaces/IStudyService";
 import type { IFlashcardsService } from "../services/interfaces/IFlashcardsService";
 import type { IQuizService } from "../services/interfaces/IQuizService";
+import type { IResourceService } from "../services/interfaces/IResourceService";
 
 import { MockAuthService } from "../services/mock/MockAuthService";
 import { MockDocumentService } from "../services/mock/MockDocumentService";
 import { MockQuizService } from "../services/mock/MockQuizService";
+import { MockFlashcardsService } from "../services/mock/MockFlashcardsService";
+import { MockResourceService } from "../services/mock/MockResourceService";
 
 import { LiveAuthService } from "../services/live/LiveAuthService";
 import { LiveDocumentService } from "../services/live/LiveDocumentService";
@@ -20,7 +23,8 @@ import { LiveStudyService } from "../services/live/LiveStudyService";
 import { LiveFlashcardsService } from "../services/live/LiveFlashcardsService";
 import { LiveQuizService } from "../services/live/LiveQuizService";
 import { LiveAnalyticsService } from "../services/live/LiveAnalyticsService";
-import { MockFlashcardsService } from "../services/mock/MockFlashcardsService";
+import { LiveResourceService } from "../services/live/LiveResourceService";
+import type { IAnalyticsService } from "../services/interfaces/IAnalyticsService";
 
 export type ProviderMode = "mock" | "live";
 
@@ -33,7 +37,8 @@ export interface IServiceProvider {
   study: IStudyService;
   flashcards: IFlashcardsService;
   quiz: IQuizService;
-  analytics: LiveAnalyticsService;
+  analytics: IAnalyticsService;
+  resources: IResourceService;
 }
 
 class ServiceProviderFactory {
@@ -49,6 +54,7 @@ class ServiceProviderFactory {
     flashcards: new MockFlashcardsService(),
     quiz: new MockQuizService(),
     analytics: new LiveAnalyticsService(),
+    resources: new MockResourceService(),
   };
 
   private liveProvider: IServiceProvider = {
@@ -61,6 +67,7 @@ class ServiceProviderFactory {
     flashcards: new LiveFlashcardsService(),
     quiz: new LiveQuizService(),
     analytics: new LiveAnalyticsService(),
+    resources: new LiveResourceService(),
   };
 
   getProvider(): IServiceProvider {
