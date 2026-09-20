@@ -7,11 +7,21 @@ import { AnimatePresence } from "framer-motion";
 
 import { useEffect } from "react";
 import { serviceProvider } from "@/lib/providers";
+import { useWorkspace } from "../../WorkspaceContext";
 
 function DocumentsEnvironmentBody() {
   const { state, dispatch } = useDocuments();
+  const { memory } = useWorkspace();
   const { documents, activeDocumentId } = state;
   const activeDocument = documents.data?.find((doc) => doc.id === activeDocumentId);
+  const memoryDocumentId = memory.documents?.openedDocument;
+
+  // Restore active document from memory
+  useEffect(() => {
+    if (memoryDocumentId && memoryDocumentId !== activeDocumentId) {
+      dispatch({ type: "SELECT_DOCUMENT", payload: memoryDocumentId });
+    }
+  }, [memoryDocumentId, activeDocumentId, dispatch]);
 
   useEffect(() => {
     let isMounted = true;
