@@ -17,4 +17,18 @@ export class MockStudentService implements IStudentService {
       next_review_due: new Date().toISOString()
     };
   }
+
+  async getRecommendations(limit: number = 5, signal?: AbortSignal): Promise<{ recommendations: any[] }> {
+    return {
+      recommendations: [
+        {
+          resource_id: "doc-1",
+          resource_title: "Introduction to Kogniq",
+          action_type: "new_resource",
+          priority_score: 10,
+          reason: "Start learning this new resource."
+        }
+      ]
+    };
+  }
 }

@@ -25,4 +25,16 @@ export class LiveStudentService implements IStudentService {
     );
     return response.data;
   }
+
+  async getRecommendations(limit: number = 5, signal?: AbortSignal): Promise<{ recommendations: any[] }> {
+    const response = await apiClient.get<{ recommendations: any[] }>(
+      ENDPOINTS.student.recommendations,
+      {
+        params: { limit },
+        signal,
+        ...REQUEST_POLICIES.retrieval
+      }
+    );
+    return response.data;
+  }
 }

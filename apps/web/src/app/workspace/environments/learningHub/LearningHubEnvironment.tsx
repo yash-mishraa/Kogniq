@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLearningHub, LearningHubProvider } from "./LearningHubContext";
 import { serviceProvider } from "@/lib/providers";
 import type { ResourceChunk } from "@/lib/services/interfaces/IResourceService";
+import { RecommendationsList } from "./RecommendationsList";
 
 function ResourceList() {
   const { state, dispatch } = useLearningHub();
@@ -64,6 +65,7 @@ function ResourceList() {
 
   return (
     <div className="flex flex-col flex-shrink-0 overflow-y-auto transition-all w-full pt-12 px-6 lg:px-12 bg-transparent pb-24">
+      <RecommendationsList />
       <h2 className="text-xl font-serif text-ink tracking-tight mb-8">Content Intelligence Hub</h2>
       <ul className="flex flex-col gap-2">
         {resources.data?.map(resource => (

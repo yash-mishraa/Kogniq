@@ -3,6 +3,25 @@ import { beforeAll } from 'vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { LearningHubEnvironment } from "./LearningHubEnvironment";
 import { serviceProvider } from "@/lib/providers";
+import { WorkspaceContext } from "../../WorkspaceContext";
+import type { WorkspaceContextValue } from "../../WorkspaceContext";
+import type { WorkspaceMemory } from "../../WorkspaceTypes";
+
+const mockWorkspaceContext: WorkspaceContextValue = {
+  activeEnvironmentId: "learningHub",
+  history: ["learningHub"],
+  memory: {},
+  switchEnvironment: vi.fn(),
+  remember: vi.fn()
+};
+
+const renderWithWorkspace = (ui: React.ReactElement) => {
+  return render(
+    <WorkspaceContext.Provider value={mockWorkspaceContext}>
+      {ui}
+    </WorkspaceContext.Provider>
+  );
+};
 
 describe("LearningHubEnvironment", () => {
 beforeAll(() => {
@@ -23,7 +42,7 @@ beforeAll(() => {
     const mockList = vi.fn().mockImplementation(() => new Promise(() => {})); // Never resolves
     serviceProvider.getProvider().resources.listResources = mockList;
 
-    render(<LearningHubEnvironment />);
+    renderWithWorkspace(<LearningHubEnvironment />);
     
     expect(screen.getByText("Loading resources...")).toBeInTheDocument();
   });
@@ -31,7 +50,7 @@ beforeAll(() => {
   it("should render empty state if no resources", async () => {
     serviceProvider.getProvider().resources.listResources = vi.fn().mockResolvedValue([]);
 
-    render(<LearningHubEnvironment />);
+    renderWithWorkspace(<LearningHubEnvironment />);
     
     await waitFor(() => {
       expect(screen.getByText("No Resources Found")).toBeInTheDocument();
@@ -48,7 +67,7 @@ beforeAll(() => {
     serviceProvider.getProvider().resources.getResourceChunks = vi.fn().mockResolvedValue([{ id: "c1", section_id: "s1", text: "Chunk content", order: 0 }]);
     serviceProvider.getProvider().resources.getResourceStatistics = vi.fn().mockResolvedValue({ section_count: 1, chunk_count: 1, total_tokens: 100 });
 
-    render(<LearningHubEnvironment />);
+    renderWithWorkspace(<LearningHubEnvironment />);
     
     // Check list rendered
     await waitFor(() => {
@@ -90,7 +109,7 @@ beforeAll(() => {
     serviceProvider.getProvider().resources.getResourceChunks = mockGetChunks;
     serviceProvider.getProvider().resources.getResourceStatistics = vi.fn().mockResolvedValue({ section_count: 1, chunk_count: 101, total_tokens: 100 });
 
-    render(<LearningHubEnvironment />);
+    renderWithWorkspace(<LearningHubEnvironment />);
     
     await waitFor(() => expect(screen.getAllByText("Resource 1").length).toBeGreaterThan(0));
     const h3 = screen.getAllByText("Resource 1")[0];
@@ -111,7 +130,7 @@ beforeAll(() => {
   it("should handle error state gracefully", async () => {
     serviceProvider.getProvider().resources.listResources = vi.fn().mockRejectedValue(new Error("API Error"));
 
-    render(<LearningHubEnvironment />);
+    renderWithWorkspace(<LearningHubEnvironment />);
     
     await waitFor(() => {
       expect(screen.getByText("Failed to load resources.")).toBeInTheDocument();

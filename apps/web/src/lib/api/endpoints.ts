@@ -26,5 +26,6 @@ export const ENDPOINTS = {
   student: {
     knowledgeStates: "/api/v1/student/knowledge-states",
     knowledgeState: (resourceId: string) => `/api/v1/student/knowledge-states/${resourceId}`,
+    recommendations: "/api/v1/student/recommendations",
   },
 } as const;
