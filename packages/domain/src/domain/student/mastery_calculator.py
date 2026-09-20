@@ -52,11 +52,15 @@ def calculate_mastery(events: Sequence[LearnerEvent], user_id: str, resource_id:
 
     # If there is no evidence (e.g. only resource_viewed events), what should mastery be?
     # Prompt: "Initial Score: If no valid evidence events exist, mastery_score evaluates to 0.0."
-    mastery_score = sum(evidence_scores) / len(evidence_scores) if evidence_scores else 0.0
+    review_count = len(evidence_scores)
+    mastery_score = sum(evidence_scores) / review_count if review_count > 0 else 0.0
     
-    next_review_due = None
-    if last_reviewed_at is not None:
-        next_review_due = last_reviewed_at + timedelta(days=1)
+    from domain.student.srs_policy import calculate_next_review_due
+    next_review_due = calculate_next_review_due(
+        mastery_score=mastery_score,
+        review_count=review_count,
+        last_reviewed_at=last_reviewed_at
+    )
 
     now = datetime.now(UTC)
     return KnowledgeState(
