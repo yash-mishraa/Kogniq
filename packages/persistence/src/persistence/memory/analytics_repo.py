@@ -29,6 +29,14 @@ class MemoryAnalyticsRepository(AbstractAnalyticsRepository):
         )
 
     async def save_event(self, event: LearnerEvent) -> SaveResult:
+        if event.idempotency_key is not None:
+            existing = next(
+                (e for e in self.events.values() if e.idempotency_key == event.idempotency_key), 
+                None
+            )
+            if existing:
+                return SaveResult(id=event.event_id, is_new=False)
+                
         is_new = event.event_id not in self.events
         self.events[event.event_id] = event
         return SaveResult(id=event.event_id, is_new=is_new)
@@ -63,6 +71,15 @@ class MemoryAnalyticsRepository(AbstractAnalyticsRepository):
         from persistence.models import SaveResult
         results = []
         for event in events:
+            if event.idempotency_key is not None:
+                existing = next(
+                    (e for e in self.events.values() if e.idempotency_key == event.idempotency_key), 
+                    None
+                )
+                if existing:
+                    results.append(SaveResult(id=event.event_id, is_new=False))
+                    continue
+                    
             is_new = event.event_id not in self.events
             self.events[event.event_id] = event
             results.append(SaveResult(id=event.event_id, is_new=is_new))
