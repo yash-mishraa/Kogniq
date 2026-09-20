@@ -417,6 +417,14 @@ async def list_knowledge_states_use_case(
     from application.student.list_knowledge_states import ListKnowledgeStatesUseCase
     return ListKnowledgeStatesUseCase(auth_service=auth_service, uow_factory=uow_factory)
 
+
+async def get_recommendations_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> Any:
+    from application.student.get_recommendations import GetRecommendationsUseCase
+    return GetRecommendationsUseCase(auth_service=auth_service, uow_factory=uow_factory)
+
 async def get_resource_progress_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008

@@ -64,3 +64,40 @@ async def get_knowledge_state(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Knowledge state not found")
         
     return _format_state(response.state)
+
+
+from backend.dependencies import get_recommendations_use_case
+from application.student.get_recommendations import GetRecommendationsRequest
+
+class LearnerRecommendationResponse(BaseModel):
+    resource_id: str
+    resource_title: str
+    action_type: str
+    priority_score: float
+    reason: str
+
+class GetRecommendationsAPIResponse(BaseModel):
+    recommendations: list[LearnerRecommendationResponse]
+
+@student_router.get("/recommendations", response_model=GetRecommendationsAPIResponse)
+async def get_recommendations(
+    limit: int = 5,
+    authorization: str = Header(..., description="Bearer token"),
+    use_case: Any = Depends(get_recommendations_use_case),  # noqa: B008
+) -> GetRecommendationsAPIResponse:
+    token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
+    request = GetRecommendationsRequest(token=token, limit=limit)
+    response = await use_case.execute(request)
+    
+    return GetRecommendationsAPIResponse(
+        recommendations=[
+            LearnerRecommendationResponse(
+                resource_id=r.resource_id,
+                resource_title=r.resource_title,
+                action_type=r.action_type,
+                priority_score=r.priority_score,
+                reason=r.reason,
+            )
+            for r in response.recommendations
+        ]
+    )
