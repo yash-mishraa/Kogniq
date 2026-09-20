@@ -79,6 +79,10 @@ class AbstractRepositoryFactory(abc.ABC):
     def create_resource_chunk_repository(self, conn: Any = None) -> AbstractResourceChunkRepository:
         pass
 
+    @abc.abstractmethod
+    def create_knowledge_state_repository(self, conn: Any = None) -> Any:
+        pass
+
 
 class MemoryRepositoryFactory(AbstractRepositoryFactory):
     """Provides singleton in-memory repositories."""
@@ -96,12 +100,14 @@ class MemoryRepositoryFactory(AbstractRepositoryFactory):
             MemoryResourceSectionRepository,
         )
         from persistence.memory.document_job_repo import MemoryDocumentJobRepository
+        from persistence.memory.knowledge_repository import MemoryKnowledgeStateRepository
 
         self._analytics_repo = MemoryAnalyticsRepository()
         self._document_job_repo = MemoryDocumentJobRepository()
         self._learning_resource_repo = MemoryLearningResourceRepository()
         self._resource_section_repo = MemoryResourceSectionRepository()
         self._resource_chunk_repo = MemoryResourceChunkRepository()
+        self._knowledge_state_repo = MemoryKnowledgeStateRepository()
 
     def create_document_repository(self, conn: Any = None) -> AbstractDocumentRepository:  # noqa: ARG002
         return self._document_repo
@@ -136,6 +142,9 @@ class MemoryRepositoryFactory(AbstractRepositoryFactory):
 
     def create_resource_chunk_repository(self, conn: Any = None) -> AbstractResourceChunkRepository:
         return self._resource_chunk_repo
+
+    def create_knowledge_state_repository(self, conn: Any = None) -> Any:  # noqa: ARG002
+        return self._knowledge_state_repo
 
 
 class SQLiteRepositoryFactory(AbstractRepositoryFactory):
@@ -208,3 +217,10 @@ class SQLiteRepositoryFactory(AbstractRepositoryFactory):
         if not conn:
             raise ValueError("SQLite repositories require a connection instance.")
         return SQLiteResourceChunkRepository(conn)
+
+    def create_knowledge_state_repository(self, conn: sqlite3.Connection | None = None) -> Any:
+        if not conn:
+            raise ValueError("SQLite repositories require a connection instance.")
+        from persistence.sqlite.knowledge_repository import SQLiteKnowledgeStateRepository
+
+        return SQLiteKnowledgeStateRepository(conn)

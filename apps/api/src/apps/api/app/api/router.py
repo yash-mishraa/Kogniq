@@ -24,3 +24,7 @@ api_router.include_router(jobs_router)
 api_router.include_router(knowledge_router)
 api_router.include_router(analytics_router)
 api_router.include_router(resources_router)
+
+from apps.api.app.routers.student import student_router
+
+api_router.include_router(student_router)

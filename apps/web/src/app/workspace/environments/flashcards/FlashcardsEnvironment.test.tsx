@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { FlashcardsEnvironment } from "./FlashcardsEnvironment";
 import { serviceProvider } from "@/lib/providers";
-import { Mock, vi } from "vitest";
+import { Mock } from "vitest";
 import { WorkspaceProvider } from "../../WorkspaceProvider";
 
 vi.mock("react-markdown", () => ({ default: (props: { children: React.ReactNode }) => <div data-testid="markdown-mock">{props.children}</div> }));

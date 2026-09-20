@@ -23,4 +23,8 @@ export const ENDPOINTS = {
     generate: "/api/v1/learning/generate",
     get: (documentId: string) => `/api/v1/learning/${documentId}`,
   },
+  student: {
+    knowledgeStates: "/api/v1/student/knowledge-states",
+    knowledgeState: (resourceId: string) => `/api/v1/student/knowledge-states/${resourceId}`,
+  },
 } as const;

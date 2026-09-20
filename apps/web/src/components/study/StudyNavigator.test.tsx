@@ -19,7 +19,7 @@ vi.mock("@/app/workspace/WorkspaceContext", () => ({
   useWorkspace: vi.fn(),
 }));
 
-import { Mock, vi } from "vitest";
+import { Mock } from "vitest";
 
 describe("StudyNavigator", () => {
   let mockEnqueueBatchEvent: Mock;

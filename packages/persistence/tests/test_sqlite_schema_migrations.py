@@ -129,8 +129,8 @@ def test_learner_activity_index_initialization() -> None:
     conn.close()
 
 def test_learner_activity_index_operational_error() -> None:
-    from unittest.mock import MagicMock
     import sqlite3
+    from unittest.mock import MagicMock
     
     mock_conn = MagicMock()
     mock_conn.execute.side_effect = sqlite3.OperationalError("disk I/O error")

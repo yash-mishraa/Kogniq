@@ -29,6 +29,7 @@ class AbstractUnitOfWork(abc.ABC):
     learning_resources: "AbstractLearningResourceRepository"
     resource_sections: "AbstractResourceSectionRepository"
     resource_chunks: "AbstractResourceChunkRepository"
+    knowledge_states: Any
 
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
@@ -81,6 +82,7 @@ class SQLiteUnitOfWork(AbstractUnitOfWork):
         self.learning_resources = self._factory.create_learning_resource_repository(self._conn)
         self.resource_sections = self._factory.create_resource_section_repository(self._conn)
         self.resource_chunks = self._factory.create_resource_chunk_repository(self._conn)
+        self.knowledge_states = self._factory.create_knowledge_state_repository(self._conn)
 
     def commit(self) -> None:
         self._conn.execute("COMMIT")

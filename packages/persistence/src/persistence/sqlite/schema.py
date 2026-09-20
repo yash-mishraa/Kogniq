@@ -11,6 +11,27 @@ def init_db(conn: sqlite3.Connection) -> None:
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # Create Knowledge States table
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS knowledge_states (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            resource_id TEXT NOT NULL,
+            mastery_score REAL NOT NULL,
+            last_reviewed_at TEXT,
+            next_review_due TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_knowledge_states_user_resource ON knowledge_states(user_id, resource_id)
+        """
+    )
+
     # Insert initial version if it doesn't exist
     conn.execute("INSERT OR IGNORE INTO schema_metadata (version) VALUES (1)")
 

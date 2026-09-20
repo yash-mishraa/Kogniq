@@ -3,11 +3,14 @@
 import { useStudy } from "@/app/workspace/environments/study/StudyContext";
 import { useWorkspace } from "@/app/workspace/WorkspaceContext";
 import { serviceProvider } from "@/lib/providers";
+import { useKnowledgeState } from "./useKnowledgeState";
 
 export function StudyNavigator() {
   const { state, dispatch } = useStudy();
   const { memory, switchEnvironment } = useWorkspace();
   const documentId = memory.documents?.openedDocument;
+  
+  const { knowledgeState, isLoading, error } = useKnowledgeState(documentId || null);
 
   if (!state.isStudying || !state.material || !state.material.data) return null;
 
@@ -82,7 +85,16 @@ export function StudyNavigator() {
   }
 
   return (
-    <div className="flex justify-end pointer-events-auto">
+    <div className="flex items-center gap-4 justify-end pointer-events-auto">
+      <div className="px-4 py-2 bg-canvas/80 backdrop-blur-md rounded-full border border-ink/10 text-sm font-medium tracking-tight text-ink/70">
+        {isLoading && <span>Loading mastery...</span>}
+        {!isLoading && error && <span>Mastery data unavailable</span>}
+        {!isLoading && !error && !knowledgeState && <span>Mastery data unavailable</span>}
+        {!isLoading && !error && knowledgeState && (
+          <span>Mastery: {Math.round(knowledgeState.mastery_score * 100)}%</span>
+        )}
+      </div>
+
       {nextAction && (
         <button
           onClick={nextAction.onClick}
