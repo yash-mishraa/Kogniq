@@ -11,6 +11,15 @@ class MemoryAnalyticsRepository(AbstractAnalyticsRepository):
     def __init__(self) -> None:
         self.events: dict[str, LearnerEvent] = {}
 
+    async def list_events_by_resource(self, user_id: str, resource_id: str) -> Sequence[LearnerEvent]:
+        # Filter and sort
+        filtered = [
+            e for e in self.events.values()
+            if e.user_id == user_id and e.document_id == resource_id
+        ]
+        filtered.sort(key=lambda x: x.occurred_at or x.created_at)
+        return filtered
+
     async def has_completed_study(self, user_id: str, document_id: str) -> bool:
         return any(
             e.user_id == user_id

@@ -189,3 +189,12 @@ class RecordEventsBatchUseCase:
                 raise BackendError('invalid_reference', str(e), status_code=400) from e
 
             await uow.analytics.save_events(learner_events)
+            
+            # Recalculate Mastery Score for affected resources
+            from domain.student.mastery_calculator import calculate_mastery
+            
+            for rid in resource_ids:
+                events = await uow.analytics.list_events_by_resource(user_id, rid)
+                new_state = calculate_mastery(events, user_id, rid)
+                if new_state:
+                    await uow.knowledge_states.save(new_state)

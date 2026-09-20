@@ -196,6 +196,10 @@ class AbstractAnalyticsRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
+    async def list_events_by_resource(self, user_id: str, resource_id: str) -> Sequence[LearnerEvent]:
+        pass
+
+    @abc.abstractmethod
     async def has_completed_study(self, user_id: str, document_id: str) -> bool:
         pass
 

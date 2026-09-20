@@ -4,7 +4,15 @@ from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from domain.analytics.models import AnalyticsMetrics, LearnerEvent
+from domain.analytics.models import (
+    AnalyticsMetrics,
+    ChunkViewedEvent,
+    FlashcardReviewedEvent,
+    LearnerEvent,
+    QuizCompletedEvent,
+    ResourceViewedEvent,
+    StudySessionCompletedEvent,
+)
 
 from persistence.models import SaveResult
 from persistence.repositories.base import AbstractAnalyticsRepository
@@ -13,6 +21,48 @@ from persistence.repositories.base import AbstractAnalyticsRepository
 class SQLiteAnalyticsRepository(AbstractAnalyticsRepository):
     def __init__(self, conn: sqlite3.Connection) -> None:
         self._conn = conn
+
+    async def list_events_by_resource(self, user_id: str, resource_id: str) -> Sequence[LearnerEvent]:
+        rows = self._conn.execute(
+            """
+            SELECT id, user_id, document_id, event_type, event_data_json, created_at,
+                   section_id, chunk_id, occurred_at, idempotency_key
+            FROM learner_activity
+            WHERE user_id = ? AND document_id = ?
+            ORDER BY COALESCE(occurred_at, created_at) ASC
+            """,
+            (user_id, resource_id),
+        ).fetchall()
+
+        events: list[LearnerEvent] = []
+        for row in rows:
+            data = json.loads(row["event_data_json"])
+            evt_type = row["event_type"]
+            base_kwargs = {
+                "event_id": row["id"],
+                "user_id": row["user_id"],
+                "document_id": row["document_id"],
+                "event_type": evt_type,
+                "event_data": data,
+                "created_at": datetime.fromisoformat(row["created_at"]) if row["created_at"] else datetime.min,
+                "section_id": row["section_id"],
+                "chunk_id": row["chunk_id"],
+                "occurred_at": datetime.fromisoformat(row["occurred_at"]) if row["occurred_at"] else None,
+                "idempotency_key": row["idempotency_key"],
+            }
+            if evt_type == "quiz_completed":
+                events.append(QuizCompletedEvent(**base_kwargs))
+            elif evt_type == "flashcard_reviewed":
+                events.append(FlashcardReviewedEvent(**base_kwargs))
+            elif evt_type == "resource_viewed":
+                events.append(ResourceViewedEvent(**base_kwargs))
+            elif evt_type == "chunk_viewed":
+                events.append(ChunkViewedEvent(**base_kwargs))
+            elif evt_type == "study_session_completed":
+                events.append(StudySessionCompletedEvent(**base_kwargs))
+            else:
+                events.append(LearnerEvent(**base_kwargs))
+        return events
 
     async def has_completed_study(self, user_id: str, document_id: str) -> bool:
         row = self._conn.execute(
