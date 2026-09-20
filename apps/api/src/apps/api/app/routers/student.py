@@ -1,7 +1,7 @@
 from typing import Any
 
 from backend.dependencies import get_knowledge_state_use_case, list_knowledge_states_use_case
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel
 
 from application.student.get_knowledge_state import GetKnowledgeStateRequest
@@ -81,7 +81,7 @@ class GetRecommendationsAPIResponse(BaseModel):
 
 @student_router.get("/recommendations", response_model=GetRecommendationsAPIResponse)
 async def get_recommendations(
-    limit: int = 5,
+    limit: int = Query(5, ge=1, le=100, description="Max recommendations to return"),
     authorization: str = Header(..., description="Bearer token"),
     use_case: Any = Depends(get_recommendations_use_case),  # noqa: B008
 ) -> GetRecommendationsAPIResponse:
