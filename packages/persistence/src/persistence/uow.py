@@ -13,6 +13,8 @@ from persistence.repositories.base import (
     AbstractResourceChunkRepository,
     AbstractResourceSectionRepository,
 )
+from persistence.repositories.chat import AbstractChatRepository
+from persistence.repositories.notebook import AbstractNotebookRepository
 
 
 class AbstractUnitOfWork(abc.ABC):
@@ -25,6 +27,8 @@ class AbstractUnitOfWork(abc.ABC):
     learning: AbstractLearningRepository
     analytics: AbstractAnalyticsRepository
     document_jobs: AbstractDocumentJobRepository
+    chat: AbstractChatRepository
+    notebook: AbstractNotebookRepository
 
     learning_resources: "AbstractLearningResourceRepository"
     resource_sections: "AbstractResourceSectionRepository"
@@ -83,6 +87,8 @@ class SQLiteUnitOfWork(AbstractUnitOfWork):
         self.resource_sections = self._factory.create_resource_section_repository(self._conn)
         self.resource_chunks = self._factory.create_resource_chunk_repository(self._conn)
         self.knowledge_states = self._factory.create_knowledge_state_repository(self._conn)
+        self.chat = self._factory.create_chat_repository(self._conn)
+        self.notebook = self._factory.create_notebook_repository(self._conn)
 
     def commit(self) -> None:
         self._conn.execute("COMMIT")

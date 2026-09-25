@@ -14,6 +14,7 @@ def from_iso(date_str: str | None) -> datetime | None:
         return None
     return datetime.fromisoformat(date_str)
 
+
 def to_iso(date_obj: datetime | None) -> str | None:
     if not date_obj:
         return None
@@ -40,12 +41,13 @@ class SQLiteKnowledgeStateRepository(AbstractKnowledgeStateRepository):
 
     async def save(self, state: KnowledgeState) -> SaveResult:
         cursor = self._conn.cursor()
-        
+
         # Enforce upsert based on unique (user_id, resource_id)
         cursor.execute(
             """
-            INSERT INTO knowledge_states 
-            (id, user_id, resource_id, mastery_score, last_reviewed_at, next_review_due, created_at, updated_at)
+            INSERT INTO knowledge_states
+            (id, user_id, resource_id, mastery_score,
+             last_reviewed_at, next_review_due, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(user_id, resource_id) DO UPDATE SET
                 mastery_score=excluded.mastery_score,
@@ -66,11 +68,11 @@ class SQLiteKnowledgeStateRepository(AbstractKnowledgeStateRepository):
             ),
         )
         row = cursor.fetchone()
-        
+
         # Determine if it was new by checking if created_at == updated_at
-        # A bit of a heuristic for SQLite UPSERT returns, but SafeResult doesn't strictly need perfect is_new here
+        # A bit of a heuristic for SQLite UPSERT returns, but SafeResult doesn't need perfect is_new
         # Actually SQLite RETURNING returns the final row state. Let's just say is_new is False.
-        # Wait, SaveResult expects is_new. 
+        # Wait, SaveResult expects is_new.
         is_new = row[1] == to_iso(state.updated_at)
         return SaveResult(id=row[0], is_new=is_new)
 
@@ -78,7 +80,8 @@ class SQLiteKnowledgeStateRepository(AbstractKnowledgeStateRepository):
         cursor = self._conn.cursor()
         cursor.execute(
             """
-            SELECT id, user_id, resource_id, mastery_score, last_reviewed_at, next_review_due, created_at, updated_at
+            SELECT id, user_id, resource_id, mastery_score,
+                   last_reviewed_at, next_review_due, created_at, updated_at
             FROM knowledge_states
             WHERE user_id = ? AND resource_id = ?
             """,
@@ -93,7 +96,8 @@ class SQLiteKnowledgeStateRepository(AbstractKnowledgeStateRepository):
         cursor = self._conn.cursor()
         cursor.execute(
             """
-            SELECT id, user_id, resource_id, mastery_score, last_reviewed_at, next_review_due, created_at, updated_at
+            SELECT id, user_id, resource_id, mastery_score,
+                   last_reviewed_at, next_review_due, created_at, updated_at
             FROM knowledge_states
             WHERE user_id = ?
             """,

@@ -187,7 +187,7 @@ async def test_student_router_get_recommendations(
         
         # User another (other user) has R3 (upcoming)
         
-        uow._conn.execute(
+        uow._conn.execute(  # type: ignore
             "INSERT INTO documents (id, title, source, checksum, version, created_at, pages_json, user_id) VALUES "
             "('r1', 'User 1 Overdue', 'src', 'chk', '1', ?, '[]', 'user-123'),"
             "('r2', 'User 1 New', 'src', 'chk', '1', ?, '[]', 'user-123'),"

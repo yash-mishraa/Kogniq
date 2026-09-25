@@ -1,5 +1,6 @@
 from typing import Any
 
+import backend.dependencies
 from backend.dependencies import (
     get_explain_mistake_use_case,
     get_generate_learning_use_case,
@@ -155,5 +156,78 @@ async def explain_mistake(
         if type(e).__name__ == "BackendError":
             from fastapi import HTTPException
 
+            raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
+        raise
+
+from pydantic import BaseModel
+
+
+class AddFlashcardPayload(BaseModel):
+    question: str
+    answer: str
+    difficulty: str
+    idempotency_key: str
+
+@learning_router.post("/{document_id}/flashcards")
+async def add_flashcard(
+    document_id: str,
+    payload: AddFlashcardPayload,
+    request: Request,
+    use_case = Depends(backend.dependencies.get_add_flashcard_use_case)
+):
+    token = request.cookies.get("kogniq_session", "")
+    from application.learning.add_flashcard import AddFlashcardRequest
+    req = AddFlashcardRequest(
+        document_id=document_id,
+        token=token,
+        question=payload.question,
+        answer=payload.answer,
+        difficulty=payload.difficulty,
+        idempotency_key=payload.idempotency_key
+    )
+    
+    try:
+        response = await use_case.execute(req)
+        return response
+    except Exception as e:
+        if type(e).__name__ == "BackendError":
+            from fastapi import HTTPException
+            raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
+        raise
+
+class AddQuizPayload(BaseModel):
+    question: str
+    options: list[str]
+    correct_answer: str
+    explanation: str
+    difficulty: str
+    idempotency_key: str
+
+@learning_router.post("/{document_id}/quizzes")
+async def add_quiz(
+    document_id: str,
+    payload: AddQuizPayload,
+    request: Request,
+    use_case = Depends(backend.dependencies.get_add_quiz_question_use_case)
+):
+    token = request.cookies.get("kogniq_session", "")
+    from application.learning.add_quiz import AddQuizQuestionRequest
+    req = AddQuizQuestionRequest(
+        document_id=document_id,
+        token=token,
+        question=payload.question,
+        options=payload.options,
+        correct_answer=payload.correct_answer,
+        explanation=payload.explanation,
+        difficulty=payload.difficulty,
+        idempotency_key=payload.idempotency_key
+    )
+    
+    try:
+        response = await use_case.execute(req)
+        return response
+    except Exception as e:
+        if type(e).__name__ == "BackendError":
+            from fastapi import HTTPException
             raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
         raise

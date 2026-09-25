@@ -1,14 +1,16 @@
+from dataclasses import dataclass
 from domain.student.mastery_calculator import calculate_mastery
 from persistence.uow_factory import AbstractUnitOfWorkFactory
-from pydantic import BaseModel
 
 
-class RecalculateKnowledgeStateRequest(BaseModel):
+@dataclass(frozen=True)
+class RecalculateKnowledgeStateRequest:
     user_id: str
     resource_id: str
 
 
-class RecalculateKnowledgeStateResponse(BaseModel):
+@dataclass(frozen=True)
+class RecalculateKnowledgeStateResponse:
     success: bool
     mastery_score: float | None
 

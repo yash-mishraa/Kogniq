@@ -83,6 +83,14 @@ class AbstractRepositoryFactory(abc.ABC):
     def create_knowledge_state_repository(self, conn: Any = None) -> Any:
         pass
 
+    @abc.abstractmethod
+    def create_chat_repository(self, conn: Any = None) -> Any:
+        pass
+
+    @abc.abstractmethod
+    def create_notebook_repository(self, conn: Any = None) -> Any:
+        pass
+
 
 class MemoryRepositoryFactory(AbstractRepositoryFactory):
     """Provides singleton in-memory repositories."""
@@ -108,6 +116,11 @@ class MemoryRepositoryFactory(AbstractRepositoryFactory):
         self._resource_section_repo = MemoryResourceSectionRepository()
         self._resource_chunk_repo = MemoryResourceChunkRepository()
         self._knowledge_state_repo = MemoryKnowledgeStateRepository()
+        from persistence.memory.chat_repo import MemoryChatRepository
+        from persistence.memory.notebook_repo import MemoryNotebookRepository
+
+        self._chat_repo = MemoryChatRepository()
+        self._notebook_repo = MemoryNotebookRepository()
 
     def create_document_repository(self, conn: Any = None) -> AbstractDocumentRepository:  # noqa: ARG002
         return self._document_repo
@@ -145,6 +158,12 @@ class MemoryRepositoryFactory(AbstractRepositoryFactory):
 
     def create_knowledge_state_repository(self, conn: Any = None) -> Any:  # noqa: ARG002
         return self._knowledge_state_repo
+
+    def create_chat_repository(self, conn: Any = None) -> Any:  # noqa: ARG002
+        return self._chat_repo
+
+    def create_notebook_repository(self, conn: Any = None) -> Any:  # noqa: ARG002
+        return self._notebook_repo
 
 
 class SQLiteRepositoryFactory(AbstractRepositoryFactory):
@@ -224,3 +243,15 @@ class SQLiteRepositoryFactory(AbstractRepositoryFactory):
         from persistence.sqlite.knowledge_repository import SQLiteKnowledgeStateRepository
 
         return SQLiteKnowledgeStateRepository(conn)
+
+    def create_chat_repository(self, conn: sqlite3.Connection | None = None) -> Any:
+        if not conn:
+            raise ValueError("SQLite repositories require a connection instance.")
+        from persistence.sqlite.chat_repository import SQLiteChatRepository
+        return SQLiteChatRepository(conn)
+
+    def create_notebook_repository(self, conn: sqlite3.Connection | None = None) -> Any:
+        if not conn:
+            raise ValueError("SQLite repositories require a connection instance.")
+        from persistence.sqlite.notebook_repository import SQLiteNotebookRepository
+        return SQLiteNotebookRepository(conn)

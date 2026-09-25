@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from backend.services.auth_service import AuthenticationService
-from persistence.uow_factory import AbstractUnitOfWorkFactory
 from domain.student.recommendations import LearnerRecommendation, generate_recommendations
+from persistence.uow_factory import AbstractUnitOfWorkFactory
 
 
 @dataclass(frozen=True)
@@ -33,8 +33,9 @@ class GetRecommendationsUseCase:
             from auth.exceptions import SessionExpiredError
             raise SessionExpiredError("Invalid session")
 
-        user_id = session.user_id
+        return await self.execute_for_user(session.user_id, request.limit)
 
+    async def execute_for_user(self, user_id: str, limit: int) -> GetRecommendationsResponse:
         with self.uow_factory.create() as uow:
             # Load resources available to user
             # Hard limit of 100 to avoid unbounded scans for the baseline
@@ -49,6 +50,6 @@ class GetRecommendationsUseCase:
             all_recs = generate_recommendations(resources, state_map, now)
             
             # Limit results
-            limited_recs = all_recs[:request.limit]
+            limited_recs = all_recs[:limit]
             
         return GetRecommendationsResponse(recommendations=limited_recs)

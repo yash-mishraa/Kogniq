@@ -1,6 +1,10 @@
+
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
+    AgentMessage,
     TextGenerationProviderInfo,
+    ToolCall,
+    ToolDefinition,
 )
 
 
@@ -8,6 +12,10 @@ class MockTextGenerationProvider(AbstractTextGenerationProvider):
     """
     Mock implementation of a text generation provider for testing and deterministic
     offline development.
+
+    The mock is intentionally behavior-only: it performs a single deterministic
+    semantic_search tool call and then grounds its answer in the retrieved context.
+    Conversation-specific scenario scripting belongs in test doubles, not here.
     """
 
     def __init__(self) -> None:
@@ -37,7 +45,7 @@ class MockTextGenerationProvider(AbstractTextGenerationProvider):
         lower = prompt.lower()
         if "flashcard" in lower:
             return (
-                '[{"question": "What is self-attention?", '
+                '[{"question": "What is self-attention? ", '
                 '"answer": "A mechanism that relates positions of a sequence."}]'
             )
         elif "multiple-choice" in lower or "quiz" in lower:
@@ -94,3 +102,39 @@ The paper introduces the Transformer architecture based entirely on attention me
                 "with self-attention mechanisms for sequence transduction tasks.\n"
             )
         return '{"title": "Fake Title", "content": "Fake content"}'
+
+    def generate_chat(
+        self,
+        messages: list[AgentMessage],
+        tools: list[ToolDefinition] | None = None,
+        system_instruction: str | None = None,
+        *,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> AgentMessage:
+        del tools, system_instruction, temperature, max_tokens
+
+        # After a tool result, ground the answer in the retrieved context.
+        if messages and messages[-1].role == "tool":
+            return AgentMessage(
+                role="assistant",
+                content=f"Based on the document context: {messages[-1].content}",
+            )
+
+        # Otherwise, issue one deterministic semantic search against the latest
+        # user message, mirroring how a real provider uses the tool allowlist.
+        last_user_content = next(
+            (m.content for m in reversed(messages) if m.role == "user"),
+            "",
+        )
+        return AgentMessage(
+            role="assistant",
+            content="",
+            tool_calls=[
+                ToolCall(
+                    id="mock_call_1",
+                    name="semantic_search",
+                    arguments={"query": last_user_content},
+                )
+            ],
+        )

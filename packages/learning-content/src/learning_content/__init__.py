@@ -7,6 +7,7 @@ from learning_content.exceptions import (
     LearningContentError,
 )
 from learning_content.metadata import LearningContentMetadata
+from learning_content.notebook import NotebookEntry
 from learning_content.statistics import LearningContentStatistics
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "LearningContentError",
     "LearningContentMetadata",
     "LearningContentStatistics",
+    "NotebookEntry",
 ]

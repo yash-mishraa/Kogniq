@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from backend.core.exceptions import BackendError
-from backend.services.auth_service import AuthenticationService
+from application.interfaces import AuthenticationServiceProtocol
 from persistence.uow_factory import AbstractUnitOfWorkFactory
 
 
@@ -25,7 +25,7 @@ class RecordEventsBatchRequest:
 class RecordEventsBatchUseCase:
     def __init__(
         self,
-        auth_service: AuthenticationService,
+        auth_service: AuthenticationServiceProtocol,
         uow_factory: AbstractUnitOfWorkFactory,
     ) -> None:
         self.auth_service = auth_service
@@ -37,7 +37,9 @@ class RecordEventsBatchUseCase:
             from auth.exceptions import SessionExpiredError
             raise SessionExpiredError('Invalid session')
 
-        user_id = session.user_id
+        await self.execute_for_user(session.user_id, request)
+
+    async def execute_for_user(self, user_id: str, request: RecordEventsBatchRequest) -> None:
         created_at = datetime.now(UTC)
 
         from domain.analytics.models import (

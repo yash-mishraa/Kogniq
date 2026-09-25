@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -15,6 +16,27 @@ class TextGenerationProviderInfo:
     supports_json: bool = False
     supports_images: bool = False
     supports_tools: bool = False
+
+
+@dataclass
+class ToolDefinition:
+    name: str
+    description: str
+    parameters: dict[str, Any]
+
+
+@dataclass
+class ToolCall:
+    id: str
+    name: str
+    arguments: dict[str, Any]
+
+
+@dataclass
+class AgentMessage:
+    role: str
+    content: str
+    tool_calls: list[ToolCall] = field(default_factory=list)
 
 
 class AbstractTextGenerationProvider(ABC):
@@ -42,16 +64,19 @@ class AbstractTextGenerationProvider(ABC):
     ) -> str:
         """
         Generate text from a given prompt.
-
-        Args:
-            prompt: The complete string prompt.
-            temperature: Optional generation temperature (0.0 to 2.0).
-            max_tokens: Optional maximum number of tokens to generate.
-
-        Returns:
-            The raw generated text.
         """
         ...
+
+    def generate_chat(
+        self,
+        messages: list[AgentMessage],
+        tools: list[ToolDefinition] | None = None,
+        system_instruction: str | None = None,
+        *,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> AgentMessage:
+        raise NotImplementedError("generate_chat is not implemented for this provider")
 
     def generate_batch(
         self,
@@ -62,9 +87,6 @@ class AbstractTextGenerationProvider(ABC):
     ) -> tuple[str, ...]:
         """
         Generate text for multiple prompts.
-
-        Default implementation calls generate() sequentially. Providers may
-        override this if they support native batching or parallel execution.
         """
         return tuple(
             self.generate(prompt, temperature=temperature, max_tokens=max_tokens)

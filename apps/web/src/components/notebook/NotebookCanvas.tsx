@@ -5,12 +5,15 @@ import { NotebookEntry } from "./NotebookEntry";
 import { NotebookNarrative } from "./NotebookNarrative";
 import { motion, AnimatePresence } from "framer-motion";
 import { Locus } from "@/components/locus";
+import { useState } from "react";
 
 interface NotebookCanvasProps {
   notebook: Notebook;
+  onAddNote?: (content: string) => Promise<void>;
 }
 
-export function NotebookCanvas({ notebook }: NotebookCanvasProps) {
+export function NotebookCanvas({ notebook, onAddNote }: NotebookCanvasProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -33,11 +36,17 @@ export function NotebookCanvas({ notebook }: NotebookCanvasProps) {
         <div className="w-full max-w-2xl mt-16 pt-16 border-t border-ink/5">
           <Locus 
             environmentTitle="Notebook"
-            placeholder="│ Capture an idea..."
+            placeholder={isSubmitting ? "Saving..." : "✍️ Capture an idea..."}
             mode="free-text"
-            onSubmitQuery={() => {
-              // In the future this would create an observation/question
-              
+            onSubmitQuery={async (query) => {
+              if (onAddNote && !isSubmitting) {
+                setIsSubmitting(true);
+                try {
+                  await onAddNote(query);
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }
             }}
           />
         </div>

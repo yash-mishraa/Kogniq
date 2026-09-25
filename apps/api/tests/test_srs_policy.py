@@ -1,5 +1,7 @@
 from datetime import UTC, datetime, timedelta
+
 from domain.student.srs_policy import calculate_next_review_due
+
 
 def test_srs_initial_state() -> None:
     # No reviews yet

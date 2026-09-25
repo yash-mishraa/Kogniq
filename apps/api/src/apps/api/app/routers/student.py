@@ -1,13 +1,24 @@
 from typing import Any
 
-from backend.dependencies import get_knowledge_state_use_case, list_knowledge_states_use_case
+from backend.dependencies import (
+    get_knowledge_state_use_case,
+    get_recommendations_use_case,
+    list_knowledge_states_use_case,
+)
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel
 
 from application.student.get_knowledge_state import GetKnowledgeStateRequest
+from application.student.get_recommendations import GetRecommendationsRequest
 from application.student.list_knowledge_states import ListKnowledgeStatesRequest
 
 student_router = APIRouter(prefix="/student", tags=["Student"])
+
+
+def _extract_bearer_token(authorization: str) -> str:
+    if authorization.startswith("Bearer "):
+        return authorization.replace("Bearer ", "")
+    return authorization
 
 
 class KnowledgeStateResponse(BaseModel):
@@ -43,7 +54,7 @@ async def list_knowledge_states(
     authorization: str = Header(..., description="Bearer token"),
     use_case: Any = Depends(list_knowledge_states_use_case),  # noqa: B008
 ) -> ListKnowledgeStatesResponse:
-    token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
+    token = _extract_bearer_token(authorization)
     request = ListKnowledgeStatesRequest(token=token)
     response = await use_case.execute(request)
     
@@ -56,18 +67,18 @@ async def get_knowledge_state(
     authorization: str = Header(..., description="Bearer token"),
     use_case: Any = Depends(get_knowledge_state_use_case),  # noqa: B008
 ) -> KnowledgeStateResponse:
-    token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
+    token = _extract_bearer_token(authorization)
     request = GetKnowledgeStateRequest(token=token, resource_id=resource_id)
     response = await use_case.execute(request)
     
     if not response.state:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Knowledge state not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Knowledge state not found",
+        )
         
     return _format_state(response.state)
 
-
-from backend.dependencies import get_recommendations_use_case
-from application.student.get_recommendations import GetRecommendationsRequest
 
 class LearnerRecommendationResponse(BaseModel):
     resource_id: str
@@ -85,7 +96,7 @@ async def get_recommendations(
     authorization: str = Header(..., description="Bearer token"),
     use_case: Any = Depends(get_recommendations_use_case),  # noqa: B008
 ) -> GetRecommendationsAPIResponse:
-    token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
+    token = _extract_bearer_token(authorization)
     request = GetRecommendationsRequest(token=token, limit=limit)
     response = await use_case.execute(request)
     

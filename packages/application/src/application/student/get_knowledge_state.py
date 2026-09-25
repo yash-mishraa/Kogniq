@@ -31,9 +31,10 @@ class GetKnowledgeStateUseCase:
             from auth.exceptions import SessionExpiredError
             raise SessionExpiredError("Invalid session")
 
-        user_id = session.user_id
+        return await self.execute_for_user(session.user_id, request.resource_id)
 
+    async def execute_for_user(self, user_id: str, resource_id: str) -> GetKnowledgeStateResponse:
         with self.uow_factory.create() as uow:
-            state = await uow.knowledge_states.get(user_id=user_id, resource_id=request.resource_id)
+            state = await uow.knowledge_states.get(user_id=user_id, resource_id=resource_id)
 
         return GetKnowledgeStateResponse(state=state)

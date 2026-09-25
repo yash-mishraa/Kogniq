@@ -28,7 +28,8 @@ def init_db(conn: sqlite3.Connection) -> None:
     )
     conn.execute(
         """
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_knowledge_states_user_resource ON knowledge_states(user_id, resource_id)
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_knowledge_states_user_resource
+        ON knowledge_states(user_id, resource_id)
         """
     )
 
@@ -198,14 +199,12 @@ def init_db(conn: sqlite3.Connection) -> None:
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_learner_activity_event_type ON learner_activity(event_type)"
     )
-    
+
     # Milestone 5.1 extensions for learning events
     add_column(
         "learner_activity", "section_id TEXT REFERENCES resource_sections(id) ON DELETE CASCADE"
     )
-    add_column(
-        "learner_activity", "chunk_id TEXT REFERENCES document_chunks(id) ON DELETE CASCADE"
-    )
+    add_column("learner_activity", "chunk_id TEXT REFERENCES document_chunks(id) ON DELETE CASCADE")
     add_column("learner_activity", "occurred_at TIMESTAMP")
     add_column("learner_activity", "idempotency_key TEXT")
 
@@ -218,7 +217,7 @@ def init_db(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_learner_activity_occurred_at "
         "ON learner_activity(occurred_at)"
     )
-    
+
     # 7. Document Jobs
     conn.execute("""
         CREATE TABLE IF NOT EXISTS document_jobs (
@@ -231,3 +230,55 @@ def init_db(conn: sqlite3.Connection) -> None:
         )
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_document_jobs_user_id ON document_jobs(user_id)")
+
+    # 8. Agent Chat Memory
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS chat_sessions (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            document_id TEXT,
+            title TEXT,
+            created_at TIMESTAMP NOT NULL,
+            updated_at TIMESTAMP NOT NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_chat_sessions_user_id ON chat_sessions(user_id)")
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS chat_messages (
+            id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            tool_events TEXT,
+            created_at TIMESTAMP NOT NULL,
+            FOREIGN KEY (session_id) REFERENCES chat_sessions(id)
+        )
+    """)
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_chat_messages_session_id ON chat_messages(session_id)"
+    )
+
+    # 9. Notebook Entries (M7)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS notebook_entries (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            document_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            thoughts_json TEXT NOT NULL,
+            created_at TIMESTAMP NOT NULL,
+            idempotency_key TEXT,
+            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE
+        )
+    """)
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_notebook_entries_user_id ON notebook_entries(user_id)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_notebook_entries_document_id ON notebook_entries(document_id)"
+    )
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_notebook_entries_idempotency "
+        "ON notebook_entries(idempotency_key) WHERE idempotency_key IS NOT NULL"
+    )

@@ -1,8 +1,12 @@
 import logging
+from typing import Any
 
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
+    AgentMessage,
     TextGenerationProviderInfo,
+    ToolCall,
+    ToolDefinition,
 )
 
 try:
@@ -80,3 +84,66 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
         except Exception as e:
             logger.error(f"Gemini API request failed: {e}")
             raise RuntimeError(f"Gemini generation failed: {e}") from e
+
+    def generate_chat(
+        self,
+        messages: list[AgentMessage],
+        tools: list[ToolDefinition] | None = None,
+        system_instruction: str | None = None,
+        *,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> AgentMessage:
+        from learning_content.providers.base import AgentMessage, ToolCall
+
+        gemini_messages = []
+        for m in messages:
+            parts = []
+            if m.content:
+                parts.append(types.Part.from_text(text=m.content))
+            for tc in m.tool_calls:
+                parts.append(types.Part.from_function_call(name=tc.name, args=tc.arguments))
+            if m.role == "tool":
+                parts.append(
+                    types.Part.from_function_response(name="tool", response={"result": m.content})
+                )
+            role = "user" if m.role == "user" or m.role == "tool" else "model"
+            gemini_messages.append(types.Content(role=role, parts=parts))
+
+        gemini_tools = []
+        if tools:
+            for t in tools:
+                gemini_tools.append(
+                    types.Tool(
+                        function_declarations=[
+                            types.FunctionDeclaration(
+                                name=t.name,
+                                description=t.description,
+                                parameters=t.parameters,  # type: ignore
+                            )
+                        ]
+                    )
+                )
+
+        config_kwargs: dict[str, Any] = {}
+        if gemini_tools:
+            config_kwargs["tools"] = gemini_tools
+        if system_instruction:
+            config_kwargs["system_instruction"] = system_instruction
+
+        config = types.GenerateContentConfig(**config_kwargs) if config_kwargs else None
+
+        response = self.client.models.generate_content(
+            model=self.model_name,
+            contents=gemini_messages,
+            config=config,
+        )
+
+        tool_calls = []
+        if response.function_calls:
+            for fc in response.function_calls:
+                name = fc.name or ""
+                args = dict(fc.args) if fc.args else {}
+                tool_calls.append(ToolCall(id=name, name=name, arguments=args))
+
+        return AgentMessage(role="assistant", content=response.text or "", tool_calls=tool_calls)

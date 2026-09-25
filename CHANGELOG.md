@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Maintenance — Tutor Hardening & Repository Cleanup
+- **Typed Application Errors**: Added `PermissionDeniedError`, `InvalidRequestError`, and `NotFoundError` to `application.exceptions`; routers now map errors by type instead of string matching.
+- **Real Provider Wiring**: The agent tutor now resolves its text generation provider from configuration (`LEARNING_GENERATION_PROVIDER` with Gemini auto-detected when `GEMINI_API_KEY` is set) instead of a hardcoded mock.
+- **Corrected Tutor Retrieval Injection**: `get_tutor_chat_use_case` now injects the genuine `RetrieveUseCase` (semantic search over chunks) rather than a chunk-listing use case.
+- **Test Doubles Moved Out of Production**: Deterministic test trigger branches were removed from `MockTextGenerationProvider`; tests now use a dedicated scripted provider.
+- **Fixed Recommendation Text Duplication**: The tutor tool result no longer repeats priority and reason twice per line.
+- **Frontend Service-Layer Compliance**: `TutorChatPanel` now uses the shared `apiClient` with the `tutorChat` request policy and design tokens; removed the `localStorage` token fallback.
+- **Strict Test Assertions**: Agent endpoint tests assert exact status codes, tool events, and error envelopes.
+- **Repository Hygiene**: Removed ad-hoc `temp_fix*`/`fix*` scripts and `temp_prompt.txt`; archived milestone reports under `docs/reports/`; repaired the UTF-16 corruption in `.ai/progress.md`; reconciled roadmap stage statuses; added GitHub Actions CI.
+
+### Stage 7 Milestone 2 - Interactive Agentic Tutor Foundation
+- **Agentic Tutor Foundation**: Integrated a bounded, read-only, document-grounded AI tutor chat interface into the Study workspace.
+- **Strict Orchestration**: Tool usage (`semantic_search`) is explicitly bounded to a maximum of 3 iterations per conversation turn.
+- **Server-Controlled Scope**: Document scope and user isolation are strictly enforced server-side, overriding any model-provided identifiers.
+- **Safe Provider Integration**: Safely extended the `AbstractTextGenerationProvider` with `generate_chat` capabilities without compromising existing pipelines. Persistent history and autonomous workflows remain intentionally deferred.
+
 ### Stage 16 - Content Intelligence (Current)
 - **Domain Models**: Framework-independent Domain models for `LearningResource`, `ResourceSection`, and `ResourceChunk`.
 - **Persistence & Integration**: Safe `SQLite` migrations, Incremental Integration Adapters, and fully isolated `AbstractLearningResourceRepository` implementation mapping legacy chunks to new intelligence layers without data duplication.

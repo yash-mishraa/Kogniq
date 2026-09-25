@@ -3,10 +3,11 @@
 import { useStudy, StudyProvider } from "./StudyContext";
 import { StudySurface, StudyEmptyState, StudyPerspective, StudyTimeline, StudyNavigator, StudyContextPanel } from "@/components/study";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { serviceProvider } from "@/lib/providers";
 
 import { useWorkspace } from "../../WorkspaceContext";
+import { TutorChatPanel } from "./TutorChatPanel";
 
 function StudyEnvironmentBody() {
   const { state, dispatch } = useStudy();
@@ -57,6 +58,8 @@ function StudyEnvironmentBody() {
     
   }, [state.isStudying, dispatch, documentId]);
 
+  const [isTutorOpen, setIsTutorOpen] = useState(false);
+
   if (!state.isStudying) {
     return (
       <StudySurface>
@@ -89,6 +92,15 @@ function StudyEnvironmentBody() {
 
   return (
     <StudySurface>
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          onClick={() => setIsTutorOpen(!isTutorOpen)}
+          className="px-4 py-2 rounded-xs border border-line bg-surface text-ink hover:bg-raised transition-colors font-medium shadow-panel"
+        >
+          {isTutorOpen ? "Close Tutor" : "Ask AI Tutor"}
+        </button>
+      </div>
+
       <div className="flex w-full h-full">
         {/* Left Panel: The Learning Context */}
         <div className="w-64 flex-shrink-0 pt-12 pr-8 hidden md:block">
@@ -110,6 +122,13 @@ function StudyEnvironmentBody() {
             </div>
           </div>
         </div>
+
+        {/* Right Panel: The Tutor */}
+        {isTutorOpen && documentId && (
+          <div className="w-96 flex-shrink-0 h-full border-l border-line bg-surface shadow-overlay">
+            <TutorChatPanel documentId={documentId} onClose={() => setIsTutorOpen(false)} />
+          </div>
+        )}
       </div>
     </StudySurface>
   );

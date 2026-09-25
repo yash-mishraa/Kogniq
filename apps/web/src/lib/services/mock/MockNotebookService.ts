@@ -116,4 +116,13 @@ export class MockNotebookService implements INotebookService {
       }
     });
   }
+
+  async appendNote(
+    _documentId: string, 
+    _title: string, 
+    _content: string, 
+    _idempotencyKey?: string
+  ): Promise<{ status: string; entry_id?: string }> {
+    return { status: "success", entry_id: "mock-entry" };
+  }
 }

@@ -78,6 +78,19 @@ function NotebookEnvironmentBody() {
 
   if (!activeNotebook) return null;
 
+  const handleAddNote = async (content: string) => {
+    if (!documentId) return;
+    try {
+      await serviceProvider.getProvider().notebooks.appendNote(documentId, "Manual Note", content);
+      
+      // Reload notebooks
+      const data = await serviceProvider.getProvider().notebooks.getNotebooks(undefined, documentId);
+      dispatch({ type: "SET_NOTEBOOKS", payload: { status: "ready", data, error: null, requestId: crypto.randomUUID() } });
+    } catch (e) {
+      console.error("Failed to add note", e);
+    }
+  };
+
   return (
     <NotebookSurface>
       <div className="flex w-full h-full">
@@ -88,7 +101,7 @@ function NotebookEnvironmentBody() {
 
         {/* Center Canvas: The Notebook Journal Page */}
         <div className="flex-1 flex flex-col relative max-w-4xl pt-12">
-          <NotebookCanvas notebook={activeNotebook} />
+          <NotebookCanvas notebook={activeNotebook} onAddNote={handleAddNote} />
         </div>
       </div>
     </NotebookSurface>

@@ -330,6 +330,19 @@ async def get_generate_learning_use_case(
     )
 
 
+
+async def get_add_flashcard_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+):
+    from application.learning.add_flashcard import AddFlashcardUseCase
+    return AddFlashcardUseCase(
+        auth_service=auth_service,
+        authorization_service=authorization_service,
+        uow_factory=uow_factory,
+    )
+
 async def get_get_learning_materials_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
@@ -517,3 +530,80 @@ async def get_resource_statistics_use_case(
 ) -> Any:
     from application.resources.use_cases import GetResourceStatisticsUseCase
     return GetResourceStatisticsUseCase(auth_service=auth_service, uow_factory=uow_factory) # type: ignore
+
+from application.agent.tutor_chat import TutorChatUseCase
+from application.agent.history import ListChatSessionsUseCase, GetChatHistoryUseCase
+from application.student.get_knowledge_state import GetKnowledgeStateUseCase
+from application.student.get_recommendations import GetRecommendationsUseCase
+
+def get_tutor_chat_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    retrieve_use_case: RetrieveUseCase = Depends(get_retrieve_use_case),  # noqa: B008
+) -> TutorChatUseCase:
+    from learning_content.providers.mock.provider import MockTextGenerationProvider
+    return TutorChatUseCase(
+        auth_service=auth_service,  # type: ignore
+        authorization_service=authorization_service,  # type: ignore
+        retrieve_use_case=retrieve_use_case,
+        provider=MockTextGenerationProvider(),
+        get_recommendations_use_case=GetRecommendationsUseCase(
+            auth_service=auth_service,
+            uow_factory=get_uow_factory(),
+        ),
+        get_knowledge_state_use_case=GetKnowledgeStateUseCase(
+            auth_service=auth_service,
+            uow_factory=get_uow_factory(),
+        ),
+        uow_factory=get_uow_factory(),
+    )
+
+def get_list_chat_sessions_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+) -> ListChatSessionsUseCase:
+    return ListChatSessionsUseCase(
+        auth_service=auth_service,  # type: ignore
+        uow_factory=get_uow_factory(),
+    )
+
+def get_chat_history_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+) -> GetChatHistoryUseCase:
+    return GetChatHistoryUseCase(
+        auth_service=auth_service,  # type: ignore
+        uow_factory=get_uow_factory(),
+    )
+
+
+async def get_add_notebook_entry_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> "AddNotebookEntryUseCase":
+    from application.notebook.add_notebook_entry import AddNotebookEntryUseCase
+    return AddNotebookEntryUseCase(
+        auth_service=auth_service, # type: ignore
+        uow_factory=uow_factory,
+    )
+
+
+async def get_get_notebooks_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+) -> "GetNotebooksUseCase":
+    from application.notebook.get_notebooks import GetNotebooksUseCase
+    return GetNotebooksUseCase(
+        auth_service=auth_service, # type: ignore
+        uow_factory=uow_factory,
+    )
+
+async def get_add_quiz_question_use_case(
+    auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
+    authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
+    uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
+):
+    from application.learning.add_quiz import AddQuizQuestionUseCase
+    return AddQuizQuestionUseCase(
+        auth_service=auth_service,
+        authorization_service=authorization_service,
+        uow_factory=uow_factory,
+    )

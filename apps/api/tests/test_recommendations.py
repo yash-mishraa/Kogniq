@@ -1,9 +1,10 @@
 from datetime import UTC, datetime, timedelta
 
-from content.domain.entities import LearningResource
-from content.domain.enums import ProcessingStatus, ResourceType
 from domain.student.entities import KnowledgeState
 from domain.student.recommendations import RecommendationActionType, generate_recommendations
+
+from content.domain.entities import LearningResource
+from content.domain.enums import ResourceType
 
 
 def test_recommendations_empty() -> None:
