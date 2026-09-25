@@ -54,6 +54,9 @@ class RetrievalService:
         warnings: list[str] = []
 
         # 1. Verify document exists if document_id is provided
+        authorized_document_ids = None
+        user_id = getattr(request, "user_id", None)
+        
         if request.document_id:
             with self.uow_factory.create() as uow:
                 doc = await uow.documents.get(request.document_id)
@@ -63,26 +66,36 @@ class RetrievalService:
                         message=f"Document '{request.document_id}' not found.",
                         status_code=404,
                     )
-                if doc.user_id and doc.user_id != getattr(request, "user_id", None):
+                if doc.user_id and doc.user_id != user_id:
                     raise BackendError(
                         code="unauthorized",
                         message="Not authorized to access this document",
                         status_code=403,
                     )
+                authorized_document_ids = {request.document_id}
+        else:
+            if not user_id:
+                raise BackendError(
+                    code="unauthorized",
+                    message="Global search requires an authenticated user.",
+                    status_code=401,
+                )
+            with self.uow_factory.create() as uow:
+                user_docs = await uow.documents.list(user_id=user_id)
+                authorized_document_ids = {d.id for d in user_docs}
 
         # 2. Build semantic query
-        # Since we use a single collection, we can pass document_id in filters
-        # so we only match this doc.
-        # Note: If the vector store doesn't support metadata filtering by document_id
-        # we will fetch top_k results globally and then filter them down to this document.
-        # We fetch a larger limit to allow filtering post-retrieval.
         filters = {}
         if request.document_id:
             filters["document_id"] = request.document_id
+        elif user_id:
+            # We add user_id filter to allow vector DBs that support it to pre-filter
+            filters["user_id"] = user_id
 
         query = RetrievalQuery(
             text=request.query,
-            top_k=request.top_k * 5 if request.document_id else request.top_k,
+            # We fetch a larger limit for both global and document searches to allow post-retrieval filtering
+            top_k=request.top_k * 5,
             filters=filters or None,
         )
 
@@ -128,6 +141,12 @@ class RetrievalService:
                 # The retriever returned a chunk ID that doesn't exist in the current document.
                 # It either belongs to a different document (since we share the Chroma collection)
                 # or it was deleted from the repo but not from Chroma.
+                continue
+            
+            chunk = chunk_map[r.chunk_id]
+            
+            # M10 Security: Strictly reject chunks not belonging to the authorized user's documents
+            if authorized_document_ids is not None and chunk.document_id not in authorized_document_ids:
                 continue
 
             # Apply minimum similarity threshold if requested

@@ -36,10 +36,10 @@ class ListChatSessionsUseCase:
         self._uow_factory = uow_factory
 
     async def execute(
-        self, user_id: str, limit: int = 50, offset: int = 0
+        self, user_id: str, limit: int = 50, offset: int = 0, document_id: str | None = None
     ) -> Sequence[ChatSessionDto]:
         with self._uow_factory.create() as uow:
-            sessions = uow.chat.list_sessions_by_user(user_id, limit, offset)
+            sessions = uow.chat.list_sessions_by_user(user_id, limit, offset, document_id=document_id)
             return [
                 ChatSessionDto(
                     id=s.id,

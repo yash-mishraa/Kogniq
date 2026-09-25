@@ -46,12 +46,20 @@ class SQLiteChatRepository(AbstractChatRepository):
         )
 
     def list_sessions_by_user(
-        self, user_id: str, limit: int = 50, offset: int = 0
+        self, user_id: str, limit: int = 50, offset: int = 0, document_id: str | None = None
     ) -> Sequence[ChatSessionEntity]:
-        rows = self._conn.execute(
-            "SELECT * FROM chat_sessions WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
-            (user_id, limit, offset),
-        ).fetchall()
+        if document_id is not None:
+            if document_id == "global":
+                query = "SELECT * FROM chat_sessions WHERE user_id = ? AND document_id IS NULL ORDER BY created_at DESC LIMIT ? OFFSET ?"
+                params: tuple[object, ...] = (user_id, limit, offset) 
+            else:
+                query = "SELECT * FROM chat_sessions WHERE user_id = ? AND document_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
+                params = (user_id, document_id, limit, offset)
+        else:
+            query = "SELECT * FROM chat_sessions WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
+            params = (user_id, limit, offset) 
+        
+        rows = self._conn.execute(query, params).fetchall()
         return [
             ChatSessionEntity(
                 id=row["id"],

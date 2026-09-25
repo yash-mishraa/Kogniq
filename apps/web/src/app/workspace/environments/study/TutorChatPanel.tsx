@@ -8,7 +8,7 @@ interface ChatMessage {
 }
 
 interface TutorChatPanelProps {
-  documentId: string;
+  documentId?: string;
   onClose?: () => void;
 }
 
@@ -256,7 +256,7 @@ export function TutorChatPanel({ documentId, onClose }: TutorChatPanelProps) {
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          document_id: documentId,
+          document_id: documentId || null,
           messages: [{ role: "user", content: inputValue }],
           session_id: sessionId
         })
@@ -321,13 +321,13 @@ export function TutorChatPanel({ documentId, onClose }: TutorChatPanelProps) {
           try {
             const parsed = JSON.parse(event);
             if (parsed.type === "flashcard_proposal") {
-              return <TutorFlashcardProposal key={`event-${idx}`} proposal={parsed} documentId={documentId} />;
+              return <TutorFlashcardProposal key={`event-${idx}`} proposal={parsed} documentId={documentId as string} />;
             }
             if (parsed.type === "note_proposal") {
-              return <TutorNoteProposal key={`event-${idx}`} proposal={parsed} documentId={documentId} />;
+              return <TutorNoteProposal key={`event-${idx}`} proposal={parsed} documentId={documentId as string} />;
             }
             if (parsed.type === "quiz_proposal") {
-              return <TutorQuizProposal key={`event-${idx}`} proposal={parsed} documentId={documentId} />;
+              return <TutorQuizProposal key={`event-${idx}`} proposal={parsed} documentId={documentId as string} />;
             }
           } catch(e) {
             // ignore

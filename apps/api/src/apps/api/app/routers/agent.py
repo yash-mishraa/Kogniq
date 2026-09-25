@@ -35,8 +35,8 @@ class ChatMessageDto(BaseModel):
 
 
 class TutorChatRequestDto(BaseModel):
-    document_id: str = Field(min_length=1)
     messages: list[ChatMessageDto] = Field(max_length=20)
+    document_id: str | None = Field(default=None)
     session_id: str | None = None
 
 
@@ -114,10 +114,11 @@ async def list_chat_sessions(
     use_case: ListSessionsUseCaseDependency,
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    document_id: str | None = Query(None),
 ) -> list[SessionDto]:
     """List chat sessions owned by the authenticated user."""
     try:
-        sessions = await use_case.execute(user_id=current_user.user_id, limit=limit, offset=offset)
+        sessions = await use_case.execute(user_id=current_user.user_id, limit=limit, offset=offset, document_id=document_id)
         return [
             SessionDto(
                 id=s.id,

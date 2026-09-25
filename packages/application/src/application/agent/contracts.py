@@ -11,8 +11,8 @@ class TutorChatMessage:
 @dataclass(frozen=True)
 class TutorChatRequest:
     user_id: str
-    document_id: str
     messages: list[TutorChatMessage]
+    document_id: str | None = None
     session_id: str | None = None
 
 

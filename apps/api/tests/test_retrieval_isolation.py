@@ -95,3 +95,52 @@ def test_retrieval_isolation_enforcement(auth_client: TestClient) -> None:
         cookies={"kogniq_session": token_a},
     )
     assert resp_404.status_code == 404
+
+
+def test_global_semantic_search_user_isolation(auth_client: TestClient) -> None:
+    # 1. Register User A and User B
+    resp_a = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "usera_global@example.com", "password": "passwordA", "display_name": "A"}
+    )
+    assert resp_a.status_code == 200
+    token_a = resp_a.cookies.get("kogniq_session")
+
+    resp_b = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "userb_global@example.com", "password": "passwordB", "display_name": "B"}
+    )
+    assert resp_b.status_code == 200
+    token_b = resp_b.cookies.get("kogniq_session")
+    
+    # User A creates a document
+    upload_resp_a = auth_client.post(
+        "/api/v1/documents/process",
+        files={"file": ("test_a_global.txt", b"Content for A is unique and secret.", "text/plain")},
+        cookies={"kogniq_session": token_a},
+    )
+    assert upload_resp_a.status_code == 200
+    doc_a_id = upload_resp_a.json()["document_id"]
+    
+    # User B does a global semantic search
+    resp_search = auth_client.post(
+        "/api/v1/retrieval/search",
+        cookies={"kogniq_session": token_b},
+        json={"query": "secret", "top_k": 5}
+    )
+    
+    # User B should NOT see User A's document chunks
+    results = resp_search.json().get("results", [])
+    assert len(results) == 0
+
+    # User A does a global semantic search
+    resp_search_a = auth_client.post(
+        "/api/v1/retrieval/search",
+        cookies={"kogniq_session": token_a},
+        json={"query": "secret", "top_k": 5}
+    )
+    
+    # User A SHOULD see their own document
+    results_a = resp_search_a.json().get("results", [])
+    assert len(results_a) > 0
+    assert results_a[0]["document_id"] == doc_a_id

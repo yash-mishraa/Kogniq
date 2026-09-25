@@ -35,7 +35,7 @@ class AbstractChatRepository(abc.ABC):
 
     @abc.abstractmethod
     def list_sessions_by_user(
-        self, user_id: str, limit: int = 50, offset: int = 0
+        self, user_id: str, limit: int = 50, offset: int = 0, document_id: str | None = None
     ) -> Sequence[ChatSessionEntity]:
         pass
 

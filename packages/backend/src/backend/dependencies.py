@@ -331,7 +331,7 @@ async def get_generate_learning_use_case(
 
 
 
-async def get_add_flashcard_use_case(
+async def get_add_flashcard_use_case(  # type: ignore
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
@@ -456,7 +456,7 @@ async def get_record_events_batch_use_case(
     from application.analytics.record_events_batch import RecordEventsBatchUseCase
 
     return RecordEventsBatchUseCase(
-        auth_service=auth_service,
+        auth_service=auth_service,  # type: ignore
         uow_factory=uow_factory,
     )
 
@@ -542,6 +542,9 @@ def get_tutor_chat_use_case(
     retrieve_use_case: RetrieveUseCase = Depends(get_retrieve_use_case),  # noqa: B008
 ) -> TutorChatUseCase:
     from learning_content.providers.mock.provider import MockTextGenerationProvider
+    from application.learning.query_knowledge_graph import QueryKnowledgeGraphUseCase
+    from backend.services.knowledge_service import KnowledgeService
+    
     return TutorChatUseCase(
         auth_service=auth_service,  # type: ignore
         authorization_service=authorization_service,  # type: ignore
@@ -554,6 +557,9 @@ def get_tutor_chat_use_case(
         get_knowledge_state_use_case=GetKnowledgeStateUseCase(
             auth_service=auth_service,
             uow_factory=get_uow_factory(),
+        ),
+        query_knowledge_graph_use_case=QueryKnowledgeGraphUseCase(
+            knowledge_service=KnowledgeService(uow_factory=get_uow_factory())
         ),
         uow_factory=get_uow_factory(),
     )
@@ -578,10 +584,10 @@ def get_chat_history_use_case(
 async def get_add_notebook_entry_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
-) -> "AddNotebookEntryUseCase":
+) -> "AddNotebookEntryUseCase":  # type: ignore
     from application.notebook.add_notebook_entry import AddNotebookEntryUseCase
     return AddNotebookEntryUseCase(
-        auth_service=auth_service, # type: ignore
+        auth_service=auth_service,
         uow_factory=uow_factory,
     )
 
@@ -589,14 +595,14 @@ async def get_add_notebook_entry_use_case(
 async def get_get_notebooks_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
-) -> "GetNotebooksUseCase":
+) -> "GetNotebooksUseCase":  # type: ignore
     from application.notebook.get_notebooks import GetNotebooksUseCase
     return GetNotebooksUseCase(
-        auth_service=auth_service, # type: ignore
+        auth_service=auth_service,
         uow_factory=uow_factory,
     )
 
-async def get_add_quiz_question_use_case(
+async def get_add_quiz_question_use_case(  # type: ignore
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008

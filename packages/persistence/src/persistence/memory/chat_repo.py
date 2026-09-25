@@ -22,9 +22,13 @@ class MemoryChatRepository(AbstractChatRepository):
         return None
 
     def list_sessions_by_user(
-        self, user_id: str, limit: int = 50, offset: int = 0
+        self, user_id: str, limit: int = 50, offset: int = 0, document_id: str | None = None
     ) -> Sequence[ChatSessionEntity]:
         sessions = [s for s in self._sessions.values() if s.user_id == user_id]
+        if document_id == "global":
+            sessions = [s for s in sessions if s.document_id is None]
+        elif document_id:
+            sessions = [s for s in sessions if s.document_id == document_id]
         sessions.sort(key=lambda s: s.created_at, reverse=True)
         return sessions[offset : offset + limit]
 

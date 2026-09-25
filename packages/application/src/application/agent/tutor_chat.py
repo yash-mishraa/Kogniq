@@ -11,6 +11,7 @@ from application.retrieval.commands import RetrievalCommand
 from application.retrieval.retrieve import RetrieveUseCase
 from application.student.get_knowledge_state import GetKnowledgeStateUseCase
 from application.student.get_recommendations import GetRecommendationsUseCase
+from application.learning.query_knowledge_graph import QueryKnowledgeGraphUseCase, QueryKnowledgeGraphRequest
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
     AgentMessage,
@@ -40,6 +41,7 @@ class TutorChatUseCase:
         get_recommendations_use_case: GetRecommendationsUseCase,
         get_knowledge_state_use_case: GetKnowledgeStateUseCase,
         uow_factory: AbstractUnitOfWorkFactory,
+        query_knowledge_graph_use_case: QueryKnowledgeGraphUseCase = None,  # type: ignore
     ) -> None:
         self._auth_service = auth_service
         self._authorization_service = authorization_service
@@ -48,6 +50,7 @@ class TutorChatUseCase:
         self._get_recommendations_use_case = get_recommendations_use_case
         self._get_knowledge_state_use_case = get_knowledge_state_use_case
         self._uow_factory = uow_factory
+        self._query_knowledge_graph_use_case = query_knowledge_graph_use_case
         
         from application.analytics.record_events_batch import RecordEventsBatchUseCase
         self._record_events_batch_use_case = RecordEventsBatchUseCase(auth_service=auth_service, uow_factory=uow_factory)
@@ -75,6 +78,7 @@ class TutorChatUseCase:
         now = datetime.now(UTC)
 
         with self._uow_factory.create() as uow:
+            session = None
             if not session_id:
                 session_id = str(uuid.uuid4())
                 uow.chat.create_session(
@@ -87,10 +91,12 @@ class TutorChatUseCase:
                         updated_at=now,
                     )
                 )
+                active_document_id = request.document_id
             else:
                 session = uow.chat.get_session(session_id, request.user_id)
                 if not session:
                     raise ApplicationError("Session not found or permission denied.")
+                active_document_id = session.document_id
             
             # Persist inbound messages (usually just the newest one)
             for msg in request.messages:
@@ -124,7 +130,8 @@ class TutorChatUseCase:
         agent_messages.extend(
             AgentMessage(role=m.role, content=m.content) for m in history if m.role in ("user", "assistant")
         )
-        tool_defs = self._build_tool_definitions()
+        has_document = active_document_id is not None
+        tool_defs = self._build_tool_definitions(has_document)
 
         tool_events: list[str] = []
         final_content = "Too many steps taken. Please refine your question."
@@ -143,7 +150,7 @@ class TutorChatUseCase:
 
             for tool_call in response.tool_calls:
                 tool_message = await self._dispatch_tool(
-                    request.user_id, request.document_id, session_id, tool_call, tool_events
+                    request.user_id, active_document_id, session_id, tool_call, tool_events
                 )
                 agent_messages.append(AgentMessage(role="tool", content=tool_message))
         else:
@@ -169,12 +176,11 @@ class TutorChatUseCase:
             session_id=session_id,
         )
 
-    def _build_tool_definitions(self) -> list[ToolDefinition]:
-
-        return [
+    def _build_tool_definitions(self, has_document: bool) -> list[ToolDefinition]:
+        tools = [
             ToolDefinition(
                 name="semantic_search",
-                description="Search the user's active document for context.",
+                description="Search the user's active document or global knowledge base for context.",
                 parameters={
                     "type": "object",
                     "properties": {"query": {"type": "string", "description": "The search query."}},
@@ -200,72 +206,103 @@ class TutorChatUseCase:
                     "required": ["resource_id"],
                 },
             ),
-            ToolDefinition(
-                name="log_conversational_assessment",
-                description="Record a learning outcome after explicitly asking the learner an assessment question grounded in the active document and evaluating their answer. DO NOT use for casual conversation or unsupported claims. Score must be between 0.0 (incorrect) and 1.0 (perfectly correct).",
-                parameters={
-                    "type": "object",
-                    "properties": {
-                        "score": {"type": "number", "description": "The correctness of the user's answer (0.0 to 1.0)."},
-                        "rationale": {"type": "string", "description": "Brief explanation of why this score was awarded."}
-                    },
-                    "required": ["score", "rationale"],
-                },
-            ),
-            ToolDefinition(
-                name="generate_flashcard",
-                description="Propose a targeted flashcard when identifying a useful learning gap. Do not use for casual conversation.",
-                parameters={
-                    "type": "object",
-                    "properties": {
-                        "question": {"type": "string", "description": "The front of the flashcard (max 500 chars)."},
-                        "answer": {"type": "string", "description": "The back of the flashcard (max 2000 chars)."},
-                        "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"], "description": "The expected difficulty of the card."}
-                    },
-                    "required": ["question", "answer", "difficulty"],
-                },
-            ),
-            ToolDefinition(
-                name="generate_quiz_question",
-                description="Generate one targeted multiple-choice quiz question when it is pedagogically useful in the current learning conversation. Do not use for casual conversation.",
-                parameters={
-                    "type": "object",
-                    "properties": {
-                        "question": {"type": "string", "description": "The quiz question (max 500 chars)."},
-                        "options": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "Exactly 4 unique options."
-                        },
-                        "correct_answer": {"type": "string", "description": "The exact string from options that is correct."},
-                        "explanation": {"type": "string", "description": "Explanation for the answer (max 500 chars)."},
-                        "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"], "description": "The expected difficulty of the question."}
-                    },
-                    "required": ["question", "options", "correct_answer", "explanation", "difficulty"],
-                },
-            ),
-            ToolDefinition(
-                name="append_note",
-                description="Propose a durable note for the user's Notebook when a highly valuable learning insight is uncovered during conversation.",
-                parameters={
-                    "type": "object",
-                    "properties": {
-                        "title": {"type": "string", "description": "A short summarizing title (max 100 chars)."},
-                        "content": {"type": "string", "description": "The unstructured insight or reflection (max 2000 chars)."},
-                    },
-                    "required": ["title", "content"],
-                },
-            ),
         ]
+        
+        if has_document:
+            tools.extend([
+                ToolDefinition(
+                    name="log_conversational_assessment",
+                    description="Record a learning outcome after explicitly asking the learner an assessment question grounded in the active document and evaluating their answer. DO NOT use for casual conversation or unsupported claims. Score must be between 0.0 (incorrect) and 1.0 (perfectly correct).",
+                    parameters={
+                        "type": "object",
+                        "properties": {
+                            "score": {"type": "number", "description": "The correctness of the user's answer (0.0 to 1.0)."},
+                            "rationale": {"type": "string", "description": "Brief explanation of why this score was awarded."}
+                        },
+                        "required": ["score", "rationale"],
+                    },
+                ),
+                ToolDefinition(
+                    name="generate_flashcard",
+                    description="Propose a targeted flashcard when identifying a useful learning gap. Do not use for casual conversation.",
+                    parameters={
+                        "type": "object",
+                        "properties": {
+                            "question": {"type": "string", "description": "The front of the flashcard (max 500 chars)."},
+                            "answer": {"type": "string", "description": "The back of the flashcard (max 2000 chars)."},
+                            "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"], "description": "The expected difficulty of the card."}
+                        },
+                        "required": ["question", "answer", "difficulty"],
+                    },
+                ),
+                ToolDefinition(
+                    name="generate_quiz_question",
+                    description="Generate one targeted multiple-choice quiz question when it is pedagogically useful in the current learning conversation. Do not use for casual conversation.",
+                    parameters={
+                        "type": "object",
+                        "properties": {
+                            "question": {"type": "string", "description": "The quiz question (max 500 chars)."},
+                            "options": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Exactly 4 unique options."
+                            },
+                            "correct_answer": {"type": "string", "description": "The exact string from options that is correct."},
+                            "explanation": {"type": "string", "description": "Explanation for the answer (max 500 chars)."},
+                            "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"], "description": "The expected difficulty of the question."}
+                        },
+                        "required": ["question", "options", "correct_answer", "explanation", "difficulty"],
+                    },
+                ),
+                ToolDefinition(
+                    name="append_note",
+                    description="Propose a durable note for the user's Notebook when a highly valuable learning insight is uncovered during conversation.",
+                    parameters={
+                        "type": "object",
+                        "properties": {
+                            "title": {"type": "string", "description": "A short summarizing title (max 100 chars)."},
+                            "content": {"type": "string", "description": "The unstructured insight or reflection (max 2000 chars)."},
+                        },
+                        "required": ["title", "content"],
+                    },
+                ),
+                ToolDefinition(
+                    name="query_knowledge_graph",
+                    description="Query the Knowledge Graph to find prerequisites, dependents, or related concepts for a specific concept.",
+                    parameters={
+                        "type": "object",
+                        "properties": {
+                            "concept_name": {"type": "string", "description": "The name of the concept to query."},
+                            "query_type": {"type": "string", "enum": ["prerequisites", "dependents", "neighbors"], "description": "The type of relationship to query."},
+                            "depth": {"type": "integer", "description": "Traversal depth (max 3)."}
+                        },
+                        "required": ["concept_name", "query_type"],
+                    },
+                ),
+            ])
+            
+        return tools
 
     async def _dispatch_tool(
         self,
         user_id: str,
-        document_id: str,
+        document_id: str | None,
         session_id: str,
         tool_call: ToolCall,
         tool_events: list[str],
     ) -> str:
+        DOCUMENT_BOUND_TOOLS = {
+            "query_knowledge_graph",
+            "generate_flashcard",
+            "append_note",
+            "generate_quiz_question",
+            "log_conversational_assessment",
+        }
+        if tool_call.name in DOCUMENT_BOUND_TOOLS and not document_id:
+            msg = "Tool execution failed: This tool requires an active document context."
+            tool_events.append(msg)
+            return msg
+
         """Execute one allowlisted tool call and return the bounded model-facing text."""
         if tool_call.name == "semantic_search":
             return await self._run_semantic_search(
@@ -277,7 +314,7 @@ class TutorChatUseCase:
             return await self._run_get_knowledge_state(user_id, tool_call.arguments, tool_events)
         if tool_call.name == "log_conversational_assessment":
             return await self._run_log_conversational_assessment(
-                user_id, document_id, session_id, tool_call, tool_events
+                user_id, document_id, session_id, tool_call, tool_events  # type: ignore
             )
         if tool_call.name == "generate_flashcard":
             return self._run_generate_flashcard(session_id, tool_call, tool_events)
@@ -285,6 +322,8 @@ class TutorChatUseCase:
             return self._run_generate_quiz_question(session_id, tool_call, tool_events)
         if tool_call.name == "append_note":
             return self._run_append_note(session_id, tool_call, tool_events)
+        if tool_call.name == "query_knowledge_graph":
+            return await self._run_query_knowledge_graph(user_id, document_id, tool_call, tool_events)  # type: ignore
         return "Error: Unknown tool."
 
     def _run_generate_quiz_question(
@@ -367,7 +406,7 @@ class TutorChatUseCase:
     async def _run_semantic_search(
         self,
         user_id: str,
-        document_id: str,
+        document_id: str | None,
         arguments: dict[str, Any],
         tool_events: list[str],
     ) -> str:
@@ -515,3 +554,52 @@ class TutorChatUseCase:
 
 
 
+
+    async def _run_query_knowledge_graph(
+        self,
+        user_id: str,
+        document_id: str,
+        tool_call: ToolCall,
+        tool_events: list[str],
+    ) -> str:
+        if not getattr(self, "_query_knowledge_graph_use_case", None):
+            msg = "Tool execution failed: query_knowledge_graph use case not injected."
+            tool_events.append(msg)
+            return msg
+        
+        args = tool_call.arguments
+        query_type = args.get("query_type")
+        concept = args.get("concept")
+        depth = args.get("depth", 1)
+        
+        if not query_type or not concept:
+            msg = "Tool execution failed: missing query_type or concept."
+            tool_events.append(msg)
+            return msg
+            
+        if not isinstance(depth, int):
+            try:
+                depth = int(depth)
+            except (ValueError, TypeError):
+                depth = 1
+                
+        depth = max(1, min(depth, 3))
+        
+        req = QueryKnowledgeGraphRequest(
+            document_id=document_id,
+            user_id=user_id,
+            query_type=query_type,
+            concept=concept,
+            depth=depth
+        )
+        
+        try:
+            res = await self._query_knowledge_graph_use_case.execute(req)
+            import json
+            res_json = json.dumps(res.to_dict())
+            tool_events.append(f"Queried knowledge graph for '{concept}' (type: {query_type})")
+            return res_json
+        except Exception as e:
+            msg = f"Tool execution failed: {e}"
+            tool_events.append(msg)
+            return msg

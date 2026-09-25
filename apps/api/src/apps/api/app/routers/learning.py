@@ -169,7 +169,7 @@ class AddFlashcardPayload(BaseModel):
     idempotency_key: str
 
 @learning_router.post("/{document_id}/flashcards")
-async def add_flashcard(
+async def add_flashcard(  # type: ignore
     document_id: str,
     payload: AddFlashcardPayload,
     request: Request,
@@ -204,7 +204,7 @@ class AddQuizPayload(BaseModel):
     idempotency_key: str
 
 @learning_router.post("/{document_id}/quizzes")
-async def add_quiz(
+async def add_quiz(  # type: ignore
     document_id: str,
     payload: AddQuizPayload,
     request: Request,

@@ -1,3 +1,4 @@
+import React from "react";
 "use client";
 
 import { useEffect, useMemo, useRef, useCallback } from "react";
@@ -6,6 +7,7 @@ import { useLearningHub, LearningHubProvider } from "./LearningHubContext";
 import { serviceProvider } from "@/lib/providers";
 import type { ResourceChunk } from "@/lib/services/interfaces/IResourceService";
 import { RecommendationsList } from "./RecommendationsList";
+import { TutorChatPanel } from "../study/TutorChatPanel";
 
 function ResourceList() {
   const { state, dispatch } = useLearningHub();
@@ -415,9 +417,18 @@ function ResourceDetailView() {
 function LearningHubEnvironmentBody() {
   const { state } = useLearningHub();
   const hasActiveResource = state.activeResourceId !== null;
+  const [isTutorOpen, setIsTutorOpen] = React.useState(false);
 
   return (
     <div className="flex w-full h-full relative overflow-hidden bg-[hsl(var(--sand))]">
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          onClick={() => setIsTutorOpen(!isTutorOpen)}
+          className="px-4 py-2 rounded-xs border border-line bg-surface text-ink hover:bg-raised transition-colors font-medium shadow-panel"
+        >
+          {isTutorOpen ? "Close Tutor" : "Ask AI Tutor"}
+        </button>
+      </div>
       <div 
         className="flex-shrink-0 h-full overflow-hidden transition-all duration-500 flex flex-col relative z-10"
         style={{ 
@@ -431,6 +442,13 @@ function LearningHubEnvironmentBody() {
       <AnimatePresence>
         {hasActiveResource && <ResourceDetailView />}
       </AnimatePresence>
+      
+      {/* Right Panel: Global Tutor */}
+      {isTutorOpen && (
+        <div className="w-96 flex-shrink-0 h-full border-l border-line bg-surface shadow-overlay relative z-40 bg-white">
+          <TutorChatPanel documentId={undefined} onClose={() => setIsTutorOpen(false)} />
+        </div>
+      )}
     </div>
   );
 }

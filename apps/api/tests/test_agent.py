@@ -195,7 +195,7 @@ async def test_direct_answer_without_tool_calls() -> None:
     assert response.tool_events == []
     assert len(provider.calls) == 1
     tool_names = {tool.name for tool in provider.calls[0]["tools"]}
-    assert tool_names == {"semantic_search", "get_recommendations", "get_knowledge_state", "log_conversational_assessment", "generate_flashcard", "generate_quiz_question", "append_note"}
+    assert tool_names == {"semantic_search", "get_recommendations", "get_knowledge_state", "log_conversational_assessment", "generate_flashcard", "generate_quiz_question", "append_note", "query_knowledge_graph"}
 
 
 @pytest.mark.asyncio
@@ -422,3 +422,47 @@ async def test_log_conversational_assessment_invalid_score() -> None:
     tool_result = provider.calls[1]["messages"][-1].content
     assert "Tool execution failed: score must be a number" in tool_result
 
+
+@pytest.mark.asyncio
+async def test_global_tutor_tools_restricted() -> None:
+    """Verify that global tutor requests do not expose document-bound tools."""
+    provider = ScriptedChatProvider([AgentMessage(role="assistant", content="Done")])
+    use_case = build_use_case(provider)
+
+    request = TutorChatRequest(
+        user_id="user_1",
+        document_id=None,
+        messages=[TutorChatMessage(role="user", content="help me plan my study")],
+    )
+
+    await use_case.execute(request)
+    
+    # Check the tools passed to provider
+    tool_defs = provider.calls[0].get("tools", [])
+    if tool_defs:
+        tool_names = [t.name for t in tool_defs]
+        assert "semantic_search" in tool_names
+        assert "get_recommendations" in tool_names
+        assert "get_knowledge_state" in tool_names
+        assert "generate_flashcard" not in tool_names
+        assert "append_note" not in tool_names
+        assert "generate_quiz_question" not in tool_names
+        assert "log_conversational_assessment" not in tool_names
+        assert "query_knowledge_graph" not in tool_names
+
+@pytest.mark.asyncio
+async def test_global_tutor_rejects_hallucinated_document_tool() -> None:
+    provider = ScriptedChatProvider([
+        tool_message("generate_flashcard", {"question": "x", "answer": "y", "difficulty": "easy"}),
+        AgentMessage(role="assistant", content="Done")
+    ])
+    use_case = build_use_case(provider)
+
+    request = TutorChatRequest(
+        user_id="user_1",
+        document_id=None,
+        messages=[TutorChatMessage(role="user", content="help")],
+    )
+
+    response = await use_case.execute(request)
+    assert any("requires an active document context" in ev for ev in response.tool_events)

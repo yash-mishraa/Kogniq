@@ -32,7 +32,7 @@ class RecordEventsBatchUseCase:
         self.uow_factory = uow_factory
 
     async def execute(self, request: RecordEventsBatchRequest) -> None:
-        session = await self.auth_service.validate_session(request.token)
+        session = await self.auth_service.validate_session(request.token)  # type: ignore
         if not session:
             from auth.exceptions import SessionExpiredError
             raise SessionExpiredError('Invalid session')
