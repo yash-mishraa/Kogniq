@@ -1,53 +1,16 @@
-import logging
-from typing import Any
+﻿import sys
+import re
 
-from backend.schemas.document import DocumentInput
-from backend.services.document_service import DocumentService
+with open('packages/backend/src/backend/services/job_service.py', 'r', encoding='utf-8') as f:
+    content = f.read()
 
-from jobs.interfaces import AbstractJobManager
-from jobs.models import Job, JobResult
-
-logger = logging.getLogger(__name__)
-
-
-class JobService:
-    """
-    Orchestrates job execution.
-    Strictly coordinates between the API boundary and domain logic.
-    """
-
-    def __init__(self, job_manager: AbstractJobManager, document_service: DocumentService) -> None:
-        self._manager = job_manager
-        self._document_service = document_service
-
-    async def get_job_status(self, job_id: str) -> Job | None:
-        """Fetch a job by ID."""
-        return await self._manager.get(job_id)
-
-    async def process_document_background(self, payload: dict[str, Any]) -> Job:
-        """
-        Creates a new document processing job and queues it for background execution.
-        """
-        doc_input = DocumentInput(**payload)
-        job = await self._manager.submit("document_processing")
-
-        # Enqueue the background task
-        import asyncio
-
-        self._bg_task = asyncio.create_task(
-            self._process_document_background(job_id=job.id, doc_input=doc_input)
-        )
-
-        return job
-
-    async def _process_document_background(self, job_id: str, doc_input: DocumentInput) -> None:
+replacement = '''    async def _process_document_background(self, job_id: str, doc_input: DocumentInput) -> None:
         """
         The background task that actually processes the document.
         Updates job status accordingly.
         """
         import time
-
-        from shared.logging.context import reset_telemetry_context, set_telemetry_context
+        from shared.logging.context import set_telemetry_context, reset_telemetry_context
         
         token = set_telemetry_context({"job_id": job_id})
         start_time = time.monotonic()
@@ -94,4 +57,9 @@ class JobService:
             })
             await self._manager.fail(job_id, error_message=str(e))
         finally:
-            reset_telemetry_context(token)
+            reset_telemetry_context(token)'''
+
+content = re.sub(r'    async def _process_document_background\(self, job_id: str, doc_input: DocumentInput\) -> None:.*?await self\._manager\.fail\(job_id, error_message=str\(e\)\)', replacement, content, flags=re.DOTALL)
+
+with open('packages/backend/src/backend/services/job_service.py', 'w', encoding='utf-8') as f:
+    f.write(content)

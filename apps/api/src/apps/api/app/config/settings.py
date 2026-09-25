@@ -42,6 +42,7 @@ class APISettings(BaseSettings):
     build: str = "local"
     commit: str = "unknown"
     log_level: str = DEFAULT_LOG_LEVEL
+    log_format: str = "TEXT"
 
     # Database Configuration
     postgres_host: str = "localhost"

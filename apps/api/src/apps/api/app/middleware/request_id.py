@@ -25,10 +25,17 @@ class RequestIDMiddleware:
         request_id = incoming if incoming and _VALID_REQUEST_ID.fullmatch(incoming) else uuid4().hex
         scope.setdefault("state", {})["request_id"] = request_id
 
-        async def add_request_id(message: Message) -> None:
-            if message["type"] == "http.response.start":
-                headers = MutableHeaders(scope=message)
-                headers[self._header_name] = request_id
-            await send(message)
+        # Set telemetry context
+        from shared.logging.context import reset_telemetry_context, set_telemetry_context
+        token = set_telemetry_context({"request_id": request_id})
+        
+        try:
+            async def add_request_id(message: Message) -> None:
+                if message["type"] == "http.response.start":
+                    headers = MutableHeaders(scope=message)
+                    headers[self._header_name] = request_id
+                await send(message)
 
-        await self._application(scope, receive, add_request_id)
+            await self._application(scope, receive, add_request_id)
+        finally:
+            reset_telemetry_context(token)

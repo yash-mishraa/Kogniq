@@ -51,6 +51,13 @@ class RetrievalService:
 
     async def search(self, request: RetrievalRequest) -> RetrievalResponse:
         start_time = time.perf_counter()
+        scope = "document" if request.document_id else "global"
+        logger.info(
+            "retrieval_started",
+            extra={
+                "scope": scope
+            }
+        )
         warnings: list[str] = []
 
         # 1. Verify document exists if document_id is provided
@@ -103,14 +110,16 @@ class RetrievalService:
         try:
             results = await asyncio.to_thread(self.retriever.retrieve, query)
         except RetrievalError as e:
-            logger.error(f"Retriever error: {e}")
+            duration_ms = (time.perf_counter() - start_time) * 1000.0
+            logger.error("retrieval_failed", extra={"duration_ms": duration_ms, "status": "failure", "failure_category": "retrieval_error", "scope": scope})
             raise BackendError(
                 code="retrieval_failed",
                 message=f"Semantic retrieval failed: {e}",
                 status_code=500,
             ) from e
         except Exception as e:
-            logger.error(f"Unexpected retrieval error: {e}")
+            duration_ms = (time.perf_counter() - start_time) * 1000.0
+            logger.error("retrieval_failed", extra={"duration_ms": duration_ms, "status": "failure", "failure_category": "unknown_error", "scope": scope})
             raise BackendError(
                 code="retrieval_failed",
                 message="An unexpected error occurred during semantic retrieval.",
@@ -191,6 +200,16 @@ class RetrievalService:
 
         end_time = time.perf_counter()
         processing_time_ms = (end_time - start_time) * 1000.0
+        
+        logger.info(
+            "retrieval_completed",
+            extra={
+                "duration_ms": processing_time_ms,
+                "result_count": len(mapped_results),
+                "scope": scope,
+                "status": "success",
+            }
+        )
 
         return RetrievalResponse(
             query=request.query,

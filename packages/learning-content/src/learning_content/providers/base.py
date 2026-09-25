@@ -19,6 +19,12 @@ class TextGenerationProviderInfo:
 
 
 @dataclass
+class ProviderUsage:
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    total_tokens: int | None = None
+
+@dataclass
 class ToolDefinition:
     name: str
     description: str
@@ -37,6 +43,7 @@ class AgentMessage:
     role: str
     content: str
     tool_calls: list[ToolCall] = field(default_factory=list)
+    usage: ProviderUsage | None = None
 
 
 class AbstractTextGenerationProvider(ABC):

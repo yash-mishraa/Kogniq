@@ -14,7 +14,7 @@ from shared.logging import LoggingConfig, configure_logging
 def create_app(settings: APISettings | None = None) -> FastAPI:
     """Create an independently configured Kogniq API application."""
     effective_settings = settings or APISettings()
-    configure_logging(LoggingConfig(level=effective_settings.log_level))
+    configure_logging(LoggingConfig(level=effective_settings.log_level, format_type=effective_settings.log_format))
 
     application = FastAPI(
         title=effective_settings.app_name,
