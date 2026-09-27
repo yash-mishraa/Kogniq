@@ -7,7 +7,7 @@ This guide details exactly how to configure, start, and test the Kogniq stack lo
 - **Python**: 3.13.x
 - **Node.js**: v20+ (for frontend)
 - **Package Manager (Backend)**: [uv](https://github.com/astral-sh/uv) (required for workspace management)
-- **Package Manager (Frontend)**: pnpm or npm
+- **Package Manager (Frontend)**: npm
 - **Docker**: (Optional) For running external vector stores if Qdrant/Chroma network implementations are used instead of local persistence.
 
 ## 2. Repository Setup
@@ -67,7 +67,7 @@ To start the FastAPI backend:
 ```bash
 uv run uvicorn apps.api.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-- **Health Check**: `GET http://127.0.0.1:8000/api/v1/health`
+- **Health Check**: `GET http://127.0.0.1:8000/api/v1/system/health`
 - **API Docs**: `GET http://127.0.0.1:8000/docs`
 
 ## 6. Frontend Startup
@@ -88,7 +88,7 @@ Kogniq uses `pytest` for authoritative backend testing and evaluation.
 ```bash
 uv run pytest
 ```
-*Expected baseline: 461 tests collected and passed.*
+*Current verified baseline: 461 tests collected and passed.*
 
 **Run evaluation and benchmarking gates:**
 ```bash
@@ -112,3 +112,5 @@ LEARNING_GENERATION_PROVIDER=deterministic-fake
 LEARNING_GENERATION_PROVIDER_DELAY_MS=1000.0
 ```
 This replaces real Gemini API calls with deterministic HTTP 1000ms latency sleeps, allowing you to isolate and profile backend CPU orchestration overhead accurately.
+
+> **WARNING:** The `deterministic-fake` provider and synthetic delays are strictly for local/CI evaluation tests. They must NEVER be copied into production or `development` configurations, as they will completely disable the LLM integration.

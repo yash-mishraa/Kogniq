@@ -40,9 +40,12 @@ Kogniq moves beyond simple chatbots by building pedagogical graphs.
 
 ## 5. Persistence
 
-- **SQLite (Development/Default):** Single-file persistence with WAL mode for high concurrency.
-- **Schema & Migrations:** Explicit SQL schemas initialize the database idempotently.
-- **Idempotency Keys:** Notebook entries and analytics events require client-provided idempotency keys to prevent duplicate creation on network retries.
+- **SQLite:** Kogniq utilizes single-file SQLite persistence with WAL (Write-Ahead Logging) mode.
+  - **Deployment Boundary:** SQLite is intended for local or single-instance deployments. It is *not* a horizontally scalable database.
+  - **Concurrency:** It natively handles high concurrency (0.0% failure rate at 20+ concurrent write users) when deployed behind a **single-worker** event loop utilizing a thread-pool.
+  - **Multi-Worker Limitations:** If deployed across multiple Uvicorn workers (e.g., `--workers 4`), SQLite cross-process WAL flushing introduces read staleness, which can cause idempotency checks and immediate reads to fail under extreme contention.
+- **Schema & Initialization:** Explicit SQL schemas initialize the database idempotently upon application startup.
+- **Idempotency Keys:** Notebook entries and analytics events require client-provided idempotency keys to safely survive network retries.
 
 ## 6. Security
 

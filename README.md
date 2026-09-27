@@ -15,7 +15,7 @@ Rather than acting as a generic chatbot wrapper, Kogniq is built upon a rigorous
 
 ## Repository Structure
 
-Kogniq uses a modern monorepo structure powered by `uv` for the backend and `pnpm`/`npm` for the frontend.
+Kogniq uses a modern monorepo structure powered by `uv` for the backend and `npm` for the frontend.
 
 - `apps/api/` — The FastAPI backend.
 - `apps/web/` — The Next.js/React frontend Workspace Engine.
@@ -65,6 +65,7 @@ See [EVALUATION.md](docs/EVALUATION.md) for details on benchmark execution, secu
 
 Detailed documentation is available in the `docs/` directory:
 - [Setup Guide](docs/SETUP.md) — Local installation, database setup, environment config.
+- [Deployment Guide](docs/DEPLOYMENT.md) — Topology, environment, and server initialization.
 - [Architecture](docs/ARCHITECTURE.md) — Detailed overview of Frontend, Backend, Agent, and Security architecture.
 - [Evaluation & Gates](docs/EVALUATION.md) — Details the performance baselines, security tests, and stress benchmarks.
 - [Known Limitations](docs/LIMITATIONS.md) — Current known technical and scaling boundaries.
