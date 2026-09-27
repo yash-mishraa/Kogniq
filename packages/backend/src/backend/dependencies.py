@@ -1,9 +1,14 @@
 from __future__ import annotations
 import os
 def _get_configured_provider():
-    provider_name = os.environ.get("LEARNING_GENERATION_PROVIDER", "mock")
+    from backend.core.settings import settings
+    provider_name = settings.learning_generation_provider
+    if settings.environment == "testing":
+        provider_name = "mock"
+        
     if provider_name == "deterministic-fake":
         from evaluation.harness.fakes import DeterministicLatencyProvider
+        import os
         delay = float(os.environ.get("LEARNING_GENERATION_PROVIDER_DELAY_MS", "1000.0"))
         return DeterministicLatencyProvider(delay_ms=delay)
     elif provider_name == "gemini":
@@ -181,9 +186,19 @@ _knowledge_extractor_instance: AbstractKnowledgeExtractor | None = None
 def get_knowledge_extractor() -> AbstractKnowledgeExtractor:
     global _knowledge_extractor_instance
     if _knowledge_extractor_instance is None:
-        from knowledge.extractors.fake import FakeKnowledgeExtractor
-
-        _knowledge_extractor_instance = FakeKnowledgeExtractor()
+        from backend.core.settings import settings
+        import os
+        provider_name = settings.knowledge_extraction_provider
+        
+        if settings.environment == "testing":
+            provider_name = "fake"
+            
+        if provider_name == "gemini":
+            from knowledge.extractors.gemini.extractor import GeminiKnowledgeExtractor
+            _knowledge_extractor_instance = GeminiKnowledgeExtractor(api_key=os.environ.get("GEMINI_API_KEY", ""))
+        else:
+            from knowledge.extractors.fake import FakeKnowledgeExtractor
+            _knowledge_extractor_instance = FakeKnowledgeExtractor()
     return _knowledge_extractor_instance
 
 

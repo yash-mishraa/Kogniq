@@ -35,24 +35,8 @@ export function WorkspaceProvider({
   }, [sessionUserId]);
 
   const [activeEnvironmentId, setActiveEnvironmentId] = useState(initialEnvironmentId);
-  const [history, setHistory] = useState<readonly EnvironmentId[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem(getStorageKey());
-        if (saved) return JSON.parse(saved).history || initialHistory || [initialEnvironmentId];
-      } catch {}
-    }
-    return initialHistory || [initialEnvironmentId];
-  });
-  const [memory, setMemory] = useState<Partial<Record<EnvironmentId, WorkspaceMemory>>>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem(getStorageKey());
-        if (saved) return JSON.parse(saved).memory || initialMemory || {};
-      } catch {}
-    }
-    return initialMemory || {};
-  });
+  const [history, setHistory] = useState<readonly EnvironmentId[]>(initialHistory || [initialEnvironmentId]);
+  const [memory, setMemory] = useState<Partial<Record<EnvironmentId, WorkspaceMemory>>>(initialMemory || {});
   
   useEffect(() => {
     if (typeof window !== "undefined") {
