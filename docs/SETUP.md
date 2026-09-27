@@ -55,7 +55,7 @@ SQLITE_DATABASE_PATH=kogniq_dev.sqlite
 ## 4. Database Setup
 
 Kogniq defaults to SQLite in local development. 
-The backend automatically executes necessary schema migrations upon startup. 
+The backend automatically performs idempotent schema initialization upon startup. 
 In `development` mode, the system automatically seeds a demo user account:
 - **Email**: `admin@kogniq.ai`
 - **Password**: `password`

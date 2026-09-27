@@ -1,4 +1,4 @@
-﻿"""Application lifespan construction."""
+"""Application lifespan construction."""
 
 import asyncio
 from collections.abc import AsyncIterator, Callable
@@ -10,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor
 from fastapi import FastAPI
 
 from apps.api.app.config import APISettings
-from apps.api.app.db.engine import get_engine, get_session_factory
 
 logger = getLogger(__name__)
 
@@ -51,10 +50,6 @@ def create_lifespan(settings: APISettings) -> Lifespan:
             loop = asyncio.get_running_loop()
             loop.set_default_executor(benchmark_executor)
 
-        # Setup Database Engine
-        engine = get_engine(settings)
-        application.state.engine = engine
-        application.state.session_factory = get_session_factory(engine)
 
         from backend.dependencies import (
             get_authentication_service,
@@ -99,8 +94,6 @@ def create_lifespan(settings: APISettings) -> Lifespan:
                 benchmark_executor.shutdown(wait=True)
             global_executor.shutdown(wait=True)
 
-            # Teardown Database Engine
-            await engine.dispose()
 
             logger.info(
                 "application_stopped",

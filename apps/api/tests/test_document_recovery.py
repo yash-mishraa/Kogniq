@@ -3,28 +3,39 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 from backend.services.document_service import DocumentService
-from evaluation.harness.fakes import FakeUowFactory
+from persistence.memory.document_job_repo import MemoryDocumentJobRepository
+from persistence.memory_uow import MemoryUnitOfWork
+from persistence.factory import MemoryRepositoryFactory
+from persistence.uow_factory import AbstractUnitOfWorkFactory
 from persistence.models import DocumentJob
 from pipeline.pipeline import DocumentIntelligencePipeline
 
+from typing import Any
+
+class DummyUowFactory(AbstractUnitOfWorkFactory):
+    def __init__(self) -> None:
+        self.factory = MemoryRepositoryFactory()
+
+    def create(self) -> MemoryUnitOfWork:
+        return MemoryUnitOfWork(self.factory)
 
 class DummyPipeline(DocumentIntelligencePipeline):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    async def run(self, handle):
+    async def run(self, handle: Any, job_id: str | None = None) -> dict[str, Any]:
         return {"stages": {}}
 
 
 @pytest.fixture
-def service():
-    uow = FakeUowFactory()
+def service() -> DocumentService:
+    uow = DummyUowFactory()
     pipeline = DummyPipeline()
     return DocumentService(pipeline=pipeline, uow_factory=uow)
 
 
 @pytest.mark.asyncio
-async def test_recover_failed_jobs(service):
+async def test_recover_failed_jobs(service: DocumentService) -> None:
     # Setup some test jobs
     now = datetime.now(UTC)
 

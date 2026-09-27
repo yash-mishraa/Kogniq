@@ -15,12 +15,10 @@ router = APIRouter(prefix="/system", tags=["system"])
 async def health(request: Request, settings: SettingsDependency) -> HealthResponse:
     """Report process health without probing external dependencies."""
     started_at = float(request.app.state.started_at)
-    engine = getattr(request.app.state, "engine", None)
-
-    if engine:
-        is_db_healthy = await check_database_health(engine)
-        if not is_db_healthy:
-            raise HTTPException(status_code=503, detail="Database is unavailable")
+    
+    is_db_healthy = await check_database_health()
+    if not is_db_healthy:
+        raise HTTPException(status_code=503, detail="Database is unavailable")
 
     return HealthResponse(
         status="ok",

@@ -1,17 +1,10 @@
 """Health endpoint tests."""
 
-from unittest.mock import AsyncMock
-
 from fastapi.testclient import TestClient
 from pytest_mock import MockerFixture
 
 
-def test_health_endpoint(client: TestClient, mocker: MockerFixture) -> None:
-    mocker.patch(
-        "apps.api.app.routers.health.check_database_health",
-        new_callable=AsyncMock,
-        return_value=True,
-    )
+def test_health_endpoint(client: TestClient) -> None:
     response = client.get("/api/v1/system/health")
 
     assert response.status_code == 200
@@ -25,3 +18,12 @@ def test_health_endpoint(client: TestClient, mocker: MockerFixture) -> None:
         "application": "Kogniq API",
     }
     assert response.json()["uptime_seconds"] >= 0
+
+
+def test_health_endpoint_failure(client: TestClient, mocker: MockerFixture) -> None:
+    from backend.dependencies import get_uow_factory
+    factory = get_uow_factory()
+    mocker.patch.object(factory, "create", side_effect=Exception("Simulated SQLite failure"))
+    response = client.get("/api/v1/system/health")
+    assert response.status_code == 503
+    assert response.json()["error"]["message"] == "Database is unavailable"
