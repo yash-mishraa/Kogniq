@@ -20,3 +20,6 @@ class MemoryDocumentJobRepository(AbstractDocumentJobRepository):
             for j in self._jobs.values()
             if j.status != "Ready" and (user_id is None or j.user_id == user_id)
         ]
+
+    def delete(self, job_id: str) -> None:
+        self._jobs.pop(job_id, None)

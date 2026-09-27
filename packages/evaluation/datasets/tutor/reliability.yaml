@@ -1,0 +1,20 @@
+﻿- id: "reliability_provider_timeout_exhaustion"
+  category: "reliability"
+  description: "Verifies that provider timeout exhaustion gracefully bubbles up an error and stops the orchestration loop."
+  context:
+    session_id: "eval-sess-rel-2"
+    user_id: "eval-user-1"
+    document_id: "doc-1"
+  input:
+    messages:
+      - role: "user"
+        content: "Give me recommendations."
+  scripted_provider:
+    responses:
+      - role: "assistant"
+        content: "RAISE_TIMEOUT"
+        tool_calls: []
+  expected:
+    tool_calls_attempted: null
+    response_includes: null
+    exception: "Fake Provider timeout"

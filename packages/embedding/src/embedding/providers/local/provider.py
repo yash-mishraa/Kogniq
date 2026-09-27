@@ -87,6 +87,7 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
             raise EmbeddingGenerationError(f"Failed to generate embedding: {e}") from e
 
         end = time.perf_counter()
+
         processing_time_ms = (end - start) * 1000.0
 
         vec = EmbeddingVector(values=values, dimension=info.dimensions)

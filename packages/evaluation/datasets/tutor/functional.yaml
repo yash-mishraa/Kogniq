@@ -1,0 +1,41 @@
+﻿- id: functional_semantic_search
+  category: functional
+  description: "Tutor selects semantic search and uses it to answer"
+  context:
+    document_id: "doc-1"
+  input:
+    messages:
+      - role: user
+        content: "What is multi-head attention?"
+  scripted_provider:
+    responses:
+      - role: assistant
+        tool_calls:
+          - name: semantic_search
+            arguments: {"query": "multi-head attention"}
+      - role: assistant
+        content: "Multi-head attention allows the model to jointly attend to information from different representation subspaces."
+  expected:
+    tool_calls_attempted: ["semantic_search"]
+    response_includes: "Multi-head attention allows the model to jointly attend"
+
+- id: functional_global_recommendations
+  category: functional
+  description: "Global tutor gets recommendations"
+  context:
+    document_id: null
+  input:
+    messages:
+      - role: user
+        content: "What should I learn next?"
+  scripted_provider:
+    responses:
+      - role: assistant
+        tool_calls:
+          - name: get_recommendations
+            arguments: {"limit": 3}
+      - role: assistant
+        content: "You should learn about Transformers."
+  expected:
+    tool_calls_attempted: ["get_recommendations"]
+    response_includes: "You should learn about Transformers."

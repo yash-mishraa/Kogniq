@@ -1,3 +1,5 @@
+import sqlite3
+
 """Application-level exceptions and reusable FastAPI handlers."""
 
 from collections.abc import Mapping, Sequence
@@ -32,6 +34,7 @@ class APIError(KogniqError):
 def register_exception_handlers(application: FastAPI) -> None:
     """Register standardized handlers for expected framework and API errors."""
     application.add_exception_handler(APIError, api_error_handler)
+    application.add_exception_handler(sqlite3.OperationalError, sqlite_error_handler)
     from backend.core.exceptions import BackendError
 
     application.add_exception_handler(BackendError, backend_error_handler)
@@ -122,3 +125,13 @@ def _error_response(
         content=payload.model_dump(mode="json", exclude_none=True),
         headers=headers,
     )
+
+async def sqlite_error_handler(request: Request, error: sqlite3.OperationalError) -> JSONResponse:
+    if "database is locked" in str(error):
+        return _error_response(
+            request=request,
+            status_code=503,
+            code="database_locked",
+            message="The database is currently locked. Please try again.",
+        )
+    raise error

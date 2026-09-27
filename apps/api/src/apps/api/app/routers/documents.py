@@ -110,3 +110,15 @@ async def delete_document(
         await uow.documents.delete(document_id)
 
     return {"status": "success", "message": f"Document {document_id} deleted"}
+
+
+@router.post("/documents/recover", response_model=dict)
+async def recover_failed_documents(
+    current_user: CurrentUserDependency,
+    document_service: DocumentService = Depends(get_document_service),  # noqa: B008
+) -> dict:
+    """
+    Recover (cleanup) stalled or failed document ingestion jobs.
+    """
+    count = document_service.recover_failed_jobs(user_id=current_user.user_id)
+    return {"status": "success", "recovered_count": count}

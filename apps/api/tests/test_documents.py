@@ -113,3 +113,35 @@ def test_process_document_oversized(
     assert response.status_code == 400
     data = response.json()
     assert data["error"]["code"] == "file_too_large"
+
+
+def test_recover_failed_jobs_endpoint(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    
+    from backend.dependencies import get_uow_factory
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)
+    
+    from persistence.models import DocumentJob
+    from datetime import datetime, UTC
+    
+    with uow_factory().create() as uow:
+        uow.document_jobs.save(DocumentJob(
+            id="job-api-1", user_id=auth_user.user_id, filename="test.pdf", status="Error", created_at=datetime.now(UTC)
+        ))
+        uow.document_jobs.save(DocumentJob(
+            id="job-api-2", user_id="other-user", filename="test2.pdf", status="Error", created_at=datetime.now(UTC)
+        ))
+    
+    response = client.post("/api/v1/documents/recover")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["recovered_count"] == 1
+    
+    with uow_factory().create() as uow:
+        assert uow.document_jobs.get("job-api-1") is None
+        assert uow.document_jobs.get("job-api-2") is not None
+        
+    test_app.dependency_overrides.pop(get_current_user)
+    unauth_response = client.post("/api/v1/documents/recover")
+    assert unauth_response.status_code == 401

@@ -222,3 +222,7 @@ class AbstractDocumentJobRepository(abc.ABC):
     @abc.abstractmethod
     def list_active(self, user_id: str | None = None) -> Sequence[DocumentJob]:
         pass
+
+    @abc.abstractmethod
+    def delete(self, job_id: str) -> None:
+        pass

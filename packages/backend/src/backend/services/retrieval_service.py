@@ -35,6 +35,18 @@ def _extract_snippet(text: str, query: str) -> str:
     return " ".join(sentences[:3])
 
 
+import asyncio
+
+_embed_sems = {}
+
+def get_embed_sem():
+    import asyncio
+    loop = asyncio.get_running_loop()
+    loop_id = id(loop)
+    if loop_id not in _embed_sems:
+        _embed_sems[loop_id] = asyncio.Semaphore(6)
+    return _embed_sems[loop_id]
+
 class RetrievalService:
     """
     Application service orchestrating semantic retrieval.

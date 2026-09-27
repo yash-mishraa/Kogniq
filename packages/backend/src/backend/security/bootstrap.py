@@ -36,6 +36,7 @@ async def bootstrap_authorization(
         LEARNING_GENERATE,
         RETRIEVAL_SEARCH,
         JOBS_VIEW,
+        Permission("agent:tutor:chat", "Tutor Chat", "Can use the tutor"),
     ]
 
     existing_perms = {p.permission_id for p in await permission_repo.list_permissions()}
@@ -58,6 +59,7 @@ async def bootstrap_authorization(
                 LEARNING_GENERATE.permission_id,
                 RETRIEVAL_SEARCH.permission_id,
                 JOBS_VIEW.permission_id,
+                "agent:tutor:chat",
             ),
         )
         await role_repo.create_role(user_role)

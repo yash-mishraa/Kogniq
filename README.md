@@ -11,199 +11,63 @@
 
 Kogniq is an open-source, agentic AI educational platform designed to transform raw learning materials—such as textbooks, documentation, and research papers—into interactive, personalized tutoring experiences. 
 
-## Why Kogniq exists
+Rather than acting as a generic chatbot wrapper, Kogniq is built upon a rigorous Domain-Driven Design (DDD) foundation. It processes content semantically, builds prerequisite knowledge graphs, enforces tenant isolation, and utilizes multi-agent systems to tutor students effectively.
 
-Most AI tutors are merely wrappers around chat models. They lack a deep understanding of the *structure* of learning materials and the *pedagogy* required to teach them. Kogniq solves this by building a rigorous, Domain-Driven Design (DDD) foundation that processes content semantically, builds prerequisite knowledge graphs, and utilizes multi-agent systems to tutor students effectively.
+## Repository Structure
 
-## What Kogniq Is NOT
+Kogniq uses a modern monorepo structure powered by `uv` for the backend and `pnpm`/`npm` for the frontend.
 
-To understand our scope, it helps to understand what we are not building today:
-- **Not an LMS**: We don't manage class rosters or gradebooks.
-- **Not a note-taking application**: We aren't replacing Notion or Obsidian.
-- **Not a generic chatbot**: We are strictly focused on pedagogical tutoring.
-- **Not tied to any LLM vendor**: The architecture is provider-agnostic.
-- **Not tied to any vector database**: The architecture is storage-agnostic.
+- `apps/api/` — The FastAPI backend.
+- `apps/web/` — The Next.js/React frontend Workspace Engine.
+- `packages/` — Isolated Python domain packages (e.g., `content`, `embedding`, `knowledge`, `application`).
+- `docs/` — Architecture and developer setup documentation.
 
-## Current Repository Status
+## Capabilities
 
-| Metric | Status |
-|--------|--------|
-| Workspace Packages | Multiple isolated domains (`shared`, `content`, `embedding`, etc.) |
-| Developer Demos | 19 unique runnable demos demonstrating implemented components |
-| Architecture Documents | Deep dives for every completed pipeline stage |
-| Unit Tests | Hundreds of passing tests enforcing immutable invariants |
-| Bounded Contexts | 8 distinct implemented contexts |
-| Implemented AI Providers | SentenceTransformers, Gemini |
+Kogniq provides a complete, end-to-end foundation for AI educational content generation and tutoring:
+- **Robust Ingestion**: Ingests Markdown, PDF, DOCX, HTML, and TXT files, converting them via a Hybrid Chunk Engine.
+- **Provider-Agnostic Intelligence**: Local embeddings via SentenceTransformers; vector storage via Chroma/Qdrant; generation via Gemini.
+- **Learning Content**: Automatically produces Summaries, Flashcards, Quizzes, and Study Guides from uploaded documents.
+- **Agentic Tutor**: An autonomous, conversational Tutor Chat that uses semantic retrieval (RAG) to answer questions, explain concepts, and verify knowledge.
+- **Immersive Workspace Engine**: A modern React frontend featuring split-pane Workspaces, Interactive Notebooks, a Knowledge Graph visualizer, and Flashcard/Quiz players.
 
-## Current Capabilities
+## Local Setup & Development
 
-Kogniq currently provides a complete, end-to-end foundation for AI educational content generation.
-- **Robust Content Pipeline**: Ingests Markdown, PDF, DOCX, HTML, and TXT files.
-- **Deterministic Normalization**: Converts diverse formats into a unified `NormalizedDocument` structure.
-- **Hybrid Chunk Engine**: Dynamically orchestrates structural and fixed-size strategies.
-- **Local Embeddings**: Provider-agnostic generation using local transformers.
-- **Vector Storage**: Provider-agnostic indexing using ChromaDB and Qdrant.
-- **Knowledge Extraction**: Transforms chunks into a synthesized `KnowledgeGraph`.
-- **Learning Content Generation**: Produces AI-generated artifacts (Summaries, Notes, Flashcards, Quizzes, Study Guides).
-- **Intelligent Learning Loop**: AI Tutor integrations ("Explain my mistake"), deterministic next-action recommendations, and analytics.
-- **Modern React Frontend**: Immersive Workspace Engine handling Notebooks, Flashcards, Studio, and Document parsing.
-- **100% Type Coverage**: Enforced by MyPy strict mode across all packages.
+See the definitive [Developer Setup Guide](docs/SETUP.md) for complete instructions on prerequisites, environment variables, SQLite initialization, and starting the development servers.
 
-## Implemented Architecture
+**Quick Start:**
+```bash
+# Clone the repository
+git clone <repository_url>
+cd Kogniq
 
-The following bounded contexts and concrete implementations are fully complete and tested in Kogniq today.
+# Sync Python packages
+uv sync
 
-**Bounded Contexts**
-- ✔ Shared
-- ✔ Content
-- ✔ Chunking
-- ✔ Embedding
-- ✔ Retrieval
-- ✔ Knowledge
-- ✔ Pipeline
-- ✔ Learning Content
-- ✔ API & Authentication
-- ✔ Frontend Workspaces
-- ✔ Content Intelligence
+# Run backend
+uv run uvicorn apps.api.app.main:app --host 127.0.0.1 --port 8000
 
-**Current Concrete Implementations**
-
-*Processors*
-- ✔ PDF
-- ✔ DOCX
-- ✔ Markdown
-- ✔ TXT
-- ✔ HTML
-
-*Chunk Strategies*
-- ✔ Structural
-- ✔ Fixed Size
-- ✔ Hybrid
-
-*Embedding Providers*
-- ✔ Local (SentenceTransformers)
-
-*Vector Stores*
-- ✔ ChromaDB
-
-*Knowledge Extraction*
-- ✔ Gemini
-
-
-*Learning Generators*
-- ✔ Summary Generator
-- ✔ Notes Generator
-- ✔ Flashcards Generator
-- ✔ Quiz Generator
-- ✔ Study Guide Generator
-- ✔ Explanation Generator
-
-## Current AI Pipeline
-
-```mermaid
-flowchart TD
-    R[Resource]
-    
-    subgraph Content Processing
-        PR[ProcessorRegistry]
-        ND[NormalizedDocument]
-        HC[HybridChunkEngine]
-        CC[ChunkCollection]
-    end
-    
-    subgraph Knowledge & Embeddings
-        KE[Knowledge Extraction]
-        KG[KnowledgeGraph]
-        EP[Embedding Provider]
-        EC[EmbeddingCollection]
-        VS[(Vector Store)]
-    end
-    
-    subgraph Learning Generation
-        SG[SummaryGenerator]
-        LC[LearningContent]
-    end
-
-    R --> PR
-    PR --> ND
-    ND --> HC
-    HC --> CC
-    
-    CC --> KE
-    KE --> KG
-    
-    CC --> EP
-    EP --> EC
-    EC --> VS
-    
-    CC -.-> SG
-    KG -.-> SG
-    SG --> LC
+# Run frontend (in another terminal)
+cd apps/web && npm install && npm run dev
 ```
 
-## Monorepo Structure
+## Testing & Quality
 
-We use `uv` workspaces to manage multiple independent Python packages in a single repository.
+Kogniq enforces strict quality gates enforced by authoritative CI tests.
 
-### Workspace Packages
-- `packages/shared/`: Core abstractions and domain primitives.
-- `packages/content/`: File processing, normalization, intelligence, and chunking.
-- `packages/embedding/`: Provider-agnostic vector generation.
-- `packages/retrieval/`: Semantic search and ranking.
-- `packages/knowledge/`: Extraction of concepts and prerequisite graphs.
-- `packages/pipeline/`: Orchestration of the intelligence pipeline.
-- `packages/learning-content/`: Generation of educational artifacts (Summaries, Flashcards, etc.).
-- `packages/auth/`: Security and user isolation.
-- `packages/application/`: Learning loop use cases and orchestrators.
-- `apps/api/`: FastAPI endpoints.
-- `apps/web/`: React frontend workspaces.
+- **Full Regression**: `uv run pytest` (461 tests)
+- **Static Analysis**: `uv run ruff check apps/ packages/`
+- **Type Checking**: `uv run mypy apps/ packages/`
 
-## Development Setup
+See [EVALUATION.md](docs/EVALUATION.md) for details on benchmark execution, security isolation verification, and load testing release gates.
 
-1. Install `uv`:
-   ```bash
-   pip install uv
-   ```
-2. Sync the workspace:
-   ```bash
-   uv sync
-   ```
-3. Run the complete test suite:
-   ```bash
-   uv run python -m pytest
-   ```
+## Documentation
 
-*See [docs/development.md](docs/development.md) for full instructions and developer demos.*
-
-## Quality Gates
-
-We enforce strict quality gates before any code is merged:
-- All tests must pass (`uv run python -m pytest`).
-- Code must be perfectly typed (`uv run python -m mypy .`).
-- Code must be perfectly linted and formatted (`uv run ruff check .`).
-
-## Current Implementation Status
-
-| Component | Status |
-|-----------|--------|
-| Content Processing | ✅ Complete |
-| Chunk Engine | ✅ Complete |
-| Embedding | ✅ Complete |
-| Vector Store | ✅ Complete |
-| Retrieval | ✅ Complete |
-| Knowledge Extraction | ✅ Complete |
-| Learning Content | ✅ Complete |
-| API | ✅ Complete |
-| Frontend | ✅ Complete |
-| Content Intelligence | ✅ Complete |
-
-## Future Milestones
-
-Please see [docs/ROADMAP.md](docs/ROADMAP.md) for a comprehensive view of upcoming features, including Notes, Flashcards, Quiz Generators, and the Frontend layer.
-
-## Contributing
-
-Contributions are welcome! Please read our [Development Guide](docs/development.md) to get started. Ensure all code passes the quality gates before submitting a pull request.
+Detailed documentation is available in the `docs/` directory:
+- [Setup Guide](docs/SETUP.md) — Local installation, database setup, environment config.
+- [Architecture](docs/ARCHITECTURE.md) — Detailed overview of Frontend, Backend, Agent, and Security architecture.
+- [Evaluation & Gates](docs/EVALUATION.md) — Details the performance baselines, security tests, and stress benchmarks.
+- [Known Limitations](docs/LIMITATIONS.md) — Current known technical and scaling boundaries.
 
 ## License
 

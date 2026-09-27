@@ -71,6 +71,7 @@ kogniq-domain = { workspace = true }
 [tool.uv.workspace]
 members = [
     "apps/api",
+    "packages/evaluation",
     "packages/shared",
     "packages/learning",
     "packages/content",

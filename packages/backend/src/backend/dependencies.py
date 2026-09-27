@@ -1,4 +1,17 @@
 from __future__ import annotations
+import os
+def _get_configured_provider():
+    provider_name = os.environ.get("LEARNING_GENERATION_PROVIDER", "mock")
+    if provider_name == "deterministic-fake":
+        from evaluation.harness.fakes import DeterministicLatencyProvider
+        delay = float(os.environ.get("LEARNING_GENERATION_PROVIDER_DELAY_MS", "1000.0"))
+        return DeterministicLatencyProvider(delay_ms=delay)
+    elif provider_name == "gemini":
+        from learning_content.providers.gemini.provider import GeminiTextGenerationProvider
+        return GeminiTextGenerationProvider()
+    else:
+        from learning_content.providers.mock.provider import MockTextGenerationProvider
+        return MockTextGenerationProvider()
 
 from typing import TYPE_CHECKING, Annotated, Any
 
@@ -187,7 +200,7 @@ def get_generator_factory() -> GeneratorFactory:
         from backend.services.generator_factory import GeneratorFactory
         from learning_content.providers.mock.provider import MockTextGenerationProvider
 
-        provider = MockTextGenerationProvider()
+        provider = _get_configured_provider()
         _generator_factory_instance = GeneratorFactory(provider)
     return _generator_factory_instance
 
@@ -549,7 +562,7 @@ def get_tutor_chat_use_case(
         auth_service=auth_service,  # type: ignore
         authorization_service=authorization_service,  # type: ignore
         retrieve_use_case=retrieve_use_case,
-        provider=MockTextGenerationProvider(),
+        provider=_get_configured_provider(),
         get_recommendations_use_case=GetRecommendationsUseCase(
             auth_service=auth_service,
             uow_factory=get_uow_factory(),
@@ -613,3 +626,4 @@ async def get_add_quiz_question_use_case(  # type: ignore
         authorization_service=authorization_service,
         uow_factory=uow_factory,
     )
+

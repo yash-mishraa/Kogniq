@@ -64,3 +64,6 @@ class SQLiteDocumentJobRepository(AbstractDocumentJobRepository):
             )
             for r in rows
         ]
+
+    def delete(self, job_id: str) -> None:
+        self._conn.execute("DELETE FROM document_jobs WHERE id = ?", (job_id,))

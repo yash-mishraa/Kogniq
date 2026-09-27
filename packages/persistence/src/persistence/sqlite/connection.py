@@ -16,6 +16,7 @@ class SQLiteConnectionManager:
             self.database_path,
             # Let the caller or Unit of Work manage transactions explicitly
             isolation_level=None,
+            timeout=float(__import__("os").getenv("SQLITE_TIMEOUT", "30.0")),
             check_same_thread=False,
         )
         # Configure connection

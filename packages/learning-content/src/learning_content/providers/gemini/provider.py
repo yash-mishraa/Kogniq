@@ -1,9 +1,13 @@
 import logging
-from typing import Any
+import random
+import time
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
     AgentMessage,
+    ProviderUsage,
     TextGenerationProviderInfo,
     ToolCall,
     ToolDefinition,
@@ -16,6 +20,8 @@ except ImportError:
     genai = None  # type: ignore
 
 logger = logging.getLogger(__name__)
+
+T = TypeVar("T")
 
 
 class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
@@ -49,12 +55,71 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
     def client(self) -> "genai.Client":
         """Lazy initialization of the Gemini client."""
         if self._client is None:
-            self._client = genai.Client(api_key=self.api_key)
+            # Enforce strict 30-second explicit provider timeout boundary
+            self._client = genai.Client(api_key=self.api_key, http_options={"timeout": 30.0})
         return self._client
 
     @property
     def info(self) -> TextGenerationProviderInfo:
         return self._info
+
+    def _execute_with_retry(self, operation: Callable[[], T]) -> T:
+        """
+        Bounded retry policy specifically at the provider adapter boundary.
+        Prevents full orchestration iteration duplication.
+        """
+        max_attempts = 3
+        base_delay = 1.0
+
+        for attempt in range(1, max_attempts + 1):
+            try:
+                return operation()
+            except Exception as e:
+                # Classify the exception
+                is_timeout = isinstance(e, TimeoutError) or "timeout" in str(e).lower()
+                is_api_error = e.__class__.__name__ == "APIError"
+
+                code = getattr(e, "code", None)
+                retryable = is_timeout or (is_api_error and code in (429, 500, 502, 503, 504))
+
+                if is_timeout:
+                    # M1 Telemetry: Provider Timeout
+                    logger.warning(
+                        "Gemini provider timeout", extra={"provider_timeout": {"elapsed_ms": 30000}}
+                    )
+
+                if not retryable or attempt == max_attempts:
+                    # M1 Telemetry: Terminal Provider Failure
+                    logger.error(
+                        "Gemini provider permanent failure or retry exhaustion",
+                        extra={
+                            "provider_failed": {
+                                "failure_category": "timeout" if is_timeout else "api_error",
+                                "terminal": True,
+                                "code": code,
+                            }
+                        },
+                    )
+                    raise RuntimeError(f"Gemini generation failed: {e}") from e
+
+                # Bounded Exponential backoff with jitter
+                delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 0.5)
+
+                # M1 Telemetry: Provider Retry
+                logger.warning(
+                    f"Transient provider error, retrying in {delay:.2f}s",
+                    extra={
+                        "provider_retry_attempt": {
+                            "attempt_number": attempt,
+                            "delay_ms": int(delay * 1000),
+                            "exception_class": e.__class__.__name__,
+                            "code": code,
+                        }
+                    },
+                )
+                time.sleep(delay)
+
+        raise RuntimeError("Unreachable")
 
     def generate(
         self,
@@ -64,8 +129,6 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
         max_tokens: int | None = None,
     ) -> str:
         """Generate text using Gemini."""
-        from typing import Any
-
         config_kwargs: dict[str, Any] = {}
         if temperature is not None:
             config_kwargs["temperature"] = temperature
@@ -74,16 +137,15 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
 
         config = types.GenerateContentConfig(**config_kwargs) if config_kwargs else None
 
-        try:
+        def _do_generate() -> str:
             response = self.client.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
                 config=config,
             )
             return response.text or ""
-        except Exception as e:
-            logger.error(f"Gemini API request failed: {e}")
-            raise RuntimeError(f"Gemini generation failed: {e}") from e
+
+        return self._execute_with_retry(_do_generate)
 
     def generate_chat(
         self,
@@ -94,15 +156,15 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
         temperature: float | None = None,
         max_tokens: int | None = None,
     ) -> AgentMessage:
-        from learning_content.providers.base import AgentMessage, ToolCall
-
         gemini_messages = []
         for m in messages:
             parts = []
             if m.content:
                 parts.append(types.Part.from_text(text=m.content))
-            for tc in m.tool_calls:
-                parts.append(types.Part.from_function_call(name=tc.name, args=tc.arguments))
+            parts.extend(
+                types.Part.from_function_call(name=tc.name, args=tc.arguments)
+                for tc in m.tool_calls
+            )
             if m.role == "tool":
                 parts.append(
                     types.Part.from_function_response(name="tool", response={"result": m.content})
@@ -112,47 +174,60 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
 
         gemini_tools = []
         if tools:
-            for t in tools:
-                gemini_tools.append(
-                    types.Tool(
-                        function_declarations=[
-                            types.FunctionDeclaration(
-                                name=t.name,
-                                description=t.description,
-                                parameters=t.parameters,  # type: ignore
-                            )
-                        ]
-                    )
+            gemini_tools.extend(
+                types.Tool(
+                    function_declarations=[
+                        types.FunctionDeclaration(
+                            name=t.name,
+                            description=t.description,
+                            parameters=t.parameters,  # type: ignore
+                        )
+                    ]
                 )
+                for t in tools
+            )
 
         config_kwargs: dict[str, Any] = {}
         if gemini_tools:
             config_kwargs["tools"] = gemini_tools
         if system_instruction:
             config_kwargs["system_instruction"] = system_instruction
+        if temperature is not None:
+            config_kwargs["temperature"] = temperature
+        if max_tokens is not None:
+            config_kwargs["max_output_tokens"] = max_tokens
 
         config = types.GenerateContentConfig(**config_kwargs) if config_kwargs else None
 
-        response = self.client.models.generate_content(
-            model=self.model_name,
-            contents=gemini_messages,
-            config=config,
-        )
-
-        tool_calls = []
-        if response.function_calls:
-            for fc in response.function_calls:
-                name = fc.name or ""
-                args = dict(fc.args) if fc.args else {}
-                tool_calls.append(ToolCall(id=name, name=name, arguments=args))
-        
-        usage = None
-        from learning_content.providers.base import ProviderUsage
-        if hasattr(response, "usage_metadata") and response.usage_metadata:
-            usage = ProviderUsage(
-                prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", None),
-                completion_tokens=getattr(response.usage_metadata, "candidates_token_count", None),
-                total_tokens=getattr(response.usage_metadata, "total_token_count", None)
+        def _do_generate_chat() -> AgentMessage:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=gemini_messages,
+                config=config,
             )
 
-        return AgentMessage(role="assistant", content=response.text or "", tool_calls=tool_calls, usage=usage)
+            tool_calls = []
+            if response.function_calls:
+                for fc in response.function_calls:
+                    name = fc.name or ""
+                    args = dict(fc.args) if fc.args else {}
+                    tool_calls.append(ToolCall(id=name, name=name, arguments=args))
+
+            usage = None
+            if hasattr(response, "usage_metadata") and response.usage_metadata:
+                usage = ProviderUsage(
+                    prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", None),
+                    completion_tokens=getattr(
+                        response.usage_metadata, "candidates_token_count", None
+                    ),
+                    total_tokens=getattr(response.usage_metadata, "total_token_count", None),
+                )
+
+            return AgentMessage(
+                role="assistant",
+                content=response.text or "",
+                tool_calls=tool_calls,
+                usage=usage,
+            )
+
+        return self._execute_with_retry(_do_generate_chat)

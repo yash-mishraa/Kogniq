@@ -1,3 +1,4 @@
+import logging
 import typing
 import uuid
 from datetime import UTC, datetime
@@ -25,6 +26,9 @@ class BackendStreamReference(AbstractStreamReference):
         import io
 
         return io.BytesIO(self.doc_input.content)
+
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentService:
@@ -149,7 +153,9 @@ class DocumentService:
                     uow.document_jobs.save(updated_job)
 
     async def process_document(
-        self, doc_input: DocumentInput, job_id: str | None = None
+        self,
+        doc_input: DocumentInput,
+        job_id: str | None = None,  # noqa: ARG002
     ) -> DocumentProcessResult:
         from application.document.commands import ProcessDocumentCommand
 
@@ -168,28 +174,65 @@ class DocumentService:
         result = []
         with self.uow_factory.create() as uow:
             docs = await uow.documents.list(user_id=user_id)
-            for doc in docs:
-                result.append(
-                    {
-                        "id": doc.id,
-                        "title": doc.title,
-                        "source": doc.source,
-                        "status": "Ready",
-                        "importDate": doc.created_at.isoformat(),
-                    }
-                )
+            result.extend(
+                {
+                    "id": doc.id,
+                    "title": doc.title,
+                    "source": doc.source,
+                    "status": "Ready",
+                    "importDate": doc.created_at.isoformat(),
+                }
+                for doc in docs
+            )
 
             jobs = uow.document_jobs.list_active(user_id=user_id)
-            for job in jobs:
-                result.append(
-                    {
-                        "id": job.id,
-                        "title": job.filename,
-                        "source": "upload",
-                        "status": job.status,
-                        "importDate": job.created_at.isoformat(),
-                        "error": job.error_message or "",
-                    }
-                )
+            result.extend(
+                {
+                    "id": job.id,
+                    "title": job.filename,
+                    "source": "upload",
+                    "status": job.status,
+                    "importDate": job.created_at.isoformat(),
+                    "error": job.error_message or "",
+                }
+                for job in jobs
+            )
 
         return result
+
+    def recover_failed_jobs(self, user_id: str) -> int:
+        """
+        Identifies stale (Processing > 1 hour) or Error jobs for the user
+        and safely cleans them up so they don't block the UI.
+        Since pipeline content is not persisted across crashes, recovery
+        means graceful deletion of the terminal/stale tracking records.
+        """
+        recovered_count = 0
+        from datetime import UTC, datetime, timedelta
+
+        now = datetime.now(UTC)
+
+        with self.uow_factory.create() as uow:
+            jobs = uow.document_jobs.list_active(user_id=user_id)
+            for job in jobs:
+                # If Error, or if stuck Processing for > 1 hour
+                stale = job.status == "Processing" and (now - job.created_at) > timedelta(hours=1)
+
+                if job.status == "Error" or stale:
+                    uow.document_jobs.delete(job.id)
+                    recovered_count += 1
+
+                    # M1 Telemetry
+                    logger.info(
+                        f"Recovered {job.status} job {job.id}",
+                        extra={
+                            "ingestion_job_recovered": {
+                                "job_id": job.id,
+                                "previous_state": job.status,
+                                "stale": stale,
+                            }
+                        },
+                    )
+
+
+        return recovered_count

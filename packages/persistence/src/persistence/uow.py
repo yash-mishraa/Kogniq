@@ -1,4 +1,5 @@
 import abc
+import sqlite3
 from typing import Any
 
 from persistence.repositories.base import (
@@ -91,7 +92,13 @@ class SQLiteUnitOfWork(AbstractUnitOfWork):
         self.notebook = self._factory.create_notebook_repository(self._conn)
 
     def commit(self) -> None:
-        self._conn.execute("COMMIT")
+        try:
+            self._conn.execute("COMMIT")
+        except sqlite3.OperationalError as e:
+            if "cannot commit - no transaction is active" in str(e):
+                pass
+            else:
+                raise
 
     def rollback(self) -> None:
         self._conn.execute("ROLLBACK")

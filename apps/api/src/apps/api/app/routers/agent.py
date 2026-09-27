@@ -93,7 +93,10 @@ async def tutor_chat(
         if "Permission denied" in str(e) or "Session not found" in str(e):
             raise APIError(status_code=403, code="permission_denied", message=str(e)) from e
         raise APIError(status_code=400, code="invalid_request", message=str(e)) from e
-    except Exception:
+    except Exception as e:
+        if 'database is locked' in str(e):
+            raise APIError(status_code=503, code="database_locked", message="The database is currently locked. Please try again.")
+
         logger.exception("Tutor chat request failed unexpectedly")
         raise APIError(
             status_code=500,

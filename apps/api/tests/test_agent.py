@@ -208,8 +208,8 @@ async def test_semantic_search_grounding_flow() -> None:
     )
 
     assert response.content == (
-        "Based on the document context: Chunk 1:\n"
-        "Attention heads blend token representations."
+        "Based on the document context: <retrieved_chunk index=\"1\">\n"
+        "Attention heads blend token representations.\n</retrieved_chunk>"
     )
     assert response.tool_events == ["Searched document for: 'What is attention?'"]
     assert retrieve.commands[0].top_k == 3

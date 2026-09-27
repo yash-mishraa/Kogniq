@@ -1,3 +1,4 @@
+import time
 """Temporary type-checking replacement for the CRLF-broken tutor_chat.py."""
 
 from typing import Any
@@ -7,14 +8,11 @@ from persistence.uow_factory import AbstractUnitOfWorkFactory
 from application.agent.contracts import TutorChatRequest, TutorChatResponse
 from application.exceptions import ApplicationError
 from application.interfaces import AuthenticationServiceProtocol, AuthorizationServiceProtocol
-from application.learning.query_knowledge_graph import (
-    QueryKnowledgeGraphRequest,
-    QueryKnowledgeGraphUseCase,
-)
 from application.retrieval.commands import RetrievalCommand
 from application.retrieval.retrieve import RetrieveUseCase
 from application.student.get_knowledge_state import GetKnowledgeStateUseCase
 from application.student.get_recommendations import GetRecommendationsUseCase
+from application.learning.query_knowledge_graph import QueryKnowledgeGraphUseCase, QueryKnowledgeGraphRequest
 from learning_content.providers.base import (
     AbstractTextGenerationProvider,
     AgentMessage,
@@ -60,12 +58,6 @@ class TutorChatUseCase:
 
 
     async def execute(self, request: TutorChatRequest) -> TutorChatResponse:
-        import logging
-        import time
-
-        from shared.logging.context import update_telemetry_context
-        logger = logging.getLogger(__name__)
-
         auth_result = await self._authorization_service.require_permission(
             request.user_id, AGENT_TUTOR_CHAT
         )
@@ -104,16 +96,8 @@ class TutorChatUseCase:
             else:
                 session = uow.chat.get_session(session_id, request.user_id)
                 if not session:
-                    raise ApplicationError(f"Session {session_id} not found or access denied.")
+                    raise ApplicationError("Session not found or permission denied.")
                 active_document_id = session.document_id
-        
-            # Telemetry
-            update_telemetry_context(user_id=request.user_id, session_id=session_id)
-            start_time = time.monotonic()
-            logger.info(
-                "tutor_request_started",
-                extra={"context_type": "document" if active_document_id else "global"}
-            )
             
             # Persist inbound messages (usually just the newest one)
             for msg in request.messages:
@@ -152,13 +136,26 @@ class TutorChatUseCase:
 
         tool_events: list[str] = []
         final_content = "Too many steps taken. Please refine your question."
+        import asyncio, functools
         for _ in range(MAX_ORCHESTRATION_ITERATIONS):
-            response = self._provider.generate_chat(
-                messages=agent_messages,
-                tools=tool_defs,
-                temperature=0.3,
-                max_tokens=800,
+            import time; start = time.perf_counter()
+            response = await asyncio.to_thread(
+                functools.partial(
+                    self._provider.generate_chat,
+                    messages=agent_messages,
+                    tools=tool_defs,
+                    temperature=0.3,
+                    max_tokens=800,
+                )
             )
+            elapsed = (time.perf_counter() - start) * 1000.0
+            try:
+                from apps.api.app.middleware.benchmark import benchmark_metrics_var
+                data = benchmark_metrics_var.get()
+                if data is not None:
+                    data["calls"].append({"exec_ms": elapsed, "queue_ms": 0.0})
+            except Exception:
+                pass
             agent_messages.append(response)
 
             if not response.tool_calls:
@@ -308,96 +305,77 @@ class TutorChatUseCase:
         tool_call: ToolCall,
         tool_events: list[str],
     ) -> str:
-        import logging
-        import time
-        logger = logging.getLogger(__name__)
+        DOCUMENT_BOUND_TOOLS = {
+            "query_knowledge_graph",
+            "generate_flashcard",
+            "append_note",
+            "generate_quiz_question",
+            "log_conversational_assessment",
+        }
+        if tool_call.name in DOCUMENT_BOUND_TOOLS and not document_id:
+            msg = "Tool execution failed: This tool requires an active document context."
+            tool_events.append(msg)
+            return msg
 
-        logger.info(
-            "tutor_tool_called",
-            extra={
-                "tool_name": tool_call.name,
-                "session_id": session_id,
-            }
-        )
-        start_time = time.monotonic()
-        status = "success"
-        failure_category = None
-        
-        try:
-            if not document_id and tool_call.name in {
-                "generate_flashcard",
-                "append_note",
-                "generate_quiz_question",
-                "log_conversational_assessment",
-                "query_knowledge_graph",
-            }:
-                msg = "Tool execution failed: This tool requires an active document context."
-                tool_events.append(msg)
-                status = "failure"
-                failure_category = "invalid_tool_call"
-                return msg
+        """Execute one allowlisted tool call and return the bounded model-facing text."""
+        if tool_call.name == "semantic_search":
+            return await self._run_semantic_search(
+                user_id, document_id, tool_call.arguments, tool_events
+            )
+        if tool_call.name == "get_recommendations":
+            return await self._run_get_recommendations(user_id, tool_call.arguments, tool_events)
+        if tool_call.name == "get_knowledge_state":
+            return await self._run_get_knowledge_state(user_id, tool_call.arguments, tool_events)
+        if tool_call.name == "log_conversational_assessment":
+            return await self._run_log_conversational_assessment(
+                user_id, document_id, session_id, tool_call, tool_events  # type: ignore
+            )
+        if tool_call.name == "generate_flashcard":
+            return self._run_generate_flashcard(session_id, tool_call, tool_events)
+        if tool_call.name == "generate_quiz_question":
+            return self._run_generate_quiz_question(session_id, tool_call, tool_events)
+        if tool_call.name == "append_note":
+            return self._run_append_note(session_id, tool_call, tool_events)
+        if tool_call.name == "query_knowledge_graph":
+            return await self._run_query_knowledge_graph(user_id, document_id, tool_call, tool_events)  # type: ignore
+        return "Error: Unknown tool."
 
-            if tool_call.name == "generate_flashcard":
-                result = await self._run_generate_flashcard(tool_call, session_id, tool_events)
-            elif tool_call.name == "append_note":
-                result = await self._run_append_note(tool_call, session_id, tool_events)
-            elif tool_call.name == "generate_quiz_question":
-                result = await self._run_generate_quiz_question(tool_call, session_id, tool_events)
-            elif tool_call.name == "semantic_search":
-                result = await self._run_semantic_search(user_id, document_id, tool_call.arguments, tool_events)
-            elif tool_call.name == "log_conversational_assessment":
-                assert document_id is not None
-                result = await self._run_log_conversational_assessment(
-                    user_id, document_id, session_id, tool_call, tool_events
-                )
-            elif tool_call.name == "get_recommendations":
-                result = await self._run_get_recommendations(user_id, tool_call.arguments, tool_events)
-            elif tool_call.name == "get_knowledge_state":
-                result = await self._run_get_knowledge_state(user_id, tool_call.arguments, tool_events)
-            elif tool_call.name == "query_knowledge_graph":
-                assert document_id is not None
-                result = await self._run_query_knowledge_graph(
-                    user_id, document_id, tool_call, tool_events
-                )
-            else:
-                msg = f"Unknown tool: {tool_call.name}"
-                tool_events.append(msg)
-                status = "failure"
-                failure_category = "invalid_tool_call"
-                result = msg
-                
-            if "Tool execution failed" in result:
-                status = "failure"
-                failure_category = "tool_execution_error"
-                
-            return result
-        except Exception:
-            status = "failure"
-            failure_category = "unknown_error"
-            raise
-        finally:
-            duration_ms = (time.monotonic() - start_time) * 1000
-            if status == "success":
-                logger.info(
-                    "tutor_tool_completed",
-                    extra={
-                        "tool_name": tool_call.name,
-                        "duration_ms": duration_ms,
-                        "status": status,
-                    }
-                )
-            else:
-                logger.error(
-                    "tutor_tool_failed",
-                    extra={
-                        "tool_name": tool_call.name,
-                        "duration_ms": duration_ms,
-                        "status": status,
-                        "failure_category": failure_category,
-                    }
-                )
+    def _run_generate_quiz_question(
+        self,
+        session_id: str,
+        tool_call: ToolCall,
+        tool_events: list[str],
+    ) -> str:
+        question = str(tool_call.arguments.get("question", ""))[:500]
+        options = tool_call.arguments.get("options", [])
+        if not isinstance(options, list):
+            options = []
+        options = [str(o)[:200] for o in options]
+        correct_answer = str(tool_call.arguments.get("correct_answer", ""))[:200]
+        explanation = str(tool_call.arguments.get("explanation", ""))[:500]
+        difficulty = tool_call.arguments.get("difficulty", "medium")
+        if difficulty not in ["easy", "medium", "hard"]:
+            difficulty = "medium"
 
-    async def _run_generate_flashcard(
+        idempotency_key = f"{session_id}_{tool_call.id}"
+
+        import json
+
+        proposal = {
+            "type": "quiz_proposal",
+            "question": question,
+            "options": options,
+            "correct_answer": correct_answer,
+            "explanation": explanation,
+            "difficulty": difficulty,
+            "idempotency_key": idempotency_key,
+        }
+
+        tool_events.append(json.dumps(proposal))
+
+        return "I have proposed the quiz question to the user. Do not assume it is saved yet. Wait for their confirmation."
+
+    def _run_generate_flashcard(
         self,
         session_id: str,
         tool_call: ToolCall,
@@ -458,7 +436,7 @@ class TutorChatUseCase:
             )
             result = await self._retrieve_use_case.execute(command)
             chunks_text = "\n\n".join(
-                f"Chunk {i + 1}:\n{r.content}" for i, r in enumerate(result.results)
+                f"<retrieved_chunk index=\"{i + 1}\">\n{r.content}\n</retrieved_chunk>" for i, r in enumerate(result.results)
             )
             if not chunks_text.strip():
                 chunks_text = "No relevant content found in this document."

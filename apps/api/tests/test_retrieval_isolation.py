@@ -126,7 +126,7 @@ def test_global_semantic_search_user_isolation(auth_client: TestClient) -> None:
     resp_search = auth_client.post(
         "/api/v1/retrieval/search",
         cookies={"kogniq_session": token_b},
-        json={"query": "secret", "top_k": 5}
+        json={"query": "Content for A is unique and secret.", "top_k": 5}
     )
     
     # User B should NOT see User A's document chunks
@@ -137,10 +137,11 @@ def test_global_semantic_search_user_isolation(auth_client: TestClient) -> None:
     resp_search_a = auth_client.post(
         "/api/v1/retrieval/search",
         cookies={"kogniq_session": token_a},
-        json={"query": "secret", "top_k": 5}
+        json={"query": "Content for A is unique and secret.", "top_k": 5}
     )
     
     # User A SHOULD see their own document
     results_a = resp_search_a.json().get("results", [])
     assert len(results_a) > 0
     assert results_a[0]["document_id"] == doc_a_id
+

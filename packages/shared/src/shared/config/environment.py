@@ -11,3 +11,4 @@ class Environment(StrEnum):
     DEVELOPMENT = "development"
     STAGING = "staging"
     PRODUCTION = "production"
+    BENCHMARK = "benchmark"
