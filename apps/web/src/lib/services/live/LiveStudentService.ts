@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import { REQUEST_POLICIES } from "@/lib/api/policies";
-import type { IStudentService, KnowledgeState } from "../interfaces/IStudentService";
+import type { IStudentService, KnowledgeState, LearnerRecommendation } from "../interfaces/IStudentService";
 
 export class LiveStudentService implements IStudentService {
   async listKnowledgeStates(signal?: AbortSignal): Promise<{ states: KnowledgeState[] }> {
@@ -26,8 +26,8 @@ export class LiveStudentService implements IStudentService {
     return response.data;
   }
 
-  async getRecommendations(limit: number = 5, signal?: AbortSignal): Promise<{ recommendations: any[] }> {
-    const response = await apiClient.get<{ recommendations: any[] }>(
+  async getRecommendations(limit: number = 5, signal?: AbortSignal): Promise<{ recommendations: LearnerRecommendation[] }> {
+    const response = await apiClient.get<{ recommendations: LearnerRecommendation[] }>(
       ENDPOINTS.student.recommendations,
       {
         params: { limit },

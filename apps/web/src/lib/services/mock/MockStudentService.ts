@@ -1,10 +1,12 @@
-import type { IStudentService, KnowledgeState } from "../interfaces/IStudentService";
+import type { IStudentService, KnowledgeState, LearnerRecommendation } from "../interfaces/IStudentService";
 
 export class MockStudentService implements IStudentService {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async listKnowledgeStates(signal?: AbortSignal): Promise<{ states: KnowledgeState[] }> {
     return { states: [] };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getKnowledgeState(resourceId: string, signal?: AbortSignal): Promise<KnowledgeState> {
     return {
       id: "mock-1",
@@ -18,7 +20,8 @@ export class MockStudentService implements IStudentService {
     };
   }
 
-  async getRecommendations(limit: number = 5, signal?: AbortSignal): Promise<{ recommendations: any[] }> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getRecommendations(limit: number = 5, signal?: AbortSignal): Promise<{ recommendations: LearnerRecommendation[] }> {
     return {
       recommendations: [
         {

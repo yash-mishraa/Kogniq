@@ -117,12 +117,14 @@ export class MockNotebookService implements INotebookService {
     });
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async appendNote(
-    _documentId: string, 
-    _title: string, 
-    _content: string, 
-    _idempotencyKey?: string
+    documentId: string, 
+    title: string, 
+    content: string, 
+    idempotencyKey?: string
   ): Promise<{ status: string; entry_id?: string }> {
     return { status: "success", entry_id: "mock-entry" };
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }

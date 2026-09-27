@@ -12,7 +12,16 @@ interface TutorChatPanelProps {
   onClose?: () => void;
 }
 
-function TutorQuizProposal({ proposal, documentId }: { proposal: any, documentId: string }) {
+interface QuizProposal {
+  question: string;
+  options: string[];
+  correct_answer: string;
+  explanation: string;
+  difficulty: number;
+  idempotency_key?: string;
+}
+
+function TutorQuizProposal({ proposal, documentId }: { proposal: QuizProposal, documentId: string }) {
   const [status, setStatus] = useState<"pending" | "submitting" | "success" | "error" | "dismissed">("pending");
 
   if (status === "dismissed") return null;
@@ -41,7 +50,7 @@ function TutorQuizProposal({ proposal, documentId }: { proposal: any, documentId
       } else {
         setStatus("error");
       }
-    } catch (e) {
+    } catch {
       setStatus("error");
     }
   };
@@ -77,7 +86,13 @@ function TutorQuizProposal({ proposal, documentId }: { proposal: any, documentId
   );
 }
 
-function TutorNoteProposal({ proposal, documentId }: { proposal: any, documentId: string }) {
+interface NoteProposal {
+  title: string;
+  content: string;
+  idempotency_key?: string;
+}
+
+function TutorNoteProposal({ proposal, documentId }: { proposal: NoteProposal, documentId: string }) {
   const [status, setStatus] = useState<"pending" | "submitting" | "success" | "error" | "dismissed">("pending");
 
   if (status === "dismissed") return null;
@@ -103,7 +118,7 @@ function TutorNoteProposal({ proposal, documentId }: { proposal: any, documentId
       } else {
         setStatus("error");
       }
-    } catch (e) {
+    } catch {
       setStatus("error");
     }
   };
@@ -131,7 +146,14 @@ function TutorNoteProposal({ proposal, documentId }: { proposal: any, documentId
   );
 }
 
-function TutorFlashcardProposal({ proposal, documentId }: { proposal: any, documentId: string }) {
+interface FlashcardProposal {
+  question: string;
+  answer: string;
+  difficulty: number;
+  idempotency_key?: string;
+}
+
+function TutorFlashcardProposal({ proposal, documentId }: { proposal: FlashcardProposal, documentId: string }) {
   const [status, setStatus] = useState<"pending" | "submitting" | "success" | "error" | "dismissed">("pending");
 
   if (status === "dismissed") return null;
@@ -158,7 +180,7 @@ function TutorFlashcardProposal({ proposal, documentId }: { proposal: any, docum
       } else {
         setStatus("error");
       }
-    } catch (e) {
+    } catch {
       setStatus("error");
     }
   };
@@ -225,7 +247,7 @@ export function TutorChatPanel({ documentId, onClose }: TutorChatPanelProps) {
         });
         if (response.ok) {
           const data = await response.json();
-          setMessages(data.map((m: any) => ({ role: m.role, content: m.content })));
+          setMessages(data.map((m: ChatMessage) => ({ role: m.role, content: m.content })));
         } else {
           setSessionId(null);
         }
@@ -273,8 +295,8 @@ export function TutorChatPanel({ documentId, onClose }: TutorChatPanelProps) {
       if (data.tool_events && data.tool_events.length > 0) {
         setToolEvents(data.tool_events);
       }
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -329,7 +351,7 @@ export function TutorChatPanel({ documentId, onClose }: TutorChatPanelProps) {
             if (parsed.type === "quiz_proposal") {
               return <TutorQuizProposal key={`event-${idx}`} proposal={parsed} documentId={documentId as string} />;
             }
-          } catch(e) {
+          } catch {
             // ignore
           }
           return (

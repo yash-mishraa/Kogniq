@@ -5,7 +5,7 @@ import { LearningHubEnvironment } from "./LearningHubEnvironment";
 import { serviceProvider } from "@/lib/providers";
 import { WorkspaceContext } from "../../WorkspaceContext";
 import type { WorkspaceContextValue } from "../../WorkspaceContext";
-import type { WorkspaceMemory } from "../../WorkspaceTypes";
+
 
 const mockWorkspaceContext: WorkspaceContextValue = {
   activeEnvironmentId: "learningHub",

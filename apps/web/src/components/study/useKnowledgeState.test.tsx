@@ -46,11 +46,10 @@ describe("useKnowledgeState", () => {
   });
 
   it("should return null and no error for 404", async () => {
-    const error404 = new Error("Not Found") as any;
+    const error404 = new Error("Not Found") as Error & { status?: number };
     error404.status = 404;
 
-    const spy = vi
-      .spyOn(serviceProvider.getProvider().student, "getKnowledgeState")
+    vi.spyOn(serviceProvider.getProvider().student, "getKnowledgeState")
       .mockRejectedValueOnce(error404);
 
     const { result } = renderHook(() => useKnowledgeState("doc-2"));
@@ -64,11 +63,10 @@ describe("useKnowledgeState", () => {
   });
 
   it("should return error for 500", async () => {
-    const error500 = new Error("Server Error") as any;
+    const error500 = new Error("Server Error") as Error & { status?: number };
     error500.status = 500;
 
-    const spy = vi
-      .spyOn(serviceProvider.getProvider().student, "getKnowledgeState")
+    vi.spyOn(serviceProvider.getProvider().student, "getKnowledgeState")
       .mockRejectedValueOnce(error500);
 
     const { result } = renderHook(() => useKnowledgeState("doc-3"));

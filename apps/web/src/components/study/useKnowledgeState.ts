@@ -25,15 +25,16 @@ export function useKnowledgeState(resourceId: string | null) {
           abortController.signal
         );
         setKnowledgeState(state);
-      } catch (err: any) {
-        if (err.name === "AbortError" || err.code === "ERR_CANCELED") {
+      } catch (error) {
+        const errObj = error as { name?: string; code?: string; status?: number; response?: { status: number }; message?: string };
+        if (errObj?.name === "AbortError" || errObj?.code === "ERR_CANCELED") {
           return;
         }
         // If 404, we just leave it as null
-        if (err.response?.status === 404 || err.status === 404) {
+        if (errObj?.response?.status === 404 || errObj?.status === 404) {
           setKnowledgeState(null);
         } else {
-          setError(err instanceof Error ? err : new Error(err?.message || "Unknown error"));
+          setError(error instanceof Error ? error : new Error(errObj?.message || "Unknown error"));
           setKnowledgeState(null);
         }
       } finally {
