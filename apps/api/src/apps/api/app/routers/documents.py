@@ -5,6 +5,7 @@ from backend.schemas.document import (
     DocumentLifecycleState,
     DocumentProcessResponse,
     DocumentResponse,
+    DocumentDetailResponse,
 )
 from backend.services.document_service import DocumentService
 from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
@@ -79,6 +80,47 @@ async def process_document(
         processing_time_ms=result.processing_time_ms,
         warnings=list(result.warnings),
     )
+
+
+@router.get("/documents/{document_id}", response_model=DocumentDetailResponse)
+async def get_document(
+    document_id: str,
+    current_user: CurrentUserDependency,
+) -> DocumentDetailResponse:
+    """
+    Retrieve a document and its full text content.
+    """
+    from backend.dependencies import get_uow_factory
+    from fastapi import HTTPException
+
+    uow_factory = get_uow_factory()
+    with uow_factory.create() as uow:
+        doc = await uow.documents.get(document_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail="Document not found")
+
+        if doc.user_id and doc.user_id != current_user.user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to access this document")
+
+        content = ""
+        if doc.pages:
+            content = "\n\n".join(
+                "\n".join(
+                    block["text"] if isinstance(block, dict) else block.text
+                    for block in page.blocks 
+                    if (block.get("text") if isinstance(block, dict) else block.text)
+                )
+                for page in doc.pages if page.blocks
+            )
+
+        return DocumentDetailResponse(
+            id=doc.id,
+            title=doc.title,
+            source=doc.source,
+            status="Ready",
+            importDate=doc.created_at.isoformat(),
+            content=content,
+        )
 
 
 @router.delete("/documents/{document_id}")

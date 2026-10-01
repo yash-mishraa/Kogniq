@@ -14,6 +14,14 @@ export class LiveDocumentService implements IDocumentService {
     return response.data;
   }
 
+  async getDocument(id: string, signal?: AbortSignal): Promise<DocumentItem> {
+    const response = await apiClient.get<DocumentItem>(`/api/v1/documents/${id}`, {
+      signal,
+      ...REQUEST_POLICIES.retrieval
+    });
+    return response.data;
+  }
+
   async processDocument(params: ProcessDocumentParams): Promise<DocumentItem> {
     const formData = new FormData();
     formData.append("file", params.file);

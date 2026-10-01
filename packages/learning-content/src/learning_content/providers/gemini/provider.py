@@ -55,8 +55,7 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
     def client(self) -> "genai.Client":
         """Lazy initialization of the Gemini client."""
         if self._client is None:
-            # Enforce strict 30-second explicit provider timeout boundary
-            self._client = genai.Client(api_key=self.api_key, http_options={"timeout": 30.0})
+            self._client = genai.Client(api_key=self.api_key)
         return self._client
 
     @property

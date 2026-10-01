@@ -44,6 +44,17 @@ export function documentsReducer(state: DocumentsState, action: DocumentsAction)
           ),
         }
       };
+    case "UPDATE_DOCUMENT":
+      if (!state.documents.data) return state;
+      return {
+        ...state,
+        documents: {
+          ...state.documents,
+          data: state.documents.data.map((doc) =>
+            doc.id === action.payload.id ? { ...doc, ...action.payload } : doc
+          ),
+        }
+      };
     case "DELETE_DOCUMENT":
       if (!state.documents.data) return state;
       return {

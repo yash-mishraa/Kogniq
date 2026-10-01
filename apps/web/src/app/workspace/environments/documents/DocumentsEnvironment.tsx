@@ -23,6 +23,30 @@ function DocumentsEnvironmentBody() {
     }
   }, [memoryDocumentId, activeDocumentId, dispatch]);
 
+  // Fetch document details when activeDocumentId changes
+  useEffect(() => {
+    const id = activeDocumentId;
+    if (id && activeDocument && !activeDocument.content) {
+      let isMounted = true;
+      const controller = new AbortController();
+      async function fetchDocument() {
+        try {
+          const fullDoc = await serviceProvider.getProvider().documents.getDocument(id, controller.signal);
+          if (isMounted) {
+            dispatch({ type: "UPDATE_DOCUMENT", payload: fullDoc });
+          }
+        } catch (err: unknown) {
+          // ignore or handle
+        }
+      }
+      fetchDocument();
+      return () => {
+        isMounted = false;
+        controller.abort();
+      };
+    }
+  }, [activeDocumentId, activeDocument, dispatch]);
+
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();

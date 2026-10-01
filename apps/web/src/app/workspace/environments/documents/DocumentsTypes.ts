@@ -36,5 +36,6 @@ export type DocumentsAction =
   | { type: "SELECT_DOCUMENT"; payload: string | null }
   | { type: "UPDATE_STATUS"; payload: { id: string; status: DocumentStatus } }
   | { type: "DELETE_DOCUMENT"; payload: string }
+  | { type: "UPDATE_DOCUMENT"; payload: Partial<DocumentItem> & { id: string } }
   | { type: "START_HYDRATION"; payload: { requestId: string } }
   | { type: "ABORT_HYDRATION"; payload: { requestId: string } };

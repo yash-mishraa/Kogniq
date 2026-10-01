@@ -22,7 +22,7 @@ class GeminiKnowledgeExtractor(AbstractKnowledgeExtractor):
     def __init__(
         self,
         api_key: str | None = None,
-        model_name: str = "gemini-2.0-flash",
+        model_name: str = "gemini-3.1-flash-lite",
         temperature: float = 0.0,
         max_output_tokens: int = 8192,
     ) -> None:

@@ -18,6 +18,23 @@ export class MockDocumentService implements IDocumentService {
     });
   }
 
+  async getDocument(id: string, signal?: AbortSignal): Promise<DocumentItem> {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        const doc = MOCK_DOCUMENTS.find(d => d.id === id);
+        if (doc) resolve(doc);
+        else reject(new Error("Not found"));
+      }, 500);
+
+      if (signal) {
+        signal.addEventListener("abort", () => {
+          clearTimeout(timeout);
+          reject(new DOMException("Aborted", "AbortError"));
+        });
+      }
+    });
+  }
+
   async processDocument(params: ProcessDocumentParams): Promise<DocumentItem> {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {

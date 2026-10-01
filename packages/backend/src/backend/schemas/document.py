@@ -82,3 +82,11 @@ class DocumentResponse(BaseModel):
     status: str
     importDate: str  # noqa: N815
     error: str | None = None
+
+
+class DocumentDetailResponse(DocumentResponse):
+    """
+    API Response Schema for retrieving a document with content.
+    """
+
+    content: str | None = None

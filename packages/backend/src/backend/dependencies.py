@@ -13,7 +13,8 @@ def _get_configured_provider():
         return DeterministicLatencyProvider(delay_ms=delay)
     elif provider_name == "gemini":
         from learning_content.providers.gemini.provider import GeminiTextGenerationProvider
-        return GeminiTextGenerationProvider()
+        import os
+        return GeminiTextGenerationProvider(api_key=os.environ.get("GEMINI_API_KEY", ""))
     else:
         from learning_content.providers.mock.provider import MockTextGenerationProvider
         return MockTextGenerationProvider()

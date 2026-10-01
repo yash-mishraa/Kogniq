@@ -84,11 +84,12 @@ class LearningGenerationStage:
 
         materials = []
 
+        import asyncio
         for generator in self.generators:
             generator_name = generator.__class__.__name__
             try:
                 logger.info(f"Generating learning material with {generator_name}...")
-                content = generator.generate(chunk_collection, graph)
+                content = await asyncio.to_thread(generator.generate, chunk_collection, graph)
                 materials.append(content)
                 results_data["generated"].append(generator_name)
             except LearningGenerationError as e:
