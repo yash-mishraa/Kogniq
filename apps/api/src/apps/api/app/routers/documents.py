@@ -6,6 +6,7 @@ from backend.schemas.document import (
     DocumentProcessResponse,
     DocumentResponse,
     DocumentDetailResponse,
+    SemanticDocumentResponse,
 )
 from backend.services.document_service import DocumentService
 from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
@@ -216,3 +217,76 @@ async def recover_failed_documents(
     """
     count = document_service.recover_failed_jobs(user_id=current_user.user_id)
     return {"status": "success", "recovered_count": count}
+
+@router.get("/documents/{document_id}/semantics", response_model=SemanticDocumentResponse)
+async def get_document_semantics(
+    document_id: str,
+    current_user: CurrentUserDependency,
+) -> SemanticDocumentResponse:
+    """
+    Retrieve the active semantic structure (sections, figures) for a document.
+    """
+    from backend.dependencies import get_uow_factory
+    from fastapi import HTTPException
+    import json
+    import logging
+
+    uow_factory = get_uow_factory()
+    with uow_factory.create() as uow:
+        doc = await uow.documents.get(document_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail="Document not found")
+
+        if doc.user_id and doc.user_id != current_user.user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to access this document")
+
+        active_semantics = await uow.semantics.get_active(document_id)
+        
+        if not active_semantics:
+            return SemanticDocumentResponse(
+                document_id=document_id,
+                status="unavailable",
+                semantic_version=None,
+                sections=[],
+                figures=[]
+            )
+
+        if active_semantics.status != "ready":
+            return SemanticDocumentResponse(
+                document_id=document_id,
+                status="unavailable",
+                semantic_version=active_semantics.semantic_version,
+                sections=[],
+                figures=[]
+            )
+
+        try:
+            data = json.loads(active_semantics.semantics_json)
+            sections = data.get("sections", [])
+            figures = data.get("figures", [])
+            
+            return SemanticDocumentResponse(
+                document_id=document_id,
+                status="ready",
+                semantic_version=active_semantics.semantic_version,
+                sections=sections,
+                figures=figures
+            )
+        except json.JSONDecodeError:
+            logging.error(f"Malformed semantic JSON for document {document_id}, version {active_semantics.semantic_version}")
+            return SemanticDocumentResponse(
+                document_id=document_id,
+                status="unavailable",
+                semantic_version=active_semantics.semantic_version,
+                sections=[],
+                figures=[]
+            )
+        except Exception as e:
+            logging.error(f"Error parsing semantic JSON for document {document_id}: {e}")
+            return SemanticDocumentResponse(
+                document_id=document_id,
+                status="unavailable",
+                semantic_version=active_semantics.semantic_version,
+                sections=[],
+                figures=[]
+            )

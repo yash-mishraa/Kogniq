@@ -37,6 +37,7 @@ export interface DocumentItem {
   extractedConcepts?: number;
   content?: string; // Optional raw string for backward compatibility
   pages?: DocumentPage[]; // Structured extraction data
+  semantics?: SemanticDocument | null;
 }
 
 import type { ResourceState } from "@/lib/core/ResourceState";
@@ -55,3 +56,35 @@ export type DocumentsAction =
   | { type: "UPDATE_DOCUMENT"; payload: Partial<DocumentItem> & { id: string } }
   | { type: "START_HYDRATION"; payload: { requestId: string } }
   | { type: "ABORT_HYDRATION"; payload: { requestId: string } };
+export interface SemanticBoundingBox {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
+
+export interface SemanticSection {
+  id: string;
+  page_number: number;
+  title: string;
+  level: number;
+  parent_id?: string | null;
+  bbox?: SemanticBoundingBox | null;
+}
+
+export interface SemanticFigure {
+  id: string;
+  page_number: number;
+  figure_number?: string | null;
+  caption?: string | null;
+  bbox?: SemanticBoundingBox | null;
+  image_bbox?: SemanticBoundingBox | null;
+}
+
+export interface SemanticDocument {
+  document_id: string;
+  status: "ready" | "unavailable";
+  semantic_version?: string | null;
+  sections: SemanticSection[];
+  figures: SemanticFigure[];
+}

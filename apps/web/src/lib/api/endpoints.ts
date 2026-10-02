@@ -7,6 +7,7 @@ export const ENDPOINTS = {
     process: "/api/v1/documents/process",
     get: (id: string) => `/api/v1/documents/${id}`,
     getAll: "/api/v1/documents",
+    semantics: (id: string) => "/api/v1/documents/$id/semantics",
     delete: (id: string) => `/api/v1/documents/${id}`,
   },
   resources: {

@@ -149,6 +149,7 @@ def test_get_document_structured_pages(client: TestClient, test_app: FastAPI, au
     from backend.dependencies import get_uow_factory
     from content.normalized.document import NormalizedDocument
     from content.normalized.page import NormalizedPage
+    from content.normalized.page import NormalizedPage
     from content.normalized.block import NormalizedBlock
     from content.normalized.enums import BlockType
     from datetime import datetime, UTC
@@ -213,6 +214,7 @@ def test_get_document_file_success(client: TestClient, test_app: FastAPI, auth_u
     from backend.dependencies import get_uow_factory
     from content.normalized.document import NormalizedDocument
     from content.normalized.page import NormalizedPage
+    from content.normalized.page import NormalizedPage
     from datetime import datetime, UTC
     import asyncio
     import os
@@ -254,6 +256,7 @@ def test_get_document_file_cross_user_denial(client: TestClient, test_app: FastA
     from backend.dependencies import get_uow_factory
     from content.normalized.document import NormalizedDocument
     from content.normalized.page import NormalizedPage
+    from content.normalized.page import NormalizedPage
     from datetime import datetime, UTC
     import asyncio
     
@@ -285,6 +288,7 @@ def test_get_document_file_missing_on_disk(client: TestClient, test_app: FastAPI
     from backend.dependencies import get_uow_factory
     from content.normalized.document import NormalizedDocument
     from content.normalized.page import NormalizedPage
+    from content.normalized.page import NormalizedPage
     from datetime import datetime, UTC
     import asyncio
     
@@ -308,4 +312,101 @@ def test_get_document_file_missing_on_disk(client: TestClient, test_app: FastAPI
         response = client.get(f"/api/v1/documents/{doc_id}/file")
         assert response.status_code == 404
         
+    asyncio.run(run_test())
+
+def test_get_document_semantics(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    from backend.dependencies import get_uow_factory
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    from content.normalized.semantics import DocumentSemantics
+    from datetime import datetime, UTC
+    import asyncio
+    import json
+    
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
+    doc_id = "test-doc-semantics"
+    
+    async def run_test():
+        with uow_factory.create() as uow:
+            doc = NormalizedDocument(
+                id=doc_id, title="Doc", source="test", checksum="test", version="1.0",
+                created_at=datetime.now(UTC), user_id=auth_user.user_id, pages=(NormalizedPage(page_number=1, blocks=()),)
+            )
+            await uow.documents.save(doc)
+            
+            semantics = DocumentSemantics(
+                id="sem-1", document_id=doc_id, semantic_version="2", status="ready", is_active=True,
+                semantics_json=json.dumps({"sections": [{"id": "sec1", "title": "Intro", "page_number": 1, "level": 1}], "figures": []}),
+                created_at=datetime.now(UTC), completed_at=datetime.now(UTC)
+            )
+            await uow.semantics.save(semantics)
+
+        response = client.get(f"/api/v1/documents/{doc_id}/semantics")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "ready"
+        assert data["semantic_version"] == "2"
+        assert len(data["sections"]) == 1
+        assert data["sections"][0]["title"] == "Intro"
+
+    asyncio.run(run_test())
+
+def test_get_document_semantics_cross_user(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    from backend.dependencies import get_uow_factory
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    from datetime import datetime, UTC
+    import asyncio
+    
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
+    doc_id = "test-doc-semantics-cross"
+    
+    async def run_test():
+        with uow_factory.create() as uow:
+            doc = NormalizedDocument(
+                id=doc_id, title="Doc", source="test", checksum="test", version="1.0",
+                created_at=datetime.now(UTC), user_id="other-user", pages=(NormalizedPage(page_number=1, blocks=()),)
+            )
+            await uow.documents.save(doc)
+            
+        response = client.get(f"/api/v1/documents/{doc_id}/semantics")
+        assert response.status_code == 403
+
+    asyncio.run(run_test())
+
+def test_get_document_semantics_unavailable(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    from backend.dependencies import get_uow_factory
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    from content.normalized.semantics import DocumentSemantics
+    from datetime import datetime, UTC
+    import asyncio
+    
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
+    doc_id = "test-doc-semantics-unavailable"
+    
+    async def run_test():
+        with uow_factory.create() as uow:
+            doc = NormalizedDocument(
+                id=doc_id, title="Doc", source="test", checksum="test", version="1.0",
+                created_at=datetime.now(UTC), user_id=auth_user.user_id, pages=(NormalizedPage(page_number=1, blocks=()),)
+            )
+            await uow.documents.save(doc)
+            
+            # Save failed version
+            semantics = DocumentSemantics(
+                id="sem-failed", document_id=doc_id, semantic_version="2", status="failed", is_active=True,
+                semantics_json="", created_at=datetime.now(UTC), completed_at=datetime.now(UTC)
+            )
+            await uow.semantics.save(semantics)
+
+        response = client.get(f"/api/v1/documents/{doc_id}/semantics")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "unavailable"
+        assert len(data["sections"]) == 0
+
     asyncio.run(run_test())

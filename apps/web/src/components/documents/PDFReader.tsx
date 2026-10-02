@@ -343,26 +343,7 @@ export function PDFReader({ documentId }: PDFReaderProps) {
     );
   }
 
-  const renderOutlineNode = (node: OutlineNode, idx: number, depth: number = 0) => {
-    return (
-      <div key={`${node.title}-${idx}`} className="w-full">
-        <button 
-          onClick={() => handleOutlineClick(node.dest)}
-          className="w-full text-left py-1.5 px-3 hover:bg-gray-100 rounded text-sm transition-colors"
-          style={{ paddingLeft: `${depth * 12 + 12}px` }}
-        >
-          <span className={`block truncate ${node.bold ? 'font-semibold' : ''} ${node.italic ? 'italic' : ''} text-gray-700`}>
-            {node.title}
-          </span>
-        </button>
-        {node.items && node.items.length > 0 && (
-          <div className="border-l border-gray-200 ml-3">
-            {node.items.map((child, childIdx) => renderOutlineNode(child, childIdx, depth + 1))}
-          </div>
-        )}
-      </div>
-    );
-  };
+  
 
   return (
     <div className="flex flex-col h-full bg-[#f3f4f6]" ref={containerRef}>
@@ -517,20 +498,114 @@ export function PDFReader({ documentId }: PDFReaderProps) {
               </button>
             </div>
             <div className="p-2">
-              {outline === null ? (
-                <div className="py-8 px-4 text-center text-gray-500 text-sm flex flex-col items-center">
-                  <Loader2 className="w-5 h-5 animate-spin text-gray-300 mb-2" />
-                  <span>Loading outline...</span>
-                </div>
-              ) : outline.length === 0 ? (
-                <div className="py-12 px-4 text-center text-gray-500 flex flex-col items-center">
-                  <FileText className="w-8 h-8 text-gray-300 mb-3" />
-                  <p className="text-sm font-medium text-gray-600">No outline available</p>
-                  <p className="text-xs text-gray-400 mt-1">This PDF does not contain a table of contents.</p>
-                </div>
-              ) : (
-                outline.map((node, idx) => renderOutlineNode(node, idx))
-              )}
+              {(() => {
+                if (!documentInfo || !documentInfo.pages) {
+                  return (
+                    <div className="py-8 px-4 text-center text-gray-500 text-sm flex flex-col items-center">
+                      <Loader2 className="w-5 h-5 animate-spin text-gray-300 mb-2" />
+                      <span>Document structure is being prepared...</span>
+                    </div>
+                  );
+                }
+                
+                const semantics = documentInfo.semantics;
+                if (!semantics) {
+                   return (
+                    <div className="py-8 px-4 text-center text-gray-500 text-sm flex flex-col items-center">
+                      <Loader2 className="w-5 h-5 animate-spin text-gray-300 mb-2" />
+                      <span>Document structure is being prepared...</span>
+                    </div>
+                  );
+                }
+                
+                if (semantics.status === "unavailable") {
+                  return (
+                    <div className="py-12 px-4 text-center text-gray-500 flex flex-col items-center">
+                      <FileText className="w-8 h-8 text-gray-300 mb-3" />
+                      <p className="text-sm font-medium text-gray-600">Document outline unavailable</p>
+                    </div>
+                  );
+                }
+                
+                if (semantics.sections.length === 0 && semantics.figures.length === 0) {
+                  return (
+                    <div className="py-12 px-4 text-center text-gray-500 flex flex-col items-center">
+                      <FileText className="w-8 h-8 text-gray-300 mb-3" />
+                      <p className="text-sm font-medium text-gray-600">No document outline available.</p>
+                    </div>
+                  );
+                }
+                
+                // Build hierarchy
+                const roots: any[] = [];
+                const parentMap = new Map<string, any>();
+                
+                semantics.sections.forEach(s => {
+                   parentMap.set(s.id, { ...s, children: [] });
+                });
+                
+                semantics.sections.forEach(s => {
+                   const node = parentMap.get(s.id);
+                   if (s.parent_id && parentMap.has(s.parent_id)) {
+                      parentMap.get(s.parent_id).children.push(node);
+                   } else {
+                      roots.push(node);
+                   }
+                });
+                
+                const renderSemanticNode = (node: any, depth: number = 0) => (
+                  <div key={node.id} className="w-full">
+                    <button 
+                      onClick={() => jumpToPage(node.page_number)}
+                      className="w-full text-left py-1.5 px-3 hover:bg-gray-100 rounded text-sm transition-colors"
+                      style={{ paddingLeft: `${depth * 12 + 12}px` }}
+                    >
+                      <span className="block truncate text-gray-700">
+                        {node.title}
+                      </span>
+                    </button>
+                    {node.children && node.children.length > 0 && (
+                      <div className="border-l border-gray-200 ml-3">
+                        {node.children.map((child: any) => renderSemanticNode(child, depth + 1))}
+                      </div>
+                    )}
+                  </div>
+                );
+                
+                return (
+                  <>
+                    {roots.length > 0 && (
+                      <div className="mb-4">
+                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Sections</div>
+                        {roots.map((node: any) => renderSemanticNode(node, 0))}
+                      </div>
+                    )}
+                    
+                    {semantics.figures.length > 0 && (
+                      <div>
+                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-4">Figures</div>
+                        {semantics.figures.map(fig => (
+                          <button 
+                            key={fig.id}
+                            onClick={() => jumpToPage(fig.page_number)}
+                            className="w-full text-left py-2 px-3 hover:bg-gray-100 rounded text-sm transition-colors mb-1"
+                          >
+                            <span className="block text-gray-700 font-medium text-xs">
+                              {fig.figure_number || "Figure"}
+                            </span>
+                            {fig.caption && (
+                              <span className="block text-gray-500 text-xs truncate mt-0.5" title={fig.caption}>
+                                {fig.caption}
+                              </span>
+                            )}
+                            <span className="block text-gray-400 text-[10px] mt-1">Page {fig.page_number}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}

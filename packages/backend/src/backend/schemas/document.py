@@ -105,3 +105,33 @@ class DocumentDetailResponse(DocumentResponse):
     """
 
     pages: list[DocumentPage] = Field(default_factory=list)
+
+class SemanticBoundingBox(BaseModel):
+    x0: float
+    y0: float
+    x1: float
+    y1: float
+
+class SemanticSectionResponse(BaseModel):
+    id: str
+    page_number: int
+    title: str
+    level: int
+    parent_id: str | None = None
+    bbox: SemanticBoundingBox | None = None
+
+class SemanticFigureResponse(BaseModel):
+    id: str
+    page_number: int
+    figure_number: str | None = None
+    caption: str | None = None
+    bbox: SemanticBoundingBox | None = None
+    image_bbox: SemanticBoundingBox | None = None
+
+class SemanticDocumentResponse(BaseModel):
+    document_id: str
+    semantic_version: str | None = None
+    status: str
+    sections: list[SemanticSectionResponse] = Field(default_factory=list)
+    figures: list[SemanticFigureResponse] = Field(default_factory=list)
+
