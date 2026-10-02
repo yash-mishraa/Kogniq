@@ -8,11 +8,17 @@ import { serviceProvider } from "@/lib/providers";
 
 import { useWorkspace } from "../../WorkspaceContext";
 import { TutorChatPanel } from "./TutorChatPanel";
+import { useDocuments } from "../documents/DocumentsContext";
+import { ProcessingState } from "@/components/ui/processing-state";
 
 function StudyEnvironmentBody() {
   const { state, dispatch } = useStudy();
-  const { memory } = useWorkspace();
+  const { memory, remember } = useWorkspace();
+  const { state: docsState } = useDocuments();
   const documentId = memory.documents?.openedDocument;
+  
+  const activeDoc = docsState.documents.data?.find(d => d.id === documentId);
+  const isReady = activeDoc?.status === "Ready";
 
   // Automatically transition the Study state machine when the active document changes
   useEffect(() => {
@@ -26,7 +32,7 @@ function StudyEnvironmentBody() {
   }, [documentId, state.isStudying, state.material.data, dispatch]);
 
   useEffect(() => {
-    if (state.isStudying && documentId) {
+    if (state.isStudying && documentId && isReady) {
       let isMounted = true;
       const controller = new AbortController();
       
@@ -59,11 +65,33 @@ function StudyEnvironmentBody() {
   }, [state.isStudying, dispatch, documentId]);
 
   const [isTutorOpen, setIsTutorOpen] = useState(false);
+  const [initialTutorQuery, setInitialTutorQuery] = useState<string | undefined>(undefined);
 
-  if (!state.isStudying) {
+  // If there's a selectedContext (e.g. from PDF selection), open Tutor automatically
+  useEffect(() => {
+    if (memory.study?.selectedContext) {
+      setIsTutorOpen(true);
+      setInitialTutorQuery(memory.study.selectedContext);
+      
+      // Consume the context so it doesn't trigger again on remounts
+      if (remember) {
+        remember('study', { ...memory.study, selectedContext: undefined });
+      }
+    }
+  }, [memory.study?.selectedContext, remember, memory.study]);
+
+  if (!state.isStudying || !documentId) {
     return (
       <StudySurface>
         <StudyEmptyState />
+      </StudySurface>
+    );
+  }
+
+  if (activeDoc && activeDoc.status !== "Ready") {
+    return (
+      <StudySurface>
+        <ProcessingState status={activeDoc.status} />
       </StudySurface>
     );
   }
@@ -126,7 +154,11 @@ function StudyEnvironmentBody() {
         {/* Right Panel: The Tutor */}
         {isTutorOpen && documentId && (
           <div className="w-96 flex-shrink-0 h-full border-l border-line bg-surface shadow-overlay">
-            <TutorChatPanel documentId={documentId} onClose={() => setIsTutorOpen(false)} />
+            <TutorChatPanel 
+              documentId={documentId} 
+              onClose={() => setIsTutorOpen(false)} 
+              initialQuery={initialTutorQuery}
+            />
           </div>
         )}
       </div>

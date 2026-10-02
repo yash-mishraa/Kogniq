@@ -13,12 +13,19 @@ import { useWorkspace } from "@/app/workspace/WorkspaceContext";
 
 import { serviceProvider } from "@/lib/providers";
 
+import { useDocuments } from "../documents/DocumentsContext";
+import { ProcessingState } from "@/components/ui/processing-state";
+
 function KnowledgeEnvironmentBody() {
   const { state, dispatch } = useKnowledge();
   const { remember, memory } = useWorkspace();
+  const { state: docsState } = useDocuments();
   const { graph } = state;
   const documentId = memory.documents?.openedDocument;
   
+  const activeDoc = docsState.documents.data?.find(d => d.id === documentId);
+  const isReady = activeDoc?.status === "Ready";
+
   useEffect(() => {
     remember("knowledge", {
       focusTarget: "locus"
@@ -26,6 +33,7 @@ function KnowledgeEnvironmentBody() {
   }, [remember]);
 
   useEffect(() => {
+    if (documentId && !isReady) return;
     let isMounted = true;
     const controller = new AbortController();
     
@@ -60,6 +68,14 @@ function KnowledgeEnvironmentBody() {
     };
     
   }, [dispatch, documentId]);
+
+  if (activeDoc && activeDoc.status !== "Ready") {
+    return (
+      <KnowledgeSurface>
+        <ProcessingState status={activeDoc.status} />
+      </KnowledgeSurface>
+    );
+  }
 
   if (graph.status === "loading") {
     return (

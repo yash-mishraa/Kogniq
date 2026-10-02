@@ -84,9 +84,24 @@ class DocumentResponse(BaseModel):
     error: str | None = None
 
 
+class DocumentBlock(BaseModel):
+    id: str
+    text: str
+    type: str
+    bbox: tuple[float, float, float, float] | None = None
+    order: int
+
+
+class DocumentPage(BaseModel):
+    page_number: int
+    width: float | None = None
+    height: float | None = None
+    blocks: list[DocumentBlock]
+
+
 class DocumentDetailResponse(DocumentResponse):
     """
-    API Response Schema for retrieving a document with content.
+    API Response Schema for retrieving a document with structured pages.
     """
 
-    content: str | None = None
+    pages: list[DocumentPage] = Field(default_factory=list)

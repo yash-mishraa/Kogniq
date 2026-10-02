@@ -46,7 +46,7 @@ export interface IServiceProvider {
 }
 
 class ServiceProviderFactory {
-  private activeMode: ProviderMode = (process.env.NEXT_PUBLIC_PROVIDER_MODE as ProviderMode) || "mock";
+  private activeMode: ProviderMode = (process.env.NEXT_PUBLIC_PROVIDER_MODE as ProviderMode) || "live";
   
   private mockProvider: IServiceProvider = {
     auth: new MockAuthService(),

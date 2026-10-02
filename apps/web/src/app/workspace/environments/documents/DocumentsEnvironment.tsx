@@ -26,10 +26,11 @@ function DocumentsEnvironmentBody() {
   // Fetch document details when activeDocumentId changes
   useEffect(() => {
     const id = activeDocumentId;
-    if (id && activeDocument && !activeDocument.content) {
+    if (id && activeDocument && !activeDocument.content && !activeDocument.pages) {
       let isMounted = true;
       const controller = new AbortController();
       async function fetchDocument() {
+        if (!id) return;
         try {
           const fullDoc = await serviceProvider.getProvider().documents.getDocument(id, controller.signal);
           if (isMounted) {

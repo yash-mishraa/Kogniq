@@ -7,14 +7,21 @@ import { useEffect } from "react";
 import { serviceProvider } from "@/lib/providers";
 import { useWorkspace } from "../../WorkspaceContext";
 
+import { useDocuments } from "../documents/DocumentsContext";
+import { ProcessingState } from "@/components/ui/processing-state";
+
 function NotebookEnvironmentBody() {
   const { state, dispatch } = useNotebook();
   const { notebooks } = state;
   const { memory } = useWorkspace();
+  const { state: docsState } = useDocuments();
   const documentId = memory.documents?.openedDocument;
+  
+  const activeDoc = docsState.documents.data?.find(d => d.id === documentId);
+  const isReady = activeDoc?.status === "Ready";
 
   useEffect(() => {
-    if (!documentId) return;
+    if (!documentId || !isReady) return;
 
     let isMounted = true;
     const controller = new AbortController();
@@ -45,6 +52,22 @@ function NotebookEnvironmentBody() {
     };
     
   }, [dispatch, documentId]);
+
+  if (!documentId) {
+    return (
+      <NotebookSurface>
+        <NotebookEmptyState />
+      </NotebookSurface>
+    );
+  }
+
+  if (activeDoc && activeDoc.status !== "Ready") {
+    return (
+      <NotebookSurface>
+        <ProcessingState status={activeDoc.status} />
+      </NotebookSurface>
+    );
+  }
 
   if (notebooks.status === "loading") {
     return (

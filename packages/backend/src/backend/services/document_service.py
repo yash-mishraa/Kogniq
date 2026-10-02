@@ -80,6 +80,14 @@ class DocumentService:
             ext = doc_input.filename.rsplit(".", 1)[1].lower()
 
         import hashlib
+        import os
+
+        # Save original PDF
+        upload_dir = os.path.join("data", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, f"{document_id}.pdf")
+        with open(file_path, "wb") as f:
+            f.write(doc_input.content)
 
         checksum_value = hashlib.sha256(doc_input.content).hexdigest()
 
@@ -174,29 +182,49 @@ class DocumentService:
         result = []
         with self.uow_factory.create() as uow:
             docs = await uow.documents.list(user_id=user_id)
-            result.extend(
-                {
-                    "id": doc.id,
-                    "title": doc.title,
-                    "source": doc.source,
-                    "status": "Ready",
-                    "importDate": doc.created_at.isoformat(),
-                }
-                for doc in docs
-            )
-
             jobs = uow.document_jobs.list_active(user_id=user_id)
-            result.extend(
-                {
-                    "id": job.id,
-                    "title": job.filename,
-                    "source": "upload",
-                    "status": job.status,
-                    "importDate": job.created_at.isoformat(),
-                    "error": job.error_message or "",
-                }
-                for job in jobs
-            )
+            
+            job_by_id = {job.id: job for job in jobs}
+            
+            # Map all docs. If there's an active job, use its status instead of 'Ready'
+            for doc in docs:
+                if doc.id in job_by_id:
+                    job = job_by_id[doc.id]
+                    result.append(
+                        {
+                            "id": doc.id,
+                            "title": doc.title,
+                            "source": doc.source,
+                            "status": job.status,
+                            "importDate": doc.created_at.isoformat(),
+                            "error": job.error_message or "",
+                        }
+                    )
+                    del job_by_id[doc.id]
+                else:
+                    result.append(
+                        {
+                            "id": doc.id,
+                            "title": doc.title,
+                            "source": doc.source,
+                            "status": "Ready",
+                            "importDate": doc.created_at.isoformat(),
+                            "error": "",
+                        }
+                    )
+
+            # Map remaining jobs that don't have a document yet
+            for job in job_by_id.values():
+                result.append(
+                    {
+                        "id": job.id,
+                        "title": job.filename,
+                        "source": "upload",
+                        "status": job.status,
+                        "importDate": job.created_at.isoformat(),
+                        "error": job.error_message or "",
+                    }
+                )
 
         return result
 

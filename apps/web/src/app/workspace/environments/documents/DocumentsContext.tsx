@@ -9,7 +9,7 @@ interface DocumentsContextValue {
   dispatch: React.Dispatch<DocumentsAction>;
 }
 
-const DocumentsContext = createContext<DocumentsContextValue | null>(null);
+export const DocumentsContext = createContext<DocumentsContextValue | null>(null);
 
 export function DocumentsProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(documentsReducer, initialDocumentsState);

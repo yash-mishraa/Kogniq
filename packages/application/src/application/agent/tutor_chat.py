@@ -166,7 +166,7 @@ class TutorChatUseCase:
                 tool_message = await self._dispatch_tool(
                     request.user_id, active_document_id, session_id, tool_call, tool_events
                 )
-                agent_messages.append(AgentMessage(role="tool", content=tool_message))
+                agent_messages.append(AgentMessage(role="tool", content=tool_message, tool_calls=[tool_call]))
         else:
             tool_events.append("Tool call limit reached.")
 
@@ -442,6 +442,7 @@ class TutorChatUseCase:
                 chunks_text = "No relevant content found in this document."
             return chunks_text
         except Exception as e:
+            print(f"!!! SEMANTIC SEARCH FAILED: {repr(e)}")
             return f"Tool execution failed: {e}"
 
     async def _run_log_conversational_assessment(

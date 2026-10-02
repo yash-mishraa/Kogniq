@@ -10,6 +10,7 @@ interface ChatMessage {
 interface TutorChatPanelProps {
   documentId?: string;
   onClose?: () => void;
+  initialQuery?: string;
 }
 
 interface QuizProposal {
@@ -92,7 +93,7 @@ interface NoteProposal {
   idempotency_key?: string;
 }
 
-function TutorNoteProposal({ proposal, documentId }: { proposal: NoteProposal, documentId: string }) {
+export function TutorNoteProposal({ proposal, documentId }: { proposal: NoteProposal, documentId: string }) {
   const [status, setStatus] = useState<"pending" | "submitting" | "success" | "error" | "dismissed">("pending");
 
   if (status === "dismissed") return null;
@@ -153,7 +154,7 @@ interface FlashcardProposal {
   idempotency_key?: string;
 }
 
-function TutorFlashcardProposal({ proposal, documentId }: { proposal: FlashcardProposal, documentId: string }) {
+export function TutorFlashcardProposal({ proposal, documentId }: { proposal: FlashcardProposal, documentId: string }) {
   const [status, setStatus] = useState<"pending" | "submitting" | "success" | "error" | "dismissed">("pending");
 
   if (status === "dismissed") return null;
@@ -209,9 +210,9 @@ function TutorFlashcardProposal({ proposal, documentId }: { proposal: FlashcardP
   );
 }
 
-export function TutorChatPanel({ documentId, onClose }: TutorChatPanelProps) {
+export function TutorChatPanel({ documentId, onClose, initialQuery }: TutorChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(initialQuery || "");
   const [sessionId, setSessionId] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("activeTutorSessionId");

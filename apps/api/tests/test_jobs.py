@@ -35,10 +35,18 @@ def test_job_processing_endpoints() -> None:
 
     job_id = data["job_id"]
 
-    # Get job status
-    res2 = client.get(f"/api/v1/jobs/{job_id}")
-    assert res2.status_code == 200
-    d2 = res2.json()
+    import time
+    max_attempts = 120
+    final_status = "pending"
+    for _ in range(max_attempts):
+        res2 = client.get(f"/api/v1/jobs/{job_id}")
+        assert res2.status_code == 200
+        d2 = res2.json()
+        final_status = d2["status"]
+        if final_status in ("completed", "failed"):
+            break
+        time.sleep(0.5)
+
     assert d2["job_id"] == job_id
     assert d2["status"] == "completed"
     assert d2["progress"] == 100

@@ -88,10 +88,11 @@ async def get_document(
     current_user: CurrentUserDependency,
 ) -> DocumentDetailResponse:
     """
-    Retrieve a document and its full text content.
+    Retrieve a document and its structured pages.
     """
     from backend.dependencies import get_uow_factory
     from fastapi import HTTPException
+    from backend.schemas.document import DocumentPage, DocumentBlock
 
     uow_factory = get_uow_factory()
     with uow_factory.create() as uow:
@@ -102,16 +103,33 @@ async def get_document(
         if doc.user_id and doc.user_id != current_user.user_id:
             raise HTTPException(status_code=403, detail="Not authorized to access this document")
 
-        content = ""
+        structured_pages = []
         if doc.pages:
-            content = "\n\n".join(
-                "\n".join(
-                    block["text"] if isinstance(block, dict) else block.text
-                    for block in page.blocks 
-                    if (block.get("text") if isinstance(block, dict) else block.text)
-                )
-                for page in doc.pages if page.blocks
-            )
+            for page in doc.pages:
+                blocks = []
+                for b in page.blocks:
+                    if isinstance(b, dict):
+                        blocks.append(DocumentBlock(
+                            id=b.get("block_id", ""),
+                            text=b.get("text", ""),
+                            type=b.get("block_type", "UNKNOWN"),
+                            bbox=b.get("bbox"),
+                            order=b.get("order", 0)
+                        ))
+                    else:
+                        blocks.append(DocumentBlock(
+                            id=getattr(b, "block_id", ""),
+                            text=getattr(b, "text", ""),
+                            type=getattr(getattr(b, "block_type", None), "name", "UNKNOWN") if hasattr(b, "block_type") else "UNKNOWN",
+                            bbox=getattr(b, "bbox", None),
+                            order=getattr(b, "order", 0)
+                        ))
+                structured_pages.append(DocumentPage(
+                    page_number=page.page_number,
+                    width=page.width,
+                    height=page.height,
+                    blocks=blocks
+                ))
 
         return DocumentDetailResponse(
             id=doc.id,
@@ -119,7 +137,41 @@ async def get_document(
             source=doc.source,
             status="Ready",
             importDate=doc.created_at.isoformat(),
-            content=content,
+            pages=structured_pages,
+        )
+
+from fastapi.responses import Response
+
+@router.get("/documents/{document_id}/file")
+async def get_document_file(
+    document_id: str,
+    current_user: CurrentUserDependency,
+) -> Response:
+    """
+    Retrieve the original uploaded PDF file for a document.
+    """
+    from backend.dependencies import get_uow_factory
+    from fastapi import HTTPException
+    import os
+
+    uow_factory = get_uow_factory()
+    with uow_factory.create() as uow:
+        doc = await uow.documents.get(document_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail="Document not found")
+
+        if doc.user_id and doc.user_id != current_user.user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to access this document")
+            
+        file_path = os.path.join("data", "uploads", f"{document_id}.pdf")
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="File not found on disk")
+            
+        from fastapi.responses import FileResponse
+        return FileResponse(
+            path=file_path, 
+            media_type="application/pdf", 
+            filename=doc.title + ".pdf"
         )
 
 

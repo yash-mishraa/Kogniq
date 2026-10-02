@@ -158,15 +158,21 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
         gemini_messages = []
         for m in messages:
             parts = []
-            if m.content:
+            if m.content and m.role != "tool":
                 parts.append(types.Part.from_text(text=m.content))
-            parts.extend(
-                types.Part.from_function_call(name=tc.name, args=tc.arguments)
-                for tc in m.tool_calls
-            )
+                
+            if m.role == "model":
+                for tc in m.tool_calls:
+                    p = types.Part(function_call=types.FunctionCall(name=tc.name, args=tc.arguments, id=tc.id))
+                    if getattr(tc, "thought_signature", None) is not None:
+                        p.thought_signature = tc.thought_signature
+                    parts.append(p)
+                
             if m.role == "tool":
+                tc_name = m.tool_calls[0].name if m.tool_calls else "tool"
+                tc_id = m.tool_calls[0].id if m.tool_calls else ""
                 parts.append(
-                    types.Part.from_function_response(name="tool", response={"result": m.content})
+                    types.Part(function_response=types.FunctionResponse(name=tc_name, id=tc_id, response={"result": m.content}))
                 )
             role = "user" if m.role == "user" or m.role == "tool" else "model"
             gemini_messages.append(types.Content(role=role, parts=parts))
@@ -189,6 +195,7 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
         config_kwargs: dict[str, Any] = {}
         if gemini_tools:
             config_kwargs["tools"] = gemini_tools
+            config_kwargs["automatic_function_calling"] = {"disable": True}
         if system_instruction:
             config_kwargs["system_instruction"] = system_instruction
         if temperature is not None:
@@ -206,11 +213,17 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
             )
 
             tool_calls = []
-            if response.function_calls:
-                for fc in response.function_calls:
-                    name = fc.name or ""
-                    args = dict(fc.args) if fc.args else {}
-                    tool_calls.append(ToolCall(id=name, name=name, arguments=args))
+            if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
+                for part in response.candidates[0].content.parts:
+                    if part.function_call:
+                        fc = part.function_call
+                        name = fc.name or ""
+                        fc_id = fc.id or name
+                        args = dict(fc.args) if fc.args else {}
+                        tc = ToolCall(id=fc_id, name=name, arguments=args)
+                        if getattr(part, "thought_signature", None) is not None:
+                            setattr(tc, "thought_signature", part.thought_signature)
+                        tool_calls.append(tc)
 
             usage = None
             if hasattr(response, "usage_metadata") and response.usage_metadata:

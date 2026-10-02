@@ -7,16 +7,25 @@ import { quizScore } from "./QuizState";
 import { QuizEmptyState, QuizErrorState, QuizLoadingState, QuizNavigator, QuizQuestion, QuizResults, QuizSurface } from "@/components/quiz";
 import { serviceProvider } from "@/lib/providers";
 
+import { useDocuments } from "../documents/DocumentsContext";
+import { ProcessingState } from "@/components/ui/processing-state";
+
 function QuizEnvironmentBody() {
   const { memory } = useWorkspace();
   const { state, dispatch } = useQuiz();
+  const { state: docsState } = useDocuments();
   const documentId = memory.documents?.openedDocument;
+  
+  const activeDoc = docsState.documents.data?.find(d => d.id === documentId);
+  const isReady = activeDoc?.status === "Ready";
 
   useEffect(() => {
     if (!documentId) {
       dispatch({ type: "RESET" });
       return;
     }
+    if (!isReady) return;
+    
     const controller = new AbortController();
     const requestId = crypto.randomUUID();
     dispatch({ type: "LOAD_STARTED", payload: { documentId, requestId } });
@@ -48,6 +57,14 @@ function QuizEnvironmentBody() {
         isSynced.current = false;
     }
   }, [state.status, state.documentId, state.requestId, state.questions.length, state]);
+
+  if (activeDoc && activeDoc.status !== "Ready") {
+    return (
+      <QuizSurface>
+        <ProcessingState status={activeDoc.status} />
+      </QuizSurface>
+    );
+  }
 
   return <QuizSurface>{state.status === "loading" ? <QuizLoadingState /> : state.status === "error" ? <QuizErrorState error={state.error} /> : state.status === "empty" || state.status === "idle" ? <QuizEmptyState hasDocument={Boolean(documentId)} /> : state.status === "completed" ? <QuizResults /> : <><QuizQuestion /><QuizNavigator /></>}</QuizSurface>;
 }

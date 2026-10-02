@@ -13,10 +13,17 @@ import { useEffect, useRef } from "react";
 import { serviceProvider } from "@/lib/providers";
 import { useWorkspace } from "../../WorkspaceContext";
 
+import { useDocuments } from "../documents/DocumentsContext";
+import { ProcessingState } from "@/components/ui/processing-state";
+
 function FlashcardsEnvironmentBody() {
   const { state, dispatch } = useFlashcards();
   const { memory } = useWorkspace();
+  const { state: docsState } = useDocuments();
   const documentId = memory.documents?.openedDocument;
+  
+  const activeDoc = docsState.documents.data?.find(d => d.id === documentId);
+  const isReady = activeDoc?.status === "Ready";
   
   // Track previous documentId to know when it actually changes
   const previousDocumentId = useRef<string | undefined>(undefined);
@@ -24,14 +31,15 @@ function FlashcardsEnvironmentBody() {
   useEffect(() => {
     // Document changed or was cleared
     if (documentId !== previousDocumentId.current) {
-      if (documentId) {
+      if (documentId && isReady) {
         dispatch({ type: "START_LOAD", payload: { requestId: crypto.randomUUID() } });
-      } else {
+        previousDocumentId.current = documentId;
+      } else if (!documentId) {
         dispatch({ type: "RESET_ENVIRONMENT" });
+        previousDocumentId.current = documentId;
       }
-      previousDocumentId.current = documentId;
     }
-  }, [documentId, dispatch]);
+  }, [documentId, isReady, dispatch]);
 
   useEffect(() => {
     if (state.status === "loading" && documentId) {
@@ -86,6 +94,22 @@ function FlashcardsEnvironmentBody() {
       }
     }
   }, [state.responses, state.requestId, documentId]);
+
+  if (!documentId) {
+    return (
+      <FlashcardsSurface>
+        <FlashcardsEmptyState />
+      </FlashcardsSurface>
+    );
+  }
+
+  if (activeDoc && activeDoc.status !== "Ready") {
+    return (
+      <FlashcardsSurface>
+        <ProcessingState status={activeDoc.status} />
+      </FlashcardsSurface>
+    );
+  }
 
   if (state.status === "idle" || state.status === "empty") {
     return (

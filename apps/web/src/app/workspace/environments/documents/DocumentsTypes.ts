@@ -10,6 +10,21 @@ export interface DocumentProcessingResult {
   warnings: string[];
 }
 
+export interface DocumentBlock {
+  id: string;
+  text: string;
+  type: string;
+  bbox?: [number, number, number, number] | null;
+  order: number;
+}
+
+export interface DocumentPage {
+  page_number: number;
+  width?: number | null;
+  height?: number | null;
+  blocks: DocumentBlock[];
+}
+
 export interface DocumentItem {
   id: string;
   title: string;
@@ -20,7 +35,8 @@ export interface DocumentItem {
   readingTime?: number; // in minutes
   chunkCount?: number;
   extractedConcepts?: number;
-  content?: string; // Mock content for reading
+  content?: string; // Optional raw string for backward compatibility
+  pages?: DocumentPage[]; // Structured extraction data
 }
 
 import type { ResourceState } from "@/lib/core/ResourceState";

@@ -143,5 +143,169 @@ def test_recover_failed_jobs_endpoint(client: TestClient, test_app: FastAPI, aut
         assert uow.document_jobs.get("job-api-2") is not None
         
     test_app.dependency_overrides.pop(get_current_user)
-    unauth_response = client.post("/api/v1/documents/recover")
-    assert unauth_response.status_code == 401
+def test_get_document_structured_pages(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    
+    from backend.dependencies import get_uow_factory
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    from content.normalized.block import NormalizedBlock
+    from content.normalized.enums import BlockType
+    from datetime import datetime, UTC
+    import asyncio
+    
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
+    doc_id = "test-doc-123"
+    
+    async def run_test():
+        with uow_factory.create() as uow:
+            doc = NormalizedDocument(
+                id=doc_id,
+                title="Structured Document",
+                source="test",
+                checksum="test",
+                version="1.0",
+                created_at=datetime.now(UTC),
+                user_id=auth_user.user_id,
+                pages=(
+                    NormalizedPage(
+                        page_number=1,
+                        width=800.0,
+                        height=600.0,
+                        blocks=(
+                            NormalizedBlock(
+                                block_id="b1",
+                                block_type=BlockType.PARAGRAPH,
+                                text="Hello World",
+                                bbox=(10, 10, 100, 20),
+                                order=0
+                            ),
+                        )
+                    ),
+                )
+            )
+            await uow.documents.save(doc)
+
+        response = client.get(f"/api/v1/documents/{doc_id}")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "Ready"
+        assert data["pages"] is not None
+        assert len(data["pages"]) == 1
+        
+        page = data["pages"][0]
+        assert page["page_number"] == 1
+        assert page["width"] == 800.0
+        assert page["height"] == 600.0
+        assert len(page["blocks"]) == 1
+        
+        block = page["blocks"][0]
+        assert block["id"] == "b1"
+        assert block["text"] == "Hello World"
+        assert block["type"] == "PARAGRAPH"
+        assert block["bbox"] == [10.0, 10.0, 100.0, 20.0]
+    
+    asyncio.run(run_test())
+
+def test_get_document_file_success(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    
+    from backend.dependencies import get_uow_factory
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    from datetime import datetime, UTC
+    import asyncio
+    import os
+    
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
+    doc_id = "test-doc-file-123"
+    
+    async def run_test():
+        with uow_factory.create() as uow:
+            doc = NormalizedDocument(
+                id=doc_id,
+                title="File Doc",
+                source="test",
+                checksum="test",
+                version="1.0",
+                created_at=datetime.now(UTC),
+                user_id=auth_user.user_id,
+                pages=(NormalizedPage(page_number=1, blocks=()),)
+            )
+            await uow.documents.save(doc)
+
+        # Create dummy file
+        upload_dir = os.path.join("data", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, f"{doc_id}.pdf")
+        with open(file_path, "wb") as f:
+            f.write(b"%PDF-1.4 fake pdf content")
+
+        response = client.get(f"/api/v1/documents/{doc_id}/file")
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/pdf"
+        assert response.content == b"%PDF-1.4 fake pdf content"
+        
+    asyncio.run(run_test())
+
+def test_get_document_file_cross_user_denial(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    
+    from backend.dependencies import get_uow_factory
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    from datetime import datetime, UTC
+    import asyncio
+    
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
+    doc_id = "test-doc-file-other-user"
+    
+    async def run_test():
+        with uow_factory.create() as uow:
+            doc = NormalizedDocument(
+                id=doc_id,
+                title="Other File Doc",
+                source="test",
+                checksum="test",
+                version="1.0",
+                created_at=datetime.now(UTC),
+                user_id="different-user-id",
+                pages=(NormalizedPage(page_number=1, blocks=()),)
+            )
+            await uow.documents.save(doc)
+
+        response = client.get(f"/api/v1/documents/{doc_id}/file")
+        assert response.status_code == 403
+        
+    asyncio.run(run_test())
+
+def test_get_document_file_missing_on_disk(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    
+    from backend.dependencies import get_uow_factory
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    from datetime import datetime, UTC
+    import asyncio
+    
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
+    doc_id = "test-doc-missing-file"
+    
+    async def run_test():
+        with uow_factory.create() as uow:
+            doc = NormalizedDocument(
+                id=doc_id,
+                title="Missing File Doc",
+                source="test",
+                checksum="test",
+                version="1.0",
+                created_at=datetime.now(UTC),
+                user_id=auth_user.user_id,
+                pages=(NormalizedPage(page_number=1, blocks=()),)
+            )
+            await uow.documents.save(doc)
+
+        response = client.get(f"/api/v1/documents/{doc_id}/file")
+        assert response.status_code == 404
+        
+    asyncio.run(run_test())

@@ -15,8 +15,8 @@ export function NotebookEmptyState() {
   };
 
   const suggestions = [
-    { label: "Transformer Architecture", detail: "Updated today" },
-    { label: "Database Normalization", detail: "Updated 1 week ago" },
+    { label: "My Recent Notes", detail: "Updated today" },
+    { label: "Archived Notes", detail: "Updated 1 week ago" },
   ];
 
   return (

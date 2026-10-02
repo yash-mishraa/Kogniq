@@ -15,10 +15,9 @@ export function StudyEmptyState() {
   };
 
   const suggestions = [
-    { label: "Continue from Transformer Architecture", detail: "Last studied 2 hours ago" },
-    { label: "Resume yesterday's study", detail: "Self-Attention" },
-    { label: "Continue Database Normalization", detail: "Last studied yesterday" },
-    { label: "Review today's concepts", detail: "3 items ready" },
+    { label: "Resume yesterday's study", detail: "Recent concepts" },
+    { label: "Review your saved notes", detail: "Last studied yesterday" },
+    { label: "Start a new session", detail: "Ready to study" },
   ];
 
   return (
