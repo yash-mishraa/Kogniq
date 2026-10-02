@@ -226,3 +226,21 @@ class AbstractDocumentJobRepository(abc.ABC):
     @abc.abstractmethod
     def delete(self, job_id: str) -> None:
         pass
+from content.normalized.semantics import DocumentSemantics
+
+class AbstractSemanticRepository(abc.ABC):
+    @abc.abstractmethod
+    async def save(self, semantics: DocumentSemantics) -> SaveResult:
+        pass
+
+    @abc.abstractmethod
+    async def get_active(self, document_id: str) -> DocumentSemantics | None:
+        pass
+
+    @abc.abstractmethod
+    async def list_by_document(self, document_id: str) -> Sequence[DocumentSemantics]:
+        pass
+
+    @abc.abstractmethod
+    async def activate_version(self, document_id: str, semantic_id: str) -> bool:
+        pass

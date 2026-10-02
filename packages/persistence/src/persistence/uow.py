@@ -13,6 +13,7 @@ from persistence.repositories.base import (
     AbstractRelationshipRepository,
     AbstractResourceChunkRepository,
     AbstractResourceSectionRepository,
+    AbstractSemanticRepository,
 )
 from persistence.repositories.chat import AbstractChatRepository
 from persistence.repositories.notebook import AbstractNotebookRepository
@@ -30,6 +31,7 @@ class AbstractUnitOfWork(abc.ABC):
     document_jobs: AbstractDocumentJobRepository
     chat: AbstractChatRepository
     notebook: AbstractNotebookRepository
+    semantics: "AbstractSemanticRepository"
 
     learning_resources: "AbstractLearningResourceRepository"
     resource_sections: "AbstractResourceSectionRepository"
@@ -90,6 +92,7 @@ class SQLiteUnitOfWork(AbstractUnitOfWork):
         self.knowledge_states = self._factory.create_knowledge_state_repository(self._conn)
         self.chat = self._factory.create_chat_repository(self._conn)
         self.notebook = self._factory.create_notebook_repository(self._conn)
+        self.semantics = self._factory.create_semantic_repository(self._conn)
 
     def commit(self) -> None:
         try:

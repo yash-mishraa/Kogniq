@@ -56,6 +56,9 @@ class PipelineFactory:
                 )
             )
 
+            from pipeline.stages.semantic import SemanticExtractionStage
+            stages.append(SemanticExtractionStage(uow_factory=uow_factory))
+
         if embedding_provider and vector_store:
             from pipeline.stages.embedding import EmbeddingStage
 

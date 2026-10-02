@@ -231,6 +231,29 @@ def init_db(conn: sqlite3.Connection) -> None:
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_document_jobs_user_id ON document_jobs(user_id)")
 
+    # 7.5 Document Semantics
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS document_semantics (
+            id TEXT PRIMARY KEY,
+            document_id TEXT NOT NULL,
+            semantic_version TEXT NOT NULL,
+            status TEXT NOT NULL,
+            is_active BOOLEAN NOT NULL DEFAULT 0,
+            semantics_json TEXT NOT NULL,
+            created_at TIMESTAMP NOT NULL,
+            completed_at TIMESTAMP,
+            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE
+        )
+    """)
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_document_semantics_doc_id ON document_semantics(document_id)"
+    )
+    # Ensure at most one active version per document
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_document_semantics_active "
+        "ON document_semantics(document_id) WHERE is_active = 1"
+    )
+
     # 8. Agent Chat Memory
     conn.execute("""
         CREATE TABLE IF NOT EXISTS chat_sessions (
