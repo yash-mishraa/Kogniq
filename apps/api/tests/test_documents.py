@@ -410,3 +410,70 @@ def test_get_document_semantics_unavailable(client: TestClient, test_app: FastAP
         assert len(data["sections"]) == 0
 
     asyncio.run(run_test())
+def test_get_document_semantics_malformed(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    from backend.dependencies import get_uow_factory
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    from content.normalized.semantics import DocumentSemantics
+    from datetime import datetime, UTC
+    import asyncio
+    
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
+    doc_id = "test-doc-semantics-malformed"
+    
+    async def run_test():
+        with uow_factory.create() as uow:
+            doc = NormalizedDocument(
+                id=doc_id, title="Doc", source="test", checksum="test", version="1.0",
+                created_at=datetime.now(UTC), user_id=auth_user.user_id, pages=(NormalizedPage(page_number=1, blocks=()),)
+            )
+            await uow.documents.save(doc)
+            
+            semantics = DocumentSemantics(
+                id="sem-malformed", document_id=doc_id, semantic_version="2", status="ready", is_active=True,
+                semantics_json="{malformed_json", created_at=datetime.now(UTC), completed_at=datetime.now(UTC)
+            )
+            await uow.semantics.save(semantics)
+
+        response = client.get(f"/api/v1/documents/{doc_id}/semantics")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "unavailable"
+        assert len(data["sections"]) == 0
+
+    asyncio.run(run_test())
+
+def test_get_document_semantics_structurally_invalid(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+    from backend.dependencies import get_uow_factory
+    from content.normalized.document import NormalizedDocument
+    from content.normalized.page import NormalizedPage
+    from content.normalized.semantics import DocumentSemantics
+    from datetime import datetime, UTC
+    import asyncio
+    
+    uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
+    doc_id = "test-doc-semantics-invalid"
+    
+    async def run_test():
+        with uow_factory.create() as uow:
+            doc = NormalizedDocument(
+                id=doc_id, title="Doc", source="test", checksum="test", version="1.0",
+                created_at=datetime.now(UTC), user_id=auth_user.user_id, pages=(NormalizedPage(page_number=1, blocks=()),)
+            )
+            await uow.documents.save(doc)
+            
+            invalid_json = """{"sections": [{"page_number": "not-an-integer"}], "figures": []}"""
+            semantics = DocumentSemantics(
+                id="sem-invalid", document_id=doc_id, semantic_version="2", status="ready", is_active=True,
+                semantics_json=invalid_json, created_at=datetime.now(UTC), completed_at=datetime.now(UTC)
+            )
+            await uow.semantics.save(semantics)
+
+        response = client.get(f"/api/v1/documents/{doc_id}/semantics")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "unavailable"
+
+    asyncio.run(run_test())
