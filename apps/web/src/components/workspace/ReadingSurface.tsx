@@ -8,13 +8,14 @@ import { LearningHub } from "./LearningHub";
 import { PDFReader } from "../documents/PDFReader";
 
 export interface ReadingSurfaceProps {
+  onClose?: () => void;
   title: string;
   layoutId?: string;
   content?: ReactNode; // Kept for backward compatibility if needed in some paths, though PDFReader takes over
   status?: string;
 }
 
-export function ReadingSurface({ title, layoutId, content, status }: ReadingSurfaceProps) {
+export function ReadingSurface({ title, layoutId, content, status, onClose }: ReadingSurfaceProps) {
   // Extract document ID from layoutId (title-uuid)
   const documentId = layoutId?.replace("title-", "");
 
@@ -32,12 +33,12 @@ export function ReadingSurface({ title, layoutId, content, status }: ReadingSurf
     >
       {!isReady ? (
         <div className="flex-1 flex flex-col items-center justify-center p-16 text-center">
-          <motion.h1 
+          <div className="flex items-center gap-4"><button onClick={() => onClose && onClose()} className="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Close document"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><motion.h1 
             layoutId={layoutId}
             className="text-4xl font-serif text-ink mb-12 tracking-tight leading-[1.15]"
           >
             {title}
-          </motion.h1>
+          </motion.h1></div>
           <div className="max-w-[680px] w-full">
             <div className="flex flex-col items-center justify-center py-32 space-y-4">
               {isFailed ? (
@@ -69,15 +70,15 @@ export function ReadingSurface({ title, layoutId, content, status }: ReadingSurf
           </div>
         </div>
       ) : (
-        <div className="flex flex-col h-full">
+        <div className="flex-1 flex flex-col h-full w-full">
           {/* Header */}
           <div className="flex-none px-6 py-4 bg-white border-b border-gray-100 flex items-center justify-between shadow-sm z-20">
-            <motion.h1 
+            <div className="flex items-center gap-4"><button onClick={() => onClose && onClose()} className="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Close document"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><motion.h1 
               layoutId={layoutId}
               className="text-lg font-medium text-ink truncate max-w-xl"
             >
               {title}
-            </motion.h1>
+            </motion.h1></div>
             {documentId && (
               <div className="hidden lg:block">
                 {/* 

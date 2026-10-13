@@ -11,7 +11,6 @@ from apps.api.app.middleware import register_middleware
 from shared.logging import LoggingConfig, configure_logging
 
 
-
 def create_app(settings: APISettings | None = None) -> FastAPI:
     """Create an independently configured Kogniq API application."""
     effective_settings = settings or APISettings()

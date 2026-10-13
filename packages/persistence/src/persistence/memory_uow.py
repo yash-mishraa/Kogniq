@@ -18,6 +18,7 @@ class MemoryUnitOfWork(AbstractUnitOfWork):
         self.resource_chunks = factory.create_resource_chunk_repository()
         self.knowledge_states = factory.create_knowledge_state_repository()
         self.chat = factory.create_chat_repository()
+        self.semantics = factory.create_semantic_repository()
 
     def commit(self) -> None:
         # In-memory repositories just save instantly, so commit is a no-op.

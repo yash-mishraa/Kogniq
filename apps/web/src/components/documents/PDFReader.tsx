@@ -19,6 +19,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
+const pdfOptions = { withCredentials: true };
+
 interface PDFReaderProps {
   documentId: string;
 }
@@ -35,7 +37,7 @@ interface OutlineNode {
 export function PDFReader({ documentId }: PDFReaderProps) {
   const { state: docsState } = useDocuments();
   const documentInfo = docsState.documents.data?.find(d => d.id === documentId);
-  const pages = documentInfo?.pages || [];
+  const pages = documentInfo?.pages;
 
   const [pdfInstance, setPdfInstance] = useState<any>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -164,7 +166,7 @@ export function PDFReader({ documentId }: PDFReaderProps) {
     
     // Exact text search across structured pages
     const matches: { pageNumber: number, indexOnPage: number }[] = [];
-    pages.forEach(p => {
+    (pages || []).forEach(p => {
       const pageText = p.blocks.map(b => b.text).join("\n");
       const regex = new RegExp(searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
       let match;
@@ -288,7 +290,7 @@ export function PDFReader({ documentId }: PDFReaderProps) {
       }
 
       let surroundingContext = undefined;
-      const structuredPage = pages.find(p => p.page_number === pageNum);
+      const structuredPage = (pages || []).find(p => p.page_number === pageNum);
       if (structuredPage) {
         const firstWord = text.split(" ").find(w => w.length > 3) || text.split(" ")[0];
         if (firstWord) {
@@ -625,7 +627,7 @@ export function PDFReader({ documentId }: PDFReaderProps) {
           )}
           <Document
             file={`/api/v1/documents/${documentId}/file`}
-            options={{ withCredentials: true }}
+            options={pdfOptions}
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={onDocumentLoadError}
             loading={

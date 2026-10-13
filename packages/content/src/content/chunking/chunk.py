@@ -19,6 +19,10 @@ class Chunk:
     title: str | None = None
     page_number: int | None = None
     section_title: str | None = None
+    section_id: str | None = None
+    section_path: str | None = None
+    figure_id: str | None = None
+    figure_number: str | None = None
 
     metadata: ChunkMetadata
     statistics: ChunkStatistics

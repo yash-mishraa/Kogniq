@@ -30,4 +30,5 @@ api_router.include_router(student_router)
 api_router.include_router(agent_router)
 
 from apps.api.app.routers.notebook import notebook_router
+
 api_router.include_router(notebook_router)

@@ -22,4 +22,12 @@ export class MockAuthService implements IAuthService {
       localStorage.setItem("mock_session", "true");
     }
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async register(_email: string, _password: string): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mock_session", "true");
+    }
+  }
 }

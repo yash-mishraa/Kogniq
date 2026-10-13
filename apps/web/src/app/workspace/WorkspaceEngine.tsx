@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { environmentRegistry } from "./environments";
 import { WorkspaceProvider } from "./WorkspaceProvider";
+import { DocumentsProvider } from "./environments/documents/DocumentsContext";
 import type { EnvironmentId, WorkspaceMemory } from "./WorkspaceTypes";
 import { useWorkspace } from "./WorkspaceContext";
 import { DocumentsEnvironment } from "./environments/documents/DocumentsEnvironment";
@@ -30,7 +31,7 @@ export function WorkspaceEngine({
   sessionUserId?: string | null;
   onLeave?: () => void;
 }) { 
-  return <WorkspaceProvider initialEnvironmentId={initialEnvironmentId} initialHistory={initialHistory} initialMemory={initialMemory} sessionUserId={sessionUserId}><WorkspaceEngineBody onLeave={onLeave} /></WorkspaceProvider>; 
+  return <WorkspaceProvider initialEnvironmentId={initialEnvironmentId} initialHistory={initialHistory} initialMemory={initialMemory} sessionUserId={sessionUserId}><DocumentsProvider><WorkspaceEngineBody onLeave={onLeave} /></DocumentsProvider></WorkspaceProvider>; 
 }
 
   function WorkspaceEngineBody({ onLeave }: { onLeave?: () => void }) {

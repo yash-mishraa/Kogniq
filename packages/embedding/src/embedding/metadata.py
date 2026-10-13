@@ -19,5 +19,10 @@ class EmbeddingMetadata:
     document_checksum: str | None = None
     page_number: int | None = None
     chunk_index: int | None = None
+    section_id: str | None = None
+    section_title: str | None = None
+    section_path: str | None = None
+    figure_id: str | None = None
+    figure_number: str | None = None
     future_index_name: str | None = None
     future_namespace: str | None = None

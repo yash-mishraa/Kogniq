@@ -183,6 +183,11 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
                 document_checksum=chunk.metadata.checksum if chunk.metadata else None,
                 page_number=chunk.page_number,
                 chunk_index=chunk.chunk_index,
+                section_id=getattr(chunk, 'section_id', None),
+                section_title=getattr(chunk, 'section_title', None),
+                section_path=getattr(chunk, 'section_path', None),
+                figure_id=getattr(chunk, 'figure_id', None),
+                figure_number=getattr(chunk, 'figure_number', None),
             )
 
             stats = EmbeddingStatistics(

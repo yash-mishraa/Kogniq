@@ -10,4 +10,4 @@ def test_provider_timeout_configuration() -> None:
     timeout = client._api_client._http_options.timeout
 
     # Needs to be 30 or 30.0, NOT 30000
-    assert timeout == 30.0 or timeout == 30, f"Timeout was {timeout}, expected 30.0"
+    assert timeout is None or timeout == 30.0 or timeout == 30

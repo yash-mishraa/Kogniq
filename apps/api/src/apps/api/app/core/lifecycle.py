@@ -2,10 +2,10 @@
 
 import asyncio
 from collections.abc import AsyncIterator, Callable
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import AbstractAsyncContextManager, asynccontextmanager, suppress
 from logging import getLogger
 from time import monotonic, perf_counter
-from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import FastAPI
 
@@ -58,6 +58,7 @@ def create_lifespan(settings: APISettings) -> Lifespan:
             get_role_repository,
         )
         from backend.security.bootstrap import bootstrap_authorization, bootstrap_development_demo
+
         from application.auth.register_user import RegisterUserUseCase
 
         await bootstrap_authorization(get_role_repository(), get_permission_repository())
@@ -86,10 +87,8 @@ def create_lifespan(settings: APISettings) -> Lifespan:
             
             if monitor_task:
                 monitor_task.cancel()
-                try:
+                with suppress(asyncio.CancelledError):
                     await monitor_task
-                except asyncio.CancelledError:
-                    pass
             if benchmark_executor:
                 benchmark_executor.shutdown(wait=True)
             global_executor.shutdown(wait=True)

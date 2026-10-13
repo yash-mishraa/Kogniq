@@ -1,0 +1,19 @@
+Title: Quantum Computing and the Future of Cryptography
+
+Abstract:
+Quantum computing poses a significant threat to modern cryptography. This paper explores the fundamentals of quantum mechanics, specifically superposition and entanglement, and how they empower Shor's algorithm to break RSA encryption. We propose post-quantum cryptographic methods, including lattice-based and hash-based cryptography, as robust alternatives for securing future communications.
+
+1. Introduction
+Modern secure communication relies on the difficulty of factoring large prime numbers, a problem RSA encryption depends on. Classical computers would take billions of years to break RSA-2048. However, a sufficiently powerful quantum computer could break it in hours. 
+
+2. Quantum Mechanics in Computing
+Quantum computers use qubits, which can exist in a state of superposition (representing 0 and 1 simultaneously). When combined with quantum entanglement, qubits can perform parallel computations at a scale classical bits cannot match.
+
+3. Shor's Algorithm
+Developed by Peter Shor in 1994, this quantum algorithm can find the prime factors of an integer exponentially faster than any known classical algorithm. If a stable quantum computer is built, Shor's algorithm will render RSA obsolete.
+
+4. Post-Quantum Cryptography
+To prepare for "Q-Day", NIST has been evaluating post-quantum cryptography (PQC) algorithms. Lattice-based cryptography, which relies on the Shortest Vector Problem (SVP), is currently the leading candidate. Hash-based signatures, such as XMSS, also offer quantum-resistant security but are limited by their stateful nature.
+
+Conclusion:
+The transition to quantum-safe encryption is not optional. Organizations must begin adopting lattice-based cryptography today to protect against future "harvest now, decrypt later" attacks.

@@ -16,6 +16,21 @@ class MockContext(PipelineContext):
     def __init__(self, doc_id):
         self._doc_id = doc_id
         self._metadata = {}
+        
+        class MockStreamRef:
+            def open_stream(self):
+                import io, fitz
+                doc = fitz.open()
+                doc.new_page()
+                b = doc.write()
+                return io.BytesIO(b)
+        class MockHandle:
+            def __init__(self, id):
+                self.id = id
+                self.stream_reference = MockStreamRef()
+                
+        self._metadata["resource_handle"] = MockHandle(doc_id)
+        self._metadata["document_id"] = doc_id
 
     @property
     def document_id(self) -> str: return self._doc_id
@@ -52,7 +67,7 @@ async def test_schema_and_basic_execution(memory_db, uow_factory):
     doc_id = str(uuid.uuid4())
     memory_db.execute(
         "INSERT INTO documents (id, title, source, checksum, version, created_at, pages_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (doc_id, "Test Doc", "upload", "123", "1", datetime.now(timezone.utc).isoformat(), "[]")
+        (doc_id, "Test Doc", "upload", "123", "2", datetime.now(timezone.utc).isoformat(), "[]")
     )
     stage = SemanticExtractionStage(uow_factory=uow_factory)
     
@@ -64,7 +79,7 @@ async def test_schema_and_basic_execution(memory_db, uow_factory):
         assert active is not None
         assert active.status == "completed"
         assert active.is_active is True
-        assert active.semantic_version == "1"
+        assert active.semantic_version == "2"
         payload = json.loads(active.semantics_json)
         assert payload["schema_version"] == 1
         assert "p1_d1_status" not in payload
@@ -74,7 +89,7 @@ async def test_stale_version_ignored(memory_db, uow_factory):
     doc_id = str(uuid.uuid4())
     memory_db.execute(
         "INSERT INTO documents (id, title, source, checksum, version, created_at, pages_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (doc_id, "Test Doc", "upload", "123", "1", datetime.now(timezone.utc).isoformat(), "[]")
+        (doc_id, "Test Doc", "upload", "123", "2", datetime.now(timezone.utc).isoformat(), "[]")
     )
     
     # Insert active version "2"
@@ -101,19 +116,19 @@ async def test_same_version_behavior(memory_db, uow_factory):
     doc_id = str(uuid.uuid4())
     memory_db.execute(
         "INSERT INTO documents (id, title, source, checksum, version, created_at, pages_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (doc_id, "Test Doc", "upload", "123", "1", datetime.now(timezone.utc).isoformat(), "[]")
+        (doc_id, "Test Doc", "upload", "123", "2", datetime.now(timezone.utc).isoformat(), "[]")
     )
     
-    # Insert active version "1"
+    # Insert active version "2"
     id1 = str(uuid.uuid4())
-    v1_a = DocumentSemantics(id=id1, document_id=doc_id, semantic_version="1", status="completed", is_active=True, semantics_json="{}", created_at=datetime.now(timezone.utc))
+    v1_a = DocumentSemantics(id=id1, document_id=doc_id, semantic_version="2", status="completed", is_active=True, semantics_json="{}", created_at=datetime.now(timezone.utc))
     with uow_factory.create() as uow:
         await uow.semantics.save(v1_a)
         uow.commit()
 
-    # Another job completes for version "1"
+    # Another job completes for version "2"
     id2 = str(uuid.uuid4())
-    v1_b = DocumentSemantics(id=id2, document_id=doc_id, semantic_version="1", status="completed", is_active=False, semantics_json="{}", created_at=datetime.now(timezone.utc))
+    v1_b = DocumentSemantics(id=id2, document_id=doc_id, semantic_version="2", status="completed", is_active=False, semantics_json="{}", created_at=datetime.now(timezone.utc))
     with uow_factory.create() as uow:
         await uow.semantics.save(v1_b)
         activated = await uow.semantics.activate_version(doc_id, id2)
@@ -138,7 +153,7 @@ async def test_concurrency_activation():
     doc_id = str(uuid.uuid4())
     conn.execute(
         "INSERT INTO documents (id, title, source, checksum, version, created_at, pages_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (doc_id, "Test Doc", "upload", "123", "1", datetime.now(timezone.utc).isoformat(), "[]")
+        (doc_id, "Test Doc", "upload", "123", "2", datetime.now(timezone.utc).isoformat(), "[]")
     )
     
     factory1 = MockUoWFactory(conn)
@@ -174,7 +189,7 @@ async def test_fail_open_and_error_payload(memory_db, uow_factory, monkeypatch):
     doc_id = str(uuid.uuid4())
     memory_db.execute(
         "INSERT INTO documents (id, title, source, checksum, version, created_at, pages_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (doc_id, "Test Doc", "upload", "123", "1", datetime.now(timezone.utc).isoformat(), "[]")
+        (doc_id, "Test Doc", "upload", "123", "2", datetime.now(timezone.utc).isoformat(), "[]")
     )
     stage = SemanticExtractionStage(uow_factory=uow_factory)
     
@@ -217,12 +232,19 @@ async def test_pipeline_integration(memory_db, uow_factory):
     doc_id = str(uuid.uuid4())
     memory_db.execute(
         "INSERT INTO documents (id, title, source, checksum, version, created_at, pages_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (doc_id, "Test Doc", "upload", "123", "1", datetime.now(timezone.utc).isoformat(), "[]")
+        (doc_id, "Test Doc", "upload", "123", "2", datetime.now(timezone.utc).isoformat(), "[]")
     )
     
+    class MockStreamRef:
+        def open_stream(self):
+            import io, fitz
+            doc = fitz.open()
+            doc.new_page()
+            return io.BytesIO(doc.write())
     class MockHandle:
         def __init__(self, id):
             self.id = id
+            self.stream_reference = MockStreamRef()
             
     handle = MockHandle(doc_id)
 
@@ -264,6 +286,8 @@ async def test_pipeline_integration(memory_db, uow_factory):
         assert active is not None
         assert active.status == "completed"
         assert active.is_active is True
-        assert active.semantic_version == "1"
+        assert active.semantic_version == "2"
+
+
 
 

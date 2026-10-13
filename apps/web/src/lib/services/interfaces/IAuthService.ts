@@ -10,4 +10,5 @@ export interface SessionData {
 export interface IAuthService {
   getSession(): Promise<SessionData | null>;
   login(email: string, password: string): Promise<void>;
+  register(email: string, password: string): Promise<void>;
 }

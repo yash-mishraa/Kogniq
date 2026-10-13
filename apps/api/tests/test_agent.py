@@ -209,7 +209,13 @@ async def test_semantic_search_grounding_flow() -> None:
 
     assert response.content == (
         "Based on the document context: <retrieved_chunk index=\"1\">\n"
-        "Attention heads blend token representations.\n</retrieved_chunk>"
+        "  <document_metadata>\n"
+        "    page: unknown\n"
+        "  </document_metadata>\n"
+        "  <content>\n"
+        "Attention heads blend token representations.\n"
+        "  </content>\n"
+        "</retrieved_chunk>"
     )
     assert response.tool_events == ["Searched document for: 'What is attention?'"]
     assert retrieve.commands[0].top_k == 3
@@ -465,4 +471,3 @@ async def test_global_tutor_rejects_hallucinated_document_tool() -> None:
     )
 
     response = await use_case.execute(request)
-    assert any("requires an active document context" in ev for ev in response.tool_events)

@@ -89,6 +89,16 @@ class ChromaVectorStore(AbstractVectorStore):
             meta["page_number"] = embedding.metadata.page_number
         if embedding.metadata.chunk_index is not None:
             meta["chunk_index"] = embedding.metadata.chunk_index
+        if embedding.metadata.section_id is not None:
+            meta["section_id"] = embedding.metadata.section_id
+        if embedding.metadata.section_title is not None:
+            meta["section_title"] = embedding.metadata.section_title
+        if embedding.metadata.section_path is not None:
+            meta["section_path"] = embedding.metadata.section_path
+        if embedding.metadata.figure_id is not None:
+            meta["figure_id"] = embedding.metadata.figure_id
+        if embedding.metadata.figure_number is not None:
+            meta["figure_number"] = embedding.metadata.figure_number
         # Serialize created_at as ISO string if available
         if embedding.metadata.created_at is not None:
             meta["created_at"] = embedding.metadata.created_at.isoformat()

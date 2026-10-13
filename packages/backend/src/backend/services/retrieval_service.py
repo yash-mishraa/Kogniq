@@ -107,9 +107,6 @@ class RetrievalService:
         filters = {}
         if request.document_id:
             filters["document_id"] = request.document_id
-        elif user_id:
-            # We add user_id filter to allow vector DBs that support it to pre-filter
-            filters["user_id"] = user_id
 
         query = RetrievalQuery(
             text=request.query,
@@ -186,6 +183,10 @@ class RetrievalService:
                 "title": chunk.title,
                 "section_title": chunk.section_title,
                 "page_number": chunk.page_number,
+                "section_id": getattr(chunk, 'section_id', None) or getattr(chunk.metadata, 'section_id', None),
+                "section_path": getattr(chunk, 'section_path', None) or getattr(chunk.metadata, 'section_path', None),
+                "figure_id": getattr(chunk, 'figure_id', None) or getattr(chunk.metadata, 'figure_id', None),
+                "figure_number": getattr(chunk, 'figure_number', None) or getattr(chunk.metadata, 'figure_number', None),
             }
 
             item = RetrievalResultItem(

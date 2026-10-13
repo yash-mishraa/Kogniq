@@ -24,7 +24,7 @@ export function DocumentCollection() {
   return (
     <motion.div
       layout
-      className="flex flex-col flex-shrink-0 overflow-y-auto transition-all duration-500 w-full pt-12 px-6 lg:px-12 bg-transparent"
+      className="flex flex-col flex-shrink-0 overflow-y-auto transition-all duration-500 w-full max-w-5xl mx-auto pt-12 px-6 lg:px-12 bg-transparent"
     >
       <input
         type="file"

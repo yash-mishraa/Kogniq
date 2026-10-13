@@ -14,11 +14,7 @@ export function StudyEmptyState() {
     });
   };
 
-  const suggestions = [
-    { label: "Resume yesterday's study", detail: "Recent concepts" },
-    { label: "Review your saved notes", detail: "Last studied yesterday" },
-    { label: "Start a new session", detail: "Ready to study" },
-  ];
+  const suggestions: { label: string; detail: string }[] = [];
 
   return (
     <section aria-label="Study starting point" className="flex flex-col flex-1 items-start justify-center pb-32 w-full max-w-3xl mx-auto">

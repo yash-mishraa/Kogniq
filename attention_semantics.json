@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "sections": [
+    {
+      "id": "4e02a472e17d1dee7c0b83243dfd6ad1",
+      "page_number": 1,
+      "title": "Abstract",
+      "level": 1,
+      "parent_id": null,
+      "bbox": {
+        "x0": 283.75799560546875,
+        "y0": 385.60516357421875,
+        "x1": 328.2432861328125,
+        "y1": 397.56036376953125
+      },
+      "source_block_ids": []
+    },
+    {
+      "id": "768f5923cb7019a90e73cdd96bad216f",
+      "page_number": 2,
+      "title": "Introduction",
+      "level": 1,
+      "parent_id": null,
+      "bbox": {
+        "x0": 125.93280029296875,
+        "y0": 72.78716278076172,
+        "x1": 190.8136749267578,
+        "y1": 84.74236297607422
+      },
+      "source_block_ids": []
+    },
+    {
+      "id": "506aace2dde09a47acf57acd0a6b8870",
+      "page_number": 2,
+      "title": "Background",
+      "level": 1,
+      "parent_id": null,
+      "bbox": {
+        "x0": 125.93280029296875,
+        "y0": 363.10015869140625,
+        "x1": 188.82911682128906,
+        "y1": 375.05535888671875
+      },
+      "source_block_ids": []
+    },
+    {
+      "id": "18b7341531303ea46f3e70dec4405d7d",
+      "page_number": 2,
+      "title": "Model Architecture",
+      "level": 2,
+      "parent_id": "506aace2dde09a47acf57acd0a6b8870",
+      "bbox": {
+        "x0": 125.93280029296875,
+        "y0": 642.504150390625,
+        "x1": 226.09344482421875,
+        "y1": 654.4593505859375
+      },
+      "source_block_ids": []
+    },
+    {
+      "id": "7710b1f70e1e230db46852b348cf2b92",
+      "page_number": 6,
+      "title": "Why Self-Attention",
+      "level": 2,
+      "parent_id": "506aace2dde09a47acf57acd0a6b8870",
+      "bbox": {
+        "x0": 125.93280029296875,
+        "y0": 496.8871765136719,
+        "x1": 225.04141235351562,
+        "y1": 508.8423767089844
+      },
+      "source_block_ids": []
+    },
+    {
+      "id": "96c7355f334680a39a17e787e1740d1b",
+      "page_number": 7,
+      "title": "Training",
+      "level": 2,
+      "parent_id": "506aace2dde09a47acf57acd0a6b8870",
+      "bbox": {
+        "x0": 125.93280029296875,
+        "y0": 299.91412353515625,
+        "x1": 170.22682189941406,
+        "y1": 311.86932373046875
+      },
+      "source_block_ids": []
+    },
+    {
+      "id": "7281b699747820c91cef696a680f1c25",
+      "page_number": 8,
+      "title": "Results",
+      "level": 2,
+      "parent_id": "506aace2dde09a47acf57acd0a6b8870",
+      "bbox": {
+        "x0": 125.93280029296875,
+        "y0": 371.2861633300781,
+        "x1": 163.12542724609375,
+        "y1": 383.2413635253906
+      },
+      "source_block_ids": []
+    },
+    {
+      "id": "7f521a07241e093ca452ea6cc7d70d4a",
+      "page_number": 10,
+      "title": "Conclusion",
+      "level": 1,
+      "parent_id": null,
+      "bbox": {
+        "x0": 125.93280029296875,
+        "y0": 364.8211669921875,
+        "x1": 183.06671142578125,
+        "y1": 376.7763671875
+      },
+      "source_block_ids": []
+    },
+    {
+      "id": "0ed9fc85f448d9d9ab2e516fec5127b2",
+      "page_number": 10,
+      "title": "References",
+      "level": 1,
+      "parent_id": null,
+      "bbox": {
+        "x0": 108.0,
+        "y0": 596.3531494140625,
+        "x1": 163.54383850097656,
+        "y1": 608.308349609375
+      },
+      "source_block_ids": []
+    },
+    {
+      "id": "a1f81a919f99d87e37bdfe62a4275375",
+      "page_number": 13,
+      "title": "Attention Visualizations",
+      "level": 2,
+      "parent_id": "0ed9fc85f448d9d9ab2e516fec5127b2",
+      "bbox": {
+        "x0": 108.0,
+        "y0": 72.78716278076172,
+        "x1": 230.76795959472656,
+        "y1": 84.74236297607422
+      },
+      "source_block_ids": []
+    }
+  ],
+  "figures": [
+    {
+      "id": "41340aea5339845d54fba0fcc961a22b",
+      "page_number": 3,
+      "bbox": {
+        "x0": 196.5590057373047,
+        "y0": 72.00198364257812,
+        "x1": 415.43902587890625,
+        "y1": 394.4179992675781
+      },
+      "figure_number": "Figure 1",
+      "caption": "Figure 1: The Transformer - model architecture.",
+      "image_bbox": {
+        "x0": 196.5590057373047,
+        "y0": 72.00198364257812,
+        "x1": 415.43902587890625,
+        "y1": 394.4179992675781
+      }
+    },
+    {
+      "id": "3f0425ecd1809994cfa0c23615dce0c9",
+      "page_number": 4,
+      "bbox": {
+        "x0": 174.9600067138672,
+        "y0": 94.02497863769531,
+        "x1": 239.04000854492188,
+        "y1": 221.32098388671875
+      },
+      "figure_number": "Figure 2",
+      "caption": "Figure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several attention layers running in parallel.",
+      "image_bbox": {
+        "x0": 174.9600067138672,
+        "y0": 94.02497863769531,
+        "x1": 239.04000854492188,
+        "y1": 221.32098388671875
+      }
+    },
+    {
+      "id": "7892b2afa4f0d592c7d9cc1d496a917c",
+      "page_number": 4,
+      "bbox": {
+        "x0": 346.7720031738281,
+        "y0": 82.68698120117188,
+        "x1": 467.0119934082031,
+        "y1": 267.29498291015625
+      },
+      "figure_number": "Figure 2",
+      "caption": "Figure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several attention layers running in parallel.",
+      "image_bbox": {
+        "x0": 346.7720031738281,
+        "y0": 82.68698120117188,
+        "x1": 467.0119934082031,
+        "y1": 267.29498291015625
+      }
+    }
+  ]
+}

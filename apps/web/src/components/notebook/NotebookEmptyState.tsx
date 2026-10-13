@@ -14,10 +14,7 @@ export function NotebookEmptyState() {
     dispatch({ type: "SET_ACTIVE_NOTEBOOK", payload: defaultId });
   };
 
-  const suggestions = [
-    { label: "My Recent Notes", detail: "Updated today" },
-    { label: "Archived Notes", detail: "Updated 1 week ago" },
-  ];
+  const suggestions: { label: string; detail: string }[] = [];
 
   return (
     <section aria-label="Notebook starting point" className="flex flex-col flex-1 items-start justify-center pb-32 w-full max-w-3xl mx-auto">

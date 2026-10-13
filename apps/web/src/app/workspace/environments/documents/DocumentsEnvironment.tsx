@@ -11,7 +11,7 @@ import { useWorkspace } from "../../WorkspaceContext";
 
 function DocumentsEnvironmentBody() {
   const { state, dispatch } = useDocuments();
-  const { memory } = useWorkspace();
+  const { memory, remember } = useWorkspace();
   const { documents, activeDocumentId } = state;
   const activeDocument = documents.data?.find((doc) => doc.id === activeDocumentId);
   const memoryDocumentId = memory.documents?.openedDocument;
@@ -125,7 +125,7 @@ function DocumentsEnvironmentBody() {
 
   return (
     <DocumentSurface>
-      <DocumentCollection />
+      {!activeDocument && <DocumentCollection />}
       <AnimatePresence>
         {activeDocument && (
           <ReadingSurface 
@@ -134,6 +134,7 @@ function DocumentsEnvironmentBody() {
             title={activeDocument.title}
             content={activeDocument.content} 
             status={activeDocument.status}
+            onClose={() => { dispatch({ type: "SELECT_DOCUMENT", payload: null }); remember("documents", { openedDocument: undefined }); }}
           />
         )}
       </AnimatePresence>
@@ -142,9 +143,5 @@ function DocumentsEnvironmentBody() {
 }
 
 export function DocumentsEnvironment() {
-  return (
-    <DocumentsProvider>
-      <DocumentsEnvironmentBody />
-    </DocumentsProvider>
-  );
+  return <DocumentsEnvironmentBody />;
 }

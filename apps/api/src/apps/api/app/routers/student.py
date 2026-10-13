@@ -5,7 +5,7 @@ from backend.dependencies import (
     get_recommendations_use_case,
     list_knowledge_states_use_case,
 )
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Header, Request, HTTPException, Query, status
 from pydantic import BaseModel
 
 from application.student.get_knowledge_state import GetKnowledgeStateRequest
@@ -51,7 +51,7 @@ def _format_state(state: Any) -> KnowledgeStateResponse:
 
 @student_router.get("/knowledge-states", response_model=ListKnowledgeStatesResponse)
 async def list_knowledge_states(
-    authorization: str = Header(..., description="Bearer token"),
+    request_obj: Request, authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(list_knowledge_states_use_case),  # noqa: B008
 ) -> ListKnowledgeStatesResponse:
     token = _extract_bearer_token(authorization)
@@ -64,7 +64,7 @@ async def list_knowledge_states(
 @student_router.get("/knowledge-states/{resource_id}", response_model=KnowledgeStateResponse)
 async def get_knowledge_state(
     resource_id: str,
-    authorization: str = Header(..., description="Bearer token"),
+    request_obj: Request, authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(get_knowledge_state_use_case),  # noqa: B008
 ) -> KnowledgeStateResponse:
     token = _extract_bearer_token(authorization)
@@ -92,8 +92,8 @@ class GetRecommendationsAPIResponse(BaseModel):
 
 @student_router.get("/recommendations", response_model=GetRecommendationsAPIResponse)
 async def get_recommendations(
-    limit: int = Query(5, ge=1, le=100, description="Max recommendations to return"),
-    authorization: str = Header(..., description="Bearer token"),
+    request_obj: Request,
+    limit: int = Query(5, ge=1, le=100, description="Max recommendations to return"), authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(get_recommendations_use_case),  # noqa: B008
 ) -> GetRecommendationsAPIResponse:
     token = _extract_bearer_token(authorization)

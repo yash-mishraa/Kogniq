@@ -35,4 +35,19 @@ export class LiveAuthService implements IAuthService {
       throw new Error("Login failed");
     }
   }
+
+  async register(email: string, password: string): Promise<void> {
+    const display_name = email.split('@')[0] || "User";
+    const response = await fetch("/api/v1/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password, display_name })
+    });
+
+    if (!response.ok) {
+      throw new Error("Registration failed");
+    }
+  }
 }

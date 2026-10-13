@@ -98,16 +98,12 @@ class NextActionResponse(BaseModel):
 @learning_router.get("/{document_id}/next-action", response_model=NextActionResponse)
 async def get_next_action(
     document_id: str,
-    authorization: str = Header(..., description="Bearer token"),
+    request_obj: Request, authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(get_next_action_use_case),  # noqa: B008
 ) -> NextActionResponse:
     from application.learning.get_next_action import GetNextActionRequest
 
-    token = (
-        authorization.replace("Bearer ", "")
-        if authorization.startswith("Bearer ")
-        else authorization
-    )
+    token = request_obj.cookies.get("kogniq_session", "") or (authorization.replace("Bearer ", "") if authorization and authorization.startswith("Bearer ") else (authorization or ""))
     request_dto = GetNextActionRequest(document_id=document_id, token=token)
     try:
         response = await use_case.execute(request_dto)
@@ -133,16 +129,12 @@ class ExplainMistakeResponseDto(BaseModel):
 @learning_router.post("/explain-mistake", response_model=ExplainMistakeResponseDto)
 async def explain_mistake(
     request: ExplainMistakeRequestDto,
-    authorization: str = Header(..., description="Bearer token"),
+    request_obj: Request, authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(get_explain_mistake_use_case),  # noqa: B008
 ) -> ExplainMistakeResponseDto:
     from application.learning.explain_mistake import ExplainMistakeRequest
 
-    token = (
-        authorization.replace("Bearer ", "")
-        if authorization.startswith("Bearer ")
-        else authorization
-    )
+    token = request_obj.cookies.get("kogniq_session", "") or (authorization.replace("Bearer ", "") if authorization and authorization.startswith("Bearer ") else (authorization or ""))
     request_dto = ExplainMistakeRequest(
         document_id=request.document_id,
         question_id=request.question_id,

@@ -11,7 +11,7 @@ export function KnowledgeEmptyState() {
         className="max-w-md w-full flex flex-col gap-6 items-center text-center"
       >
         <p className="text-lg font-serif text-ink/60 leading-relaxed">
-          Concepts and relationships will emerge here after knowledge extraction.
+          Select a document from the Documents workspace to explore its knowledge graph.
         </p>
       </motion.div>
     </div>

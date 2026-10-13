@@ -46,7 +46,7 @@ class FakeAuthorizationService:
         return SimpleNamespace(allowed=self.allowed, reason=reason)
 
 class FakeRetrieveUseCase:
-    def __init__(self, contents: list[str] | None = None) -> None:
+    def __init__(self, contents: list[str] | list[dict] | None = None) -> None:
         self.commands: list[RetrievalCommand] = []
         self._contents = contents if contents is not None else []
 
@@ -57,7 +57,8 @@ class FakeRetrieveUseCase:
             ChunkData(
                 chunk_id=f"chk-{i}",
                 document_id=command.document_id or 'doc-1',
-                content=c,
+                content=c["content"] if isinstance(c, dict) else c,
+                metadata=c.get("metadata", {}) if isinstance(c, dict) else {},
                 chunk_index=i,
                 score=0.9
             ) for i, c in enumerate(self._contents)

@@ -1,4 +1,4 @@
-﻿from evaluation.harness.fakes import ScriptedChatProvider, build_use_case
+from evaluation.harness.fakes import ScriptedChatProvider, build_use_case
 from evaluation.models.eval_case import EvalCase
 
 from application.agent.contracts import TutorChatMessage, TutorChatRequest
@@ -80,3 +80,28 @@ class TutorEvaluationHarness:
             assert response is not None, "Response was None"
             assert case.expected.response_includes in response.content, \
                 f"Response missing '{case.expected.response_includes}'"
+        
+        if getattr(case.expected, "system_prompt_includes", None) or getattr(case.expected, "system_prompt_excludes", None) or getattr(case.expected, "messages_includes", None) or getattr(case.expected, "messages_excludes", None):
+            full_system = ""
+            full_messages = ""
+            for call in getattr(provider, 'calls', []):
+                for msg in call.get("messages", []):
+                    full_messages += str(msg.content)
+                if call.get("system_instruction"):
+                    full_system += str(call["system_instruction"])
+
+            if getattr(case.expected, "system_prompt_includes", None):
+                for req_str in case.expected.system_prompt_includes:
+                    assert req_str in full_system, f"System missing {req_str}"
+            
+            if getattr(case.expected, "system_prompt_excludes", None):
+                for bad_str in case.expected.system_prompt_excludes:
+                    assert bad_str not in full_system, f"System contains {bad_str}"
+
+        if getattr(case.expected, "messages_includes", None):
+            for req_str in case.expected.messages_includes:
+                assert req_str in full_messages, f"Messages missing {req_str}"
+
+        if getattr(case.expected, "messages_excludes", None):
+            for bad_str in case.expected.messages_excludes:
+                assert bad_str not in full_messages, f"Messages contains {bad_str}"

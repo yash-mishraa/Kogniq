@@ -2,10 +2,10 @@ from backend.core.exceptions import BackendError
 from backend.core.validators import DocumentValidator
 from backend.dependencies import get_document_service, get_process_document_use_case
 from backend.schemas.document import (
+    DocumentDetailResponse,
     DocumentLifecycleState,
     DocumentProcessResponse,
     DocumentResponse,
-    DocumentDetailResponse,
     SemanticDocumentResponse,
 )
 from backend.services.document_service import DocumentService
@@ -92,8 +92,8 @@ async def get_document(
     Retrieve a document and its structured pages.
     """
     from backend.dependencies import get_uow_factory
+    from backend.schemas.document import DocumentBlock, DocumentPage
     from fastapi import HTTPException
-    from backend.schemas.document import DocumentPage, DocumentBlock
 
     uow_factory = get_uow_factory()
     with uow_factory.create() as uow:
@@ -143,6 +143,7 @@ async def get_document(
 
 from fastapi.responses import Response
 
+
 @router.get("/documents/{document_id}/file")
 async def get_document_file(
     document_id: str,
@@ -151,9 +152,10 @@ async def get_document_file(
     """
     Retrieve the original uploaded PDF file for a document.
     """
+    import os
+
     from backend.dependencies import get_uow_factory
     from fastapi import HTTPException
-    import os
 
     uow_factory = get_uow_factory()
     with uow_factory.create() as uow:
@@ -172,7 +174,7 @@ async def get_document_file(
         return FileResponse(
             path=file_path, 
             media_type="application/pdf", 
-            filename=doc.title + ".pdf"
+            filename="document.pdf"
         )
 
 
@@ -226,10 +228,11 @@ async def get_document_semantics(
     """
     Retrieve the active semantic structure (sections, figures) for a document.
     """
-    from backend.dependencies import get_uow_factory
-    from fastapi import HTTPException
     import json
     import logging
+
+    from backend.dependencies import get_uow_factory
+    from fastapi import HTTPException
 
     uow_factory = get_uow_factory()
     with uow_factory.create() as uow:
