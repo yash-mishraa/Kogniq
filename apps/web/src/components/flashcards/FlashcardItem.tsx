@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import type { FlashcardData } from "@/lib/services/interfaces/IFlashcardsService";
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 
 interface FlashcardItemProps {
   card: FlashcardData;
@@ -60,7 +62,7 @@ export function FlashcardItem({ card, isFlipped, onFlip }: FlashcardItemProps) {
         >
           <span className="text-xs font-medium text-tertiary uppercase tracking-wider mb-4">Question</span>
           <div className="prose prose-sm md:prose-base dark:prose-invert">
-            <ReactMarkdown>{card.question}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{card.question}</ReactMarkdown>
           </div>
         </div>
 
@@ -71,7 +73,7 @@ export function FlashcardItem({ card, isFlipped, onFlip }: FlashcardItemProps) {
         >
           <span className="text-xs font-medium text-primary uppercase tracking-wider mb-4">Answer</span>
           <div className="prose prose-sm md:prose-base dark:prose-invert">
-            <ReactMarkdown>{card.answer}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{card.answer}</ReactMarkdown>
           </div>
         </div>
       </motion.div>

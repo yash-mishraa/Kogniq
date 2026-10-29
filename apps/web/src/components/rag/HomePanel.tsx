@@ -18,7 +18,8 @@ import {
   UserErrorNotice,
 } from "./shared";
 
-const ACCEPTED = ".pdf,.txt,.md,.markdown,text/plain,text/markdown,application/pdf";
+const ACCEPTED =
+  ".pdf,.txt,.md,.markdown,.tex,.latex,text/plain,text/markdown,application/pdf,application/x-tex,text/x-tex";
 
 export function HomePanel({
   onAsk,

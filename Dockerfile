@@ -20,6 +20,12 @@ COPY apps/api ./apps/api
 # Sync Python packages
 RUN uv sync --frozen || uv sync
 
+# Pre-cache SentenceTransformers model at build time so runtime uploads don't stall or download from HuggingFace
+ENV HF_HOME="/app/.cache/huggingface" \
+    TORCH_NUM_THREADS=1 \
+    OMP_NUM_THREADS=1
+RUN uv run python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+
 # Expose backend port
 EXPOSE 8000
 

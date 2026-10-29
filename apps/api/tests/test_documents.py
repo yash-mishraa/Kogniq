@@ -75,6 +75,43 @@ def test_process_document_success(client: TestClient, test_app: FastAPI, auth_us
     assert response.json()["status"] == "Uploaded"
 
 
+def test_process_latex_document_success(
+    client: TestClient, test_app: FastAPI, auth_user: User
+) -> None:
+    class MockResult:
+        status = "Uploaded"
+        document_id = "doc-latex-456"
+        filename = "physics.tex"
+        title = "Quantum Physics"
+        source = "test"
+        processor = "kogniq-latex"
+        chunk_count = 1
+        processing_time_ms = 80
+        warnings: tuple[str, ...] = ()
+
+    class MockService:
+        async def prepare_document(self, _doc_input: object) -> MockResult:
+            return MockResult()
+
+        async def run_document_pipeline(self, _doc_input: object, document_id: str) -> None:
+            pass
+
+    test_app.dependency_overrides[get_document_service] = lambda: MockService()
+    test_app.dependency_overrides[get_current_user] = lambda: auth_user
+
+    files = {
+        "file": (
+            "physics.tex",
+            b"\\title{Quantum Physics}\n\\section{Relativity}\n$E=mc^2$",
+            "application/x-tex",
+        )
+    }
+    response = client.post("/api/v1/documents/process", files=files)
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "Uploaded"
+
+
 def test_process_document_no_file(client: TestClient, test_app: FastAPI, auth_user: User) -> None:
     test_app.dependency_overrides[get_current_user] = lambda: auth_user
     response = client.post("/api/v1/documents/process")

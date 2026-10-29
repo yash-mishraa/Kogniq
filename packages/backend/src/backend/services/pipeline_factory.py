@@ -45,6 +45,13 @@ class PipelineFactory:
         except ImportError:
             pass
 
+        try:
+            from content.processors.latex.processor import LatexProcessor
+
+            registry.register(LatexProcessor())
+        except ImportError:
+            pass
+
         import os
 
         chunk_size = int(os.environ.get("KOGNIQ_CHUNK_SIZE", "1200"))

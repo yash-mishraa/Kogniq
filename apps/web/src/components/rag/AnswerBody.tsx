@@ -1,6 +1,8 @@
 "use client";
 
 import Markdown, { type Components } from "react-markdown";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 import { prepareAnswerMarkdown } from "@/lib/rag/presentation";
 
 const components: Components = {
@@ -37,7 +39,12 @@ export function AnswerBody({
 }) {
   return (
     <div className="answer-prose">
-      <Markdown components={components} skipHtml>
+      <Markdown
+        components={components}
+        remarkPlugins={[remarkMath]}
+        rehypePlugins={[rehypeKatex]}
+        skipHtml
+      >
         {prepareAnswerMarkdown(answer, validSourceIds)}
       </Markdown>
     </div>

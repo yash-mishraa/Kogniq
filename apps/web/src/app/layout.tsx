@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/instrument-sans";
 import { GeistMono } from "geist/font/mono";
+import "katex/dist/katex.min.css";
 import "./globals.css";
 import { Providers } from "./providers";
 

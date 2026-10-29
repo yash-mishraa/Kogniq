@@ -10,7 +10,7 @@ class DocumentValidator:
     Centralized validation for document uploads.
     """
 
-    ALLOWED_EXTENSIONS: ClassVar[set[str]] = {".pdf", ".txt", ".md"}
+    ALLOWED_EXTENSIONS: ClassVar[set[str]] = {".pdf", ".txt", ".md", ".tex", ".latex"}
     MAX_SIZE_BYTES: ClassVar[int] = 10 * 1024 * 1024  # 10 MB
 
     @classmethod

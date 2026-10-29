@@ -20,7 +20,8 @@ import {
   UserErrorNotice,
 } from "./shared";
 
-const ACCEPTED = ".pdf,.txt,.md,.markdown,text/plain,text/markdown,application/pdf";
+const ACCEPTED =
+  ".pdf,.txt,.md,.markdown,.tex,.latex,text/plain,text/markdown,application/pdf,application/x-tex,text/x-tex";
 
 export function DocumentsPanel({
   focus,
@@ -145,7 +146,7 @@ export function DocumentsPanel({
             <UploadZone accept={ACCEPTED} onFiles={onFiles} />
           </div>
           <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.12em] text-muted">
-            PDF · TXT · Markdown · 10 MB maximum
+            PDF · TXT · Markdown · LaTeX · 10 MB maximum
           </p>
           {upload.isPending ? (
             <div className="mt-3">
