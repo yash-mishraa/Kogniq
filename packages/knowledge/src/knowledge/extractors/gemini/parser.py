@@ -52,6 +52,15 @@ class GeminiResponseParser:
 
                 aliases_raw = item.get("aliases", [])
                 aliases = tuple(str(a).strip() for a in aliases_raw if str(a).strip())
+                description = str(item.get("description", "")).strip()
+                if not description:
+                    description = f"Core concept related to {title} extracted from the document."
+
+                type_str = str(item.get("type", "FACT")).strip().upper()
+                try:
+                    c_type = ConceptType[type_str]
+                except KeyError:
+                    c_type = ConceptType.FACT
 
                 # Prevent duplicates
                 if c_id not in concepts:
@@ -61,8 +70,8 @@ class GeminiResponseParser:
                         id=c_id,
                         document_id=document_id,
                         name=title,
-                        description="",
-                        concept_type=ConceptType.FACT,  # Default fallback
+                        description=description,
+                        concept_type=c_type,
                         aliases=aliases,
                         confidence=0.8,
                         created_at=datetime.now(UTC),

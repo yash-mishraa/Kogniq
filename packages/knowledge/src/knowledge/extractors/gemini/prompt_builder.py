@@ -15,6 +15,8 @@ class GeminiPromptBuilder:
                 {
                     "id": "unique_concept_id",
                     "title": "Concept Title",
+                    "description": "Clear 2-3 sentence definition and educational explanation of this concept based on the document.",
+                    "type": "ALGORITHM",
                     "aliases": ["Alias1", "Alias2"],
                 }
             ],
@@ -22,18 +24,20 @@ class GeminiPromptBuilder:
                 {
                     "source": "source_concept_id",
                     "target": "target_concept_id",
-                    "type": "RELATIONSHIP_TYPE",
+                    "type": "RELATED_TO",
                 }
             ],
         }
 
         return f"""You are an expert knowledge extractor.
-Extract educational concepts and their relationships from the following text.
+Extract the most important educational concepts and their meaningful relationships from the following text.
+Ensure each concept has a clear, comprehensive description explaining what it is and its role in the text.
 
 Return your response strictly as a JSON object matching this schema:
 {json.dumps(schema_format, indent=2)}
 
-Use standard relationship types such as RELATED_TO, DEPENDS_ON, PREREQUISITE_FOR.
+Valid concept types: ALGORITHM, DEFINITION, PRINCIPLE, THEORY, DATA_STRUCTURE, FACT.
+Valid relationship types: DEPENDS_ON, USES, DEFINES, REFERENCES, EXTENDS, IMPLEMENTS, EXPLAINS, RELATED_TO.
 
 Text to analyze:
 {text_content}"""

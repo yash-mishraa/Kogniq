@@ -158,7 +158,7 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
         <div className="flex flex-col items-center justify-center rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-12 text-center">
           <h3 className="text-base font-medium text-[#f0f0f0]">No flashcards yet for this document</h3>
           <p className="mt-1 text-xs text-[#888888] max-w-sm">
-            Generate flashcards using local or cloud AI, or create custom cards manually.
+            Generate flashcards synthesized from your document&apos;s concepts and Knowledge Graph, or create custom cards manually.
           </p>
           <div className="mt-5 flex gap-3">
             <Button

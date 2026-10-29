@@ -20,7 +20,7 @@ import { QuizzesPanel } from "./QuizzesPanel";
 import { RetrievalPanel } from "./RetrievalPanel";
 import { UserErrorNotice } from "./shared";
 
-type EverydayView = "home" | "documents" | "ask" | "flashcards" | "quizzes" | "knowledge";
+type EverydayView = "home" | "documents" | "ask" | "knowledge" | "flashcards" | "quizzes";
 type EngineeringView = "overview" | "chunking" | "retrieval" | "evaluation" | "activity";
 type View = EverydayView | EngineeringView;
 
@@ -28,9 +28,9 @@ const EVERYDAY_NAV: { id: EverydayView; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "documents", label: "My Documents" },
   { id: "ask", label: "Ask Questions" },
+  { id: "knowledge", label: "Knowledge Graph" },
   { id: "flashcards", label: "Flashcards" },
   { id: "quizzes", label: "Quizzes" },
-  { id: "knowledge", label: "Knowledge Graph" },
 ];
 
 const ENGINEERING_NAV: { id: EngineeringView; label: string; hint: string }[] = [
@@ -313,6 +313,20 @@ function ConsoleShell({
         </section>
 
         <section
+          hidden={view !== "knowledge"}
+          className={view === "knowledge" ? "panel-enter" : undefined}
+        >
+          {visited.has("knowledge") ? (
+            <KnowledgeGraphPanel
+              initialDocumentId={handoff.documentIds[0]}
+              onOpenDocuments={() => onOpenDocuments()}
+              onAsk={onAsk}
+              onNavigate={(v) => onNavigate(v)}
+            />
+          ) : null}
+        </section>
+
+        <section
           hidden={view !== "flashcards"}
           className={view === "flashcards" ? "panel-enter" : undefined}
         >
@@ -330,18 +344,6 @@ function ConsoleShell({
         >
           {visited.has("quizzes") ? (
             <QuizzesPanel
-              initialDocumentId={handoff.documentIds[0]}
-              onOpenDocuments={() => onOpenDocuments()}
-            />
-          ) : null}
-        </section>
-
-        <section
-          hidden={view !== "knowledge"}
-          className={view === "knowledge" ? "panel-enter" : undefined}
-        >
-          {visited.has("knowledge") ? (
-            <KnowledgeGraphPanel
               initialDocumentId={handoff.documentIds[0]}
               onOpenDocuments={() => onOpenDocuments()}
             />

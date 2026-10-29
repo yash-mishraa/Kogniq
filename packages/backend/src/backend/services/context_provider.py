@@ -37,7 +37,35 @@ class LearningContextProvider:
             relationships = await uow.relationships.get_by_document(document_id)
 
             if not concepts and not relationships:
-                # We used to check if graph is None. We will assume missing if both are empty.
+                # Auto-extract knowledge graph on the fly so flashcards and quizzes generate seamlessly
+                try:
+                    import dataclasses
+                    from backend.dependencies import get_knowledge_extractor
+
+                    extractor = get_knowledge_extractor()
+                    extraction_result = await extractor.extract(chunks)
+                    extracted_concepts = [
+                        dataclasses.replace(c, document_id=document_id)
+                        if dataclasses.is_dataclass(c) and not isinstance(c, type)
+                        else c
+                        for c in extraction_result.graph.concepts
+                    ]
+                    extracted_relationships = [
+                        dataclasses.replace(r, document_id=document_id)
+                        if dataclasses.is_dataclass(r) and not isinstance(r, type)
+                        else r
+                        for r in extraction_result.graph.relationships
+                    ]
+                    if extracted_concepts:
+                        await uow.concepts.save_all(extracted_concepts)
+                        concepts = extracted_concepts
+                    if extracted_relationships:
+                        await uow.relationships.save_all(extracted_relationships)
+                        relationships = extracted_relationships
+                except Exception:
+                    pass
+
+            if not concepts and not relationships:
                 raise BackendError(
                     "graph_not_found",
                     f"No knowledge graph found for document {document_id}",
