@@ -158,7 +158,7 @@ def test_get_document_structured_pages(client: TestClient, test_app: FastAPI, au
     uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
     doc_id = "test-doc-123"
     
-    async def run_test():
+    async def run_test() -> None:
         with uow_factory.create() as uow:
             doc = NormalizedDocument(
                 id=doc_id,
@@ -190,7 +190,7 @@ def test_get_document_structured_pages(client: TestClient, test_app: FastAPI, au
         response = client.get(f"/api/v1/documents/{doc_id}")
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] == "Ready"
+        assert data["status"] == "Unindexed"
         assert data["pages"] is not None
         assert len(data["pages"]) == 1
         
@@ -222,7 +222,7 @@ def test_get_document_file_success(client: TestClient, test_app: FastAPI, auth_u
     uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
     doc_id = "test-doc-file-123"
     
-    async def run_test():
+    async def run_test() -> None:
         with uow_factory.create() as uow:
             doc = NormalizedDocument(
                 id=doc_id,
@@ -263,7 +263,7 @@ def test_get_document_file_cross_user_denial(client: TestClient, test_app: FastA
     uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
     doc_id = "test-doc-file-other-user"
     
-    async def run_test():
+    async def run_test() -> None:
         with uow_factory.create() as uow:
             doc = NormalizedDocument(
                 id=doc_id,
@@ -295,7 +295,7 @@ def test_get_document_file_missing_on_disk(client: TestClient, test_app: FastAPI
     uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
     doc_id = "test-doc-missing-file"
     
-    async def run_test():
+    async def run_test() -> None:
         with uow_factory.create() as uow:
             doc = NormalizedDocument(
                 id=doc_id,
@@ -327,7 +327,7 @@ def test_get_document_semantics(client: TestClient, test_app: FastAPI, auth_user
     uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
     doc_id = "test-doc-semantics"
     
-    async def run_test():
+    async def run_test() -> None:
         with uow_factory.create() as uow:
             doc = NormalizedDocument(
                 id=doc_id, title="Doc", source="test", checksum="test", version="1.0",
@@ -363,7 +363,7 @@ def test_get_document_semantics_cross_user(client: TestClient, test_app: FastAPI
     uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
     doc_id = "test-doc-semantics-cross"
     
-    async def run_test():
+    async def run_test() -> None:
         with uow_factory.create() as uow:
             doc = NormalizedDocument(
                 id=doc_id, title="Doc", source="test", checksum="test", version="1.0",
@@ -388,7 +388,7 @@ def test_get_document_semantics_unavailable(client: TestClient, test_app: FastAP
     uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
     doc_id = "test-doc-semantics-unavailable"
     
-    async def run_test():
+    async def run_test() -> None:
         with uow_factory.create() as uow:
             doc = NormalizedDocument(
                 id=doc_id, title="Doc", source="test", checksum="test", version="1.0",
@@ -422,7 +422,7 @@ def test_get_document_semantics_malformed(client: TestClient, test_app: FastAPI,
     uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
     doc_id = "test-doc-semantics-malformed"
     
-    async def run_test():
+    async def run_test() -> None:
         with uow_factory.create() as uow:
             doc = NormalizedDocument(
                 id=doc_id, title="Doc", source="test", checksum="test", version="1.0",
@@ -456,7 +456,7 @@ def test_get_document_semantics_structurally_invalid(client: TestClient, test_ap
     uow_factory = test_app.dependency_overrides.get(get_uow_factory, get_uow_factory)()
     doc_id = "test-doc-semantics-invalid"
     
-    async def run_test():
+    async def run_test() -> None:
         with uow_factory.create() as uow:
             doc = NormalizedDocument(
                 id=doc_id, title="Doc", source="test", checksum="test", version="1.0",

@@ -7,6 +7,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from apps.api.app.config import APISettings
 from apps.api.app.middleware.exceptions import UnhandledExceptionMiddleware
+from apps.api.app.middleware.rate_limit import RateLimitMiddleware
 from apps.api.app.middleware.request_id import RequestIDMiddleware
 from apps.api.app.middleware.timing import RequestTimingMiddleware
 
@@ -27,6 +28,10 @@ def register_middleware(application: FastAPI, settings: APISettings) -> None:
         header_name=settings.process_time_header,
     )
     application.add_middleware(UnhandledExceptionMiddleware)
+    application.add_middleware(
+        RateLimitMiddleware,
+        is_testing=settings.environment.value == "testing",
+    )
     application.add_middleware(
         RequestIDMiddleware,
         header_name=settings.request_id_header,

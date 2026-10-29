@@ -7,15 +7,23 @@ from collections.abc import Iterator
 os.environ["PERSISTENCE_PROVIDER"] = "sqlite"
 os.environ["LEARNING_GENERATION_PROVIDER"] = "fake"
 os.environ["KNOWLEDGE_EXTRACTION_PROVIDER"] = "fake"
-import pytest
-from fastapi.testclient import TestClient
-
-from apps.api.app.config import APISettings
-from apps.api.app.main import create_app
-from shared.config import Environment
+os.environ["KOGNIQ_API_ENVIRONMENT"] = "test"
 
 db_fd, db_path = tempfile.mkstemp(suffix=".db")
 os.close(db_fd)
+# Never point the test suite at the developer database. The backend settings
+# object reads the environment before .env, so this wins over SQLITE_DATABASE_PATH.
+os.environ["SQLITE_DATABASE_PATH"] = db_path
+_chroma_dir = tempfile.mkdtemp(prefix="kogniq-test-chroma-")
+os.environ["CHROMA_DB_PATH"] = _chroma_dir
+os.environ["CHROMA_COLLECTION"] = "kogniq_test"
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+
+from apps.api.app.config import APISettings  # noqa: E402
+from apps.api.app.main import create_app  # noqa: E402
+from shared.config import Environment  # noqa: E402
 
 
 @pytest.fixture

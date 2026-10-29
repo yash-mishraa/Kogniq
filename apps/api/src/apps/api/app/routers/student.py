@@ -5,7 +5,7 @@ from backend.dependencies import (
     get_recommendations_use_case,
     list_knowledge_states_use_case,
 )
-from fastapi import APIRouter, Depends, Header, Request, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
 from pydantic import BaseModel
 
 from application.student.get_knowledge_state import GetKnowledgeStateRequest
@@ -15,10 +15,13 @@ from application.student.list_knowledge_states import ListKnowledgeStatesRequest
 student_router = APIRouter(prefix="/student", tags=["Student"])
 
 
-def _extract_bearer_token(authorization: str) -> str:
-    if authorization.startswith("Bearer "):
+def _session_token(request: Request, authorization: str | None) -> str:
+    cookie = request.cookies.get("kogniq_session", "")
+    if cookie:
+        return cookie
+    if authorization and authorization.startswith("Bearer "):
         return authorization.replace("Bearer ", "")
-    return authorization
+    return authorization or ""
 
 
 class KnowledgeStateResponse(BaseModel):
@@ -51,10 +54,11 @@ def _format_state(state: Any) -> KnowledgeStateResponse:
 
 @student_router.get("/knowledge-states", response_model=ListKnowledgeStatesResponse)
 async def list_knowledge_states(
-    request_obj: Request, authorization: str | None = Header(None, description="Bearer token"),
+    request_obj: Request,
+    authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(list_knowledge_states_use_case),  # noqa: B008
 ) -> ListKnowledgeStatesResponse:
-    token = _extract_bearer_token(authorization)
+    token = _session_token(request_obj, authorization)
     request = ListKnowledgeStatesRequest(token=token)
     response = await use_case.execute(request)
     
@@ -64,10 +68,11 @@ async def list_knowledge_states(
 @student_router.get("/knowledge-states/{resource_id}", response_model=KnowledgeStateResponse)
 async def get_knowledge_state(
     resource_id: str,
-    request_obj: Request, authorization: str | None = Header(None, description="Bearer token"),
+    request_obj: Request,
+    authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(get_knowledge_state_use_case),  # noqa: B008
 ) -> KnowledgeStateResponse:
-    token = _extract_bearer_token(authorization)
+    token = _session_token(request_obj, authorization)
     request = GetKnowledgeStateRequest(token=token, resource_id=resource_id)
     response = await use_case.execute(request)
     
@@ -93,10 +98,11 @@ class GetRecommendationsAPIResponse(BaseModel):
 @student_router.get("/recommendations", response_model=GetRecommendationsAPIResponse)
 async def get_recommendations(
     request_obj: Request,
-    limit: int = Query(5, ge=1, le=100, description="Max recommendations to return"), authorization: str | None = Header(None, description="Bearer token"),
+    limit: int = Query(5, ge=1, le=100, description="Max recommendations to return"),
+    authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(get_recommendations_use_case),  # noqa: B008
 ) -> GetRecommendationsAPIResponse:
-    token = _extract_bearer_token(authorization)
+    token = _session_token(request_obj, authorization)
     request = GetRecommendationsRequest(token=token, limit=limit)
     response = await use_case.execute(request)
     

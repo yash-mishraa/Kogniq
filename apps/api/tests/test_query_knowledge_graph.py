@@ -1,5 +1,6 @@
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, UTC
 
 from backend.services.knowledge_service import KnowledgeService
 from application.learning.query_knowledge_graph import QueryKnowledgeGraphUseCase, QueryKnowledgeGraphRequest
@@ -13,11 +14,11 @@ class MockUoW:
     pass
 
 class MockUoWFactory:
-    def create(self):
+    def create(self) -> MockUoW:
         return MockUoW()
 
 class MockKnowledgeService:
-    def __init__(self, graph):
+    def __init__(self, graph: KnowledgeGraph) -> None:
         self.graph = graph
 
     async def get_knowledge_graph(self, document_id: str, user_id: str | None = None) -> KnowledgeGraph:
@@ -27,7 +28,7 @@ class MockKnowledgeService:
             raise Exception("unauthorized: Not authorized to access this document")
         return self.graph
 
-def make_concept(c_id: str, name: str, aliases: tuple = ()):
+def make_concept(c_id: str, name: str, aliases: tuple[str, ...] = ()) -> KnowledgeConcept:
     return KnowledgeConcept(
         id=c_id,
         document_id="doc_1",
@@ -40,7 +41,9 @@ def make_concept(c_id: str, name: str, aliases: tuple = ()):
         metadata=KnowledgeMetadata(source_document="doc_1", source_chunk="chunk_1", language="en", confidence=1.0, extraction_version="1.0", created_by="test")
     )
 
-def make_rel(r_id: str, source: str, target: str, type: RelationshipType):
+def make_rel(
+    r_id: str, source: str, target: str, type: RelationshipType
+) -> KnowledgeRelationship:
     return KnowledgeRelationship(
         id=r_id,
         document_id="doc_1",
@@ -53,7 +56,7 @@ def make_rel(r_id: str, source: str, target: str, type: RelationshipType):
     )
 
 @pytest.fixture
-def mock_graph():
+def mock_graph() -> KnowledgeGraph:
     c_cnn = make_concept("c1", "CNN", ("Convolutional Neural Network",))
     c_backprop = make_concept("c2", "Backpropagation")
     c_grad = make_concept("c3", "Gradient Descent")
@@ -72,32 +75,34 @@ def mock_graph():
     )
 
 @pytest.fixture
-def use_case(mock_graph):
+def use_case(mock_graph: KnowledgeGraph) -> QueryKnowledgeGraphUseCase:
     svc = MockKnowledgeService(mock_graph)
-    return QueryKnowledgeGraphUseCase(knowledge_service=svc)
+    return QueryKnowledgeGraphUseCase(knowledge_service=svc)  # type: ignore[arg-type]
 
 @pytest.mark.asyncio
-async def test_concept_resolution_exact(use_case):
+async def test_concept_resolution_exact(use_case: QueryKnowledgeGraphUseCase) -> None:
     req = QueryKnowledgeGraphRequest("doc_1", "user_1", "prerequisites", "CNN")
     res = await use_case.execute(req)
     assert res.status == "success"
+    assert res.resolved_concept is not None
     assert res.resolved_concept["name"] == "CNN"
 
 @pytest.mark.asyncio
-async def test_concept_resolution_alias(use_case):
+async def test_concept_resolution_alias(use_case: QueryKnowledgeGraphUseCase) -> None:
     req = QueryKnowledgeGraphRequest("doc_1", "user_1", "prerequisites", "convolutional neural network")
     res = await use_case.execute(req)
     assert res.status == "success"
+    assert res.resolved_concept is not None
     assert res.resolved_concept["name"] == "CNN"
 
 @pytest.mark.asyncio
-async def test_concept_resolution_not_found(use_case):
+async def test_concept_resolution_not_found(use_case: QueryKnowledgeGraphUseCase) -> None:
     req = QueryKnowledgeGraphRequest("doc_1", "user_1", "prerequisites", "Transformers")
     res = await use_case.execute(req)
     assert res.status == "not_found"
 
 @pytest.mark.asyncio
-async def test_prerequisites_depth_1(use_case):
+async def test_prerequisites_depth_1(use_case: QueryKnowledgeGraphUseCase) -> None:
     # CNN -> Backprop
     req = QueryKnowledgeGraphRequest("doc_1", "user_1", "prerequisites", "CNN", depth=1)
     res = await use_case.execute(req)
@@ -106,7 +111,7 @@ async def test_prerequisites_depth_1(use_case):
     assert res.concepts[0]["name"] == "Backpropagation"
 
 @pytest.mark.asyncio
-async def test_prerequisites_depth_2(use_case):
+async def test_prerequisites_depth_2(use_case: QueryKnowledgeGraphUseCase) -> None:
     # CNN -> Backprop -> Gradient Descent
     req = QueryKnowledgeGraphRequest("doc_1", "user_1", "prerequisites", "CNN", depth=2)
     res = await use_case.execute(req)
@@ -117,7 +122,7 @@ async def test_prerequisites_depth_2(use_case):
     assert "Gradient Descent" in names
 
 @pytest.mark.asyncio
-async def test_dependents(use_case):
+async def test_dependents(use_case: QueryKnowledgeGraphUseCase) -> None:
     # Calculus is depended on by Gradient Descent
     req = QueryKnowledgeGraphRequest("doc_1", "user_1", "dependents", "Calculus", depth=1)
     res = await use_case.execute(req)
@@ -126,7 +131,7 @@ async def test_dependents(use_case):
     assert res.concepts[0]["name"] == "Gradient Descent"
 
 @pytest.mark.asyncio
-async def test_neighbors_with_cycle(use_case):
+async def test_neighbors_with_cycle(use_case: QueryKnowledgeGraphUseCase) -> None:
     # Neighbors of Calculus should include Gradient Descent (incoming DEPENDS_ON) and CNN (outgoing RELATED_TO)
     req = QueryKnowledgeGraphRequest("doc_1", "user_1", "neighbors", "Calculus", depth=1)
     res = await use_case.execute(req)
@@ -137,14 +142,15 @@ async def test_neighbors_with_cycle(use_case):
     assert "CNN" in names
 
 @pytest.mark.asyncio
-async def test_unauthorized(use_case):
+async def test_unauthorized(use_case: QueryKnowledgeGraphUseCase) -> None:
     req = QueryKnowledgeGraphRequest("doc_1", "user_2", "prerequisites", "CNN")
     res = await use_case.execute(req)
     assert res.status == "error"
+    assert res.message is not None
     assert "unauthorized" in res.message
 
 @pytest.mark.asyncio
-async def test_node_limit_truncation(use_case):
+async def test_node_limit_truncation(use_case: QueryKnowledgeGraphUseCase) -> None:
     # Temporarily force MAX_CONCEPTS to 1
     use_case.MAX_CONCEPTS = 1
     req = QueryKnowledgeGraphRequest("doc_1", "user_1", "prerequisites", "CNN", depth=2)

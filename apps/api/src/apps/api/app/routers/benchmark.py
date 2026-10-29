@@ -3,7 +3,7 @@
 benchmark_router = APIRouter(prefix="/_benchmark", tags=["Benchmark"])
 
 @benchmark_router.get("/lag")
-async def get_lag(request: Request) -> dict:
+async def get_lag(request: Request) -> dict[str, float]:
     if not hasattr(request.app.state, "event_loop_lag_ms"):
         return {"max_lag_ms": 0.0}
     

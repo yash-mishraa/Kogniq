@@ -358,13 +358,14 @@ async def test_log_conversational_assessment_tool() -> None:
     from application.analytics.record_events_batch import RecordEventsBatchUseCase
     
     class FakeRecordEventsUseCase:
-        def __init__(self, *args, **kwargs):
-            self.recorded = []
-        async def execute_for_user(self, user_id, request):
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            self.recorded: list[tuple[str, Any]] = []
+
+        async def execute_for_user(self, user_id: str, request: Any) -> None:
             self.recorded.append((user_id, request))
-            
+
     fake_record = FakeRecordEventsUseCase()
-    use_case._record_events_batch_use_case = fake_record
+    use_case._record_events_batch_use_case = fake_record  # type: ignore[assignment]
 
     response = await use_case.execute(
         build_request([TutorChatMessage(role="user", content="Here is my answer.")])
@@ -396,12 +397,13 @@ async def test_log_conversational_assessment_clamps_score() -> None:
     use_case = build_use_case(provider)
     
     class FakeRecordEventsUseCase:
-        recorded = []
-        async def execute_for_user(self, user_id, request):
+        recorded: list[Any] = []
+
+        async def execute_for_user(self, user_id: str, request: Any) -> None:
             self.recorded.append(request.events[0])
-            
+
     fake_record = FakeRecordEventsUseCase()
-    use_case._record_events_batch_use_case = fake_record
+    use_case._record_events_batch_use_case = fake_record  # type: ignore[assignment]
 
     await use_case.execute(
         build_request([TutorChatMessage(role="user", content="Answer.")])

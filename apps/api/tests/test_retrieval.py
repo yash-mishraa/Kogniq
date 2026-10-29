@@ -122,6 +122,10 @@ def client_with_mocks(
             await uow.documents.save(doc)
             await uow.chunks.save(mock_chunks)
 
+        from backend.services import index_state
+
+        index_state.mark_ready("test-doc", None)
+
     asyncio.run(seed())
 
     retriever = MockRetriever(mock_results)
@@ -257,6 +261,10 @@ def test_retrieval_chunk_repository_miss() -> None:
             await uow.documents.save(doc)
             await uow.chunks.save(ChunkCollection(chunks=(chunk,)))
 
+        from backend.services import index_state
+
+        index_state.mark_ready("test-doc", None)
+
     import asyncio
 
     asyncio.run(seed())
@@ -356,6 +364,10 @@ def test_retriever_exception_translation() -> None:
         with uow_factory.create() as uow:
             await uow.documents.save(doc)
             await uow.chunks.save(ChunkCollection(chunks=(chunk,)))
+
+        from backend.services import index_state
+
+        index_state.mark_ready("test-doc", None)
 
     import asyncio
 

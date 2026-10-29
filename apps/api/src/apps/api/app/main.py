@@ -10,6 +10,16 @@ from apps.api.app.core.metadata import build_contact, build_license, build_serve
 from apps.api.app.middleware import register_middleware
 from shared.logging import LoggingConfig, configure_logging
 
+# Load local .env values into the process environment. `os.environ` is read
+# directly by providers (e.g. Gemini) that are constructed outside of the
+# pydantic settings objects, so `load_dotenv()` must run before they are built.
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:  # pragma: no cover - python-dotenv ships with pydantic-settings
+    pass
+
 
 def create_app(settings: APISettings | None = None) -> FastAPI:
     """Create an independently configured Kogniq API application."""

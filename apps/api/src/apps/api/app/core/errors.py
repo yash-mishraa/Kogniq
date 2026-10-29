@@ -126,7 +126,9 @@ def _error_response(
         headers=headers,
     )
 
-async def sqlite_error_handler(request: Request, error: sqlite3.OperationalError) -> JSONResponse:
+async def sqlite_error_handler(request: Request, error: Exception) -> JSONResponse:
+    if not isinstance(error, sqlite3.OperationalError):
+        raise error
     if "database is locked" in str(error):
         return _error_response(
             request=request,

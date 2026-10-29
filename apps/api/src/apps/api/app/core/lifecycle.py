@@ -37,7 +37,8 @@ def create_lifespan(settings: APISettings) -> Lifespan:
         application.state.started_at = monotonic()
         application.state.is_ready = True
         
-        # Globally configure the asyncio thread pool to handle high concurrency of synchronous provider/retrieval calls
+        # Globally configure the asyncio thread pool to handle high concurrency
+        # of synchronous provider/retrieval calls.
         global_executor = ThreadPoolExecutor(max_workers=50)
         asyncio.get_running_loop().set_default_executor(global_executor)
 
@@ -53,11 +54,18 @@ def create_lifespan(settings: APISettings) -> Lifespan:
 
         from backend.dependencies import (
             get_authentication_service,
+            get_authorization_provider,
             get_authorization_service,
             get_permission_repository,
             get_role_repository,
+            get_user_repository,
         )
-        from backend.security.bootstrap import bootstrap_authorization, bootstrap_development_demo
+        from backend.security.bootstrap import (
+            adopt_orphaned_documents,
+            bootstrap_authorization,
+            bootstrap_development_demo,
+            bootstrap_user_roles,
+        )
 
         from application.auth.register_user import RegisterUserUseCase
 
@@ -71,6 +79,14 @@ def create_lifespan(settings: APISettings) -> Lifespan:
                 authorization_service=authorization_service,  # type: ignore
             )
             await bootstrap_development_demo(use_case)
+            await bootstrap_user_roles(
+                get_user_repository(),
+                get_authorization_provider(),
+                admin_email="admin@kogniq.ai",
+            )
+            adopt_orphaned_documents()
+        else:
+            await bootstrap_user_roles(get_user_repository(), get_authorization_provider())
 
         logger.info(
             "application_started",

@@ -33,7 +33,6 @@ def test_job_processing_endpoints() -> None:
     # Therefore, the job should be COMPLETED immediately.
     assert data["status"] in ("pending", "running", "completed")
 
-    job_id = data["job_id"]
 
 def test_job_not_found() -> None:
     res = client.get("/api/v1/jobs/invalid-id")

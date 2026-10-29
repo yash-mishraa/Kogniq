@@ -1,7 +1,8 @@
 from typing import Any
 
-import backend.dependencies
 from backend.dependencies import (
+    get_add_flashcard_use_case,
+    get_add_quiz_question_use_case,
     get_explain_mistake_use_case,
     get_generate_learning_use_case,
     get_get_learning_materials_use_case,
@@ -12,7 +13,7 @@ from backend.schemas.learning import (
     LearningGenerationResponse,
     LearningMaterialsResponse,
 )
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel
 
 from application.learning.commands import GenerateLearningCommand
@@ -25,15 +26,29 @@ from application.learning.get_learning_materials import (
 learning_router = APIRouter(prefix="/learning", tags=["Learning"])
 
 
+def _session_token(request: Request, authorization: str | None) -> str:
+    cookie = request.cookies.get("kogniq_session", "")
+    if cookie:
+        return cookie
+    if authorization and authorization.startswith("Bearer "):
+        return authorization.replace("Bearer ", "")
+    return authorization or ""
+
+
+def _raise_backend_error(error: Exception) -> None:
+    if type(error).__name__ == "BackendError":
+        raise HTTPException(
+            status_code=getattr(error, "status_code", 500), detail=str(error)
+        ) from error
+
+
 @learning_router.post("/generate", response_model=LearningGenerationResponse)
 async def generate_learning_content(
     request: LearningGenerationRequest,
     x_user_id: str = Header("demo-user-1", alias="X-User-Id"),
     use_case: GenerateLearningUseCase = Depends(get_generate_learning_use_case),  # noqa: B008
 ) -> LearningGenerationResponse:
-    """
-    Generate an educational artifact from a processed document.
-    """
+    """Generate an educational artifact from a processed document."""
     command = GenerateLearningCommand(
         user_id=x_user_id,
         document_id=request.document_id,
@@ -58,34 +73,26 @@ async def generate_learning_content(
 async def get_learning_materials(
     document_id: str,
     request: Request,
-    use_case: GetLearningMaterialsUseCase = Depends(get_get_learning_materials_use_case),  # noqa: B008
+    use_case: GetLearningMaterialsUseCase = Depends(  # noqa: B008
+        get_get_learning_materials_use_case
+    ),
 ) -> LearningMaterialsResponse:
-    """
-    Retrieve all generated learning materials for a document.
-    """
-    # Read token from cookies instead of explicit header to avoid Swagger UI stripping
-    # the 'authorization' parameter, which caused 422 errors. This also allows the
-    # Next.js frontend to poll the endpoint naturally using credentials.
-    token = request.cookies.get("kogniq_session", "")
+    """Retrieve all generated learning materials for a document."""
+    token = _session_token(request, None)
     request_dto = GetLearningMaterialsRequest(document_id=document_id, token=token)
     try:
         response = await use_case.execute(request_dto)
-    except Exception as e:
-        # If it's a BackendError (like unauthorized), raise it as HTTPException
-        if type(e).__name__ == "BackendError":
-            from fastapi import HTTPException
-
-            raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
+    except Exception as error:
+        _raise_backend_error(error)
         raise
 
-    # Convert LearningMaterialItemResult to LearningMaterialItem
     materials_dict = None
     if response.materials is not None:
         from backend.schemas.learning import LearningMaterialItem
 
         materials_dict = {
-            k: LearningMaterialItem(title=v.title, body=v.body)
-            for k, v in response.materials.items()
+            key: LearningMaterialItem(title=value.title, body=value.body)
+            for key, value in response.materials.items()
         }
 
     return LearningMaterialsResponse(status=response.status, materials=materials_dict)
@@ -98,21 +105,19 @@ class NextActionResponse(BaseModel):
 @learning_router.get("/{document_id}/next-action", response_model=NextActionResponse)
 async def get_next_action(
     document_id: str,
-    request_obj: Request, authorization: str | None = Header(None, description="Bearer token"),
+    request_obj: Request,
+    authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(get_next_action_use_case),  # noqa: B008
 ) -> NextActionResponse:
     from application.learning.get_next_action import GetNextActionRequest
 
-    token = request_obj.cookies.get("kogniq_session", "") or (authorization.replace("Bearer ", "") if authorization and authorization.startswith("Bearer ") else (authorization or ""))
+    token = _session_token(request_obj, authorization)
     request_dto = GetNextActionRequest(document_id=document_id, token=token)
     try:
         response = await use_case.execute(request_dto)
         return NextActionResponse(action=response.action.value)
-    except Exception as e:
-        if type(e).__name__ == "BackendError":
-            from fastapi import HTTPException
-
-            raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
+    except Exception as error:
+        _raise_backend_error(error)
         raise
 
 
@@ -129,12 +134,13 @@ class ExplainMistakeResponseDto(BaseModel):
 @learning_router.post("/explain-mistake", response_model=ExplainMistakeResponseDto)
 async def explain_mistake(
     request: ExplainMistakeRequestDto,
-    request_obj: Request, authorization: str | None = Header(None, description="Bearer token"),
+    request_obj: Request,
+    authorization: str | None = Header(None, description="Bearer token"),
     use_case: Any = Depends(get_explain_mistake_use_case),  # noqa: B008
 ) -> ExplainMistakeResponseDto:
     from application.learning.explain_mistake import ExplainMistakeRequest
 
-    token = request_obj.cookies.get("kogniq_session", "") or (authorization.replace("Bearer ", "") if authorization and authorization.startswith("Bearer ") else (authorization or ""))
+    token = _session_token(request_obj, authorization)
     request_dto = ExplainMistakeRequest(
         document_id=request.document_id,
         question_id=request.question_id,
@@ -144,14 +150,9 @@ async def explain_mistake(
     try:
         response = await use_case.execute(request_dto)
         return ExplainMistakeResponseDto(explanation=response.explanation)
-    except Exception as e:
-        if type(e).__name__ == "BackendError":
-            from fastapi import HTTPException
-
-            raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
+    except Exception as error:
+        _raise_backend_error(error)
         raise
-
-from pydantic import BaseModel
 
 
 class AddFlashcardPayload(BaseModel):
@@ -160,32 +161,32 @@ class AddFlashcardPayload(BaseModel):
     difficulty: str
     idempotency_key: str
 
+
 @learning_router.post("/{document_id}/flashcards")
-async def add_flashcard(  # type: ignore
+async def add_flashcard(
     document_id: str,
     payload: AddFlashcardPayload,
     request: Request,
-    use_case = Depends(backend.dependencies.get_add_flashcard_use_case)
-):
-    token = request.cookies.get("kogniq_session", "")
+    use_case: Any = Depends(get_add_flashcard_use_case),  # noqa: B008
+) -> Any:
     from application.learning.add_flashcard import AddFlashcardRequest
+
+    token = _session_token(request, None)
     req = AddFlashcardRequest(
         document_id=document_id,
         token=token,
         question=payload.question,
         answer=payload.answer,
         difficulty=payload.difficulty,
-        idempotency_key=payload.idempotency_key
+        idempotency_key=payload.idempotency_key,
     )
-    
+
     try:
-        response = await use_case.execute(req)
-        return response
-    except Exception as e:
-        if type(e).__name__ == "BackendError":
-            from fastapi import HTTPException
-            raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
+        return await use_case.execute(req)
+    except Exception as error:
+        _raise_backend_error(error)
         raise
+
 
 class AddQuizPayload(BaseModel):
     question: str
@@ -195,15 +196,17 @@ class AddQuizPayload(BaseModel):
     difficulty: str
     idempotency_key: str
 
+
 @learning_router.post("/{document_id}/quizzes")
-async def add_quiz(  # type: ignore
+async def add_quiz(
     document_id: str,
     payload: AddQuizPayload,
     request: Request,
-    use_case = Depends(backend.dependencies.get_add_quiz_question_use_case)
-):
-    token = request.cookies.get("kogniq_session", "")
+    use_case: Any = Depends(get_add_quiz_question_use_case),  # noqa: B008
+) -> Any:
     from application.learning.add_quiz import AddQuizQuestionRequest
+
+    token = _session_token(request, None)
     req = AddQuizQuestionRequest(
         document_id=document_id,
         token=token,
@@ -212,14 +215,11 @@ async def add_quiz(  # type: ignore
         correct_answer=payload.correct_answer,
         explanation=payload.explanation,
         difficulty=payload.difficulty,
-        idempotency_key=payload.idempotency_key
+        idempotency_key=payload.idempotency_key,
     )
-    
+
     try:
-        response = await use_case.execute(req)
-        return response
-    except Exception as e:
-        if type(e).__name__ == "BackendError":
-            from fastapi import HTTPException
-            raise HTTPException(status_code=getattr(e, "status_code", 500), detail=str(e)) from e
+        return await use_case.execute(req)
+    except Exception as error:
+        _raise_backend_error(error)
         raise

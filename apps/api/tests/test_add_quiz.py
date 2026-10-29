@@ -76,3 +76,51 @@ async def test_add_quiz_success() -> None:
     uow.learning.list_by_document = AsyncMock(return_value=[content_idempotent])
     res_dup = await use_case.execute(req)
     assert res_dup.status == "duplicate"
+
+
+@pytest.mark.asyncio
+async def test_add_quiz_creates_initial_content_with_chunk_collection() -> None:
+    auth_service = AsyncMock()
+    auth_service.validate_session.return_value = MagicMock(user_id="user-456")
+    authorization_service = AsyncMock()
+    uow_factory = MagicMock()
+    uow = MagicMock()
+    uow_factory.create.return_value.__enter__.return_value = uow
+
+    doc = MagicMock(user_id="user-456")
+    uow.documents.get = AsyncMock(return_value=doc)
+    uow.learning.list_by_document = AsyncMock(return_value=[])  # Empty initial content
+    uow.learning.save = AsyncMock()
+
+    from content.chunking import ChunkCollection
+    chunk1 = MagicMock(id="chk-1")
+    chunk2 = MagicMock(id="chk-2")
+    chunk_collection = ChunkCollection(chunks=(chunk1, chunk2))
+    uow.chunks.get_by_document = AsyncMock(return_value=chunk_collection)
+
+    use_case = AddQuizQuestionUseCase(auth_service, authorization_service, uow_factory)
+    req = AddQuizQuestionRequest(
+        document_id="doc-456",
+        token="valid_token",
+        question="What is linear attention?",
+        options=["O1", "O2", "O3", "O4"],
+        correct_answer="O1",
+        explanation="O1 is correct.",
+        difficulty="medium",
+        idempotency_key="ik_init_quiz_1",
+    )
+
+    res = await use_case.execute(req)
+    assert res.status == "success"
+    assert res.question_id is not None
+
+    uow.learning.save.assert_called_once()
+    saved_content = uow.learning.save.call_args[0][0]
+    assert saved_content.source_chunk_ids == ("chk-1", "chk-2")
+    assert saved_content.metadata.provider == "manual"
+    assert saved_content.metadata.model == "manual"
+    assert saved_content.metadata.educational_level == "general"
+    assert saved_content.metadata.subject == "general"
+    assert saved_content.metadata.syllabus == "general"
+    assert "idempotency:ik_init_quiz_1" in saved_content.metadata.tags
+
