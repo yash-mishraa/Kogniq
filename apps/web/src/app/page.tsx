@@ -1,3 +1,5 @@
-import { ExperienceFlow } from "@/components/experience/experience-flow";
+import { RagConsole } from "@/components/rag/RagConsole";
 
-export default function Home() { return <ExperienceFlow />; }
+export default function Home() {
+  return <RagConsole />;
+}

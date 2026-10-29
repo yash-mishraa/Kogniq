@@ -15,7 +15,7 @@ export interface ReadingSurfaceProps {
   status?: string;
 }
 
-export function ReadingSurface({ title, layoutId, content, status, onClose }: ReadingSurfaceProps) {
+export function ReadingSurface({ title, layoutId, status, onClose }: ReadingSurfaceProps) {
   // Extract document ID from layoutId (title-uuid)
   const documentId = layoutId?.replace("title-", "");
 

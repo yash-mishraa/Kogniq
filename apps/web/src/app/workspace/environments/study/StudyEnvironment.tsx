@@ -62,7 +62,7 @@ function StudyEnvironmentBody() {
       };
     }
     
-  }, [state.isStudying, dispatch, documentId]);
+  }, [state.isStudying, dispatch, documentId, isReady]);
 
   const [isTutorOpen, setIsTutorOpen] = useState(false);
   const [initialTutorQuery, setInitialTutorQuery] = useState<string | undefined>(undefined);

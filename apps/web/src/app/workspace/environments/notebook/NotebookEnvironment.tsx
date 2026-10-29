@@ -51,7 +51,7 @@ function NotebookEnvironmentBody() {
       controller.abort();
     };
     
-  }, [dispatch, documentId]);
+  }, [dispatch, documentId, isReady]);
 
   if (!documentId) {
     return (

@@ -36,7 +36,7 @@ export function NotebookCanvas({ notebook, onAddNote }: NotebookCanvasProps) {
         <div className="w-full max-w-2xl mt-16 pt-16 border-t border-ink/5">
           <Locus 
             environmentTitle="Notebook"
-            placeholder={isSubmitting ? "Saving..." : "✍️ Capture an idea..."}
+            placeholder={isSubmitting ? "Saving..." : "Capture an idea..."}
             mode="free-text"
             onSubmitQuery={async (query) => {
               if (onAddNote && !isSubmitting) {

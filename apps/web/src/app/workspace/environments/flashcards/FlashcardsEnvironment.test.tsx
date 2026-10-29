@@ -4,6 +4,19 @@ import { FlashcardsEnvironment } from "./FlashcardsEnvironment";
 import { serviceProvider } from "@/lib/providers";
 import { Mock } from "vitest";
 import { WorkspaceProvider } from "../../WorkspaceProvider";
+import { DocumentsProvider } from "../documents/DocumentsContext";
+import type { DocumentsState } from "../documents/DocumentsTypes";
+
+const readyDocuments: DocumentsState = {
+  documents: {
+    status: "ready",
+    data: [
+      { id: "doc-1", title: "Document 1", source: "one.pdf", importDate: "2026-01-01", status: "Ready" },
+    ],
+    error: null,
+  },
+  activeDocumentId: null,
+};
 
 vi.mock("react-markdown", () => ({ default: (props: { children: React.ReactNode }) => <div data-testid="markdown-mock">{props.children}</div> }));
 
@@ -32,7 +45,9 @@ describe("FlashcardsEnvironment", () => {
   it("enqueues flashcard_reviewed event when a card is realistically reviewed", async () => {
     render(
       <WorkspaceProvider initialEnvironmentId="flashcards" initialMemory={{ documents: { openedDocument: "doc-1" } }}>
-        <FlashcardsEnvironment />
+        <DocumentsProvider initialState={readyDocuments}>
+          <FlashcardsEnvironment />
+        </DocumentsProvider>
       </WorkspaceProvider>
     );
     

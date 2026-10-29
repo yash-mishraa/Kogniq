@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
@@ -39,7 +39,7 @@ export function PDFReader({ documentId }: PDFReaderProps) {
   const documentInfo = docsState.documents.data?.find(d => d.id === documentId);
   const pages = documentInfo?.pages;
 
-  const [pdfInstance, setPdfInstance] = useState<any>(null);
+  const [, setPdfInstance] = useState<any>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageInput, setPageInput] = useState("1");
@@ -48,8 +48,7 @@ export function PDFReader({ documentId }: PDFReaderProps) {
   const [selectionMenu, setSelectionMenu] = useState<SelectionContext | null>(null);
   
   // Outline
-  const [outline, setOutline] = useState<OutlineNode[] | null>(null);
-  const [isOutlineOpen, setIsOutlineOpen] = useState(false);
+  const [, setOutline] = useState<OutlineNode[] | null>(null);  const [isOutlineOpen, setIsOutlineOpen] = useState(false);
   
   // Search
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -122,10 +121,10 @@ export function PDFReader({ documentId }: PDFReaderProps) {
     setPageInput(newPage.toString());
   };
 
-  const jumpToPage = (target: number) => {
+  const jumpToPage = useCallback((target: number) => {
     if (!numPages || target < 1 || target > numPages) return;
     virtuosoRef.current?.scrollToIndex({ index: target - 1, align: 'start' });
-  };
+  }, [numPages]);
 
   const handlePageSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,23 +137,6 @@ export function PDFReader({ documentId }: PDFReaderProps) {
   };
 
   // Outline Navigation
-  const handleOutlineClick = async (dest: string | any[] | null) => {
-    if (!pdfInstance || !dest) return;
-    try {
-      let destArray = dest;
-      if (typeof dest === 'string') {
-        destArray = await pdfInstance.getDestination(dest);
-      }
-      if (Array.isArray(destArray) && destArray.length > 0) {
-        const pageIndex = await pdfInstance.getPageIndex(destArray[0]);
-        if (pageIndex !== undefined) {
-          jumpToPage(pageIndex + 1);
-        }
-      }
-    } catch (e) {
-      console.warn("Failed to navigate to outline destination", e);
-    }
-  };
 
   // Search
   useEffect(() => {
@@ -172,6 +154,7 @@ export function PDFReader({ documentId }: PDFReaderProps) {
       let match;
       let indexOnPage = 0;
       while ((match = regex.exec(pageText)) !== null) {
+        if (!match) break;
         matches.push({ pageNumber: p.page_number, indexOnPage });
         indexOnPage++;
       }
@@ -184,7 +167,7 @@ export function PDFReader({ documentId }: PDFReaderProps) {
     } else {
       setActiveSearchIndex(-1);
     }
-  }, [searchQuery, pages]);
+  }, [searchQuery, pages, jumpToPage]);
 
   const handleNextMatch = () => {
     if (searchResults.length === 0) return;

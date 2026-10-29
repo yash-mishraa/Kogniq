@@ -60,13 +60,13 @@ function TutorQuizProposal({ proposal, documentId }: { proposal: QuizProposal, d
     <div className="flex justify-start mb-4">
       <div className="w-full max-w-[90%] p-4 rounded-lg bg-indigo-50 border border-indigo-200 shadow-sm text-sm">
         <h4 className="font-semibold text-indigo-800 mb-2 flex items-center">
-          <span className="mr-2">📝</span> AI Suggested Quiz Question
+          AI Suggested Quiz Question
         </h4>
         <div className="mb-2 font-medium">{proposal.question}</div>
         <ul className="mb-2 space-y-1 list-disc pl-4 text-gray-700">
           {proposal.options.map((opt: string, idx: number) => (
             <li key={idx}>
-              {opt} {opt === proposal.correct_answer && <span className="text-green-600 ml-2">✓</span>}
+              {opt} {opt === proposal.correct_answer && <span className="text-green-600 ml-2">Correct answer</span>}
             </li>
           ))}
         </ul>
@@ -80,7 +80,7 @@ function TutorQuizProposal({ proposal, documentId }: { proposal: QuizProposal, d
           </div>
         )}
         {status === "submitting" && <div className="text-gray-500 italic">Adding...</div>}
-        {status === "success" && <div className="text-green-600 font-semibold flex items-center"><span className="mr-1">✓</span> Added to Quiz</div>}
+        {status === "success" && <div className="text-green-600 font-semibold">Added to Quiz</div>}
         {status === "error" && <div className="text-red-600 font-semibold">Failed to add question.</div>}
       </div>
     </div>
@@ -128,7 +128,7 @@ export function TutorNoteProposal({ proposal, documentId }: { proposal: NoteProp
     <div className="flex justify-start mb-4">
       <div className="w-full max-w-[90%] p-4 rounded-lg bg-blue-50 border border-blue-200 shadow-sm text-sm">
         <h4 className="font-semibold text-blue-800 mb-2 flex items-center">
-          <span className="mr-2">📝</span> AI Suggested Note
+          AI Suggested Note
         </h4>
         <div className="mb-2"><strong>Title:</strong> {proposal.title}</div>
         <div className="mb-4 text-gray-700 whitespace-pre-wrap">{proposal.content}</div>
@@ -140,7 +140,7 @@ export function TutorNoteProposal({ proposal, documentId }: { proposal: NoteProp
           </div>
         )}
         {status === "submitting" && <div className="text-gray-500 italic">Saving...</div>}
-        {status === "success" && <div className="text-green-600 font-semibold flex items-center"><span className="mr-1">✓</span> Saved to Notebook</div>}
+        {status === "success" && <div className="text-green-600 font-semibold">Saved to Notebook</div>}
         {status === "error" && <div className="text-red-600 font-semibold">Failed to save note.</div>}
       </div>
     </div>
@@ -190,7 +190,7 @@ export function TutorFlashcardProposal({ proposal, documentId }: { proposal: Fla
     <div className="flex justify-start mb-4">
       <div className="w-full max-w-[90%] p-4 rounded-lg bg-yellow-50 border border-yellow-200 shadow-sm text-sm">
         <h4 className="font-semibold text-yellow-800 mb-2 flex items-center">
-          <span className="mr-2">💡</span> AI Suggested Flashcard
+          AI Suggested Flashcard
         </h4>
         <div className="mb-2"><strong>Q:</strong> {proposal.question}</div>
         <div className="mb-2 text-gray-700"><strong>A:</strong> {proposal.answer}</div>
@@ -203,7 +203,7 @@ export function TutorFlashcardProposal({ proposal, documentId }: { proposal: Fla
           </div>
         )}
         {status === "submitting" && <div className="text-gray-500 italic">Adding...</div>}
-        {status === "success" && <div className="text-green-600 font-semibold flex items-center"><span className="mr-1">✓</span> Added to Flashcards</div>}
+        {status === "success" && <div className="text-green-600 font-semibold">Added to Flashcards</div>}
         {status === "error" && <div className="text-red-600 font-semibold">Failed to add flashcard.</div>}
       </div>
     </div>
@@ -312,8 +312,8 @@ export function TutorChatPanel({ documentId, onClose, initialQuery }: TutorChatP
             New Chat
           </button>
           {onClose && (
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-              ✖
+            <button onClick={onClose} aria-label="Close tutor" className="text-gray-500 hover:text-gray-700">
+              Close
             </button>
           )}
         </div>
@@ -358,7 +358,7 @@ export function TutorChatPanel({ documentId, onClose, initialQuery }: TutorChatP
           return (
             <div key={`event-${idx}`} className="flex justify-start mb-2">
               <div className="text-xs text-gray-400 italic flex items-center">
-                <span className="mr-1">⚙️</span> {event}
+                {event}
               </div>
             </div>
           );

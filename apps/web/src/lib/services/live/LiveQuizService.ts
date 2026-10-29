@@ -103,9 +103,9 @@ export class LiveQuizService implements IQuizService {
     const response = await apiClient.get<LearningMaterialsResponse>(ENDPOINTS.learning.get(documentId), { signal });
     if (signal?.aborted) throw aborted();
 
-    if (response.data.status === "failed") return [];
+    if (response.data.status === "failed" || response.data.status === "empty") return [];
     if (response.data.status !== "completed") {
-      throw new Error(`Unable to load quiz: unexpected learning status '${response.data.status}'.`);
+      return [];
     }
 
     const body = response.data.materials?.quiz?.body;

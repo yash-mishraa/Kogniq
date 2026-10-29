@@ -58,7 +58,7 @@ describe('PDFReader Selection Handling', () => {
   });
 
   it('rejects cross-page selection', async () => {
-    const { container } = renderWithContext(<PDFReader documentId="doc-1" />);
+    renderWithContext(<PDFReader documentId="doc-1" />);
     
     // We need to mock getSelection
     const removeAllRanges = vi.fn();
@@ -96,7 +96,7 @@ describe('PDFReader Selection Handling', () => {
   });
   
   it('accepts same-page selection and bounds oversized text', async () => {
-    const { container } = renderWithContext(<PDFReader documentId="doc-1" />);
+    renderWithContext(<PDFReader documentId="doc-1" />);
     
     const removeAllRanges = vi.fn();
     const anchorNode = document.createElement('div');

@@ -67,7 +67,7 @@ function KnowledgeEnvironmentBody() {
       controller.abort();
     };
     
-  }, [dispatch, documentId]);
+  }, [dispatch, documentId, isReady]);
 
   if (activeDoc && activeDoc.status !== "Ready") {
     return (

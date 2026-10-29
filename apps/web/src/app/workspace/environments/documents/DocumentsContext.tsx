@@ -11,8 +11,14 @@ interface DocumentsContextValue {
 
 export const DocumentsContext = createContext<DocumentsContextValue | null>(null);
 
-export function DocumentsProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(documentsReducer, initialDocumentsState);
+export function DocumentsProvider({
+  children,
+  initialState = initialDocumentsState,
+}: {
+  children: ReactNode;
+  initialState?: DocumentsState;
+}) {
+  const [state, dispatch] = useReducer(documentsReducer, initialState);
 
   return (
     <DocumentsContext.Provider value={{ state, dispatch }}>

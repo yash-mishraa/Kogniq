@@ -114,7 +114,7 @@ export function SelectionActionMenu({ selection, onClose }: SelectionActionMenuP
       });
       setActionStatus("success");
 
-    } catch (err) {
+    } catch {
       setActionStatus("error");
     }
   };

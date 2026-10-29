@@ -1,6 +1,6 @@
 "use client";
 
-import { useDocuments, DocumentsProvider } from "./DocumentsContext";
+import { useDocuments } from "./DocumentsContext";
 import { DocumentSurface, DocumentCollection, DocumentEmptyState } from "@/components/documents";
 import { ReadingSurface } from "@/components/workspace/ReadingSurface";
 import { AnimatePresence } from "framer-motion";
@@ -36,7 +36,7 @@ function DocumentsEnvironmentBody() {
           if (isMounted) {
             dispatch({ type: "UPDATE_DOCUMENT", payload: fullDoc });
           }
-        } catch (err: unknown) {
+        } catch {
           // ignore or handle
         }
       }

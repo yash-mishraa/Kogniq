@@ -37,7 +37,7 @@ function QuizEnvironmentBody() {
       dispatch({ type: "LOAD_FAILED", payload: { documentId, requestId, error: error instanceof Error ? error : new Error("Unable to load quiz.") } });
     });
     return () => controller.abort();
-  }, [documentId, dispatch]);
+  }, [documentId, dispatch, isReady]);
 
   const isSynced = useRef(false);
   useEffect(() => {
