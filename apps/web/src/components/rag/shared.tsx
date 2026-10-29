@@ -179,7 +179,17 @@ export function UserErrorNotice({
   return (
     <Notice tone="danger" title="Something went wrong">
       <p>{message}</p>
-      {onRetry ? (
+      {error && typeof error === "object" && "status" in error && (error as { status: number }).status === 401 ? (
+        <button
+          type="button"
+          onClick={() => {
+            window.location.reload();
+          }}
+          className="mt-2 block text-xs text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent"
+        >
+          Sign in again
+        </button>
+      ) : onRetry ? (
         <button
           type="button"
           onClick={onRetry}

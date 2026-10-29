@@ -402,8 +402,10 @@ function SignOutButton() {
   const queryClient = useQueryClient();
   const logout = useMutation({
     mutationFn: ragApi.logout,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries();
+    onSettled: async () => {
+      queryClient.setQueryData(["session"], null);
+      await queryClient.clear();
+      window.location.reload();
     },
   });
 

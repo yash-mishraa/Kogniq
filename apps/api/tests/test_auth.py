@@ -87,3 +87,10 @@ def test_auth_csrf_endpoint(client: TestClient) -> None:
     response = client.get("/api/v1/auth/csrf")
     assert response.status_code == 200
     assert "CSRF protection" in response.json()["message"]
+
+
+def test_auth_logout_without_session_succeeds(client: TestClient) -> None:
+    client.cookies.clear()
+    response = client.post("/api/v1/auth/logout")
+    assert response.status_code == 200
+    assert response.json() == {"status": "success"}

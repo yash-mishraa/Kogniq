@@ -1,5 +1,5 @@
 from backend.dependencies import get_register_user_use_case
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Request, Response
 
 from application.auth.register_user import RegisterUserCommand, RegisterUserUseCase
 from apps.api.app.core.auth.cookie import SessionCookieHandler
@@ -108,13 +108,18 @@ async def get_session_user(
 
 @router.post("/auth/logout")
 async def logout_user(
-    session: SessionDependency,
+    request: Request,
     response: Response,
     auth_service: AuthServiceDependency,
     settings: SettingsDependency,
 ) -> dict[str, str]:
     """Revoke the current session and clear the session cookie."""
-    await auth_service.logout(session.session_id)
+    session_id = request.cookies.get(settings.session_cookie_name)
+    if session_id:
+        try:
+            await auth_service.logout(session_id)
+        except Exception:
+            pass
     cookie_handler = SessionCookieHandler(settings)
     cookie_handler.clear_session_cookie(response)
     return {"status": "success"}
