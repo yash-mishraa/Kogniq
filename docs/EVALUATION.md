@@ -2,11 +2,26 @@
 
 Kogniq enforces strict empirical evaluation for system reliability, performance, and security.
 
+## RAG evaluation
+
+The in-product Evaluation lab supports two modes:
+
+- **Retrieval only** (`generate=false`): reports hit rate and MRR. Cases are
+  marked `retrieval_only`; `answer_rate` and `grounded_rate` stay at `0` so a
+  retrieval-only run cannot inflate answer quality.
+- **Generated** (`generate=true`): runs the full grounded-answer path and adds
+  answer rate, grounded rate, and citation coverage. Provider failures are
+  recorded as `generation_failed` rather than reported as successful answers.
+
+Metrics are persisted in `evaluation_runs` and surfaced through
+`GET /api/v1/evaluation/history`.
+
 ## 1. Full Regression Suite
 
 The system maintains a comprehensive `pytest` regression suite that must pass before any deployment.
 - **Coverage:** Unit tests for all packages, bounded context integration tests, and application use-case end-to-end tests.
-- **Current Baseline:** 461 collected, 461 passed.
+- **Current Baseline:** 492 collected, 492 passed (including RAG bootstrap,
+  retrieval, chunking, evaluation, and ownership regression tests).
 
 ## 2. Deterministic Benchmark Infrastructure
 

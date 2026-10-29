@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 import path from "node:path";
 
+const backendUrl = (
+  process.env.BACKEND_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "http://127.0.0.1:8000"
+).replace(/\/+$/, "");
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   // This repository coexists with unrelated local Node workspaces. Keep tracing
@@ -10,7 +16,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://127.0.0.1:8000/api/:path*", // Proxy to Backend
+        destination: `${backendUrl}/api/:path*`, // Proxy to Backend (local or remote)
       },
     ];
   },

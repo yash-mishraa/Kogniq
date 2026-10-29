@@ -31,8 +31,25 @@ npm install
 
 Create a `.env` file in the root directory (this file is `.gitignore`d).
 
-**Required for Local LLM/Generation:**
-- `GEMINI_API_KEY`: Your Google Gemini API key. Required for generating learning content (Flashcards, Quizzes, Study Guides) and Tutor chat responses.
+**Inference Provider Options:**
+- **Zero-Cost Local Development (No Cloud Keys Required)**:
+  Install and run [Ollama](https://ollama.ai) locally:
+  ```bash
+  ollama run llama3.2:3b
+  ```
+  Set in `.env`:
+  ```ini
+  LEARNING_GENERATION_PROVIDER=auto
+  LOCAL_LLM_URL=http://localhost:11434
+  LOCAL_LLM_MODEL=llama3.2:3b
+  PROVIDER_FALLBACK_ENABLED=true
+  ```
+- **Hosted Inference (Optional)**:
+  ```ini
+  GEMINI_API_KEY=<your_gemini_key>
+  GEMINI_MODEL=gemini-2.5-flash
+  ```
+  When both are configured, Kogniq automatically routes to Gemini as primary with graceful fallback to local Ollama during cloud 503/429 outages or rate limits.
 
 **Backend Configuration (Safe Defaults):**
 ```ini
@@ -44,10 +61,25 @@ PERSISTENCE_PROVIDER=sqlite
 SQLITE_DATABASE_PATH=kogniq_dev.sqlite
 
 # Auth
-# Optional Clerk keys if integrating cloud auth. 
-# In 'development' mode, local memory auth is used automatically if these are omitted.
+# Local authentication is persisted in SQLite. Optional Clerk keys are only
+# relevant if you are integrating a hosted identity provider.
 # CLERK_SECRET_KEY=
 # CLERK_PUBLISHABLE_KEY=
+```
+
+### RAG tuning (optional)
+
+```ini
+# Chunking (recorded in document_index_state for reproducibility)
+KOGNIQ_CHUNK_SIZE=1200
+KOGNIQ_CHUNK_OVERLAP=200
+
+# Versioned Chroma collection. The legacy "kogniq" collection is not used.
+CHROMA_COLLECTION=kogniq_v2
+
+# Legacy pipelines are opt-in.
+KOGNIQ_ENABLE_KNOWLEDGE_EXTRACTION=false
+KOGNIQ_ENABLE_LEARNING_GENERATION=false
 ```
 
 > **WARNING:** Never commit `.env` containing real API keys or Clerk secrets. 
@@ -88,12 +120,16 @@ Kogniq uses `pytest` for authoritative backend testing and evaluation.
 ```bash
 uv run pytest
 ```
-*Current verified baseline: 461 tests collected and passed.*
+*Current verified baseline: 499 tests collected and passed.*
 
-**Run evaluation and benchmarking gates:**
+**Run frontend regression suite & static analysis:**
 ```bash
-uv run pytest packages/evaluation/tests/test_load_gates.py
+cd apps/web
+npm run typecheck
+npm run lint
+npm test -- --run
 ```
+*Current verified baseline: 106 unit tests passed across 22 test files.*
 
 **Run Static Analysis:**
 ```bash

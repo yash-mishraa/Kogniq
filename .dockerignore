@@ -1,0 +1,12 @@
+.venv
+node_modules
+.next
+.git
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.coverage
+data/
+*.db
+*.sqlite
