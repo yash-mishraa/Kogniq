@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-10-29
+
+### Production Release — RAG Console, Mobile Optimization & Knowledge Engine
+- **Vercel & Container Production Deployment**: Deployed Next.js 15 frontend to Vercel and containerized FastAPI backend to Render with same-origin route proxies and automated health probes.
+- **Persistent Multi-User Authentication**: Added permanent pre-seeding of demo accounts (`admin@kogniq.ai` / `password`) across cold boot restarts, alongside full self-registration with Argon2 hashing and HttpOnly cookies.
+- **Mobile & Touch Optimization**: Implemented hardware-accelerated scrollable pill navigation, responsive viewports (`device-width`), touch-friendly 3-column rating grids for flashcards, and proportional SVG graph canvas scaling.
+- **Relational Knowledge Graph**: Interactive node-link conceptual graph visualization with BFS subgraph traversal, domain connection inspection, and search filtering.
+- **Grounded RAG & Citation Validation**: Full hybrid search (ChromaDB dense vectors + SQLite FTS5 BM25 with Reciprocal Rank Fusion) and grounded text generation (`gemini-3.5-flash-lite`) with inline citation verification (`[S1]`, `[S2]`).
+- **LaTeX Math & Document Rendering**: Built-in PDF reader with inline source document toggles and KaTeX math formula rendering.
+- **Repository Hygiene**: Cleaned untracked binary and scratch files, archived milestone reports into `docs/reports/`, added official MIT `LICENSE`, and comprehensive architecture documentation.
+
 ## [Unreleased]
 
 ### Maintenance — Tutor Hardening & Repository Cleanup

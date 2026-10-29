@@ -56,7 +56,7 @@ Before pointing Vercel to your backend, deploy the FastAPI container:
    KOGNIQ_API_LOG_LEVEL=info
    LEARNING_GENERATION_PROVIDER=gemini
    GEMINI_API_KEY=your_google_gemini_api_key_here
-   GEMINI_MODEL=gemini-2.5-flash
+   GEMINI_MODEL=gemini-3.5-flash-lite
    PERSISTENCE_PROVIDER=sqlite
    SQLITE_DATABASE_PATH=./data/kogniq.db
    ```
@@ -140,7 +140,7 @@ If you prefer deploying directly from your terminal:
 | :--- | :--- | :--- | :--- |
 | `PORT` | No | `8000` | Port for the Uvicorn ASGI server to bind. |
 | `GEMINI_API_KEY` | Yes (for hosted) | None | Google Gemini API key for question answering, quizzes, and flashcards. |
-| `GEMINI_MODEL` | No | `gemini-2.5-flash` | Gemini model identifier. |
+| `GEMINI_MODEL` | No | `gemini-3.5-flash-lite` | Gemini model identifier. |
 | `LEARNING_GENERATION_PROVIDER` | No | `auto` | Provider mode: `auto` (Gemini with local fallback), `gemini`, or `local`. |
 | `PERSISTENCE_PROVIDER` | No | `sqlite` | Primary storage engine (`sqlite` or `memory`). |
 | `SQLITE_DATABASE_PATH` | No | `./data/kogniq.db` | Path to persistent SQLite database file. |

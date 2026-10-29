@@ -47,7 +47,7 @@ Create a `.env` file in the root directory (this file is `.gitignore`d).
 - **Hosted Inference (Optional)**:
   ```ini
   GEMINI_API_KEY=<your_gemini_key>
-  GEMINI_MODEL=gemini-2.5-flash
+  GEMINI_MODEL=gemini-3.5-flash-lite
   ```
   When both are configured, Kogniq automatically routes to Gemini as primary with graceful fallback to local Ollama during cloud 503/429 outages or rate limits.
 

@@ -90,6 +90,10 @@ logs/
 .archify/
 *.sqlite-shm
 *.sqlite-wal
+*.sqlite
+*.db
+test-results/
+playwright-report/
 
 # Development Sample Documents
 dev/sample_documents/*

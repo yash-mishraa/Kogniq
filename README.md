@@ -1,38 +1,36 @@
 # Kogniq
 
+[![Live App](https://img.shields.io/badge/Live_App-kogniq.vercel.app-blue?style=flat&logo=vercel)](https://kogniq.vercel.app)
 ![Python](https://img.shields.io/badge/python-3.13-blue.svg)
+![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
 ![uv](https://img.shields.io/badge/uv-fast-magenta.svg)
 ![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
 ![MyPy](https://img.shields.io/badge/mypy-strict-success.svg)
 ![Pytest](https://img.shields.io/badge/pytest-passing-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Kogniq is a RAG engineering console: upload documents, inspect how they were
-chunked and embedded, compare chunking strategies, run hybrid retrieval,
-get grounded answers with validated citations, evaluate retrieval quality, and
-inspect real query telemetry.
+Kogniq is a high-performance RAG engineering and document intelligence console: upload documents (PDF, Markdown, LaTeX, TXT), inspect how they are chunked and embedded, compare chunking strategies, run hybrid reciprocal-rank retrieval, get grounded answers with validated citations, explore synthesized relational Knowledge Graphs, practice with AI-generated Flashcards & Quizzes, and evaluate retrieval metrics with query telemetry.
 
-The repository began as an educational tutor platform. The legacy study,
-notebook, and knowledge-graph features still exist in the codebase, but the
-primary product surface is now the RAG console described below.
+**Live Application**: [https://kogniq.vercel.app](https://kogniq.vercel.app)  
+**Demo Credentials**: `admin@kogniq.ai` / `password` (or self-register with any email). Fully responsive on desktop, tablet, and mobile browsers.
 
-## What actually works
+## Key Capabilities
 
 | Area | Implementation |
 | --- | --- |
-| Ingestion | PDF, Markdown, and TXT via the registered content processors; stored uploads; authoritative per-document index state |
+| Ingestion | PDF, Markdown, LaTeX, and TXT via registered content processors; stored uploads; authoritative per-document index state |
 | Chunking | Fixed-size chunking with configurable size/overlap (`KOGNIQ_CHUNK_SIZE`, default `1200`; `KOGNIQ_CHUNK_OVERLAP`, default `200`), preview and side-by-side comparison |
-| Embeddings | Local `SentenceTransformers` (`all-MiniLM-L6-v2`, 384 dimensions) |
+| Embeddings | Local `SentenceTransformers` (`all-MiniLM-L6-v2`, 384 dimensions) with cloud Gemini embedding support for low-memory container hosts |
 | Vector store | Chroma, versioned collection `kogniq_v2` |
 | Lexical search | SQLite FTS5 BM25 over persisted chunks |
 | Retrieval | Hybrid vector + BM25 with reciprocal rank fusion (RRF), page/section provenance, per-document filtering |
-| Generation | Provider-independent: Google Gemini (`gemini-2.5-flash`) primary with automatic fallback to local Ollama (`llama3.2:3b`), or pure local offline inference without API keys |
+| Generation | Provider-independent: Google Gemini (`gemini-3.5-flash-lite`) primary with automatic fallback to local Ollama (`llama3.2:3b`), or pure local offline inference |
 | Citations | Source IDs `[S1]`, `[S2]`, … validated against the retrieved set; invalid citations are reported and the answer is not marked grounded |
-| Learning | Interactive Flashcards (3D flip, spaced repetition review) and Quizzes (4-choice validated scoring, explanations, mistake retake) |
+| Learning | Interactive Flashcards (spaced repetition review) and Quizzes (4-choice validated scoring, explanations, mistake retake) |
 | Knowledge Graph | Document concept extraction, relational node-link graph visualization, and bounded BFS subgraph traversal |
 | Evaluation | Retrieval-only and generated-answer runs; hit rate, MRR, answer rate, grounded rate, citation coverage, latency |
 | Observability | Persisted `query_logs` with retrieval/generation timings, token usage, citation validity, and cache status |
-| Auth | SQLite-backed users and HttpOnly session cookies; ownership checks on every document and query |
+| Auth & Security | SQLite-backed users and HttpOnly session cookies; ownership checks on every document and query |
 
 ## Architecture
 
