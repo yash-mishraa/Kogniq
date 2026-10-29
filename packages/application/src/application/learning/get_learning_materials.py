@@ -67,7 +67,7 @@ class GetLearningMaterialsUseCase:
             materials_list = await uow.learning.list_by_document(request.document_id)
 
             if not materials_list:
-                return GetLearningMaterialsResponse(status="failed", materials=None)
+                return GetLearningMaterialsResponse(status="empty", materials={})
 
             materials = {}
             for m in materials_list:

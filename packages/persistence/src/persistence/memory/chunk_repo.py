@@ -36,6 +36,10 @@ class MemoryChunkRepository(AbstractChunkRepository):
 
         return tuple(found_chunks)
 
+    async def count_by_document(self, document_id: str) -> int:
+        collection = self._store.get(document_id)
+        return len(collection.chunks) if collection else 0
+
     async def delete(self, document_id: str) -> DeleteResult:
         was_deleted = False
         if document_id in self._store:

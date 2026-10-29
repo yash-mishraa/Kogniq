@@ -95,6 +95,16 @@ class IngestionStage:
 
             context.set("document_id", document.id)
             context.set("chunk_collection", chunks)
+            strategy_name = getattr(self.chunk_engine, "last_selected_strategy", None) or "unknown"
+            fixed_strategy = getattr(self.chunk_engine, "fixed_strategy", None)
+            chunk_size = getattr(fixed_strategy, "max_characters", None)
+            chunk_overlap = getattr(fixed_strategy, "overlap_characters", None)
+            chunker_config = (
+                f"{strategy_name}:{chunk_size}:{chunk_overlap}"
+                if chunk_size is not None
+                else strategy_name
+            )
+            context.set("chunker_config", chunker_config)
 
             return IngestionStageResult(
                 success=True,
@@ -102,6 +112,7 @@ class IngestionStage:
                     "document_id": document.id,
                     "processor_name": processor.processor_info.name,
                     "chunk_count": chunks.total_chunks,
+                    "chunker_config": chunker_config,
                 },
             )
         except Exception as e:

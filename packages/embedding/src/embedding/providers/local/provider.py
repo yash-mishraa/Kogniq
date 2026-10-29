@@ -1,3 +1,4 @@
+import threading
 import time
 from datetime import UTC, datetime
 from typing import Any
@@ -28,47 +29,52 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
         self._model: Any = None
         self._info: ProviderInfo | None = None
         self._cache: dict[str, tuple[float, ...]] = {}
+        self._lock = threading.RLock()
 
     def _load_model(self) -> Any:
         if self._model is None:
-            try:
-                import importlib
+            with self._lock:
+                if self._model is None:
+                    try:
+                        import importlib
 
-                st_module = importlib.import_module("sentence_transformers")
-                self._model = st_module.SentenceTransformer(self._model_name)
-            except Exception as e:
-                raise EmbeddingGenerationError(
-                    f"Failed to load local model '{self._model_name}': {e}"
-                ) from e
+                        st_module = importlib.import_module("sentence_transformers")
+                        self._model = st_module.SentenceTransformer(self._model_name)
+                    except Exception as e:
+                        raise EmbeddingGenerationError(
+                            f"Failed to load local model '{self._model_name}': {e}"
+                        ) from e
         return self._model
 
     @property
     def info(self) -> ProviderInfo:
         if self._info is None:
-            model = self._load_model()
-            try:
-                dimensions = model.get_embedding_dimension()
-            except AttributeError:
-                try:
-                    dimensions = model.get_sentence_embedding_dimension()
-                except Exception:
-                    dimensions = 384
-            except Exception:
-                dimensions = 384
+            with self._lock:
+                if self._info is None:
+                    model = self._load_model()
+                    try:
+                        dimensions = model.get_embedding_dimension()
+                    except AttributeError:
+                        try:
+                            dimensions = model.get_sentence_embedding_dimension()
+                        except Exception:
+                            dimensions = 384
+                    except Exception:
+                        dimensions = 384
 
-            self._info = ProviderInfo(
-                provider_id="local",
-                provider_name="SentenceTransformers",
-                model_name=self._model_name,
-                model_version="1",
-                embedding_version="v1",
-                dimensions=dimensions,
-                supports_batch_generation=True,
-                supports_async_generation=False,
-                maximum_batch_size=32,
-                maximum_tokens=8192,
-                normalized_output=True,
-            )
+                    self._info = ProviderInfo(
+                        provider_id="local",
+                        provider_name="SentenceTransformers",
+                        model_name=self._model_name,
+                        model_version="1",
+                        embedding_version="v1",
+                        dimensions=dimensions,
+                        supports_batch_generation=True,
+                        supports_async_generation=False,
+                        maximum_batch_size=32,
+                        maximum_tokens=8192,
+                        normalized_output=True,
+                    )
         return self._info
 
     def generate(self, chunk: Chunk) -> Embedding:
@@ -80,7 +86,8 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
 
         start = time.perf_counter()
         try:
-            raw_embedding = model.encode(chunk.text, normalize_embeddings=True)
+            with self._lock:
+                raw_embedding = model.encode(chunk.text, normalize_embeddings=True)
             # Ensure numpy structures are entirely converted to Python natives
             values = tuple(float(x) for x in raw_embedding)
         except Exception as e:
@@ -130,44 +137,47 @@ class LocalEmbeddingProvider(AbstractEmbeddingProvider):
         missing_texts: dict[str, str] = {}
         chunk_hashes: list[str] = []
 
-        for c in chunks.chunks:
-            text = c.text.strip()
-            if not text:
-                raise EmbeddingGenerationError("Cannot generate embedding for empty chunk")
+        with self._lock:
+            for c in chunks.chunks:
+                text = c.text.strip()
+                if not text:
+                    raise EmbeddingGenerationError("Cannot generate embedding for empty chunk")
 
-            chunk_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
-            chunk_hashes.append(chunk_hash)
+                chunk_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+                chunk_hashes.append(chunk_hash)
 
-            if chunk_hash not in self._cache:
-                missing_texts[chunk_hash] = text
+                if chunk_hash not in self._cache:
+                    missing_texts[chunk_hash] = text
 
-        # Generate missing vectors
-        if missing_texts:
-            start = time.perf_counter()
-            try:
-                # Keep deterministic order for ML batch processing
-                missing_hash_list = list(missing_texts.keys())
-                texts_to_encode = [missing_texts[h] for h in missing_hash_list]
+            # Generate missing vectors
+            if missing_texts:
+                start = time.perf_counter()
+                try:
+                    # Keep deterministic order for ML batch processing
+                    missing_hash_list = list(missing_texts.keys())
+                    texts_to_encode = [missing_texts[h] for h in missing_hash_list]
 
-                raw_embeddings = model.encode(texts_to_encode, normalize_embeddings=True)
+                    raw_embeddings = model.encode(texts_to_encode, normalize_embeddings=True)
 
-                # Cache results
-                for i, h in enumerate(missing_hash_list):
-                    self._cache[h] = tuple(float(x) for x in raw_embeddings[i])
+                    # Cache results
+                    for i, h in enumerate(missing_hash_list):
+                        self._cache[h] = tuple(float(x) for x in raw_embeddings[i])
 
-            except Exception as e:
-                raise EmbeddingGenerationError(f"Failed to generate batch embeddings: {e}") from e
+                except Exception as e:
+                    raise EmbeddingGenerationError(f"Failed to generate batch embeddings: {e}") from e
 
-            end = time.perf_counter()
-            total_time_ms = (end - start) * 1000.0
-            time_per_chunk = total_time_ms / len(missing_texts)
-        else:
-            time_per_chunk = 0.0
+                end = time.perf_counter()
+                total_time_ms = (end - start) * 1000.0
+                time_per_chunk = total_time_ms / len(missing_texts)
+            else:
+                time_per_chunk = 0.0
+
+            cached_vectors = {h: self._cache[h] for h in set(chunk_hashes)}
 
         embeddings = []
         for i, chunk in enumerate(chunks.chunks):
             h = chunk_hashes[i]
-            values = self._cache[h]
+            values = cached_vectors[h]
             vec = EmbeddingVector(values=values, dimension=info.dimensions)
 
             meta = EmbeddingMetadata(

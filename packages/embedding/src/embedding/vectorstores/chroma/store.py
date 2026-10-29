@@ -256,6 +256,48 @@ class ChromaVectorStore(AbstractVectorStore):
         except Exception as e:
             raise StorageError(f"Failed to count embeddings: {e}") from e
 
+    def delete_by_document(self, document_id: str) -> int:
+        """Delete every vector belonging to one document.
+
+        Chroma has no portable "affected rows" count for ``where`` deletes, so
+        callers should treat the return value as a best-effort count obtained
+        before deletion.
+        """
+        collection = self._get_collection()
+        try:
+            existing = collection.get(where={"document_id": document_id}, include=[])
+            ids = list(existing.get("ids", []))
+            if ids:
+                collection.delete(ids=ids)
+            return len(ids)
+        except Exception as e:
+            raise DeletionError(
+                f"Failed to delete vectors for document {document_id}: {e}"
+            ) from e
+
+    def count_by_document(self, document_id: str) -> int:
+        collection = self._get_collection()
+        try:
+            existing = collection.get(where={"document_id": document_id}, include=[])
+            return len(existing.get("ids", []))
+        except Exception as e:
+            raise StorageError(
+                f"Failed to count vectors for document {document_id}: {e}"
+            ) from e
+
+    def document_ids(self) -> set[str]:
+        """Return the distinct document IDs present in the index."""
+        collection = self._get_collection()
+        try:
+            existing = collection.get(include=["metadatas"])
+            return {
+                str(meta["document_id"])
+                for meta in existing.get("metadatas", [])
+                if meta and meta.get("document_id")
+            }
+        except Exception as e:
+            raise StorageError(f"Failed to list indexed documents: {e}") from e
+
     def clear(self) -> None:
         if self._collection is None:
             return

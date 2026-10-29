@@ -35,18 +35,6 @@ def _extract_snippet(text: str, query: str) -> str:
     return " ".join(sentences[:3])
 
 
-import asyncio
-
-_embed_sems = {}
-
-def get_embed_sem():
-    import asyncio
-    loop = asyncio.get_running_loop()
-    loop_id = id(loop)
-    if loop_id not in _embed_sems:
-        _embed_sems[loop_id] = asyncio.Semaphore(6)
-    return _embed_sems[loop_id]
-
 class RetrievalService:
     """
     Application service orchestrating semantic retrieval.
@@ -91,6 +79,20 @@ class RetrievalService:
                         message="Not authorized to access this document",
                         status_code=403,
                     )
+                from backend.services import index_state
+
+                state = index_state.get_state(request.document_id)
+                if not state or state.status != index_state.READY:
+                    return RetrievalResponse(
+                        query=request.query,
+                        document_id=request.document_id,
+                        total_results=0,
+                        results=[],
+                        processing_time_ms=(time.perf_counter() - start_time) * 1000.0,
+                        warnings=[
+                            "Document is not indexed yet. Reindex it before searching."
+                        ],
+                    )
                 authorized_document_ids = {request.document_id}
         else:
             if not user_id:
@@ -102,6 +104,14 @@ class RetrievalService:
             with self.uow_factory.create() as uow:
                 user_docs = await uow.documents.list(user_id=user_id)
                 authorized_document_ids = {d.id for d in user_docs}
+            from backend.services import index_state
+
+            states = index_state.list_states(user_id=user_id)
+            authorized_document_ids = {
+                document_id
+                for document_id in authorized_document_ids
+                if (state := states.get(document_id)) and state.status == index_state.READY
+            }
 
         # 2. Build semantic query
         filters = {}
@@ -183,10 +193,14 @@ class RetrievalService:
                 "title": chunk.title,
                 "section_title": chunk.section_title,
                 "page_number": chunk.page_number,
-                "section_id": getattr(chunk, 'section_id', None) or getattr(chunk.metadata, 'section_id', None),
-                "section_path": getattr(chunk, 'section_path', None) or getattr(chunk.metadata, 'section_path', None),
-                "figure_id": getattr(chunk, 'figure_id', None) or getattr(chunk.metadata, 'figure_id', None),
-                "figure_number": getattr(chunk, 'figure_number', None) or getattr(chunk.metadata, 'figure_number', None),
+                "section_id": getattr(chunk, "section_id", None)
+                or getattr(chunk.metadata, "section_id", None),
+                "section_path": getattr(chunk, "section_path", None)
+                or getattr(chunk.metadata, "section_path", None),
+                "figure_id": getattr(chunk, "figure_id", None)
+                or getattr(chunk.metadata, "figure_id", None),
+                "figure_number": getattr(chunk, "figure_number", None)
+                or getattr(chunk.metadata, "figure_number", None),
             }
 
             item = RetrievalResultItem(

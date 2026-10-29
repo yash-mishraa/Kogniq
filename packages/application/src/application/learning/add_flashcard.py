@@ -68,21 +68,51 @@ class AddFlashcardUseCase:
                 from backend.core.exceptions import BackendError
                 raise BackendError("unauthorized", "Not authorized to access this document", status_code=403)
 
-            # Retrieve existing flashcards
             materials_list = await uow.learning.list_by_document(request.document_id)
-            if not materials_list:
-                from backend.core.exceptions import BackendError
-                raise BackendError("not_found", "Learning content not found", status_code=404)
-
             flashcards_content = None
-            for m in materials_list:
+            for m in materials_list or ():
                 if m.content_type.name.lower() == "flashcards":
                     flashcards_content = m
                     break
             
             if not flashcards_content:
-                from backend.core.exceptions import BackendError
-                raise BackendError("not_found", "Flashcards learning content not found", status_code=404)
+                from learning_content.content import LearningContent
+                from learning_content.enums import ContentType
+                from learning_content.metadata import LearningContentMetadata
+                from learning_content.statistics import LearningContentStatistics
+
+                chunk_coll = await uow.chunks.get_by_document(request.document_id)
+                raw_chunks = getattr(chunk_coll, "chunks", ()) if chunk_coll else ()
+                chunk_ids = tuple(c.id for c in raw_chunks[:5]) if raw_chunks else (f"{request.document_id}-root",)
+
+                flashcards_content = LearningContent(
+                    id=str(uuid.uuid4()),
+                    source_document_id=request.document_id,
+                    source_chunk_ids=chunk_ids,
+                    content_type=ContentType.FLASHCARDS,
+                    title="Flashcards",
+                    body="[]",
+                    created_at=datetime.now(UTC),
+                    metadata=LearningContentMetadata(
+                        provider="manual",
+                        model="manual",
+                        model_version="1.0",
+                        generation_version="manual-v1",
+                        language="en",
+                        educational_level="general",
+                        subject="general",
+                        syllabus="general",
+                        prompt_version="manual-v1",
+                        tags=(),
+                    ),
+                    statistics=LearningContentStatistics(
+                        word_count=0,
+                        character_count=0,
+                        estimated_tokens=0,
+                        confidence=1.0,
+                        processing_time_ms=0.0,
+                    ),
+                )
 
             # Check idempotency
             tags = flashcards_content.metadata.tags

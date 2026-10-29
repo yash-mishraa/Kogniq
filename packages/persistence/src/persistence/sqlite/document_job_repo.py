@@ -65,5 +65,25 @@ class SQLiteDocumentJobRepository(AbstractDocumentJobRepository):
             for r in rows
         ]
 
+    def list_all(self, user_id: str | None = None) -> Sequence[DocumentJob]:
+        query = "SELECT id, user_id, filename, status, created_at, error_message FROM document_jobs"
+        params: list[str] = []
+        if user_id:
+            query += " WHERE user_id = ?"
+            params.append(user_id)
+        query += " ORDER BY created_at DESC"
+        rows = self._conn.execute(query, params).fetchall()
+        return [
+            DocumentJob(
+                id=r["id"],
+                user_id=r["user_id"],
+                filename=r["filename"],
+                status=r["status"],
+                created_at=datetime.fromisoformat(r["created_at"]),
+                error_message=r["error_message"],
+            )
+            for r in rows
+        ]
+
     def delete(self, job_id: str) -> None:
         self._conn.execute("DELETE FROM document_jobs WHERE id = ?", (job_id,))

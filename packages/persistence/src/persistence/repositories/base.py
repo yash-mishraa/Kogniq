@@ -56,6 +56,10 @@ class AbstractChunkRepository(abc.ABC):
     async def get_by_ids(self, chunk_ids: Sequence[str]) -> Sequence[Chunk]:
         pass
 
+    async def count_by_document(self, document_id: str) -> int:  # noqa: ARG002
+        """Return the number of persisted chunks for one document."""
+        return 0
+
     @abc.abstractmethod
     async def delete(self, document_id: str) -> DeleteResult:
         pass
@@ -222,6 +226,10 @@ class AbstractDocumentJobRepository(abc.ABC):
     @abc.abstractmethod
     def list_active(self, user_id: str | None = None) -> Sequence[DocumentJob]:
         pass
+
+    def list_all(self, user_id: str | None = None) -> Sequence[DocumentJob]:
+        """Return every tracked job, including terminal Ready/Error states."""
+        return self.list_active(user_id)
 
     @abc.abstractmethod
     def delete(self, job_id: str) -> None:

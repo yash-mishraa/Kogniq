@@ -1,3 +1,5 @@
+import time
+from collections.abc import Callable
 from types import SimpleNamespace
 from typing import Any
 
@@ -30,7 +32,7 @@ class ScriptedChatProvider:
         res = self._responses.pop(0)
         if res.content == "RAISE_API_ERROR":
             from google.genai.errors import APIError
-            raise APIError("Fake API Error", code=503)
+            raise APIError(503, {"error": {"message": "Fake API Error"}})
         if res.content == "RAISE_TIMEOUT":
             raise TimeoutError("Fake Provider timeout")
         self.generated_messages.append(res)
@@ -46,18 +48,18 @@ class FakeAuthorizationService:
         return SimpleNamespace(allowed=self.allowed, reason=reason)
 
 class FakeRetrieveUseCase:
-    def __init__(self, contents: list[str] | list[dict] | None = None) -> None:
+    def __init__(self, contents: list[str | dict[str, Any]] | None = None) -> None:
         self.commands: list[RetrievalCommand] = []
         self._contents = contents if contents is not None else []
 
     async def execute(self, command: RetrievalCommand) -> Any:
-        from application.retrieval.responses import RetrievalResult, ChunkData
+        from application.retrieval.responses import ChunkData, RetrievalResult
         self.commands.append(command)
         results = [
             ChunkData(
                 chunk_id=f"chk-{i}",
                 document_id=command.document_id or 'doc-1',
-                content=c["content"] if isinstance(c, dict) else c,
+                content=str(c["content"]) if isinstance(c, dict) else str(c),
                 metadata=c.get("metadata", {}) if isinstance(c, dict) else {},
                 chunk_index=i,
                 score=0.9
@@ -121,40 +123,51 @@ def build_use_case(
         uow_factory=uow_factory or FakeUowFactory(),
     )
 
-import time
-
-from apps.api.app.middleware.benchmark import benchmark_metrics_var
 
 class DeterministicLatencyProvider:
-    def generate_chat(self, messages, tools=None, system_instruction=None, **kwargs):
-        return self._execute_with_retry(lambda: self._do_generate_chat(messages, tools, system_instruction, **kwargs))
+    def generate_chat(
+        self,
+        messages: list[AgentMessage],
+        tools: list[ToolDefinition] | None = None,
+        system_instruction: str | None = None,
+        **kwargs: Any,
+    ) -> AgentMessage:
+        return self._execute_with_retry(
+            lambda: self._do_generate_chat(messages, tools, system_instruction, **kwargs)
+        )
 
     def __init__(self, delay_ms: float = 1000.0) -> None:
         self.delay_ms = delay_ms
-        self.calls = []
+        self.calls: list[list[AgentMessage]] = []
 
-    def _do_generate_chat(self, messages, tools, system_instruction, **kwargs):
+    def _do_generate_chat(
+        self,
+        messages: list[AgentMessage],
+        tools: list[ToolDefinition] | None,
+        system_instruction: str | None,
+        **kwargs: Any,
+    ) -> AgentMessage:
+        del tools, system_instruction, kwargs
         self.calls.append(messages)
-        start = time.perf_counter()
         time.sleep(self.delay_ms / 1000.0)
-        elapsed_ms = (time.perf_counter() - start) * 1000.0
-        
-        # Append duration to context var safely
-        pass
-            
+
         last_msg = messages[-1].content if messages and messages[-1].content else ""
         if "M3_INJECT_TIMEOUT_ALL" in last_msg:
             raise TimeoutError("Simulated timeout exhaustion")
-        
+
         if "M3_INJECT_TIMEOUT_ONCE" in last_msg:
             # Check how many times we've been called for this specific instruction
-            call_count = sum(1 for call in self.calls if call and call[-1].content and "M3_INJECT_TIMEOUT_ONCE" in call[-1].content)
+            call_count = sum(
+                1
+                for call in self.calls
+                if call and call[-1].content and "M3_INJECT_TIMEOUT_ONCE" in call[-1].content
+            )
             if call_count % 2 != 0:
                 raise TimeoutError("Simulated timeout once")
 
         return AgentMessage(role="assistant", content="Simulated deterministic response")
 
-    def _execute_with_retry(self, operation):
+    def _execute_with_retry(self, operation: Callable[[], AgentMessage]) -> AgentMessage:
         max_attempts = 3
         base_delay = 0.1
         for attempt in range(1, max_attempts + 1):

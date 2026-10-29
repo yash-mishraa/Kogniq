@@ -95,7 +95,6 @@ class SQLiteChunkRepository(AbstractChunkRepository):
     async def get_by_ids(self, chunk_ids: Sequence[str]) -> Sequence[Chunk]:
         if not chunk_ids:
             return []
-
         placeholders = ",".join("?" for _ in chunk_ids)
         rows = self._conn.execute(
             f"SELECT * FROM document_chunks WHERE id IN ({placeholders})",
@@ -129,6 +128,13 @@ class SQLiteChunkRepository(AbstractChunkRepository):
             chunks.append(chunk)
 
         return tuple(chunks)
+
+    async def count_by_document(self, document_id: str) -> int:
+        row = self._conn.execute(
+            "SELECT COUNT(*) AS count FROM document_chunks WHERE document_id = ?",
+            (document_id,),
+        ).fetchone()
+        return int(row["count"]) if row else 0
 
     async def delete(self, document_id: str) -> DeleteResult:
         cursor = self._conn.execute(

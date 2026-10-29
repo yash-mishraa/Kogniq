@@ -45,7 +45,15 @@ class PipelineFactory:
         except ImportError:
             pass
 
-        chunk_engine = HybridChunkEngine(fixed_strategy=FixedSizeChunkStrategy(max_characters=1500))
+        import os
+
+        chunk_size = int(os.environ.get("KOGNIQ_CHUNK_SIZE", "1200"))
+        chunk_overlap = int(os.environ.get("KOGNIQ_CHUNK_OVERLAP", "200"))
+        chunk_engine = HybridChunkEngine(
+            fixed_strategy=FixedSizeChunkStrategy(
+                max_characters=chunk_size, overlap_characters=chunk_overlap
+            )
+        )
 
         stages: list[PipelineStage] = []
 
@@ -67,14 +75,21 @@ class PipelineFactory:
 
             stages.append(EmbeddingStage(provider=embedding_provider, vector_store=vector_store))
 
-        if knowledge_extractor and uow_factory:
+        # Knowledge extraction and learning-material generation are legacy
+        # learning features. They are expensive provider calls and are not part
+        # of the RAG pipeline, so they are opt-in rather than run on every
+        # upload. The RAG product must not pay for six Gemini calls per document.
+        def _enabled(name: str) -> bool:
+            return os.environ.get(name, "false").strip().lower() in {"1", "true", "yes", "on"}
+
+        if knowledge_extractor and uow_factory and _enabled("KOGNIQ_ENABLE_KNOWLEDGE_EXTRACTION"):
             from pipeline.stages.extraction import KnowledgeExtractionStage
 
             stages.append(
                 KnowledgeExtractionStage(extractor=knowledge_extractor, uow_factory=uow_factory)
             )
 
-        if generator_factory and uow_factory:
+        if generator_factory and uow_factory and _enabled("KOGNIQ_ENABLE_LEARNING_GENERATION"):
             from pipeline.stages.learning import LearningGenerationStage
 
             generators = [

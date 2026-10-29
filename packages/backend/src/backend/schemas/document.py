@@ -82,6 +82,12 @@ class DocumentResponse(BaseModel):
     status: str
     importDate: str  # noqa: N815
     error: str | None = None
+    chunk_count: int = 0
+    embedding_model: str | None = None
+    embedding_dimensions: int | None = None
+    chunker_config: str | None = None
+    indexed_at: str | None = None
+    needs_reindex: bool = False
 
 
 class DocumentBlock(BaseModel):

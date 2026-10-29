@@ -71,13 +71,19 @@ class EmbeddingStage:
             # 2. Store in vector database
             storage_result = self.vector_store.store_batch(embeddings)
 
+            provider_info = self.provider.info
             return EmbeddingStageResult(
                 success=True,
                 data={
                     "total_embeddings": len(embeddings.embeddings),
                     "stored_count": storage_result.stored_count,
-                    "provider": self.provider.info.provider_name,
+                    "provider": provider_info.provider_name,
+                    "model_name": provider_info.model_name,
+                    "model_version": provider_info.model_version,
+                    "embedding_version": provider_info.embedding_version,
+                    "dimensions": provider_info.dimensions,
                     "vector_store": self.vector_store.info.store_name,
+                    "chunker_config": context.get("chunker_config"),
                 },
             )
         except Exception as e:

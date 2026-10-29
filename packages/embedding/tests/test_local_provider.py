@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
 import pytest
+from embedding.embedding import Embedding
 from embedding.providers import ProviderCapabilityError
 from embedding.providers.local.provider import LocalEmbeddingProvider
 
@@ -74,3 +75,40 @@ def test_local_provider_empty_collection_rejection() -> None:
     collection = ChunkCollection(chunks=())
     with pytest.raises(ProviderCapabilityError):
         provider.generate_batch(collection)
+
+
+def test_local_provider_thread_safety() -> None:
+    import concurrent.futures
+
+    provider = LocalEmbeddingProvider()
+    chunks = [make_chunk(f"c_{i}", f"This is chunk number {i} for concurrent embedding testing.") for i in range(10)]
+
+    def run_worker(chunk: Chunk) -> Embedding:
+        return provider.generate(chunk)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        results = list(executor.map(run_worker, chunks))
+
+    assert len(results) == 10
+    for res in results:
+        assert len(res.vector.values) == provider.info.dimensions
+
+
+def test_local_provider_batch_concurrency() -> None:
+    import concurrent.futures
+    from embedding.collection import EmbeddingCollection
+
+    provider = LocalEmbeddingProvider()
+    batch1 = ChunkCollection(chunks=tuple(make_chunk(f"b1_{i}", f"Batch 1 text {i}") for i in range(4)))
+    batch2 = ChunkCollection(chunks=tuple(make_chunk(f"b2_{i}", f"Batch 2 text {i}") for i in range(4)))
+
+    def run_batch(coll: ChunkCollection) -> EmbeddingCollection:
+        return provider.generate_batch(coll)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(run_batch, [batch1, batch2]))
+
+    assert len(results) == 2
+    for r in results:
+        assert r.total_embeddings == 4
+

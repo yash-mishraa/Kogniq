@@ -57,12 +57,12 @@ class RetrievalFactory:
             elif self.settings.vector_store_provider == "chroma":
                 # Using persistence directory from settings to avoid ephemeral loss of embeddings
                 vector_store = ChromaVectorStore(
-                    collection_name="kogniq",
+                    collection_name=self.settings.chroma_collection,
                     persist_directory=self.settings.chroma_db_path,
                 )
             else:
                 # Fallback for memory testing without persistence
-                vector_store = ChromaVectorStore(collection_name="kogniq")
+                vector_store = ChromaVectorStore(collection_name=self.settings.chroma_collection)
 
             self._provider = provider
             self._vector_store = vector_store

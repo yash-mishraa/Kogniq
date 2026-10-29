@@ -159,7 +159,7 @@ class TutorChatUseCase:
                 from apps.api.app.middleware.benchmark import benchmark_metrics_var
                 data = benchmark_metrics_var.get()
                 if data is not None:
-                    data["calls"].append # type: ignore({"exec_ms": elapsed, "queue_ms": 0.0})
+                    data["calls"].append({"exec_ms": elapsed, "queue_ms": 0.0})
             except Exception:
                 pass
             agent_messages.append(response)

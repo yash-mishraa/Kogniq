@@ -10,13 +10,24 @@ class BackendConfig(BaseSettings):
 
     # Database Settings
     chroma_db_path: str = "./data/chroma"
+    # The legacy ``kogniq`` collection was found to contain a corrupted HNSW
+    # index (nearest-neighbour results disagreed with brute-force cosine
+    # similarity). New writes go to a versioned collection so a rebuild is
+    # explicit and auditable rather than silently mixing index generations.
+    chroma_collection: str = "kogniq_v2"
     vector_store_provider: Literal["memory", "chroma", "qdrant"] = "chroma"
     qdrant_url: str = "http://localhost:6333"
     qdrant_collection: str = "kogniq_documents"
     persistence_provider: Literal["memory", "sqlite"] = "sqlite"
     sqlite_database_path: str = "./data/kogniq.db"
-    knowledge_extraction_provider: Literal["fake", "gemini"] = "gemini"
-    learning_generation_provider: Literal["fake", "mock", "gemini", "deterministic-fake"] = "gemini"
+    knowledge_extraction_provider: Literal["fake", "gemini", "local", "auto"] = "auto"
+    learning_generation_provider: Literal[
+        "fake", "mock", "gemini", "deterministic-fake", "local", "ollama", "auto"
+    ] = "auto"
+    local_llm_url: str = "http://localhost:11434"
+    local_llm_model: str = "llama3.2:3b"
+    gemini_model: str = "gemini-2.5-flash"
+    provider_fallback_enabled: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

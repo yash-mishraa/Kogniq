@@ -1,24 +1,6 @@
 from __future__ import annotations
-import os
-def _get_configured_provider():
-    from backend.core.settings import settings
-    provider_name = settings.learning_generation_provider
-    if settings.environment == "testing":
-        provider_name = "mock"
-        
-    if provider_name == "deterministic-fake":
-        from evaluation.harness.fakes import DeterministicLatencyProvider
-        import os
-        delay = float(os.environ.get("LEARNING_GENERATION_PROVIDER_DELAY_MS", "1000.0"))
-        return DeterministicLatencyProvider(delay_ms=delay)
-    elif provider_name == "gemini":
-        from learning_content.providers.gemini.provider import GeminiTextGenerationProvider
-        import os
-        return GeminiTextGenerationProvider(api_key=os.environ.get("GEMINI_API_KEY", ""))
-    else:
-        from learning_content.providers.mock.provider import MockTextGenerationProvider
-        return MockTextGenerationProvider()
 
+import os
 from typing import TYPE_CHECKING, Annotated, Any
 
 from fastapi import Depends
@@ -41,14 +23,24 @@ if TYPE_CHECKING:
     from application.learning.explain_mistake import ExplainMistakeUseCase
     from application.learning.get_learning_materials import GetLearningMaterialsUseCase
     from application.learning.get_next_action import GetNextActionUseCase
+    from application.notebook.add_notebook_entry import AddNotebookEntryUseCase
+    from application.notebook.get_notebooks import GetNotebooksUseCase
+    from backend.services.chunking_service import ChunkingService
+    from backend.services.evaluation_service import EvaluationService
     from backend.services.knowledge_service import KnowledgeService
+    from backend.services.rag_service import RagService
+    from backend.services.system_service import SystemService
 
+from application.agent.history import GetChatHistoryUseCase, ListChatSessionsUseCase
+from application.agent.tutor_chat import TutorChatUseCase
 from application.auth.register_user import RegisterUserUseCase
 from application.document.process_document import ProcessDocumentUseCase
 from application.jobs.get_job_status import GetJobStatusUseCase
 from application.jobs.submit_job import SubmitJobUseCase
 from application.learning.generate_learning import GenerateLearningUseCase
 from application.retrieval.retrieve import RetrieveUseCase
+from application.student.get_knowledge_state import GetKnowledgeStateUseCase
+from application.student.get_recommendations import GetRecommendationsUseCase
 from auth.authorization_interfaces import (
     AbstractAuthorizationProvider,
     AbstractPermissionRepository,
@@ -79,6 +71,71 @@ from jobs.interfaces import AbstractJobManager
 from jobs.memory import MemoryJobManager
 
 
+def _get_configured_provider() -> Any:
+    """Build the configured text-generation provider lazily.
+
+    Tests force the deterministic mock so a test run never reaches a hosted
+    model. Production selects the provider from environment configuration.
+    Supports provider-neutral multi-provider routing with local fallback.
+    """
+
+    provider_name = settings.learning_generation_provider
+    if settings.environment == "testing":
+        provider_name = "mock"
+
+    if provider_name == "deterministic-fake":
+        from evaluation.harness.fakes import DeterministicLatencyProvider
+
+        delay = float(os.environ.get("LEARNING_GENERATION_PROVIDER_DELAY_MS", "1000.0"))
+        return DeterministicLatencyProvider(delay_ms=delay)
+
+    if provider_name in ("local", "ollama"):
+        from learning_content.providers.local.provider import LocalTextGenerationProvider
+
+        return LocalTextGenerationProvider(
+            base_url=settings.local_llm_url,
+            model_name=settings.local_llm_model,
+        )
+
+    if provider_name == "gemini":
+        from learning_content.providers.gemini.provider import GeminiTextGenerationProvider
+
+        return GeminiTextGenerationProvider(
+            api_key=os.environ.get("GEMINI_API_KEY") or None,
+            model_name=settings.gemini_model,
+        )
+
+    if provider_name == "auto":
+        from learning_content.providers.local.provider import LocalTextGenerationProvider
+        from learning_content.providers.router import MultiProviderRouter
+
+        local_provider = LocalTextGenerationProvider(
+            base_url=settings.local_llm_url,
+            model_name=settings.local_llm_model,
+        )
+
+        has_gemini = bool(os.environ.get("GEMINI_API_KEY"))
+        if has_gemini:
+            from learning_content.providers.gemini.provider import GeminiTextGenerationProvider
+
+            gemini_provider = GeminiTextGenerationProvider(
+                api_key=os.environ.get("GEMINI_API_KEY"),
+                model_name=settings.gemini_model,
+            )
+            # Primary: Gemini, Fallback: Local
+            return MultiProviderRouter(
+                primary=gemini_provider,
+                fallback=local_provider,
+                fallback_enabled=settings.provider_fallback_enabled,
+            )
+        # Default local without cloud API key
+        return local_provider
+
+    from learning_content.providers.mock.provider import MockTextGenerationProvider
+
+    return MockTextGenerationProvider()
+
+
 # --- Singletons for In-Memory Adapters ---
 class _AuthSingletons:
     _user_repo: AbstractUserRepository | None = None
@@ -87,14 +144,38 @@ class _AuthSingletons:
     @classmethod
     def get_user_repo(cls) -> AbstractUserRepository:
         if cls._user_repo is None:
-            cls._user_repo = MemoryUserRepository()
+            if settings.persistence_provider == "sqlite":
+                from backend.services.persistent_auth import PersistentUserRepository
+
+                cls._user_repo = PersistentUserRepository(settings.sqlite_database_path)
+            else:
+                cls._user_repo = MemoryUserRepository()
         return cls._user_repo
 
     @classmethod
     def get_auth_provider(cls) -> AbstractAuthenticationProvider:
         if cls._auth_provider is None:
-            cls._auth_provider = MemoryAuthenticationProvider(cls.get_user_repo())
+            if settings.persistence_provider == "sqlite":
+                from backend.services.persistent_auth import (
+                    PersistentAuthenticationProvider,
+                    PersistentUserRepository,
+                )
+
+                repo = cls.get_user_repo()
+                if not isinstance(repo, PersistentUserRepository):
+                    raise RuntimeError("SQLite persistence requires a persistent user repository")
+                cls._auth_provider = PersistentAuthenticationProvider(
+                    repo, settings.sqlite_database_path
+                )
+            else:
+                cls._auth_provider = MemoryAuthenticationProvider(cls.get_user_repo())
         return cls._auth_provider
+
+    @classmethod
+    def reset(cls) -> None:
+        """Test helper: drop cached adapters so a new database can be used."""
+        cls._user_repo = None
+        cls._auth_provider = None
 
 
 class _AuthorizationSingletons:
@@ -130,7 +211,14 @@ class _JobManagerSingleton:
     @classmethod
     def get(cls) -> AbstractJobManager:
         if cls._instance is None:
-            cls._instance = MemoryJobManager()
+            if settings.environment == "testing":
+                cls._instance = MemoryJobManager()
+            else:
+                from jobs.persistent import PersistentJobManager
+
+                manager = PersistentJobManager(db_path=settings.sqlite_database_path)
+                manager.recover_stuck_jobs()
+                cls._instance = manager
         return cls._instance
 
 
@@ -187,18 +275,20 @@ _knowledge_extractor_instance: AbstractKnowledgeExtractor | None = None
 def get_knowledge_extractor() -> AbstractKnowledgeExtractor:
     global _knowledge_extractor_instance
     if _knowledge_extractor_instance is None:
-        from backend.core.settings import settings
-        import os
         provider_name = settings.knowledge_extraction_provider
-        
+
         if settings.environment == "testing":
             provider_name = "fake"
-            
-        if provider_name == "gemini":
+
+        if provider_name in ("gemini", "auto") and os.environ.get("GEMINI_API_KEY"):
             from knowledge.extractors.gemini.extractor import GeminiKnowledgeExtractor
-            _knowledge_extractor_instance = GeminiKnowledgeExtractor(api_key=os.environ.get("GEMINI_API_KEY", ""))
+
+            _knowledge_extractor_instance = GeminiKnowledgeExtractor(
+                api_key=os.environ.get("GEMINI_API_KEY") or None
+            )
         else:
             from knowledge.extractors.fake import FakeKnowledgeExtractor
+
             _knowledge_extractor_instance = FakeKnowledgeExtractor()
     return _knowledge_extractor_instance
 
@@ -214,7 +304,6 @@ def get_generator_factory() -> GeneratorFactory:
     global _generator_factory_instance
     if _generator_factory_instance is None:
         from backend.services.generator_factory import GeneratorFactory
-        from learning_content.providers.mock.provider import MockTextGenerationProvider
 
         provider = _get_configured_provider()
         _generator_factory_instance = GeneratorFactory(provider)
@@ -266,7 +355,40 @@ async def get_document_service() -> DocumentService:
         knowledge_extractor=knowledge_extractor,
         generator_factory=generator_factory,
     )
-    return DocumentService(pipeline=pipeline, uow_factory=uow_factory)
+    return DocumentService(
+        pipeline=pipeline,
+        uow_factory=uow_factory,
+        vector_store=retrieval_factory.get_vector_store(),
+    )
+
+
+def get_chunking_service() -> ChunkingService:
+    from backend.services.chunking_service import ChunkingService
+
+    return ChunkingService(uow_factory=get_uow_factory())
+
+
+def get_rag_service() -> RagService:
+    from backend.services.rag_service import RagService
+
+    retrieval_factory = get_retrieval_factory()
+    return RagService(
+        retriever=retrieval_factory.get_retriever(),
+        provider=get_generator_factory().get_provider(),
+        uow_factory=get_uow_factory(),
+    )
+
+
+def get_system_service() -> SystemService:
+    from backend.services.system_service import SystemService
+
+    return SystemService(vector_store=get_retrieval_factory().get_vector_store())
+
+
+def get_evaluation_service() -> EvaluationService:
+    from backend.services.evaluation_service import EvaluationService
+
+    return EvaluationService(rag_service=get_rag_service(), uow_factory=get_uow_factory())
 
 
 def get_job_manager() -> AbstractJobManager:
@@ -360,11 +482,11 @@ async def get_generate_learning_use_case(
 
 
 
-async def get_add_flashcard_use_case(  # type: ignore
+async def get_add_flashcard_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
-):
+) -> Any:
     from application.learning.add_flashcard import AddFlashcardUseCase
     return AddFlashcardUseCase(
         auth_service=auth_service,
@@ -560,17 +682,12 @@ async def get_resource_statistics_use_case(
     from application.resources.use_cases import GetResourceStatisticsUseCase
     return GetResourceStatisticsUseCase(auth_service=auth_service, uow_factory=uow_factory) # type: ignore
 
-from application.agent.tutor_chat import TutorChatUseCase
-from application.agent.history import ListChatSessionsUseCase, GetChatHistoryUseCase
-from application.student.get_knowledge_state import GetKnowledgeStateUseCase
-from application.student.get_recommendations import GetRecommendationsUseCase
 
 def get_tutor_chat_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
     retrieve_use_case: RetrieveUseCase = Depends(get_retrieve_use_case),  # noqa: B008
 ) -> TutorChatUseCase:
-    from learning_content.providers.mock.provider import MockTextGenerationProvider
     from application.learning.query_knowledge_graph import QueryKnowledgeGraphUseCase
     from backend.services.knowledge_service import KnowledgeService
     
@@ -613,7 +730,7 @@ def get_chat_history_use_case(
 async def get_add_notebook_entry_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
-) -> "AddNotebookEntryUseCase":  # type: ignore
+) -> AddNotebookEntryUseCase:
     from application.notebook.add_notebook_entry import AddNotebookEntryUseCase
     return AddNotebookEntryUseCase(
         auth_service=auth_service,
@@ -624,18 +741,18 @@ async def get_add_notebook_entry_use_case(
 async def get_get_notebooks_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
-) -> "GetNotebooksUseCase":  # type: ignore
+) -> GetNotebooksUseCase:
     from application.notebook.get_notebooks import GetNotebooksUseCase
     return GetNotebooksUseCase(
         auth_service=auth_service,
         uow_factory=uow_factory,
     )
 
-async def get_add_quiz_question_use_case(  # type: ignore
+async def get_add_quiz_question_use_case(
     auth_service: AuthenticationService = Depends(get_authentication_service),  # noqa: B008
     authorization_service: AuthorizationService = Depends(get_authorization_service),  # noqa: B008
     uow_factory: AbstractUnitOfWorkFactory = Depends(get_uow_factory),  # noqa: B008
-):
+) -> Any:
     from application.learning.add_quiz import AddQuizQuestionUseCase
     return AddQuizQuestionUseCase(
         auth_service=auth_service,
