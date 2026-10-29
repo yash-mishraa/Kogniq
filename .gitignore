@@ -48,6 +48,7 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
+cookies.txt
 *.pem
 *.key
 
@@ -84,6 +85,11 @@ logs/
 /artifacts/
 /models/
 /data/
+/apps/api/data/
+.recovery-backups/
+.archify/
+*.sqlite-shm
+*.sqlite-wal
 
 # Development Sample Documents
 dev/sample_documents/*
@@ -91,5 +97,7 @@ dev/sample_documents/*
 
 # Development Scripts
 dev/*.py
+!dev/verify_*.py
+!dev/load_test_*.py
 apps/api/src/data/
 *.sqlite

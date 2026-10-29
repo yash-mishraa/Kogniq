@@ -1,1 +1,0 @@
-This is a test journal paper about machine learning and attention mechanisms. The attention mechanism is crucial for Transformers.
