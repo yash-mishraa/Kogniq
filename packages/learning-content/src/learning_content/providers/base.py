@@ -99,3 +99,33 @@ class AbstractTextGenerationProvider(ABC):
             self.generate(prompt, temperature=temperature, max_tokens=max_tokens)
             for prompt in prompts
         )
+
+    def generate_json(
+        self,
+        prompt: str,
+        *,
+        schema: dict[str, Any] | None = None,
+        system_instruction: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> dict[str, Any]:
+        """Generate structured JSON data from a prompt."""
+        import json
+
+        text = self.generate(prompt, temperature=temperature, max_tokens=max_tokens)
+        cleaned = text.strip()
+        if cleaned.startswith("```json"):
+            cleaned = cleaned[7:]
+        elif cleaned.startswith("```"):
+            cleaned = cleaned[3:]
+        if cleaned.endswith("```"):
+            cleaned = cleaned[:-3]
+        return json.loads(cleaned.strip())
+
+    def health(self) -> dict[str, Any]:
+        """Return health and availability status."""
+        return {
+            "provider_id": getattr(self.info, "provider_id", "unknown"),
+            "provider_name": getattr(self.info, "provider_name", "Unknown Provider"),
+            "status": "healthy",
+        }

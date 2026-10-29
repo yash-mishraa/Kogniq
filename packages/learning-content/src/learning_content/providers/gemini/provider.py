@@ -1,4 +1,5 @@
 import logging
+import os
 import random
 import time
 from collections.abc import Callable
@@ -15,9 +16,11 @@ from learning_content.providers.base import (
 
 try:
     from google import genai
-    from google.genai import types
+    from google.genai import errors, types
 except ImportError:
     genai = None  # type: ignore
+    errors = None  # type: ignore
+    types = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -25,25 +28,31 @@ T = TypeVar("T")
 
 
 class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
-    """Text generation provider using Google Gemini."""
+    """Text generation provider using Google Gemini with bounded retry, jitter, and circuit breaker."""
 
     def __init__(
         self,
         api_key: str | None = None,
-        model_name: str = "gemini-3.1-flash-lite",
+        model_name: str = "gemini-2.5-flash",
     ) -> None:
         if genai is None:
             raise ImportError("google-genai is not installed. Please install it to use Gemini.")
 
-        self.api_key = api_key
+        self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
         self.model_name = model_name
         self._client: genai.Client | None = None
+
+        # Circuit breaker state
+        self._consecutive_failures = 0
+        self._circuit_open_until = 0.0
+        self._failure_threshold = 3
+        self._cooldown_seconds = 30.0
 
         self._info = TextGenerationProviderInfo(
             provider_id="gemini",
             provider_name="Google Gemini",
             default_model=model_name,
-            model_version="3.1",
+            model_version="2.5",
             context_window=2_000_000,
             supports_streaming=True,
             supports_json=True,
@@ -62,33 +71,100 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
     def info(self) -> TextGenerationProviderInfo:
         return self._info
 
+    def _is_transient(self, e: Exception) -> bool:
+        """Classify transient vs permanent provider errors without relying on exact class name."""
+        if isinstance(e, (TimeoutError, ConnectionError)):
+            return True
+        err_msg = str(e).lower()
+        if "timeout" in err_msg or "connection reset" in err_msg or "broken pipe" in err_msg:
+            return True
+
+        # Check status codes
+        code = getattr(e, "code", getattr(e, "status_code", None))
+        if code is not None:
+            if code in (429, 500, 502, 503, 504):
+                return True
+            if code in (400, 401, 403, 404):
+                return False
+
+        # Check google.genai error hierarchy
+        if errors is not None and isinstance(e, errors.APIError):
+            if isinstance(e, errors.ServerError):
+                return True
+            if isinstance(e, errors.ClientError):
+                return code == 429
+            return code in (429, 500, 502, 503, 504)
+
+        # Catch subclasses by MRO
+        mro_names = {c.__name__ for c in e.__class__.__mro__}
+        if "ServerError" in mro_names:
+            return True
+        if "APIError" in mro_names and code in (429, 500, 502, 503, 504):
+            return True
+
+        # String clues
+        if "503" in err_msg or "unavailable" in err_msg or "high demand" in err_msg or "overloaded" in err_msg:
+            return True
+        if "429" in err_msg or "rate limit" in err_msg or "quota" in err_msg:
+            return True
+
+        return False
+
+    def _get_retry_after(self, e: Exception) -> float | None:
+        val = getattr(e, "retry_after", None)
+        if val is not None:
+            try:
+                return min(float(val), 10.0)
+            except (ValueError, TypeError):
+                pass
+        headers = getattr(e, "headers", None) or getattr(getattr(e, "response", None), "headers", None)
+        if isinstance(headers, dict) and "retry-after" in headers:
+            try:
+                return min(float(headers["retry-after"]), 10.0)
+            except (ValueError, TypeError):
+                pass
+        return None
+
     def _execute_with_retry(self, operation: Callable[[], T]) -> T:
         """
         Bounded retry policy specifically at the provider adapter boundary.
-        Prevents full orchestration iteration duplication.
+        Prevents full orchestration iteration duplication and protects against cascading failures.
         """
+        now = time.time()
+        if self._circuit_open_until > now:
+            remaining = int(self._circuit_open_until - now)
+            logger.warning("Gemini circuit breaker OPEN. Cooldown active for %ds", remaining)
+            raise RuntimeError(f"Gemini provider temporarily unavailable (circuit breaker open, cooldown {remaining}s)")
+
         max_attempts = 3
-        base_delay = 1.0
+        base_delay = 0.5
 
         for attempt in range(1, max_attempts + 1):
             try:
-                return operation()
+                result = operation()
+                # Success resets circuit breaker
+                self._consecutive_failures = 0
+                self._circuit_open_until = 0.0
+                return result
             except Exception as e:
-                # Classify the exception
                 is_timeout = isinstance(e, TimeoutError) or "timeout" in str(e).lower()
-                is_api_error = e.__class__.__name__ == "APIError"
-
-                code = getattr(e, "code", None)
-                retryable = is_timeout or (is_api_error and code in (429, 500, 502, 503, 504))
+                retryable = self._is_transient(e)
+                code = getattr(e, "code", getattr(e, "status_code", None))
 
                 if is_timeout:
-                    # M1 Telemetry: Provider Timeout
                     logger.warning(
                         "Gemini provider timeout", extra={"provider_timeout": {"elapsed_ms": 30000}}
                     )
 
                 if not retryable or attempt == max_attempts:
-                    # M1 Telemetry: Terminal Provider Failure
+                    self._consecutive_failures += 1
+                    if self._consecutive_failures >= self._failure_threshold:
+                        self._circuit_open_until = time.time() + self._cooldown_seconds
+                        logger.error(
+                            "Gemini circuit breaker tripped open after %d consecutive failures",
+                            self._consecutive_failures,
+                        )
+
                     logger.error(
                         "Gemini provider permanent failure or retry exhaustion",
                         extra={
@@ -96,17 +172,19 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
                                 "failure_category": "timeout" if is_timeout else "api_error",
                                 "terminal": True,
                                 "code": code,
+                                "exception_class": e.__class__.__name__,
                             }
                         },
                     )
                     raise RuntimeError(f"Gemini generation failed: {e}") from e
 
-                # Bounded Exponential backoff with jitter
-                delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 0.5)
+                # Check retry-after or bounded exponential backoff with jitter
+                delay = self._get_retry_after(e)
+                if delay is None:
+                    delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0.1, 0.4)
 
-                # M1 Telemetry: Provider Retry
                 logger.warning(
-                    f"Transient provider error, retrying in {delay:.2f}s",
+                    f"Transient provider error ({e.__class__.__name__} code={code}), retrying attempt {attempt}/{max_attempts} in {delay:.2f}s",
                     extra={
                         "provider_retry_attempt": {
                             "attempt_number": attempt,
@@ -119,6 +197,21 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
                 time.sleep(delay)
 
         raise RuntimeError("Unreachable")
+
+    def health(self) -> dict[str, Any]:
+        """Observability health status of Gemini provider."""
+        now = time.time()
+        is_open = self._circuit_open_until > now
+        has_key = bool(self.api_key)
+        return {
+            "provider_id": "gemini",
+            "provider_name": "Google Gemini",
+            "model": self.model_name,
+            "has_api_key": has_key,
+            "status": "circuit_open" if is_open else ("healthy" if has_key else "missing_key"),
+            "consecutive_failures": self._consecutive_failures,
+            "cooldown_remaining_seconds": max(0, int(self._circuit_open_until - now)) if is_open else 0,
+        }
 
     def generate(
         self,
@@ -163,9 +256,14 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
                 
             if m.role == "model":
                 for tc in m.tool_calls:
-                    p = types.Part(function_call=types.FunctionCall(name=tc.name, args=tc.arguments, id=tc.id))
-                    if getattr(tc, "thought_signature", None) is not None:
-                        p.thought_signature = tc.thought_signature
+                    p = types.Part(
+                        function_call=types.FunctionCall(
+                            name=tc.name, args=tc.arguments, id=tc.id
+                        )
+                    )
+                    signature = getattr(tc, "thought_signature", None)
+                    if signature is not None:
+                        p.thought_signature = signature
                     parts.append(p)
                 
             if m.role == "tool":
@@ -177,7 +275,7 @@ class GeminiTextGenerationProvider(AbstractTextGenerationProvider):
             role = "user" if m.role == "user" or m.role == "tool" else "model"
             gemini_messages.append(types.Content(role=role, parts=parts))
 
-        gemini_tools = []
+        gemini_tools: list[types.Tool] = []
         if tools:
             gemini_tools.extend(
                 types.Tool(
