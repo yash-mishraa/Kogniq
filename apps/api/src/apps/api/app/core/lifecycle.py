@@ -71,22 +71,20 @@ def create_lifespan(settings: APISettings) -> Lifespan:
 
         await bootstrap_authorization(get_role_repository(), get_permission_repository())
 
+        auth_service = await get_authentication_service()
+        authorization_service = await get_authorization_service()
+        use_case = RegisterUserUseCase(
+            auth_service=auth_service,  # type: ignore
+            authorization_service=authorization_service,  # type: ignore
+        )
+        await bootstrap_development_demo(use_case)
+        await bootstrap_user_roles(
+            get_user_repository(),
+            get_authorization_provider(),
+            admin_email="admin@kogniq.ai",
+        )
         if settings.environment.value in ("development", "test", "benchmark"):
-            auth_service = await get_authentication_service()
-            authorization_service = await get_authorization_service()
-            use_case = RegisterUserUseCase(
-                auth_service=auth_service,  # type: ignore
-                authorization_service=authorization_service,  # type: ignore
-            )
-            await bootstrap_development_demo(use_case)
-            await bootstrap_user_roles(
-                get_user_repository(),
-                get_authorization_provider(),
-                admin_email="admin@kogniq.ai",
-            )
             adopt_orphaned_documents()
-        else:
-            await bootstrap_user_roles(get_user_repository(), get_authorization_provider())
 
         logger.info(
             "application_started",

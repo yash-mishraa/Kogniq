@@ -25,7 +25,7 @@ def test_retrieval_isolation_enforcement(auth_client: TestClient) -> None:
     # Register User A
     resp = auth_client.post(
         "/api/v1/auth/register",
-        json={"email": "usera@example.com", "password": "passwordA", "display_name": "A"},
+        json={"email": "usera_retrieval@example.com", "password": "passwordA", "display_name": "A"},
     )
     assert resp.status_code == 200
     token_a = resp.cookies.get("kogniq_session")
@@ -33,7 +33,7 @@ def test_retrieval_isolation_enforcement(auth_client: TestClient) -> None:
     # Register User B
     resp = auth_client.post(
         "/api/v1/auth/register",
-        json={"email": "userb@example.com", "password": "passwordB", "display_name": "B"},
+        json={"email": "userb_retrieval@example.com", "password": "passwordB", "display_name": "B"},
     )
     assert resp.status_code == 200
     token_b = resp.cookies.get("kogniq_session")

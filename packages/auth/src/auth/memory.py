@@ -35,8 +35,9 @@ class MemoryUserRepository(AbstractUserRepository):
 
     async def get_user_by_email(self, email: str) -> User | None:
         with self._lock:
+            target = email.strip().lower()
             for user in self._users.values():
-                if user.email == email:
+                if user.email.strip().lower() == target:
                     return user
             return None
 
@@ -58,7 +59,8 @@ class MemoryUserRepository(AbstractUserRepository):
 
     async def exists(self, email: str) -> bool:
         with self._lock:
-            return any(user.email == email for user in self._users.values())
+            target = email.strip().lower()
+            return any(user.email.strip().lower() == target for user in self._users.values())
 
     async def set_password_hash(self, user_id: str, password_hash: str) -> None:
         with self._lock:
@@ -80,12 +82,12 @@ class MemoryAuthenticationProvider(AbstractAuthenticationProvider):
 
     async def authenticate(self, request: AuthenticationRequest) -> AuthenticationResult:
         """Simulate authentication, checking actual passwords via pwdlib."""
-        email = request.payload.get("email")
+        raw_email = request.payload.get("email")
+        if not raw_email or not str(raw_email).strip():
+            raise ValueError("Email is required for local authentication")
+        email = str(raw_email).strip().lower()
         password = request.payload.get("password")
         is_registration = request.payload.get("is_registration", False)
-
-        if not email:
-            raise ValueError("Email is required for local authentication")
 
         user = await self._user_repo.get_user_by_email(email)
         if not user:

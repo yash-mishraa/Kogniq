@@ -103,11 +103,15 @@ function Access({ reduceMotion }: { reduceMotion: boolean | null }) {
     setPending(true);
     setError(null);
     try {
-      const trimmed = email.trim();
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const formEmail = (formData.get("email") as string) || email;
+      const formPassword = (formData.get("password") as string) || password;
+      const trimmed = formEmail.trim().toLowerCase();
       const user =
         mode === "register"
-          ? await ragApi.register(trimmed, password, trimmed.split("@")[0] || "Researcher")
-          : await ragApi.login(trimmed, password);
+          ? await ragApi.register(trimmed, formPassword, trimmed.split("@")[0] || "Researcher")
+          : await ragApi.login(trimmed, formPassword);
       queryClient.setQueryData<SessionUser>(["session"], user);
       queryClient.removeQueries({
         predicate: (query) => query.queryKey[0] !== "session",
@@ -251,9 +255,18 @@ function Access({ reduceMotion }: { reduceMotion: boolean | null }) {
           >
             {mode === "login" ? "New here? Create an account." : "Already have an account? Sign in."}
           </button>
-          <p className="font-mono text-[10px] text-muted">
+          <button
+            type="button"
+            onClick={() => {
+              setEmail("admin@kogniq.ai");
+              setPassword("password");
+              setMode("login");
+              setError(null);
+            }}
+            className="font-mono text-[10px] text-muted transition-colors hover:text-ink cursor-pointer text-left"
+          >
             Demo · admin@kogniq.ai / password
-          </p>
+          </button>
         </div>
         <Footline />
       </div>
@@ -263,8 +276,16 @@ function Access({ reduceMotion }: { reduceMotion: boolean | null }) {
 
 function authMessage(error: unknown): string {
   if (error instanceof ApiRequestError) {
-    if (error.status === 401) return "Those credentials were not accepted.";
-    if (error.status === 409) return "An account with that email already exists.";
+    if (error.status === 401) {
+      if (error.code === "user_not_found") {
+        return "No account found with this email. Click 'Create an account' below to sign up.";
+      }
+      return "Incorrect email or password. Please try again.";
+    }
+    if (error.status === 400 && error.code === "invalid_credentials") {
+      return "Incorrect password. Please try again.";
+    }
+    if (error.status === 409) return "An account with that email already exists. Click 'Sign in' below.";
     if (error.status === 422) {
       return "Enter a valid email and a password of at least 8 characters.";
     }

