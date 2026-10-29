@@ -41,9 +41,20 @@ class RetrievalFactory:
 
     def _initialize(self) -> None:
         if self._retriever is None:
-            # We initialize a persistent ChromaDB store using the configured path.
-            # LocalEmbeddingProvider uses sentence-transformers inside.
-            provider = LocalEmbeddingProvider()
+            import os
+
+            # Prefer Gemini embeddings in non-test deployments when GEMINI_API_KEY is available.
+            # This avoids loading PyTorch/sentence-transformers into RAM on memory-constrained hosts (e.g. Render free tier 512MB).
+            env_str = str(getattr(self.settings.environment, "value", self.settings.environment)).lower()
+            if os.environ.get("GEMINI_API_KEY") and env_str != "testing":
+                try:
+                    from embedding.providers.gemini.provider import GeminiEmbeddingProvider
+
+                    provider = GeminiEmbeddingProvider()
+                except Exception:
+                    provider = LocalEmbeddingProvider()
+            else:
+                provider = LocalEmbeddingProvider()
 
             from embedding.vectorstores.interfaces import AbstractVectorStore
 
