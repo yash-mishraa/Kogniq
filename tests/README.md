@@ -1,21 +1,62 @@
-# Tests
+# Kogniq Testing Taxonomy & Test Suite
 
-## Purpose
+This directory and the module-level test directories govern the automated verification suite for Kogniq.
 
-Future home of cross-module, contract, integration, end-to-end, performance, and security tests.
+---
 
-## Future Responsibilities
+## Test Architecture
 
-Validate system boundaries and user journeys that cannot be adequately tested inside one owning module.
+Kogniq enforces strict testing across three separate tiers:
 
-## Ownership
+```
+                            ┌───────────────────────────────────────────────┐
+                            │           Playwright E2E Tests                │
+                            │  apps/web/tests/ (Browser User Journeys)       │
+                            └───────────────────────┬───────────────────────┘
+                                                    │
+                                                    ▼
+                            ┌───────────────────────────────────────────────┐
+                            │      FastAPI Integration & Contract Tests     │
+                            │  apps/api/tests/ (138 Pytest Tests)           │
+                            └───────────────────────┬───────────────────────┘
+                                                    │
+                                                    ▼
+                            ┌───────────────────────────────────────────────┐
+                            │        Vitest Frontend Unit Component Tests   │
+                            │  apps/web/src/**/*.test.tsx (106 Tests)       │
+                            └───────────────────────┬───────────────────────┘
+                                                    │
+                                                    ▼
+                            ┌───────────────────────────────────────────────┐
+                            │       Package-Level Pure Domain Unit Tests    │
+                            │  packages/*/tests/ (360+ Isolated Unit Tests) │
+                            └───────────────────────────────────────────────┘
+```
 
-Quality engineering with affected module owners — Yash Mishra.
+---
 
-## What Belongs Here
+## Running the Verification Suite
 
-Cross-cutting test harnesses, governed fixtures, test-environment documentation, and reproducible system-level checks.
+### 1. Backend Integration & Route Tests
+Runs all 138 API tests covering user isolation, document upload, chunking, hybrid retrieval, and authentication:
+```bash
+uv run pytest apps/api/tests/ -v
+```
 
-## What Should Not Belong Here
+### 2. Frontend Component & Workspace Engine Tests
+Runs all 22 test files (106 unit tests) using Vitest:
+```bash
+cd apps/web && npm test
+```
 
-Production logic, secrets, personal data, large undocumented fixtures, flaky live-service dependencies, or module-local tests better colocated with source.
+### 3. All Domain & Package Unit Tests
+Runs the full suite across all 15 packages:
+```bash
+uv run pytest packages/ -v
+```
+
+### 4. Production Build Validation
+Verifies that the Next.js static asset and server bundle compile with zero type errors:
+```bash
+cd apps/web && npm run build
+```

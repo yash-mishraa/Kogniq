@@ -1,29 +1,72 @@
-# Infrastructure
+# Kogniq Infrastructure & Deployment Architecture
 
-## Purpose
+This document details the production and staging infrastructure topology for the Kogniq system.
 
-Reserve the future boundary for reproducible build, runtime, deployment, security, observability, backup, and recovery definitions.
+---
 
-## Responsibilities
+## Architecture Topology
 
-When authorized, own environment topology, artifact delivery, workload configuration, network and identity policy, secret integration, telemetry, and operational controls.
+```
+                            ┌───────────────────────────────────────────────┐
+                            │                 Vercel Edge                   │
+                            │       Next.js 15 Frontend (apps/web)          │
+                            │                                               │
+                            │  - Global CDN & Static Assets                 │
+                            │  - Client-side React State & KaTeX Rendering  │
+                            │  - Reverse-Proxy: /api/:path* ────────────────┼───┐
+                            └───────────────────────────────────────────────┘   │
+                                                                                │ Same-Origin
+                                                                                │ (Zero CORS)
+                                                                                ▼
+                            ┌───────────────────────────────────────────────┐
+                            │      Backend Container (Render / VPS)         │
+                            │             FastAPI (apps/api)                │
+                            │                                               │
+                            │  - Uvicorn Single-Worker ASGI Server          │
+                            │  - Internal ThreadPoolExecutor (Concurrency)  │
+                            │  - Local SentenceTransformers / Gemini Embed  │
+                            │  - Hybrid Search Engine (Chroma + SQLite FTS) │
+                            │  - Durable Background Job Queue               │
+                            └───────┬───────────────────────────────┬───────┘
+                                    │                               │
+                                    ▼                               ▼
+                     ┌─────────────────────────────┐ ┌─────────────────────────────┐
+                     │    SQLite (WAL Mode)        │ │    ChromaDB (kogniq_v2)     │
+                     │  - Users & Auth Credentials │ │  - 384-dimensional dense    │
+                     │  - Document Index State     │ │    vector index (HNSW)      │
+                     │  - Full-Text BM25 Chunks    │ │  - Page & Section metadata  │
+                     │  - Query Telemetry Logs     │ │                             │
+                     └─────────────────────────────┘ └─────────────────────────────┘
+```
 
-## Public Interface
+---
 
-Future reviewed deployment inputs, environment outputs, operational contracts, dashboards, alerts, and runbook references. No infrastructure interface exists now.
+## 1. Container Configuration
 
-## Dependencies
+The backend is packaged using a production-hardened `Dockerfile` based on `python:3.13-slim`:
+- **Build tool**: Astral [`uv`](https://github.com/astral-sh/uv) for fast, deterministic, frozen dependency resolution.
+- **Model Pre-caching**: The base embedding model (`all-MiniLM-L6-v2`) is pre-downloaded during container image construction, ensuring zero runtime download latency on cold boot.
+- **Threading Limits**: Explicit environment boundaries (`TORCH_NUM_THREADS=1`, `OMP_NUM_THREADS=1`) prevent OpenMP thread over-subscription on virtual CPU cores.
 
-May consume approved application artifacts and configuration schemas after technology decisions. Product packages must not depend on infrastructure implementation.
+---
 
-## Future Expansion
+## 2. Persistence & Storage
 
-Environment, networking, compute, persistence, secret delivery, observability, backup, policy, and deployment modules may be added in later prompts.
+- **Relational Data**: SQLite in Write-Ahead Logging (`WAL`) mode with `busy_timeout=30.0` and foreign key enforcement enabled across all connections.
+- **Vector Embeddings**: Persistent ChromaDB collection (`kogniq_v2`) storing chunk embeddings alongside exact page/section provenance.
+- **File Uploads**: Incoming PDFs, LaTeX sources, and Markdown files are staged in `/app/data/uploads` with validated MIME types and unique UUID handles.
 
-## Ownership
+---
 
-Platform/infrastructure — Yash Mishra.
+## 3. Observability & Health Probes
 
-## What Does NOT Belong Here
+- **Liveness Probe**: `GET /api/v1/system/health` $\to$ Returns HTTP 200 when the Uvicorn ASGI server is responding.
+- **Readiness Probe**: `GET /api/v1/system/overview` $\to$ Validates database connection, vector store availability, indexed document counts, and memory thresholds.
+- **Query Telemetry**: Every search and generation turn records latency percentiles, token usage, groundedness status, and citation coverage in the `query_logs` store.
 
-Product or domain logic, application source, embedded secrets, environment-specific source forks, Docker assets before authorization, or undocumented manual state.
+---
+
+## 4. Production Operational Guidelines
+
+- **Single-Worker Topology**: Due to SQLite single-writer concurrency design, the backend runs as a single Uvicorn worker process coupled with an internal asynchronous thread pool (default 50 workers) to eliminate multi-process lock contention.
+- **Reverse Proxying**: Always terminate SSL/TLS at the edge (Cloudflare, Vercel, or Nginx/Caddy) and forward `Host` and `X-Forwarded-Proto` headers.

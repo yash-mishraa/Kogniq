@@ -1,30 +1,24 @@
-# Scripts
+# Kogniq Engineering & Operations Scripts
 
-## Purpose
+This directory houses operational tools, load testing runners, automated evaluation drivers, and maintenance utilities for the Kogniq platform.
 
-Future home of narrow repository-wide operational utilities.
+---
 
-## Future Responsibilities
+## Script Inventory
 
-Repeatable setup, validation, maintenance, migration support, and developer automation that does not belong to one module.
+| Script | Purpose | Usage |
+| :--- | :--- | :--- |
+| **`benchmark_runner.py`** | Evaluates end-to-end RAG latency, retrieval precision, and ground-truth hit rates across realistic workloads. | `uv run python scripts/benchmark_runner.py` |
+| **`100_vu_runner.py`** | High-concurrency simulation simulating 100 simultaneous virtual users querying the hybrid search pipeline. | `uv run python scripts/100_vu_runner.py` |
+| **`verify_forward_compatibility.sh`** | Bash script ensuring forward compatibility across database schemas, API schemas, and package interfaces. | `bash scripts/verify_forward_compatibility.sh` |
+| **`run_m5_gates.ps1`** | Windows/Cross-platform PowerShell script running strict static analysis, linting, and quality verification gates. | `pwsh scripts/run_m5_gates.ps1` |
+| **`take_screenshots.js`** | Puppeteer automation capturing responsive UI states for documentation and visual regression checks. | `node scripts/take_screenshots.js` |
 
-Reserved categories:
+---
 
-- `development/` for local engineering and validation helpers.
-- `deployment/` for future controlled release helpers.
-- `maintenance/` for bounded repository and data maintenance.
-- `evaluation/` for reproducible evaluation entry points.
+## Directory Organization
 
-These directories currently contain documentation only.
-
-## Ownership
-
-Platform engineering — Yash Mishra.
-
-## What Belongs Here
-
-Documented, idempotent where practical, non-interactive utilities with clear inputs, outputs, failure behavior, and tests when warranted.
-
-## What Should Not Belong Here
-
-Core business logic, hidden production services, credentials, destructive defaults, one-off personal scripts, or module-specific logic.
+- **[`deployment/`](deployment/)**: Operational checklists, container pre-flight diagnostics, and production verification procedures.
+- **[`development/`](development/)**: Local engineering workflows, database seed resets, and mock service runners.
+- **[`evaluation/`](evaluation/)**: Benchmark dataset runners and precision-recall metric exporters.
+- **[`maintenance/`](maintenance/)**: Database VACUUM routines, orphaned document cleanup, and Chroma index rebuilding.

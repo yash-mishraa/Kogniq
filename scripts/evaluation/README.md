@@ -1,6 +1,22 @@
-# Evaluation Scripts
+# RAG Evaluation & Benchmark Utilities
 
-Reserved for future reproducible entry points that run approved evaluation contracts and produce traceable artifacts.
+Entrypoints and measurement drivers for empirical evaluation of the Kogniq retrieval and generation pipelines.
 
-Evaluation methodology belongs in `packages/evaluation` and `.ai`; scripts may orchestrate it but must not hide metric definitions or cherry-pick results.
+---
 
+## Evaluation Drivers
+
+1. **End-to-End Latency & Retrieval Quality**:
+   ```bash
+   uv run python scripts/benchmark_runner.py
+   ```
+   Measures:
+   - **Hit Rate @ K**: Proportion of queries where at least one ground-truth passage was retrieved.
+   - **MRR (Mean Reciprocal Rank)**: Quality of result ranking across fused vector and BM25 candidate lists.
+   - **End-to-end Latency**: Time to retrieve, assemble context, generate answer, and validate citations.
+
+2. **Concurrent Load Testing**:
+   ```bash
+   uv run python scripts/100_vu_runner.py
+   ```
+   Simulates 100 concurrent virtual users querying the system under heavy load to measure thread-pool latency under contention.
