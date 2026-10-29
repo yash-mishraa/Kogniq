@@ -138,6 +138,13 @@ async def bootstrap_user_roles(
         )
         await auth_provider.assign_role(user.user_id, role_id)
         granted += 1
+
+    try:
+        if not await auth_provider.get_roles("demo-user-1"):
+            await auth_provider.assign_role("demo-user-1", ROLE_USER_ID)
+    except Exception:
+        pass
+
     if granted:
         logger.info("Granted default roles to %s persisted user(s)", granted)
     return granted

@@ -3,10 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
-  BookOpen,
   Network,
   Search,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui";
 import {
@@ -157,7 +155,6 @@ export function KnowledgeGraphPanel({
       {/* Document Selector & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-4">
         <div className="flex items-center gap-3">
-          <BookOpen className="h-5 w-5 text-[#888888]" />
           <span className="text-xs uppercase tracking-wider text-[#888888]">Source:</span>
           <select
             value={activeDocId}
@@ -182,7 +179,6 @@ export function KnowledgeGraphPanel({
           disabled={!activeDocId || extractMutation.isPending}
           className="border border-[#383838] bg-[#1a1a1a] text-xs text-[#f0f0f0] hover:bg-[#262626]"
         >
-          <Sparkles className="mr-1.5 h-3.5 w-3.5 text-[#a0a0a0]" />
           {extractMutation.isPending ? "Extracting..." : "Extract Graph"}
         </Button>
       </div>
@@ -197,7 +193,6 @@ export function KnowledgeGraphPanel({
       {/* Content Area */}
       {readyDocs.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-12 text-center">
-          <Network className="h-10 w-10 text-[#555555] mb-3" />
           <h3 className="text-base font-medium text-[#f0f0f0]">No documents ready</h3>
           <p className="mt-1 text-xs text-[#888888] max-w-sm">
             Upload and index a document first to explore its conceptual knowledge graph.
@@ -215,7 +210,6 @@ export function KnowledgeGraphPanel({
         </div>
       ) : graphData.concepts.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-12 text-center">
-          <Network className="h-10 w-10 text-[#555555] mb-3" />
           <h3 className="text-base font-medium text-[#f0f0f0]">Knowledge graph not yet extracted</h3>
           <p className="mt-1 text-xs text-[#888888] max-w-sm">
             Extract concepts and domain relationships from this document using local or cloud AI.
@@ -226,7 +220,6 @@ export function KnowledgeGraphPanel({
             disabled={extractMutation.isPending}
             className="mt-5 text-xs"
           >
-            <Sparkles className="mr-1.5 h-3.5 w-3.5" />
             Extract Concepts & Relationships
           </Button>
         </div>

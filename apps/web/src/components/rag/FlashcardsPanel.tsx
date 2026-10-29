@@ -2,16 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import {
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  Layers,
-  Plus,
-  RotateCcw,
-  Sparkles,
-} from "lucide-react";
 import { Button } from "@/components/ui";
 import { FlashcardItemData, ragApi } from "@/lib/rag/api";
 import { SectionHeading, UserErrorNotice } from "./shared";
@@ -99,7 +89,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
       {/* Document Selector & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-4">
         <div className="flex items-center gap-3">
-          <BookOpen className="h-5 w-5 text-[#888888]" />
           <span className="text-xs uppercase tracking-wider text-[#888888]">Source:</span>
           <select
             value={activeDocId}
@@ -127,7 +116,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
             disabled={!activeDocId}
             className="border border-[#262626] text-xs text-[#d0d0d0] hover:bg-[#1f1f1f]"
           >
-            <Plus className="mr-1.5 h-3.5 w-3.5" />
             Add Card
           </Button>
           <Button
@@ -136,7 +124,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
             disabled={!activeDocId || generateMutation.isPending}
             className="border border-[#383838] bg-[#1a1a1a] text-xs text-[#f0f0f0] hover:bg-[#262626]"
           >
-            <Sparkles className="mr-1.5 h-3.5 w-3.5 text-[#a0a0a0]" />
             {generateMutation.isPending ? "Generating..." : "Generate Deck"}
           </Button>
         </div>
@@ -152,7 +139,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
       {/* Content Area */}
       {readyDocs.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-12 text-center">
-          <Layers className="h-10 w-10 text-[#555555] mb-3" />
           <h3 className="text-base font-medium text-[#f0f0f0]">No documents ready</h3>
           <p className="mt-1 text-xs text-[#888888] max-w-sm">
             Upload and index a document first to practice with flashcards.
@@ -170,7 +156,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
         </div>
       ) : cards.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-12 text-center">
-          <Layers className="h-10 w-10 text-[#555555] mb-3" />
           <h3 className="text-base font-medium text-[#f0f0f0]">No flashcards yet for this document</h3>
           <p className="mt-1 text-xs text-[#888888] max-w-sm">
             Generate flashcards using local or cloud AI, or create custom cards manually.
@@ -182,7 +167,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
               disabled={generateMutation.isPending}
               className="text-xs"
             >
-              <Sparkles className="mr-1.5 h-3.5 w-3.5" />
               Generate Flashcards
             </Button>
             <Button
@@ -191,7 +175,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
               onClick={() => setShowAddModal(true)}
               className="border border-[#262626] text-xs text-[#d0d0d0]"
             >
-              <Plus className="mr-1.5 h-3.5 w-3.5" />
               Create Manually
             </Button>
           </div>
@@ -214,10 +197,9 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
               </span>
               <button
                 onClick={handleReset}
-                className="flex items-center gap-1 hover:text-[#f0f0f0] transition-colors"
+                className="hover:text-[#f0f0f0] transition-colors"
                 title="Restart review"
               >
-                <RotateCcw className="h-3 w-3" />
                 Reset
               </button>
             </div>
@@ -259,7 +241,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
                     onClick={() => setRevealed(true)}
                     className="border border-[#2e2e2e] bg-[#141414] text-xs text-[#e0e0e0] hover:bg-[#1c1c1c]"
                   >
-                    <Eye className="mr-1.5 h-3.5 w-3.5 text-[#888888]" />
                     Reveal Answer
                   </Button>
                 </div>
@@ -312,7 +293,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
               disabled={currentIndex === 0}
               className="border border-[#222222] text-xs text-[#c0c0c0]"
             >
-              <ChevronLeft className="mr-1 h-3.5 w-3.5" />
               Previous
             </Button>
             <Button
@@ -328,7 +308,6 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
               className="border border-[#222222] text-xs text-[#c0c0c0]"
             >
               Next
-              <ChevronRight className="ml-1 h-3.5 w-3.5" />
             </Button>
           </div>
         </div>

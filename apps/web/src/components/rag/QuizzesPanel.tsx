@@ -4,14 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   Award,
-  BookOpen,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  HelpCircle,
-  Plus,
   RotateCcw,
-  Sparkles,
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui";
@@ -122,7 +118,6 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
       {/* Document Selector & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-4">
         <div className="flex items-center gap-3">
-          <BookOpen className="h-5 w-5 text-[#888888]" />
           <span className="text-xs uppercase tracking-wider text-[#888888]">Source:</span>
           <select
             value={activeDocId}
@@ -151,7 +146,6 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
             disabled={!activeDocId}
             className="border border-[#262626] text-xs text-[#d0d0d0] hover:bg-[#1f1f1f]"
           >
-            <Plus className="mr-1.5 h-3.5 w-3.5" />
             Add Question
           </Button>
           <Button
@@ -160,7 +154,6 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
             disabled={!activeDocId || generateMutation.isPending}
             className="border border-[#383838] bg-[#1a1a1a] text-xs text-[#f0f0f0] hover:bg-[#262626]"
           >
-            <Sparkles className="mr-1.5 h-3.5 w-3.5 text-[#a0a0a0]" />
             {generateMutation.isPending ? "Generating..." : "Generate Quiz"}
           </Button>
         </div>
@@ -176,7 +169,6 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
       {/* Content Area */}
       {readyDocs.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-12 text-center">
-          <HelpCircle className="h-10 w-10 text-[#555555] mb-3" />
           <h3 className="text-base font-medium text-[#f0f0f0]">No documents ready</h3>
           <p className="mt-1 text-xs text-[#888888] max-w-sm">
             Upload and index a document first to practice with quizzes.
@@ -194,7 +186,6 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
         </div>
       ) : questions.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-12 text-center">
-          <HelpCircle className="h-10 w-10 text-[#555555] mb-3" />
           <h3 className="text-base font-medium text-[#f0f0f0]">No quiz yet for this document</h3>
           <p className="mt-1 text-xs text-[#888888] max-w-sm">
             Generate multiple-choice questions grounded in the text, or add custom questions.
@@ -206,7 +197,6 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
               disabled={generateMutation.isPending}
               className="text-xs"
             >
-              <Sparkles className="mr-1.5 h-3.5 w-3.5" />
               Generate Quiz with AI
             </Button>
             <Button
@@ -215,7 +205,6 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
               onClick={() => setShowAddModal(true)}
               className="border border-[#262626] text-xs text-[#d0d0d0]"
             >
-              <Plus className="mr-1.5 h-3.5 w-3.5" />
               Create Manually
             </Button>
           </div>

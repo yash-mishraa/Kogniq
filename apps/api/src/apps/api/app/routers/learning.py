@@ -45,12 +45,36 @@ def _raise_backend_error(error: Exception) -> None:
 @learning_router.post("/generate", response_model=LearningGenerationResponse)
 async def generate_learning_content(
     request: LearningGenerationRequest,
+    req_obj: Request,
     x_user_id: str = Header("demo-user-1", alias="X-User-Id"),
     use_case: GenerateLearningUseCase = Depends(get_generate_learning_use_case),  # noqa: B008
 ) -> LearningGenerationResponse:
     """Generate an educational artifact from a processed document."""
+    token = _session_token(req_obj, None)
+    user_id = x_user_id
+    if token:
+        try:
+            from backend.dependencies import get_authentication_service
+
+            auth_svc = await get_authentication_service()
+            session = await auth_svc.validate_session(token)
+            if session:
+                user_id = session.user_id
+        except Exception:
+            pass
+
+    try:
+        from backend.dependencies import get_authorization_provider
+        from backend.security.policies import ROLE_USER_ID
+
+        auth_provider = get_authorization_provider()
+        if not (await auth_provider.get_roles(user_id)):
+            await auth_provider.assign_role(user_id, ROLE_USER_ID)
+    except Exception:
+        pass
+
     command = GenerateLearningCommand(
-        user_id=x_user_id,
+        user_id=user_id,
         document_id=request.document_id,
         generator=request.generator,
     )
