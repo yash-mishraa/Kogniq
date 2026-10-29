@@ -27,8 +27,24 @@ class BackendConfig(BaseSettings):
     ] = "auto"
     local_llm_url: str = "http://localhost:11434"
     local_llm_model: str = "llama3.2:3b"
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.5-flash-lite"
     provider_fallback_enabled: bool = True
+
+    @field_validator("gemini_model", mode="before")
+    @classmethod
+    def _normalize_gemini_model(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            v_clean = v.strip().lower()
+            if v_clean in (
+                "gemini-2.5-flash",
+                "gemini-1.5-flash",
+                "gemini-2.0-flash",
+                "gemini-2.5-flash-lite",
+                "gemini-flash",
+            ):
+                return "gemini-3.5-flash-lite"
+            return v_clean
+        return v
 
     @field_validator("learning_generation_provider", mode="before")
     @classmethod

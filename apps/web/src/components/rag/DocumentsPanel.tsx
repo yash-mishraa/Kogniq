@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { Button, Card, Table, UploadZone } from "@/components/ui";
 import { formatDate } from "@/lib/rag/format";
@@ -32,6 +33,7 @@ export function DocumentsPanel({
 }) {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [detailView, setDetailView] = useState<"document" | "passages">("document");
   const [chunkLimit, setChunkLimit] = useState(60);
   const [actionError, setActionError] = useState<unknown>(null);
 
@@ -315,19 +317,73 @@ export function DocumentsPanel({
 
       {selectedId ? (
         <Card id="document-detail" className="scroll-mt-24 overflow-hidden">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
             <div className="min-w-0">
-              <h3 className="section-title">Inside this document</h3>
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="section-title">Inside this document</h3>
+                {selectedDocument?.status === "Ready" ? (
+                  <div className="inline-flex rounded-lg border border-line bg-surface p-0.5 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setDetailView("document")}
+                      className={clsx(
+                        "rounded-md px-2.5 py-1 font-medium transition-colors",
+                        detailView === "document"
+                          ? "bg-canvas text-ink shadow-sm"
+                          : "text-muted hover:text-ink"
+                      )}
+                    >
+                      Document Viewer
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDetailView("passages")}
+                      className={clsx(
+                        "rounded-md px-2.5 py-1 font-medium transition-colors",
+                        detailView === "passages"
+                          ? "bg-canvas text-ink shadow-sm"
+                          : "text-muted hover:text-ink"
+                      )}
+                    >
+                      Search Passages {chunks.data ? `(${chunks.data.chunk_count})` : ""}
+                    </button>
+                  </div>
+                ) : null}
+              </div>
               <p className="mt-0.5 text-xs leading-5 text-muted">
                 {selectedDocument ? selectedDocument.title : "Selected document"} — these are the
                 passages Kogniq can search and cite.
               </p>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => setSelectedId(null)}>
-              Close
-            </Button>
+            <div className="flex items-center gap-2">
+              <a
+                href={`/api/v1/documents/${encodeURIComponent(selectedId)}/file`}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-xs text-muted transition-colors hover:text-ink"
+              >
+                Open in new tab ↗
+              </a>
+              {selectedDocument && selectedDocument.status === "Ready" ? (
+                <Button variant="secondary" size="sm" onClick={() => onAsk(selectedDocument.id)}>
+                  Ask questions
+                </Button>
+              ) : null}
+              <Button variant="ghost" size="sm" onClick={() => setSelectedId(null)}>
+                Close
+              </Button>
+            </div>
           </div>
-          {chunks.isLoading ? (
+
+          {selectedDocument?.status === "Ready" && detailView === "document" ? (
+            <div className="relative w-full h-[800px] bg-canvas">
+              <iframe
+                src={`/api/v1/documents/${encodeURIComponent(selectedId)}/file`}
+                title={selectedDocument?.title || "Document file"}
+                className="w-full h-full border-0"
+              />
+            </div>
+          ) : chunks.isLoading ? (
             <Loading label="Loading passages" />
           ) : chunks.error ? (
             <div className="p-5">

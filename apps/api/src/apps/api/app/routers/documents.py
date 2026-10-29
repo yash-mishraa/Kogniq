@@ -161,7 +161,12 @@ async def get_document_file(
     path, filename, content_type = await document_service.upload_file(
         document_id, current_user.user_id
     )
-    return FileResponse(path=path, media_type=content_type, filename=filename)
+    return FileResponse(
+        path=path,
+        media_type=content_type,
+        filename=filename,
+        content_disposition_type="inline",
+    )
 
 
 @router.get("/documents/{document_id}/chunks")
