@@ -133,7 +133,7 @@ function Access({ reduceMotion }: { reduceMotion: boolean | null }) {
       initial={false}
       exit={reduceMotion ? undefined : { opacity: 0.99 }}
       transition={transition}
-      className="relative flex min-h-dvh flex-col bg-canvas px-6 py-7 text-ink sm:px-10 sm:py-9"
+      className="relative flex min-h-dvh flex-col bg-canvas px-5 py-6 text-ink sm:px-10 sm:py-9"
     >
       <motion.span
         layoutId="kogniq-word"
@@ -143,7 +143,7 @@ function Access({ reduceMotion }: { reduceMotion: boolean | null }) {
         Kogniq
       </motion.span>
 
-      <div className="mx-auto flex w-full max-w-6xl flex-1 items-center py-14 sm:py-20">
+      <div className="mx-auto flex w-full max-w-6xl flex-1 items-center py-8 sm:py-20">
         <form
           onSubmit={submit}
           className="w-full max-w-2xl tracking-[-0.035em]"

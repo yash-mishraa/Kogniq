@@ -116,9 +116,9 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
       />
 
       {/* Document Selector & Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-4">
-        <div className="flex items-center gap-3">
-          <span className="text-xs uppercase tracking-wider text-[#888888]">Source:</span>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-3 sm:p-4">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <span className="text-xs uppercase tracking-wider text-[#888888] shrink-0">Source:</span>
           <select
             value={activeDocId}
             onChange={(e) => {
@@ -127,7 +127,7 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
               setUserAnswers({});
               setSubmitted(false);
             }}
-            className="rounded border border-[#262626] bg-[#141414] px-3 py-1.5 text-sm text-[#f0f0f0] focus:border-[#404040] focus:outline-none"
+            className="w-full sm:w-auto max-w-full sm:max-w-xs md:max-w-sm truncate rounded border border-[#262626] bg-[#141414] px-2.5 py-1.5 text-xs sm:text-sm text-[#f0f0f0] focus:border-[#404040] focus:outline-none"
           >
             {readyDocs.length === 0 && <option value="">No ready documents</option>}
             {readyDocs.map((doc) => (
@@ -144,7 +144,7 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
             size="sm"
             onClick={() => setShowAddModal(true)}
             disabled={!activeDocId}
-            className="border border-[#262626] text-xs text-[#d0d0d0] hover:bg-[#1f1f1f]"
+            className="border border-[#262626] text-xs text-[#d0d0d0] hover:bg-[#1f1f1f] flex-1 sm:flex-initial"
           >
             Add Question
           </Button>
@@ -152,7 +152,7 @@ export function QuizzesPanel({ initialDocumentId, onOpenDocuments }: QuizzesPane
             size="sm"
             onClick={() => generateMutation.mutate()}
             disabled={!activeDocId || generateMutation.isPending}
-            className="border border-[#383838] bg-[#1a1a1a] text-xs text-[#f0f0f0] hover:bg-[#262626]"
+            className="border border-[#383838] bg-[#1a1a1a] text-xs text-[#f0f0f0] hover:bg-[#262626] flex-1 sm:flex-initial"
           >
             {generateMutation.isPending ? "Generating..." : "Generate Quiz"}
           </Button>

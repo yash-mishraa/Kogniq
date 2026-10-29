@@ -278,16 +278,16 @@ export function KnowledgeGraphPanel({
       />
 
       {/* Document Selector & Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-4">
-        <div className="flex items-center gap-3">
-          <span className="text-xs uppercase tracking-wider text-[#888888]">Source:</span>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-3 sm:p-4">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <span className="text-xs uppercase tracking-wider text-[#888888] shrink-0">Source:</span>
           <select
             value={activeDocId}
             onChange={(e) => {
               setSelectedDocId(e.target.value);
               setActiveConceptId(null);
             }}
-            className="rounded border border-[#262626] bg-[#141414] px-3 py-1.5 text-sm text-[#f0f0f0] focus:border-[#404040] focus:outline-none"
+            className="w-full sm:w-auto max-w-full sm:max-w-xs md:max-w-sm truncate rounded border border-[#262626] bg-[#141414] px-2.5 py-1.5 text-xs sm:text-sm text-[#f0f0f0] focus:border-[#404040] focus:outline-none"
           >
             {readyDocs.length === 0 && <option value="">No ready documents</option>}
             {readyDocs.map((doc) => (
@@ -302,7 +302,7 @@ export function KnowledgeGraphPanel({
           size="sm"
           onClick={() => extractMutation.mutate()}
           disabled={!activeDocId || extractMutation.isPending}
-          className="border border-[#383838] bg-[#1a1a1a] text-xs text-[#f0f0f0] hover:bg-[#262626]"
+          className="border border-[#383838] bg-[#1a1a1a] text-xs text-[#f0f0f0] hover:bg-[#262626] shrink-0"
         >
           {extractMutation.isPending ? "Extracting Concepts..." : "Re-extract Graph"}
         </Button>
@@ -351,15 +351,15 @@ export function KnowledgeGraphPanel({
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Interactive Graph Canvas */}
-          <div className="lg:col-span-2 flex flex-col rounded-xl border border-[#222222] bg-[#09090b] p-4 shadow-2xl relative overflow-hidden">
+          <div className="lg:col-span-2 flex flex-col rounded-xl border border-[#222222] bg-[#09090b] p-3 sm:p-4 shadow-2xl relative overflow-hidden">
             {/* Canvas Header & Stats */}
             <div className="flex items-center justify-between border-b border-[#1c1c1f] pb-3 mb-2 px-1">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs uppercase tracking-wider text-[#a1a1aa]">
+                <span className="font-mono text-[11px] sm:text-xs uppercase tracking-wider text-[#a1a1aa]">
                   {graphData.concepts.length} Concepts
                 </span>
                 <span className="text-[#3f3f46]">•</span>
-                <span className="font-mono text-xs uppercase tracking-wider text-[#71717a]">
+                <span className="font-mono text-[11px] sm:text-xs uppercase tracking-wider text-[#71717a]">
                   {graphData.relationships.length} Relationships
                 </span>
               </div>
@@ -392,7 +392,7 @@ export function KnowledgeGraphPanel({
             </div>
 
             {/* SVG Visual Canvas */}
-            <div className="relative flex items-center justify-center w-full min-h-[460px] overflow-hidden rounded-lg bg-[#050507]">
+            <div className="relative flex items-center justify-center w-full min-h-[320px] sm:min-h-[460px] overflow-hidden rounded-lg bg-[#050507]">
               <svg
                 viewBox="0 0 800 500"
                 className="w-full h-full max-h-[500px] transition-transform duration-200"

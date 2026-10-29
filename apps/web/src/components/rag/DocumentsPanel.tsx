@@ -376,7 +376,7 @@ export function DocumentsPanel({
           </div>
 
           {selectedDocument?.status === "Ready" && detailView === "document" ? (
-            <div className="relative w-full h-[800px] bg-canvas">
+            <div className="relative w-full h-[450px] sm:h-[800px] bg-canvas">
               <iframe
                 src={`/api/v1/documents/${encodeURIComponent(selectedId)}/file`}
                 title={selectedDocument?.title || "Document file"}

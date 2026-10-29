@@ -87,9 +87,9 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
       />
 
       {/* Document Selector & Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-4">
-        <div className="flex items-center gap-3">
-          <span className="text-xs uppercase tracking-wider text-[#888888]">Source:</span>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 rounded-lg border border-[#1f1f1f] bg-[#0c0c0c] p-3 sm:p-4">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <span className="text-xs uppercase tracking-wider text-[#888888] shrink-0">Source:</span>
           <select
             value={activeDocId}
             onChange={(e) => {
@@ -97,7 +97,7 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
               setCurrentIndex(0);
               setRevealed(false);
             }}
-            className="rounded border border-[#262626] bg-[#141414] px-3 py-1.5 text-sm text-[#f0f0f0] focus:border-[#404040] focus:outline-none"
+            className="w-full sm:w-auto max-w-full sm:max-w-xs md:max-w-sm truncate rounded border border-[#262626] bg-[#141414] px-2.5 py-1.5 text-xs sm:text-sm text-[#f0f0f0] focus:border-[#404040] focus:outline-none"
           >
             {readyDocs.length === 0 && <option value="">No ready documents</option>}
             {readyDocs.map((doc) => (
@@ -114,7 +114,7 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
             size="sm"
             onClick={() => setShowAddModal(true)}
             disabled={!activeDocId}
-            className="border border-[#262626] text-xs text-[#d0d0d0] hover:bg-[#1f1f1f]"
+            className="border border-[#262626] text-xs text-[#d0d0d0] hover:bg-[#1f1f1f] flex-1 sm:flex-initial"
           >
             Add Card
           </Button>
@@ -122,7 +122,7 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
             size="sm"
             onClick={() => generateMutation.mutate()}
             disabled={!activeDocId || generateMutation.isPending}
-            className="border border-[#383838] bg-[#1a1a1a] text-xs text-[#f0f0f0] hover:bg-[#262626]"
+            className="border border-[#383838] bg-[#1a1a1a] text-xs text-[#f0f0f0] hover:bg-[#262626] flex-1 sm:flex-initial"
           >
             {generateMutation.isPending ? "Generating..." : "Generate Deck"}
           </Button>
@@ -207,7 +207,7 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
 
           {/* Card Presentation */}
           {currentCard && (
-            <div className="relative flex min-h-[300px] flex-col justify-between rounded-xl border border-[#262626] bg-[#0f0f0f] p-8 shadow-2xl transition-all">
+            <div className="relative flex min-h-[260px] sm:min-h-[300px] flex-col justify-between rounded-xl border border-[#262626] bg-[#0f0f0f] p-4 sm:p-8 shadow-2xl transition-all">
               <div className="flex items-start justify-between">
                 <span className="rounded bg-[#1a1a1a] px-2 py-0.5 font-mono text-[11px] uppercase tracking-wider text-[#888888] border border-[#262626]">
                   {currentCard.difficulty || "medium"}
@@ -218,16 +218,16 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
               </div>
 
               {/* Question */}
-              <div className="my-6">
+              <div className="my-5 sm:my-6">
                 <span className="text-xs uppercase tracking-widest text-[#707070]">Question</span>
-                <p className="mt-2 text-lg font-medium leading-relaxed text-[#f5f5f5]">
+                <p className="mt-2 text-base sm:text-lg font-medium leading-relaxed text-[#f5f5f5]">
                   {currentCard.question}
                 </p>
               </div>
 
               {/* Answer Section */}
               {revealed ? (
-                <div className="mt-4 rounded-lg border border-[#222222] bg-[#141414] p-5">
+                <div className="mt-4 rounded-lg border border-[#222222] bg-[#141414] p-4 sm:p-5">
                   <span className="text-xs uppercase tracking-widest text-[#888888]">Answer</span>
                   <p className="mt-2 text-sm leading-relaxed text-[#e0e0e0] font-sans">
                     {currentCard.answer}
@@ -239,7 +239,7 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
                     variant="ghost"
                     size="sm"
                     onClick={() => setRevealed(true)}
-                    className="border border-[#2e2e2e] bg-[#141414] text-xs text-[#e0e0e0] hover:bg-[#1c1c1c]"
+                    className="border border-[#2e2e2e] bg-[#141414] text-xs text-[#e0e0e0] hover:bg-[#1c1c1c] w-full sm:w-auto"
                   >
                     Reveal Answer
                   </Button>
@@ -248,24 +248,24 @@ export function FlashcardsPanel({ initialDocumentId, onOpenDocuments }: Flashcar
 
               {/* Rating Controls (visible when answer is revealed) */}
               {revealed ? (
-                <div className="mt-6 flex flex-wrap items-center justify-between border-t border-[#1f1f1f] pt-4 gap-2">
+                <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-t border-[#1f1f1f] pt-4 gap-3">
                   <span className="text-xs text-[#777777]">How well did you know this?</span>
-                  <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-3 sm:flex items-center gap-2">
                     <button
                       onClick={() => handleDifficulty("hard")}
-                      className="rounded border border-[#3a1d1d] bg-[#1a0e0e] px-3 py-1.5 text-xs text-[#e87070] hover:bg-[#2b1414] transition-colors"
+                      className="rounded border border-[#3a1d1d] bg-[#1a0e0e] px-2 sm:px-3 py-2 text-xs text-[#e87070] hover:bg-[#2b1414] transition-colors text-center"
                     >
-                      Hard / Missed
+                      Hard
                     </button>
                     <button
                       onClick={() => handleDifficulty("medium")}
-                      className="rounded border border-[#36321d] bg-[#17150c] px-3 py-1.5 text-xs text-[#e2b865] hover:bg-[#292412] transition-colors"
+                      className="rounded border border-[#36321d] bg-[#17150c] px-2 sm:px-3 py-2 text-xs text-[#e2b865] hover:bg-[#292412] transition-colors text-center"
                     >
                       Good
                     </button>
                     <button
                       onClick={() => handleDifficulty("easy")}
-                      className="rounded border border-[#1d3322] bg-[#0c170f] px-3 py-1.5 text-xs text-[#6ee7a3] hover:bg-[#142618] transition-colors"
+                      className="rounded border border-[#1d3322] bg-[#0c170f] px-2 sm:px-3 py-2 text-xs text-[#6ee7a3] hover:bg-[#142618] transition-colors text-center"
                     >
                       Easy
                     </button>

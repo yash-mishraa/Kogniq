@@ -118,6 +118,9 @@
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: hsl(var(--canvas)); }
   ::-webkit-scrollbar-thumb { background: hsl(var(--line-strong)); }
+
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
 @layer components {

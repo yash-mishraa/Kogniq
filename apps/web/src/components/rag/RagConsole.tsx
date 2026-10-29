@@ -148,7 +148,7 @@ function ConsoleShell({
   return (
     <div className="flex min-h-dvh flex-col bg-canvas">
       <header className="sticky top-0 z-10 border-b border-line/70 bg-canvas/85 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-6 px-6 py-4 sm:px-10">
+        <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-4 px-4 py-3 sm:px-10 sm:py-4">
           <button
             type="button"
             onClick={() => onNavigate("home")}
@@ -208,7 +208,7 @@ function ConsoleShell({
             </button>
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <span className="hidden max-w-[16rem] truncate font-mono text-[10px] text-muted xl:block">
               {email}
             </span>
@@ -218,7 +218,7 @@ function ConsoleShell({
 
         <nav
           aria-label="Primary"
-          className="flex gap-1 overflow-x-auto border-t border-line/60 px-4 lg:hidden"
+          className="flex items-center gap-1.5 overflow-x-auto border-t border-line/60 px-3 py-1.5 scrollbar-none touch-pan-x [-webkit-overflow-scrolling:touch] lg:hidden"
         >
           {EVERYDAY_NAV.map((item) => {
             const active = view === item.id;
@@ -229,34 +229,39 @@ function ConsoleShell({
                 onClick={() => onNavigate(item.id)}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "shrink-0 border-b-2 px-3 py-3 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors",
-                  active ? "border-accent text-ink" : "border-transparent text-muted",
+                  "shrink-0 rounded-md px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors whitespace-nowrap",
+                  active
+                    ? "bg-surface text-ink shadow-sm"
+                    : "text-muted hover:text-ink hover:bg-surface/50",
                 )}
               >
                 {item.label}
               </button>
             );
           })}
+          <span aria-hidden className="h-3 w-px shrink-0 bg-line/60" />
           <button
             type="button"
             onClick={onOpenEngineering}
             aria-current={engineering ? "page" : undefined}
             className={cn(
-              "shrink-0 border-b-2 px-3 py-3 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors",
-              engineering ? "border-accent text-ink" : "border-transparent text-muted",
+              "shrink-0 rounded-md px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors whitespace-nowrap",
+              engineering
+                ? "bg-surface text-ink shadow-sm"
+                : "text-muted hover:text-ink hover:bg-surface/50",
             )}
           >
-            Engineering Console
+            Engineering
           </button>
         </nav>
 
         {engineering ? (
           <div className="border-t border-line/60 bg-canvas/70">
-            <div className="mx-auto flex w-full max-w-[1440px] items-center gap-5 overflow-x-auto px-6 py-2.5 sm:px-10">
+            <div className="mx-auto flex w-full max-w-[1440px] items-center gap-3 overflow-x-auto px-4 py-2 scrollbar-none touch-pan-x sm:px-10">
               <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
                 Engineering
               </span>
-              <nav aria-label="Engineering console sections" className="flex items-center gap-5">
+              <nav aria-label="Engineering console sections" className="flex items-center gap-3 sm:gap-5">
                 {ENGINEERING_NAV.map((item) => {
                   const active = view === item.id;
                   return (
@@ -267,7 +272,7 @@ function ConsoleShell({
                       aria-current={active ? "page" : undefined}
                       title={item.hint}
                       className={cn(
-                        "shrink-0 border-b py-1 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors",
+                        "shrink-0 rounded-md border-b-2 py-1 px-1.5 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors whitespace-nowrap",
                         active
                           ? "border-accent text-ink"
                           : "border-transparent text-muted hover:text-ink",
@@ -283,7 +288,7 @@ function ConsoleShell({
         ) : null}
       </header>
 
-      <main className="mx-auto w-full max-w-[1440px] flex-1 px-6 py-10 sm:px-10 sm:py-14">
+      <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 sm:px-10 sm:py-14">
         <h1 className="sr-only">{VIEW_LABELS[view]} — Kogniq</h1>
 
         <section hidden={view !== "home"} className={view === "home" ? "panel-enter" : undefined}>
