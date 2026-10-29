@@ -247,25 +247,13 @@ function Access({ reduceMotion }: { reduceMotion: boolean | null }) {
       </div>
 
       <div className="flex flex-wrap items-end justify-between gap-4 border-t border-line/60 pt-5">
-        <div className="space-y-2">
+        <div>
           <button
             type="button"
             onClick={switchMode}
             className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted underline-offset-4 transition-colors hover:text-ink hover:underline"
           >
             {mode === "login" ? "New here? Create an account." : "Already have an account? Sign in."}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setEmail("admin@kogniq.ai");
-              setPassword("password");
-              setMode("login");
-              setError(null);
-            }}
-            className="font-mono text-[10px] text-muted transition-colors hover:text-ink cursor-pointer text-left"
-          >
-            Demo · admin@kogniq.ai / password
           </button>
         </div>
         <Footline />

@@ -11,8 +11,7 @@
 
 Kogniq is a high-performance RAG engineering and document intelligence console: upload documents (PDF, Markdown, LaTeX, TXT), inspect how they are chunked and embedded, compare chunking strategies, run hybrid reciprocal-rank retrieval, get grounded answers with validated citations, explore synthesized relational Knowledge Graphs, practice with AI-generated Flashcards & Quizzes, and evaluate retrieval metrics with query telemetry.
 
-**Live Application**: [https://kogniq.vercel.app](https://kogniq.vercel.app)  
-**Demo Credentials**: `admin@kogniq.ai` / `password` (or self-register with any email). Fully responsive on desktop, tablet, and mobile browsers.
+**Live Application**: [https://kogniq.vercel.app](https://kogniq.vercel.app) — self-register with any email or sign in. Fully responsive on desktop, tablet, and mobile browsers.
 
 ## Key Capabilities
 
