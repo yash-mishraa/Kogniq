@@ -2,7 +2,9 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from pydantic import BaseModel, Field
+from typing import Any
+
+from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from shared.config import Environment
@@ -44,11 +46,25 @@ class APISettings(BaseSettings):
     log_level: str = DEFAULT_LOG_LEVEL
     log_format: str = "TEXT"
 
-    cors_origins: list[str] = Field(default_factory=list)
-    cors_allow_credentials: bool = False
-    allowed_hosts: list[str] = Field(
-        default_factory=lambda: ["127.0.0.1", "localhost", "testserver"],
+    cors_origins: list[str] | str = Field(default_factory=lambda: ["*"])
+    cors_allow_credentials: bool = True
+    allowed_hosts: list[str] | str = Field(
+        default_factory=lambda: ["*"],
     )
+
+    @field_validator("allowed_hosts", "cors_origins", mode="after")
+    @classmethod
+    def _parse_list_fields(cls, v: Any) -> list[str]:
+        if isinstance(v, str):
+            v_clean = v.strip()
+            if v_clean.startswith("[") and v_clean.endswith("]"):
+                import json
+                try:
+                    return json.loads(v_clean)
+                except Exception:
+                    pass
+            return [part.strip() for part in v_clean.split(",") if part.strip()]
+        return v
     gzip_enabled: bool = True
     gzip_minimum_size: int = Field(default=500, ge=0)
     request_id_header: str = "X-Request-ID"

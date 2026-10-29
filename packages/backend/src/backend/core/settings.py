@@ -1,5 +1,6 @@
-from typing import Literal
+from typing import Any, Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -28,6 +29,16 @@ class BackendConfig(BaseSettings):
     local_llm_model: str = "llama3.2:3b"
     gemini_model: str = "gemini-2.5-flash"
     provider_fallback_enabled: bool = True
+
+    @field_validator("learning_generation_provider", mode="before")
+    @classmethod
+    def _normalize_learning_provider(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            v_clean = v.strip().lower()
+            if v_clean.startswith("gemi"):
+                return "gemini"
+            return v_clean
+        return v
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
