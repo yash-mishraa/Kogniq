@@ -1,28 +1,105 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
-import { type FormEvent, useState } from "react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
+import { type FormEvent, useEffect, useState } from "react";
 import { ApiRequestError, ragApi, type SessionUser } from "@/lib/rag/api";
 import { Footline } from "./footer";
 
+type Phase = "arrival" | "access";
 type Mode = "login" | "register";
 
-const transition = { duration: 0.35, ease: [0.22, 1, 0.36, 1] as const };
+const transition = { duration: 0.46, ease: [0.22, 1, 0.36, 1] as const };
 
 /**
- * Editorial entry experience for Kogniq: direct access to sign-in or
- * account registration, optimized for desktop and mobile touch devices.
+ * Editorial entry experience for Kogniq: an ambient 3-second animated title intro
+ * that automatically transitions into the direct login/registration console,
+ * with instant tap-to-skip support across all desktop and mobile browsers.
  */
 export function EntryExperience() {
+  const [phase, setPhase] = useState<Phase>("arrival");
   const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (phase !== "arrival") return;
+    // Automatically transition from the title intro to the login screen after 3 seconds
+    const timer = setTimeout(() => {
+      setPhase("access");
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [phase]);
 
   return (
     <LayoutGroup id="kogniq-entry">
-      <main className="min-h-dvh overflow-x-hidden bg-canvas">
-        <Access reduceMotion={reduceMotion} />
+      <main className="min-h-dvh overflow-hidden bg-canvas">
+        <AnimatePresence mode="wait" initial={false}>
+          {phase === "arrival" ? (
+            <Arrival
+              key="arrival"
+              reduceMotion={reduceMotion}
+              onEnter={() => setPhase("access")}
+            />
+          ) : (
+            <Access key="access" reduceMotion={reduceMotion} />
+          )}
+        </AnimatePresence>
       </main>
     </LayoutGroup>
+  );
+}
+
+function Arrival({
+  onEnter,
+  reduceMotion,
+}: {
+  onEnter: () => void;
+  reduceMotion: boolean | null;
+}) {
+  return (
+    <motion.section
+      key="arrival"
+      initial={false}
+      exit={reduceMotion ? undefined : { opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      onClick={onEnter}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") onEnter();
+      }}
+      className="arrival-field relative grid min-h-dvh w-full place-items-center overflow-hidden bg-canvas text-ink select-none cursor-pointer"
+      style={{ WebkitUserSelect: "none", touchAction: "manipulation" }}
+      aria-label="Enter Kogniq"
+    >
+      <h1 className="sr-only">Kogniq</h1>
+      <div className="relative px-8 py-6 text-center select-none pointer-events-none">
+        <motion.span
+          layoutId="kogniq-word"
+          initial={
+            reduceMotion
+              ? false
+              : { filter: "blur(2px)", letterSpacing: "-0.035em", opacity: 0.6 }
+          }
+          animate={{ filter: "blur(0px)", letterSpacing: "-0.075em", opacity: 1 }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: [0.2, 0.75, 0.25, 1] }}
+          className="kogniq-word text-[clamp(3.2rem,10vw,7rem)] select-none"
+        >
+          Kogniq
+        </motion.span>
+        <span
+          aria-hidden
+          className="ml-1 inline-block h-[0.82em] w-px translate-y-[0.08em] bg-current align-baseline opacity-70 [animation:locus-idle_2.2s_cubic-bezier(.45,0,.55,1)_infinite]"
+        />
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 0.5, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="mt-6 font-mono text-[10px] uppercase tracking-[0.24em] text-muted select-none"
+        >
+          Tap or wait to enter
+        </motion.p>
+      </div>
+    </motion.section>
   );
 }
 
@@ -72,9 +149,13 @@ function Access({ reduceMotion }: { reduceMotion: boolean | null }) {
       transition={transition}
       className="relative flex min-h-dvh flex-col bg-canvas px-5 py-6 text-ink sm:px-10 sm:py-9 select-none sm:select-auto"
     >
-      <span className="kogniq-word block w-fit text-[clamp(1.9rem,4vw,3.25rem)] select-none">
+      <motion.span
+        layoutId="kogniq-word"
+        transition={transition}
+        className="kogniq-word block w-fit text-[clamp(1.9rem,4vw,3.25rem)] select-none"
+      >
         Kogniq
-      </span>
+      </motion.span>
 
       <div className="mx-auto flex w-full max-w-6xl flex-1 items-center py-8 sm:py-16">
         <form
