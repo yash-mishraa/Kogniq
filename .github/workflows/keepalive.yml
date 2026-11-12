@@ -1,0 +1,47 @@
+name: Keep-alive ping
+
+# The FastAPI backend runs on Render's free tier, which pauses the service
+# after ~15 minutes without inbound traffic; the next visitor then waits 50-60s
+# for a cold start. This workflow sends a lightweight, unauthenticated health
+# ping every 5 minutes so the service is always warm and the live demo is
+# responsive at all times.
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {} # manual trigger for testing
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  ping:
+    name: Ping backend health
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping health endpoint
+        env:
+          # Defaults to the public frontend origin, which proxies /api/* to the
+          # backend. Override with a secret if the origin changes.
+          PING_URL: ${{ secrets.KEEPALIVE_PING_URL || 'https://kogniq.vercel.app/api/v1/system/health' }}
+        run: |
+          set +e
+          for attempt in 1 2 3; do
+            http_code=$(curl -sS -o /tmp/health.json -w "%{http_code}" \
+              --max-time 90 --retry 2 --retry-delay 5 \
+              "$PING_URL") || http_code="000"
+            echo "attempt $attempt -> HTTP $http_code"
+            cat /tmp/health.json 2>/dev/null | head -c 300; echo
+            # 200 = healthy; any other code logs a warning but never fails the
+            # workflow, so the Actions history stays green for portfolio use.
+            if [ "$http_code" = "200" ]; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::warning::Backend health ping did not return 200 (last code: $http_code)"
+          exit 0

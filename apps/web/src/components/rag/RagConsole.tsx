@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EntryExperience } from "@/components/experience/entry";
 import { Footline } from "@/components/experience/footer";
 import { Button } from "@/components/ui";
@@ -72,7 +72,11 @@ export function RagConsole() {
   const session = useQuery({
     queryKey: ["session"],
     queryFn: ragApi.session,
-    retry: false,
+    // Retry transient failures (cold start, network blip) but fail fast on a
+    // definitive 401 so signed-out visitors reach the login screen instantly.
+    retry: (failureCount, error) =>
+      !(error instanceof ApiRequestError && error.status === 401) && failureCount < 2,
+    retryDelay: (attempt) => 1000 * 2 ** attempt, // 1s, 2s — rides out brief backend restarts
     staleTime: 60_000,
   });
 
@@ -429,17 +433,29 @@ function SignOutButton() {
 }
 
 function Boot() {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), 6000);
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <main className="grid min-h-dvh place-items-center bg-canvas">
-      <div className="flex items-baseline gap-2 text-ink">
-        <span className="kogniq-word text-4xl leading-none">Kogniq</span>
-        <span
-          aria-hidden
-          className="h-[1em] w-px animate-[quiet-pulse_1.6s_ease-in-out_infinite] bg-current"
-        />
+      <div className="flex flex-col items-center gap-4 text-ink">
+        <div className="flex items-baseline gap-2">
+          <span className="kogniq-word text-4xl leading-none">Kogniq</span>
+          <span
+            aria-hidden
+            className="h-[1em] w-px animate-[quiet-pulse_1.6s_ease-in-out_infinite] bg-current"
+          />
+        </div>
+        {slow ? (
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+            Warming up the service · one moment
+          </span>
+        ) : null}
       </div>
       <span className="sr-only" role="status" aria-live="polite">
-        Checking session
+        {slow ? "The service is waking up. Retrying." : "Checking session"}
       </span>
     </main>
   );

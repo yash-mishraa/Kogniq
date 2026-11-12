@@ -53,7 +53,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Do not rate limit health checks or docs
         path = request.url.path
-        if path.startswith("/api/v1/health") or path.startswith("/docs") or path.startswith("/openapi.json"):
+        if (
+            path.startswith("/api/v1/health")
+            or path.startswith("/api/v1/system/health")
+            or path.startswith("/docs")
+            or path.startswith("/openapi.json")
+        ):
             return await call_next(request)
 
         client_id = self._client_identifier(request)

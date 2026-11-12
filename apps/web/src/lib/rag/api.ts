@@ -22,6 +22,25 @@ export class ApiRequestError extends Error {
 
 type Json = Record<string, unknown>;
 
+/**
+ * Per-request deadlines. The deployed backend runs on a container host that can
+ * pause between requests; without a deadline a paused backend keeps a fetch
+ * pending indefinitely and the UI appears frozen. Short deadlines apply to the
+ * session probe, long ones to LLM generation endpoints that legitimately run
+ * for a minute or more.
+ */
+const DEFAULT_TIMEOUT_MS = 45_000;
+const SESSION_TIMEOUT_MS = 10_000;
+const GENERATION_TIMEOUT_MS = 180_000;
+
+function timeoutError(timeoutMs: number): ApiRequestError {
+  return new ApiRequestError(
+    `Kogniq did not respond within ${Math.round(timeoutMs / 1000)}s. The service may be waking up — please try again.`,
+    504,
+    "upstream_timeout",
+  );
+}
+
 async function readError(response: Response): Promise<ApiRequestError> {
   let message = response.statusText || `Request failed with ${response.status}`;
   let code = "request_failed";
@@ -50,23 +69,47 @@ async function readError(response: Response): Promise<ApiRequestError> {
   return new ApiRequestError(message, response.status, code);
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  init: RequestInit = {},
+  timeoutMs: number = DEFAULT_TIMEOUT_MS,
+): Promise<T> {
   const headers = new Headers(init.headers);
   if (init.body && !(init.body instanceof FormData) && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
-  const response = await fetch(`${API_ROOT}${path}`, {
-    credentials: "same-origin",
-    ...init,
-    headers,
-  });
-  if (!response.ok) {
-    throw await readError(response);
+  // Wire the caller's signal (if any) and the per-request deadline into one
+  // controller so an unresponsive upstream can never leave a fetch pending.
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  init.signal?.addEventListener("abort", abort, { once: true });
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  if (timeoutMs > 0) {
+    timer = setTimeout(abort, timeoutMs);
   }
-  if (response.status === 204) {
-    return undefined as T;
+  try {
+    const response = await fetch(`${API_ROOT}${path}`, {
+      credentials: "same-origin",
+      ...init,
+      headers,
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      throw await readError(response);
+    }
+    if (response.status === 204) {
+      return undefined as T;
+    }
+    return (await response.json()) as T;
+  } catch (caught) {
+    if (controller.signal.aborted && !init.signal?.aborted) {
+      throw timeoutError(timeoutMs);
+    }
+    throw caught;
+  } finally {
+    if (timer) clearTimeout(timer);
+    init.signal?.removeEventListener("abort", abort);
   }
-  return (await response.json()) as T;
 }
 
 function jsonBody(value: unknown): string {
@@ -401,17 +444,25 @@ export interface KnowledgeGraphResultData {
 // ---------------------------------------------------------------------------
 
 export const ragApi = {
-  session: () => request<SessionUser>("/auth/session"),
+  session: () => request<SessionUser>("/auth/session", {}, SESSION_TIMEOUT_MS),
   login: (email: string, password: string) =>
-    request<SessionUser>("/auth/login", {
-      method: "POST",
-      body: jsonBody({ email, password }),
-    }),
+    request<SessionUser>(
+      "/auth/login",
+      {
+        method: "POST",
+        body: jsonBody({ email, password }),
+      },
+      SESSION_TIMEOUT_MS,
+    ),
   register: (email: string, password: string, displayName: string) =>
-    request<SessionUser>("/auth/register", {
-      method: "POST",
-      body: jsonBody({ email, password, display_name: displayName }),
-    }),
+    request<SessionUser>(
+      "/auth/register",
+      {
+        method: "POST",
+        body: jsonBody({ email, password, display_name: displayName }),
+      },
+      SESSION_TIMEOUT_MS,
+    ),
   logout: () => request<{ status: string }>("/auth/logout", { method: "POST" }),
 
   overview: () => request<Overview>("/system/overview"),
@@ -430,20 +481,26 @@ export const ragApi = {
   upload: (file: File) => {
     const form = new FormData();
     form.append("file", file);
-    return request<{ document_id: string; status: string; title: string }>("/documents/process", {
-      method: "POST",
-      body: form,
-    });
+    return request<{ document_id: string; status: string; title: string }>(
+      "/documents/process",
+      {
+        method: "POST",
+        body: form,
+      },
+      GENERATION_TIMEOUT_MS,
+    );
   },
   retry: (id: string) =>
     request<{ status: string; document_id: string }>(
       `/documents/${encodeURIComponent(id)}/retry`,
       { method: "POST" },
+      GENERATION_TIMEOUT_MS,
     ),
   reindex: (id: string) =>
     request<{ status: string; document_id: string }>(
       `/documents/${encodeURIComponent(id)}/reindex`,
       { method: "POST" },
+      GENERATION_TIMEOUT_MS,
     ),
   deleteDocument: (id: string) =>
     request<{ status: string }>(`/documents/${encodeURIComponent(id)}`, { method: "DELETE" }),
@@ -486,15 +543,21 @@ export const ragApi = {
     top_k: number;
     minimum_similarity: number;
   }) =>
-    request<RagAnswer>("/rag/query", {
-      method: "POST",
-      body: jsonBody({ ...body, generate: true }),
-    }),
+    request<RagAnswer>(
+      "/rag/query",
+      {
+        method: "POST",
+        body: jsonBody({ ...body, generate: true }),
+      },
+      GENERATION_TIMEOUT_MS,
+    ),
 
   datasets: () => request<EvaluationDataset[]>("/evaluation/datasets"),
   suggestCases: (documentId: string, limit = 5) =>
     request<SuggestedCase[]>(
       `/evaluation/suggest?document_id=${encodeURIComponent(documentId)}&limit=${limit}`,
+      {},
+      GENERATION_TIMEOUT_MS,
     ),
   runEvaluation: (body: {
     dataset_id: string;
@@ -504,10 +567,14 @@ export const ragApi = {
     minimum_similarity: number;
     generate: boolean;
   }) =>
-    request<EvaluationRun>("/evaluation/run", {
-      method: "POST",
-      body: jsonBody(body),
-    }),
+    request<EvaluationRun>(
+      "/evaluation/run",
+      {
+        method: "POST",
+        body: jsonBody(body),
+      },
+      GENERATION_TIMEOUT_MS,
+    ),
   evaluationHistory: (limit = 20) =>
     request<{ runs: EvaluationHistoryRun[] }>(`/evaluation/history?limit=${limit}`),
 
@@ -531,10 +598,14 @@ export const ragApi = {
     }
   },
   generateFlashcards: (documentId: string) =>
-    request<{ status: string; generated_content: string }>("/learning/generate", {
-      method: "POST",
-      body: jsonBody({ document_id: documentId, generator: "flashcards" }),
-    }),
+    request<{ status: string; generated_content: string }>(
+      "/learning/generate",
+      {
+        method: "POST",
+        body: jsonBody({ document_id: documentId, generator: "flashcards" }),
+      },
+      GENERATION_TIMEOUT_MS,
+    ),
   addFlashcard: (
     documentId: string,
     card: { question: string; answer: string; difficulty: string },
@@ -586,10 +657,14 @@ export const ragApi = {
     }
   },
   generateQuiz: (documentId: string) =>
-    request<{ status: string; generated_content: string }>("/learning/generate", {
-      method: "POST",
-      body: jsonBody({ document_id: documentId, generator: "quiz" }),
-    }),
+    request<{ status: string; generated_content: string }>(
+      "/learning/generate",
+      {
+        method: "POST",
+        body: jsonBody({ document_id: documentId, generator: "quiz" }),
+      },
+      GENERATION_TIMEOUT_MS,
+    ),
   addQuizQuestion: (
     documentId: string,
     question: {
@@ -636,7 +711,7 @@ export const ragApi = {
     const res = await request<{
       concepts?: Record<string, unknown>[];
       relationships?: Record<string, unknown>[];
-    }>(`/knowledge/${encodeURIComponent(documentId)}/extract`, { method: "POST" });
+    }>(`/knowledge/${encodeURIComponent(documentId)}/extract`, { method: "POST" }, GENERATION_TIMEOUT_MS);
     return {
       concepts: (res?.concepts || []).map((c) => ({
         id: String(c.id || ""),

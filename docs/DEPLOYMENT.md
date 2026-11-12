@@ -51,6 +51,30 @@ Ensure the frontend environment variables point to your production API URL (e.g.
 Your load balancer or reverse proxy should monitor the application health at:
 `GET /api/v1/system/health`
 
+### 4b. Keep-alive (Preventing Free-tier Cold Starts)
+On Render's free tier the backend service pauses after ~15 minutes without
+inbound traffic, and the next visitor waits 50-60 seconds for a cold start.
+Two mechanisms keep the public demo always warm:
+
+1. **Automated pinging (in-repo):** `.github/workflows/keepalive.yml` sends an
+   unauthenticated `GET /api/v1/system/health` request every 5 minutes via
+   GitHub Actions (free for public repositories). It targets the public
+   frontend origin, which proxies `/api/*` to the backend; override the URL
+   with a `KEEPALIVE_PING_URL` repository secret if the origin changes.
+   The workflow always exits successfully so the Actions history stays green.
+   Note: GitHub disables scheduled workflows after 60 days of no repository
+   activity — any commit resets the timer.
+2. **External monitor (recommended backup):** create a free UptimeRobot
+   (https://uptimerobot.com) HTTP monitor on the same health URL with a
+   5-minute interval. External monitors keep running even if the repository is
+   inactive.
+
+Frontend resilience (independent of keep-alive): every API request carries a
+deadline (`SESSION_TIMEOUT_MS = 10s`, default `45s`, LLM generation `180s`),
+the session probe retries transient failures, and the boot splash reports
+"warming up" rather than appearing frozen. A paused backend therefore degrades
+into a clear retry state instead of an indefinite hang.
+
 ### 5. Security Considerations
 - The API should be deployed behind a reverse proxy (Nginx/Caddy) with TLS (HTTPS) termination.
 - Ensure the SQLite `.sqlite` file is mounted in a secure volume restricted to the application user.
